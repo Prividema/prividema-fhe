@@ -28,6 +28,15 @@ struct glwe_prep_key {
     void* data;
 }
 
+struct glwe_public_key {
+    uint64_t N;
+    uint64_t k;
+    uint64_t Y;
+    glwe_ciphertext** pk; // vector of Y element (A1,...,Ak, B)
+    void* data; 
+}
+
+
 //tnx, rthild....
 struct tnx_element {
     uint64_t N;
@@ -37,23 +46,36 @@ struct tnx_element {
     void* data;
 }
 
-//encrypt
-void glwe_encrypt_fft(  
+//secret key encrypt
+void glwe_encrypt_priv(  
                          const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used   
-                         glwe_ciphertext* ct,                                      //ciphertext
-                         glwe_prep_key* s,                                         // secret key: vec of size k
-                         tnx_element* phase                                        // message + noise
+                         glwe_ciphertext* ct,                                     //ciphertext
+                         glwe_prep_key* s,                                        // secret key: vec of size k
+                         tnx_element* phase                                       // message + noise
 );
 
 
 
-//decrypt (compute the phase)
-void glwe_phase(       const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used  
+//secret key decrypt (compute the phase)
+void glwe_phase_priv(       const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used  
                        tnx_element* phase,                                      // decrypted phase
                        glwe_prep_key* s,                                        // secret key
-                       glwe_ciphertext* ct,                                      //ciphertext
+                       glwe_ciphertext* ct,                                     //ciphertext
 );
 
 
+//public key encrypt
+void glwe_encrypt_pub(  
+                         const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used   
+                         glwe_ciphertext* ct,                                     //ciphertext
+                         glwe_public_key* pk,                                     // public key  
+                         tnx_element* phase                                       // message + noise
+);
 
-
+//public key decrypt
+void glwe_encrypt_pub(  
+                         const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used   
+                         glwe_ciphertext* ct,                                     //ciphertext
+                         glwe_prep_key* s,                                        // secret key: vec of size k
+                         tnx_element* phase                                       // message + noise
+);
