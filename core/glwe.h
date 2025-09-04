@@ -29,7 +29,7 @@ struct glwe_prep_key {
 }
 
 //tnx, rthild....
-struct rthild {
+struct tnx_element {
     uint64_t N;
     uint64_t kappa;
     uint64_t l;
@@ -37,26 +37,21 @@ struct rthild {
     void* data;
 }
 
-
+//encrypt
 void glwe_encrypt_fft(  
                          const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used   
-                         uint64_t log2_base2k,                                    // output base 2^Kappa (Kappa is number of bits in the decomposition for each element)
-                         uint64_t k;                                               // number of samples (k=1 when RLWE)
-                         int64_t* new_b, uint64_t new_b_size, uint64_t new_b_sl,  // b part of glwe
-                         const SVP_PPOL* s,                                       // secret key: vec of size k
-                         const int64_t* a, uint64_t a_size, uint64_t a_sl,        // a part of glwe
-                         const int64_t* phi, uint64_t phi_size, uint64_t phi_sl   // message + noise
+                         glwe_ciphertext* ct,                                      //ciphertext
+                         glwe_prep_key* s,                                         // secret key: vec of size k
+                         tnx_element* phase                                        // message + noise
 );
 
 
 
-
-void rlwe_phase(const MODULE* module,                              //
-                       uint64_t log2_base2k,                              // output base 2^K
-                       int64_t* phi, uint64_t phi_size, uint64_t phi_sl,  // decrypted phase
-                       const SVP_PPOL* s,                                 // secret key
-                       const int64_t* a, uint64_t a_size, uint64_t a_sl,  // a part of rlwe
-                       const int64_t* b, uint64_t b_size, uint64_t b_sl   // message + noise
+//decrypt (compute the phase)
+void glwe_phase(       const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used  
+                       tnx_element* phase,                                      // decrypted phase
+                       glwe_prep_key* s,                                        // secret key
+                       glwe_ciphertext* ct,                                      //ciphertext
 );
 
 
