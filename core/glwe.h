@@ -15,13 +15,13 @@ struct glwe_ciphertext {
     void* data; // memory of the struct
 }
 
-struct glwe_key {
+struct glwe_secret_key {
     uint64_t n; // n= N*k (n is constant: N and k can change when we change the module N) 
     int64_t* s; 
     void* data; 
 }
 
-struct glwe_prep_key {
+struct glwe_prep_secret_key {
     uint64_t N;
     uint64_t k;
     SVP_PPOL** s; // vec of size k, each element is prepared vec
@@ -36,7 +36,6 @@ struct glwe_public_key {
     void* data; 
 }
 
-
 //tnx, rthild....
 struct tnx_element {
     uint64_t N;
@@ -46,23 +45,35 @@ struct tnx_element {
     void* data;
 }
 
+//generation secret key
+void glwe_secret_key_gen (
+                        const CORE* core,
+                        uint64_t lambda, 
+                        glwe_secret_key* s
+);
+
+//generation public key
+void glwe_public_key_gen (
+                        const CORE* core,
+                        uint64_t lambda, 
+                        glwe_secret_key* s,
+                        glwe_public_key* pk
+);
+
 //secret key encrypt
 void glwe_encrypt_priv(  
                          const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used   
                          glwe_ciphertext* ct,                                     //ciphertext
-                         glwe_prep_key* s,                                        // secret key: vec of size k
+                         glwe_prep_secret_key* s,                                        // secret key: vec of size k
                          tnx_element* phase                                       // message + noise
 );
-
-
 
 //secret key decrypt (compute the phase)
 void glwe_phase_priv(       const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used  
                        tnx_element* phase,                                      // decrypted phase
-                       glwe_prep_key* s,                                        // secret key
+                       glwe_prep_secret_key* s,                                        // secret key
                        glwe_ciphertext* ct,                                     //ciphertext
 );
-
 
 //public key encrypt
 void glwe_encrypt_pub(  
@@ -73,9 +84,17 @@ void glwe_encrypt_pub(
 );
 
 //public key decrypt
-void glwe_encrypt_pub(  
+void glwe_phase_pub(  
                          const CORE* core,                                        // all params of the library: is fft or ntt, all N that are used   
                          glwe_ciphertext* ct,                                     //ciphertext
-                         glwe_prep_key* s,                                        // secret key: vec of size k
+                         glwe_prep_secret_key* s,                                        // secret key: vec of size k
                          tnx_element* phase                                       // message + noise
+);
+
+//addition 2 glwe
+void glwe_addition (
+                       const CORE* core,  
+                       glwe_ciphertext* ct_out, 
+                       glwe_ciphertext* ct_in1,
+                       glwe_ciphertext* ct_in2
 );
