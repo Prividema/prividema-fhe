@@ -12,5 +12,8 @@ int main() {
     result = subtract(10, 5);
     printf("10 - 5 = %d\n", result);  // Expected output: 5
 
+    #if DEBUG
+        printf("Hello Debug !\n");
+    #endif
     return 0;
 }
