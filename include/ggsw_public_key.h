@@ -6,6 +6,7 @@
 
 typedef struct gsw_public_key{
     GSW_CIPHERTEXT* pk; // Public key is multiple encryptions of 0
+    // Another thing to count size of key ?
 } GSW_PUBLIC_KEY;
 
 #endif
