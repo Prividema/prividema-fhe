@@ -71,14 +71,19 @@ void gsw_add(
     GSW_CIPHERTEXT* ct2
 );
 
+void gsw_add_inplace(
+    GSW_CIPHERTEXT* res,
+    GSW_CIPHERTEXT* ct
+);
+
 /* Should it be in glwe.h since result is GLWE ? */
 void gsw_external_product(
     GLWE_CIPHERTEXT* res,
     GLWE_CIPHERTEXT* ct1,
-    GLWE_CIPHERTEXT* ct2
+    GSW_CIPHERTEXT* ct2
 );
 
-void halfGSW_external_product(
+void halfgsw_external_product(
     GLWE_CIPHERTEXT* res,
     GLWE_CIPHERTEXT* ct1,
     HALFGSW_CIPHERTEXT* ct2
