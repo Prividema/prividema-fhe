@@ -30,9 +30,9 @@ option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
         - But you have to recompile the whole project if you want to turn on the macro.
     On the other hand lays Runtime Variables :
         - We can turn it on/off without recompiling.
-        - Tiny performance hit as we have to evaluate all the if(ENABLE_DEBUG).
+        - Tiny performance hit as we have to evaluate all the if(DEBUG).
 
-    For what we do, I think it's better to use compiler macros, even if the code may look a bit messier with lines like '#if ENABLE_DEBUG', '#else' and '#endif'.
+    For what we do, I think it's better to use compiler macros, even if the code may look a bit messier with lines like '#if DEBUG', '#else' and '#endif'.
 ]]
 if(ENABLE_DEBUG)
     message(STATUS "Debug Prints Enabled")
