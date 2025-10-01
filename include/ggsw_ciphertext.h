@@ -1,9 +1,11 @@
 #ifndef GGSW_CIPHERTEXT_H
 #define GGSW_CIPHERTEXT_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "ggsw_encrypt_params.h"
-//#include something for BASE2K_INT_POL
+
+// TODO : To be Defined (spqlios).
+typedef struct b {} BASE2K_INT_POL;
 
 /* /!\ Should it be represented as two halfggsw ? */
 typedef struct gsw_ciphertext{
@@ -13,4 +15,4 @@ typedef struct gsw_ciphertext{
     // typically, there are (k+1).l lines and k columns
 } GSW_CIPHERTEXT;
 
-#endif
+#endif // GGSW_CIPHERTEXT_H

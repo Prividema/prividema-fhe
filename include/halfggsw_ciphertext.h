@@ -1,9 +1,8 @@
 #ifndef HALFGGSW_CIPHERTEXT_H
 #define HALFGGSW_CIPHERTEXT_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "ggsw_ciphertext.h"
-//#include something for BASE2K_INT_POL
 
 typedef struct halfgsw_ciphertext{
     GSW_ENCRYPT_PARAMS* params;

@@ -1,7 +1,7 @@
 #ifndef GGSW_ENCRYPT_PARAMS_H
 #define GGSW_ENCRYPT_PARAMS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 typedef struct gsw_encrypt_params{
     int64_t N; // Polynomial degree

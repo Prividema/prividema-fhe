@@ -1,7 +1,7 @@
 #ifndef GGSW_PUBLIC_KEY_H
 #define GGSW_PUBLIC_KEY_H
 
-#include <cstdint>
+#include <stdint.h>
 #include "ggsw_ciphertext.h"
 
 typedef struct gsw_public_key{
@@ -9,4 +9,4 @@ typedef struct gsw_public_key{
     // Another thing to count size of key ?
 } GSW_PUBLIC_KEY;
 
-#endif
+#endif // GGSW_PUBLIC_KEY_H
