@@ -31,9 +31,9 @@ target_link_libraries(CORE INTERFACE GLWE)
 # Build ggsw
 # We define a compiler macro 'GGSW' to avoid errors thrown by codes that need ggsw.
 if(BUILD_GGSW)
-    add_compile_definitions(GGSW=1)
+    target_compile_definitions(CORE INTERFACE GGSW=1)
     add_subdirectory(ggsw)
     target_link_libraries(CORE INTERFACE GGSW)
 else()
-    add_compile_definitions(GGSW=0)
+    target_compile_definitions(CORE INTERFACE GGSW=0)
 endif(BUILD_GGSW)
