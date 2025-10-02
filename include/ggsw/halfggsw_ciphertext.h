@@ -1,7 +1,6 @@
 #ifndef HALFGGSW_CIPHERTEXT_H
 #define HALFGGSW_CIPHERTEXT_H
 
-#include <stdint.h>
 #include "ggsw_ciphertext.h"
 
 typedef struct halfgsw_ciphertext{
@@ -11,4 +10,4 @@ typedef struct halfgsw_ciphertext{
     // typically, there are l lines and k columns
 } HALFGSW_CIPHERTEXT;
 
-#endif
+#endif // HALFGGSW_CIPHERTEXT_H

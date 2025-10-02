@@ -20,6 +20,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
     BUILD_TESTS will still be ON.
 ]]
 option(BUILD_TESTS "Build the Tests" OFF)
+option(BUILD_GGSW "Build the ggsw library inside libcore" ON)
 option(ENABLE_DEBUG "Enable addtionnal prints for debugging purpose" OFF)
 option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
 

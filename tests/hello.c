@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include "ggsw.h"
 
 int main() {
     int result;

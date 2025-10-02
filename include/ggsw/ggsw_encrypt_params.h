@@ -12,4 +12,4 @@ typedef struct gsw_encrypt_params{
     int64_t prec; // Decomposition size for base-2^k representation
 } GSW_ENCRYPT_PARAMS;
 
-#endif
+#endif // GGSW_ENCRYPT_PARAMS_H

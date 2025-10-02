@@ -1,11 +1,8 @@
 #ifndef GGSW_H
 #define GGSW_H
 
-#include <stdint.h>
 #include "ggsw_encrypt_params.h"
-#include "ggsw_ciphertext.h"
-#include "ggsw_secret_key.h"
-#include "ggsw_public_key.h"
+#include "ggsw_key.h"
 #include "halfggsw_ciphertext.h"
 #include "glwe.h"
 
@@ -65,6 +62,7 @@ void halfgsw_decrypt(
     HALFGSW_CIPHERTEXT* ct
 );
 
+
 /* Adds two GSW ciphertext with same params and put result in res */
 void gsw_add(
     GSW_CIPHERTEXT* res,
@@ -89,5 +87,4 @@ void halfgsw_external_product(
     GLWE_CIPHERTEXT* ct1,
     HALFGSW_CIPHERTEXT* ct2
 );
-
 #endif // GGSW_H
