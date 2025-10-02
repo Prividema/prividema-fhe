@@ -1,8 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-# Collect all .c files in src
-file(GLOB SRC_FILES *.c)
-
 # Create a library (or change to shared if you want)
 #[[
     From what I saw on the top answer by Paolo of this stackoverflow thread https://stackoverflow.com/questions/2649334/difference-between-static-and-shared-libraries :
@@ -22,4 +19,21 @@ file(GLOB SRC_FILES *.c)
     Using a static library grants no additionnal runtime loading costs, but generates greater binary files' size.
 ]]
 
-add_library(core ${SRC_FILES})
+# We'll use Shared libraries
+
+# Build core library : The library will be an interface that contains glwe and ggsw.
+
+# Build glwe
+add_subdirectory(glwe)
+add_library(CORE INTERFACE)
+target_link_libraries(CORE INTERFACE GLWE)
+
+# Build ggsw
+# We define a compiler macro 'GGSW' to avoid errors thrown by codes that need ggsw.
+if(BUILD_GGSW)
+    target_compile_definitions(CORE INTERFACE GGSW=1)
+    add_subdirectory(ggsw)
+    target_link_libraries(CORE INTERFACE GGSW)
+else()
+    target_compile_definitions(CORE INTERFACE GGSW=0)
+endif(BUILD_GGSW)

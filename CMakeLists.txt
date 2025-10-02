@@ -20,7 +20,9 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
     BUILD_TESTS will still be ON.
 ]]
 option(BUILD_TESTS "Build the Tests" OFF)
+option(BUILD_GGSW "Build the ggsw library inside libcore" ON)
 option(ENABLE_DEBUG "Enable addtionnal prints for debugging purpose" OFF)
+option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
 
 #[[ 
     For setting up debug prints in the code we have 2 choices : 
@@ -29,11 +31,12 @@ option(ENABLE_DEBUG "Enable addtionnal prints for debugging purpose" OFF)
         - But you have to recompile the whole project if you want to turn on the macro.
     On the other hand lays Runtime Variables :
         - We can turn it on/off without recompiling.
-        - Tiny performance hit as we have to evaluate all the if(ENABLE_DEBUG).
+        - Tiny performance hit as we have to evaluate all the if(DEBUG).
 
-    For what we do, I think it's better to use compiler macros, even if the code may look a bit messier with lines like '#if ENABLE_DEBUG', '#else' and '#endif'.
+    For what we do, I think it's better to use compiler macros, even if the code may look a bit messier with lines like '#if DEBUG', '#else' and '#endif'.
 ]]
 if(ENABLE_DEBUG)
+    message(STATUS "Debug Prints Enabled")
     add_compile_definitions(DEBUG=1)
 else()
     add_compile_definitions(DEBUG=0)
@@ -48,5 +51,29 @@ add_subdirectory(src)
 # Add tests subdirectory if the build option BUILD_TESTS is ON
 # The option is OFF by default and can be turned ON by executing cmake with -DBUILD_TESTS=ON
 if(BUILD_TESTS)
+    message(STATUS "Building Test Files")
     add_subdirectory(tests)
 endif(BUILD_TESTS)
+
+#[[
+    Doxygen Integration.
+    Only generate the WebView and not Latex (it's rather useless...).
+
+    ! Make sure to have installed Doxygen beforewards !
+]]
+if(BUILD_DOCS)
+    message(STATUS "Building documentation")
+    find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
+        set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+        configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+        add_custom_target( doc_doxygen ALL
+            COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMENT "Generating API documentation with Doxygen"
+            VERBATIM )
+    else (DOXYGEN_FOUND)
+        message("Doxygen needs to be installed to generate the documentation")
+    endif(DOXYGEN_FOUND)
+endif(BUILD_DOCS)

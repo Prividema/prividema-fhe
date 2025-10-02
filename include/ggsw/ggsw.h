@@ -1,14 +1,12 @@
 #ifndef GGSW_H
 #define GGSW_H
 
-#include <cstdint>
 #include "ggsw_encrypt_params.h"
-#include "ggsw_ciphertext.h"
-#include "ggsw_secret_key.h"
-#include "ggsw_public_key.h"
+#include "ggsw_key.h"
 #include "halfggsw_ciphertext.h"
-//#include "something that defines INT_POL and BASE2K_INT_POL.h"
+#include "glwe.h"
 
+//#include "something that defines INT_POL and BASE2K_INT_POL.h"
 
 // GSW_CIPHERTEXT is a struct encapsulating ciphertext values and params.
 // GSW_SECRET_KEY is a struct encapsulating everything regarding the secret key.
@@ -64,6 +62,7 @@ void halfgsw_decrypt(
     HALFGSW_CIPHERTEXT* ct
 );
 
+
 /* Adds two GSW ciphertext with same params and put result in res */
 void gsw_add(
     GSW_CIPHERTEXT* res,
@@ -88,5 +87,4 @@ void halfgsw_external_product(
     GLWE_CIPHERTEXT* ct1,
     HALFGSW_CIPHERTEXT* ct2
 );
-
-#endif
+#endif // GGSW_H

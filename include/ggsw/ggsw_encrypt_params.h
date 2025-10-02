@@ -1,7 +1,7 @@
 #ifndef GGSW_ENCRYPT_PARAMS_H
 #define GGSW_ENCRYPT_PARAMS_H
 
-#include <cstdint>
+#include <stdint.h>
 
 typedef struct gsw_encrypt_params{
     int64_t N; // Polynomial degree
@@ -12,4 +12,4 @@ typedef struct gsw_encrypt_params{
     int64_t prec; // Decomposition size for base-2^k representation
 } GSW_ENCRYPT_PARAMS;
 
-#endif
+#endif // GGSW_ENCRYPT_PARAMS_H
