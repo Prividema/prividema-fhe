@@ -43,9 +43,6 @@ else()
     add_compile_definitions(DEBUG=0)
 endif(ENABLE_DEBUG)
 
-# Add include directory
-include_directories(${CMAKE_SOURCE_DIR}/include)
-
 # Add subdirectories
 add_subdirectory(src)
 
@@ -63,7 +60,7 @@ endif(BUILD_TESTS)
 if(BUILD_EXAMPLES)
     message(STATUS "Building Exemples Files")
     add_subdirectory(examples)
-endif(BUILD_TESTS)
+endif(BUILD_EXAMPLES)
 
 
 #[[
