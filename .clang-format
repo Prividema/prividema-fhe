@@ -1,0 +1,7 @@
+BasedOnStyle: Google
+DerivePointerAlignment: false
+PointerAlignment: Left
+
+QualifierAlignment: Left
+SortIncludes: true
+IncludeBlocks: Regroup
