@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+// TODO : To be Defined (spqlios).
+typedef struct b {} BASE2K_INT_POL;
+
 typedef struct glwe_ciphertext {
     uint64_t N;
     uint64_t k;

@@ -2,12 +2,11 @@
 #define HALFGGSW_CIPHERTEXT_H
 
 #include "ggsw_ciphertext.h"
+#include "glwe_ciphertext.h"
 
-typedef struct halfgsw_ciphertext{
-    GSW_ENCRYPT_PARAMS* params;
-    BASE2K_INT_POL** values; // BASE2K_INT_POL = ZNX ? Maybe vector of RLWE ?
-    // values[x][y] takes the x-th line, y-th column of the ciphertext
-    // typically, there are l lines and k columns
-} HALFGSW_CIPHERTEXT;
+typedef struct halfggsw_ciphertext{
+    GGSW_ENCRYPT_PARAMS* params;
+    GLWE_CIPHERTEXT* values; // vector of RLWE
+} HALFGGSW_CIPHERTEXT;
 
 #endif // HALFGGSW_CIPHERTEXT_H
