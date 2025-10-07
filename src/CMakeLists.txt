@@ -22,20 +22,14 @@ cmake_minimum_required(VERSION 3.10)
 # can be done similar for the others
 
 # We'll use Shared libraries
+# Build backend library : 
+add_subdirectory(backend)
+
+# Build common library :
+add_subdirectory(common)
 
 # Build core library : The library will be an interface that contains glwe and ggsw.
+add_subdirectory(core)
 
-# Build glwe
-add_subdirectory(core/glwe)
-add_library(CORE INTERFACE)
-target_link_libraries(CORE INTERFACE GLWE)
-
-# Build ggsw
-# We define a compiler macro 'GGSW' to avoid errors thrown by codes that need ggsw.
-if(BUILD_GGSW)
-    target_compile_definitions(CORE INTERFACE GGSW=1)
-    add_subdirectory(core/ggsw)
-    target_link_libraries(CORE INTERFACE GGSW)
-else()
-    target_compile_definitions(CORE INTERFACE GGSW=0)
-endif(BUILD_GGSW)
+# Build schemes library :
+add_subdirectory(schemes)
