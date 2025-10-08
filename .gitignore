@@ -1,0 +1,4 @@
+build
+.clangd
+.cache/clangd/index
+.vscode
