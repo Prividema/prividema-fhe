@@ -4,16 +4,17 @@
 #include "ggsw_ciphertext.h"
 
 // TODO : To be Defined (spqlios).
-typedef struct int_pol {} INT_POL;
+typedef struct int_pol {
+} IntegerPoly;
 
-typedef struct ggsw_secret_key{
-    uint32_t size; // Key size, usually k.N
-    INT_POL* values; // The key itself.
-} GGSW_SECRET_KEY;
+typedef struct ggsw_secret_key {
+  uint32_t size;        // Key size, usually k.N
+  IntegerPoly* values;  // The key itself.
+} GGSWSecretKey;
 
-typedef struct ggsw_public_key{
-    uint32_t size; // number of ciphertexts in public key
-    GGSW_CIPHERTEXT* pk; // Public key is multiple encryptions of 0
-} GGSW_PUBLIC_KEY;
+typedef struct ggsw_public_key {
+  uint32_t size;       // number of ciphertexts in public key
+  GGSWCiphertext* pk;  // Public key is multiple encryptions of 0
+} GGSWPublicKey;
 
-#endif // GGSW_KEY_H
+#endif  // GGSW_KEY_H

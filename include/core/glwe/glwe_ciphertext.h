@@ -4,17 +4,18 @@
 #include <stdint.h>
 
 // TODO : To be Defined (spqlios).
-typedef struct b {} BASE2K_INT_POL;
+typedef struct b {
+} Base2kIntegerPoly;
 
 typedef struct glwe_ciphertext {
-    uint64_t N;
-    uint64_t k;
-    uint64_t kappa; //base_2k
-    uint64_t l_a; //size of the decomposition of a
-    uint64_t l_b; //size of the decomposition of b
-    int64_t* b; 
-    int64_t* a; // vector of k elements
-    void* data; // memory of the struct
-} GLWE_CIPHERTEXT;
+  uint64_t N;
+  uint64_t k;
+  uint64_t kappa;  // base_2k
+  uint64_t l_a;    // size of the decomposition of a
+  uint64_t l_b;    // size of the decomposition of b
+  int64_t* b;
+  int64_t* a;  // vector of k elements
+  void* data;  // memory of the struct
+} GLWECiphertext;
 
-#endif // GLWE_CIPHERTEXT_H
+#endif  // GLWE_CIPHERTEXT_H

@@ -1,12 +1,12 @@
 #ifndef HALFGGSW_CIPHERTEXT_H
 #define HALFGGSW_CIPHERTEXT_H
 
-#include "ggsw_ciphertext.h"
+#include "ggsw_encrypt_params.h"
 #include "glwe_ciphertext.h"
 
-typedef struct halfggsw_ciphertext{
-    GGSW_ENCRYPT_PARAMS* params;
-    GLWE_CIPHERTEXT* values; // vector of RLWE
-} HALFGGSW_CIPHERTEXT;
+typedef struct halfggsw_ciphertext {
+  GGSWEncryptParams* params;
+  GLWECiphertext* values;  // vector of RLWE
+} HalfGGSWCiphertext;
 
-#endif // HALFGGSW_CIPHERTEXT_H
+#endif  // HALFGGSW_CIPHERTEXT_H
