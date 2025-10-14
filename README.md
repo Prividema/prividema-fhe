@@ -18,7 +18,7 @@ core/tests/hello
 
 ```bash
 # New method 
-cmake -S . -B build -DBUILD_TESTS=ON
+cmake -S . -B build -DBUILD_TESTS=ON -DENABLE_TESTING=OFF
 cmake --build build
 build/core/tests/hello
 ```
