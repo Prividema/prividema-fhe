@@ -18,3 +18,9 @@ foreach(test_file ${TEST_FILES})
     target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
     
 endforeach()
+
+add_executable(conv_prod Convolution_Product/conv_prod.c )
+
+target_link_libraries(conv_prod PUBLIC CONV)
+target_link_libraries(conv_prod PUBLIC libspqlios)
+target_include_directories(conv_prod PRIVATE ${PROJECT_SOURCE_DIR}/build/_deps/sp-src/spqlios/arithmetic)
