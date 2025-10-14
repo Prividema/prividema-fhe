@@ -8,7 +8,7 @@ Prividema-fhe is a cryptographic library designed to unify multiple homomorphic 
 # To compile and run
 Here's an example of how to build and run the test in `core`, from the root of the project :
 ```bash
-# Old method
+# Legacy method
 mkdir build
 cd build
 cmake .. -DBUILD_TESTS=ON
@@ -17,7 +17,7 @@ core/tests/hello
 ```
 
 ```bash
-# New method 
+# Modern method 
 cmake -S . -B build -DBUILD_TESTS=ON
 cmake --build build
 build/core/tests/hello
