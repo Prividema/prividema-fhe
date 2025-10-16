@@ -59,7 +59,7 @@ void halfggsw_decrypt(IntegerPoly* res,       // result
 );
 
 /* Adds two GGSW ciphertext with same params and put result in res */
-void gsw_add(GGSWCiphertext* res,  // result
+void ggsw_add(GGSWCiphertext* res,  // result
              GGSWCiphertext* ct1,  // first operand
              GGSWCiphertext* ct2   // second operand
 );

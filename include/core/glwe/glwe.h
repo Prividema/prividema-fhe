@@ -2,7 +2,7 @@
 #define GLWE_H
 
 #include "glwe_key.h"
-
+#include "vec_znx_arithmetic_private.h"
 // tnx, rthild....
 typedef struct tnx_element {
   uint64_t N;
@@ -18,7 +18,9 @@ void glwe_encrypt_priv(const Core* core,    // all params of the library: is fft
                        GLWECiphertext* ct,  // ciphertext
                        GLWEPreparedSK* s,   // secret key: vec of size k
                        TNXElement* phase    // message + noise
-);
+){
+  
+}
 
 // secret key decrypt (compute the phase)
 void glwe_phase_priv(const Core* core,   // all params of the library: is fft or
