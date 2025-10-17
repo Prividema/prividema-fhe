@@ -3,7 +3,7 @@
 
 #include "glwe_key.h"
 
-// tnx, rthild....
+// tnx element R[X] mod X^N+1 mod 1
 typedef struct tnx_element {
   uint64_t N;
   uint64_t kappa;

@@ -8,10 +8,11 @@
 
 typedef struct ggsw_ciphertext {
   GGSWEncryptParams* params;
-  HalfGGSWCiphertext*
-      values;  // BASE2K_INT_POL = ZNX ? Vector of RLWE ? ? Multiple halfggsw
+  int64_t* ct; //represent a matrix of size n_limbs x n_limbs_tilde with coefficients that are in ZnX
+    //  values;  // BASE2K_INT_POL = ZNX ? Vector of RLWE ? ? Multiple halfggsw
   // values[x][y] takes the x-th line, y-th column of the ciphertext
   // typically, there are (k+1).l lines and k columns
 } GGSWCiphertext;
+
 
 #endif  // GGSW_CIPHERTEXT_H

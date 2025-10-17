@@ -4,7 +4,14 @@
 #include "glwe_ciphertext.h"
 
 // TODO : To be Defined (spqlios).
+/**
+ * @brief obtain a info for:
+ *  - the dimension N (or the complex dimension m=N/2)
+ *  - any moduleuted fft or ntt items
+ *  - the hardware (avx, arm64, x86, ...)
+ */
 typedef struct core {
+
 } Core;
 typedef struct svp_ppol {
 } SVPPreparedPoly;
