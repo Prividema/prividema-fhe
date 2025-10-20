@@ -9,7 +9,6 @@ typedef struct tnx_element {
   uint64_t kappa;
   uint64_t l;
   int64_t* coeffs;
-  void* data;
 } TNXElement;
 
 // secret key encrypt
