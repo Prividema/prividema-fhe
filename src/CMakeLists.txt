@@ -11,3 +11,14 @@ add_subdirectory(core)
 
 # Build schemes library :
 add_subdirectory(schemes)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  sp
+  GIT_REPOSITORY https://github.com/tfhe/spqlios-arithmetic.git
+  # Choisir une branche ou un tag existant
+  GIT_TAG main
+)
+
+FetchContent_MakeAvailable(sp)

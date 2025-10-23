@@ -1,6 +1,8 @@
 #ifndef GGSW_H
 #define GGSW_H
 
+
+#include "glwe.h"
 #include "ggsw_encrypt_params.h"
 #include "ggsw_key.h"
 #include "glwe_ciphertext.h"
@@ -14,7 +16,7 @@
 // coefficients. Probably ZNX. GGSWEncryptParams encapsulate all the
 // encryption parameters.
 /* Encrypts message m into GGSW ciphertext res with parameters enc_params */
-void ggsw_secret_encrypt(GGSWCiphertext* res,           // result
+void ggsw_secret_encrypt(Core* core, GGSWCiphertext* res,           // result
                          GGSWSecretKey* sk,             // secret key
                          IntegerPoly* m,                // message
                          GGSWEncryptParams* enc_params  // parameters
@@ -23,7 +25,7 @@ void ggsw_secret_encrypt(GGSWCiphertext* res,           // result
 // GGSWPublicKey is a struct encapsulating everything regarding the public
 // key.
 /* Encrypts message m into GGSW ciphertext res with parameters enc_params */
-void ggsw_public_encrypt(GGSWCiphertext* res,           // result
+void ggsw_public_encrypt(Core* core, GGSWCiphertext* res,           // result
                          GGSWPublicKey* pk,             // secret key
                          IntegerPoly* m,                // message
                          GGSWEncryptParams* enc_params  // parameters
@@ -31,14 +33,14 @@ void ggsw_public_encrypt(GGSWCiphertext* res,           // result
 
 // HalfGGSWCiphertext is a struct encapsulating ciphertext values and params.
 /* Encrypts message m into halfGGSW ciphertext res with parameters enc_params */
-void halfggsw_secret_encrypt(HalfGGSWCiphertext* res,       // result
+void halfggsw_secret_encrypt(Core* core, HalfGGSWCiphertext* res,       // result
                              GGSWSecretKey* sk,             // secret key
                              IntegerPoly* m,                // message
                              GGSWEncryptParams* enc_params  // parameters
 );
 
 /* Encrypts message m into halfGGSW ciphertext res with parameters enc_params */
-void halfggsw_public_encrypt(HalfGGSWCiphertext* res,       // result
+void halfggsw_public_encrypt(Core* core, HalfGGSWCiphertext* res,       // result
                              GGSWPublicKey* pk,             // public key
                              IntegerPoly* m,                // message
                              GGSWEncryptParams* enc_params  // parameters
@@ -46,35 +48,35 @@ void halfggsw_public_encrypt(HalfGGSWCiphertext* res,       // result
 
 /* Decrypts message res from GGSW ciphertext ct */
 /* /!\ Is that actually useful ? */
-void ggsw_decrypt(IntegerPoly* res,   // result
+void ggsw_decrypt(Core*core, IntegerPoly* res,   // result
                   GGSWSecretKey* sk,  // secret key
                   GGSWCiphertext* ct  // ciphertext
 );
 
 /* Decrypts message res from GGSW ciphertext ct */
 /* /!\ Is that actually useful ? */
-void halfggsw_decrypt(IntegerPoly* res,       // result
+void halfggsw_decrypt(Core* core, IntegerPoly* res,       // result
                       GGSWSecretKey* sk,      // secret key
                       HalfGGSWCiphertext* ct  // ciphertext
 );
 
 /* Adds two GGSW ciphertext with same params and put result in res */
-void gsw_add(GGSWCiphertext* res,  // result
+void gsw_add(Core* core, GGSWCiphertext* res,  // result
              GGSWCiphertext* ct1,  // first operand
              GGSWCiphertext* ct2   // second operand
 );
 
-void ggsw_add_inplace(GGSWCiphertext* res,  // result
+void ggsw_add_inplace(Core* core, GGSWCiphertext* res,  // result
                       GGSWCiphertext* ct    // ciphertext
 );
 
 /* Should it be in glwe.h since result is GLWE ? */
-void ggsw_external_product(GLWECiphertext* res,  // result
+void ggsw_external_product(Core* core, GLWECiphertext* res,  // result
                            GLWECiphertext* ct1,  // GLWE ciphertext
                            GGSWCiphertext* ct2   // GGSW ciphertext
 );
 
-void halfggsw_external_product(GLWECiphertext* res,     // result
+void halfggsw_external_product(Core* core, GLWECiphertext* res,     // result
                                GLWECiphertext* ct1,     // GLWE ciphertext
                                HalfGGSWCiphertext* ct2  // half GGSW ciphertext
 );

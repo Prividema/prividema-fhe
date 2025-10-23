@@ -2,7 +2,6 @@
 #define GLWE_CIPHERTEXT_H
 
 #include <stdint.h>
-
 // TODO : To be Defined (spqlios).
 typedef struct b {
 } Base2kIntegerPoly;
