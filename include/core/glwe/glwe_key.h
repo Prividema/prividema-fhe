@@ -1,11 +1,15 @@
 #ifndef GLWE_KEY_H
 #define GLWE_KEY_H
 
+#include "vec_znx_arithmetic.h"
 #include "glwe_ciphertext.h"
 
 // TODO : To be Defined (spqlios).
 typedef struct core {
+    MODULE* R;  
+    uint64_t k;
 } Core;
+
 typedef struct svp_ppol {
 } SVPPreparedPoly;
 

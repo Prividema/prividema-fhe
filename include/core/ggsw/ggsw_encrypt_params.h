@@ -3,15 +3,17 @@
 
 #include <stdint.h>
 
-#include "glwe_encrypt_params.h"
-
 typedef struct ggsw_encrypt_params {
-  int64_t N;     // Polynomial degree
-  int64_t k;     // Number of a terms
-  int64_t base;  // Base used for the base-2^k representation
-  int64_t prec;  // Decomposition size for base-2^k representation
-  int64_t l;  // Decomposition size for the gadget
-  int64_t B;  // Decomposition basis for the gadget
+  	int64_t K; 		    // The bivHalfGGSW is a vector of K-normalised and reduced bivRLWE
+  	
+	int64_t K_tilde;    // each bivHalfGGSW is a family of bivRLWE. 
+						// Each bivRLWE encrypts u * 2^(K_tilde*i)
+						// For now, same for each bivHalfGGSW
+  	
+	int64_t L;          // Error precision
+	
+	uint64_t decomp; 	// Number of limbs per coefficient in a bivRLWE ciphertext 
+						// used in an external product
 } GGSWEncryptParams;
 
 #endif  // GGSW_ENCRYPT_PARAMS_H

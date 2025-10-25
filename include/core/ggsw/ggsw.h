@@ -1,12 +1,9 @@
 #ifndef GGSW_H
 #define GGSW_H
-
-
 #include "glwe.h"
 #include "ggsw_encrypt_params.h"
 #include "ggsw_key.h"
-#include "glwe_ciphertext.h"
-#include "halfggsw_ciphertext.h"
+#include "ggsw_ciphertext.h"
 
 // #include "something that defines INT_POL and BASE2K_INT_POL.h"
 
