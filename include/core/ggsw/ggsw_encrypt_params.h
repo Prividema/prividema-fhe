@@ -9,7 +9,7 @@ typedef struct ggsw_encrypt_params {
   GLWEEncryptParams* params;
  //int64_t l;  // Decomposition size for the gadget
  //int64_t B;  // Decomposition basis for the gadget
-  uint64_t k_tilde; // k_tilde=1 for RGSW
+  uint64_t k_tilde; // k_tilde=1 for RGSW (by default k=k_tilde=1)
   uint64_t kappa_tilde;  // B= 2^-kappa
   uint64_t n_limbs_tilde; 
 } GGSWEncryptParams;

@@ -9,4 +9,10 @@ typedef struct partialggsw_ciphertext {
   int64_t* ct;  // matrix of size n_limbs x l_tilde
 } PartialGGSWCiphertext;
 
+// GLWE (M/bg)
+// GLWE (M/bg²)
+//...
+// GLWE (M/bg^l_tilde)
+
+
 #endif  // PARTIALGGSW_CIPHERTEXT_H
