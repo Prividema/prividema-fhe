@@ -7,7 +7,7 @@
 typedef struct tnx_element {
   uint64_t N;
   uint64_t kappa;
-  uint64_t l;
+  uint64_t nb_limbs;
   int64_t* coeffs;
 } TNXElement;
 
