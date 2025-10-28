@@ -27,6 +27,8 @@ void glwe_phase_priv(const Core* core,   // all params of the library: is fft or
                      GLWECiphertext* ct  // ciphertext
 );
 
+// add noise message
+
 // public key encrypt
 void glwe_encrypt_pub(const Core* core,  // all params of the library: is fft or
                                          // ntt, all N that are used
