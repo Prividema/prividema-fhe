@@ -3,11 +3,11 @@
 
 #include <stdint.h>
 
-#include "ggsw_encrypt_params.h"
+#include "ggsw_ct_params.h"
 #include "halfggsw_ciphertext.h"
 
 typedef struct ggsw_ciphertext {
-  GGSWEncryptParams* params;
+  GGSWCtParams* params;
 
  // GGSW encode small integer polynomial represented via a function f
  // We represent GGSW as a matrix of size n_limbs x n_limbs_tilde with coefficients that are in ZnX
