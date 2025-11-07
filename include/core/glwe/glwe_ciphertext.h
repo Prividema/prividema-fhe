@@ -8,7 +8,7 @@ typedef struct b {
 } Base2kIntegerPoly;
 
 typedef struct glwe_ciphertext {
-  GLWEEncryptParams* params;
+  GLWECtParams* params;
   int64_t* ct;  //  corresponds to (a_0, ..., a_{k-1}, b=a_k)
   
   // l_a = floor((n_limbs+1)/(k+1))
