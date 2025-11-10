@@ -18,7 +18,7 @@ FetchContent_Declare(
   sp
   GIT_REPOSITORY https://github.com/tfhe/spqlios-arithmetic.git
   # Choisir une branche ou un tag existant
-  GIT_TAG main
+  GIT_TAG convolution
 )
 
 FetchContent_MakeAvailable(sp)

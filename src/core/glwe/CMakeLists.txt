@@ -7,4 +7,5 @@ add_library(GLWE SHARED ${GLWE_SRCS})
 
 set_target_properties(GLWE PROPERTIES OUTPUT_NAME glwe)
 
-target_include_directories(GLWE PUBLIC ${PROJECT_SOURCE_DIR}/include/core/glwe)
+target_include_directories(GLWE PUBLIC ${PROJECT_SOURCE_DIR}/include/core/glwe
+                                       ${CMAKE_SOURCE_DIR}/build/_deps/sp-src/spqlios/arithmetic/)
