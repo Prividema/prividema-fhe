@@ -3,13 +3,12 @@
 
 #include "glwe_key.h"
 
-// tnx, rthild....
+// tnx element R[X] mod X^N+1 mod 1
 typedef struct tnx_element {
   uint64_t N;
   uint64_t kappa;
-  uint64_t l;
+  uint64_t nb_limbs;
   int64_t* coeffs;
-  void* data;
 } TNXElement;
 
 // secret key encrypt
@@ -27,6 +26,8 @@ void glwe_phase_priv(const Core* core,   // all params of the library: is fft or
                      GLWEPreparedSK* s,  // secret key
                      GLWECiphertext* ct  // ciphertext
 );
+
+// add noise message
 
 // public key encrypt
 void glwe_encrypt_pub(const Core* core,  // all params of the library: is fft or
