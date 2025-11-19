@@ -3,13 +3,10 @@
 
 #include "ggsw_ciphertext.h"
 
-// TODO : To be Defined (spqlios).
-typedef struct int_pol {
-} IntegerPoly;
 
 typedef struct ggsw_secret_key {
   uint32_t size;        // Key size, usually k.N
-  IntegerPoly* values;  // The key itself.
+  int64_t* values;  // The key itself.
 } GGSWSecretKey;
 
 typedef struct ggsw_public_key {

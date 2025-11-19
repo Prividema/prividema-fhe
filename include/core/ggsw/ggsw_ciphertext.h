@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 #include "ggsw_ct_params.h"
-#include "halfggsw_ciphertext.h"
 
 typedef struct ggsw_ciphertext {
   GGSWCtParams* params;
