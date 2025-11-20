@@ -2,6 +2,7 @@
 #define GLWE_CIPHERTEXT_H
 
 #include <stdint.h>
+#include "glwe_ct_params.h"
 
 // TODO : To be Defined (spqlios).
 typedef struct b {

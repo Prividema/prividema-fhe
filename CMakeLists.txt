@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.10)
 project(prividema-fhe C)
 
+# To include spqlios and to do unit tests
+include(FetchContent)
+include(CTest)
+
+enable_testing()
+
 # Set C standard
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)

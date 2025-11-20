@@ -6,6 +6,8 @@
 #include "glwe_ciphertext.h"
 #include "partialggsw_ciphertext.h"
 
+#define WITH_Y0
+
 void add_vec_znxy(GGSWCiphertext* res, GGSWCiphertext* c, GGSWCiphertext* d);
 
 // GGSWCiphertext is a struct encapsulating ciphertext values and params.
@@ -63,6 +65,10 @@ void gsw_add(GGSWCiphertext* res,  // result
              GGSWCiphertext* ct1,  // first operand
              GGSWCiphertext* ct2   // second operand
 );
+
+int add(int a, int b);
+
+int multiply(int a, int b);
 
 void ggsw_add_inplace(GGSWCiphertext* res,  // result
                       GGSWCiphertext* ct    // ciphertext

@@ -95,15 +95,27 @@ void ggsw_secret_encrypt(GGSWCiphertext* res,
     for (int64_t i = 0 ; i < nb_partial ; i++){
         for (int64_t j = 0 ; j < nb_rows_per_partial ; j++){
             int64_t* mm;
+            #ifdef WITH_Y0 
             encrypt_biv_glwe(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs, sk, mm, 0);
             add_vec_znx(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + i*(k+1)*N + j*N, N, 
                         res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + i*(k+1)*N + j*N, N, 
                         m, N);
+            #endif 
+            #ifndef WITH_Y0
+            encrypt_biv_glwe_without_y0(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs, sk, mm, 0);
+            add_vec_znx(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + (i - 1)*(k+1)*N + j*N, N, 
+                        res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + (i - 1)*(k+1)*N + j*N, N, 
+                        m, N);
+            #endif 
         }
-        for (int64_t j = nb_rows_per_partial -1 ; j < nb_rows_per_partial ; j++){
-
-        }
-        
     }
 
+}
+
+int add(int a, int b) {
+    return a + b;
+}
+
+int multiply(int a, int b) {
+    return a * b;
 }
