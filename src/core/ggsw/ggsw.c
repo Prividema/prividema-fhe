@@ -112,10 +112,19 @@ void ggsw_secret_encrypt(GGSWCiphertext* res,
 
 }
 
-int add(int a, int b) {
-    return a + b;
+int* add(int* a, int a_size, int* b, int b_size) {
+    if (a_size >= b_size){
+        for (int i = 0; i < b_size ; i++){
+            a[i] = a[i] + b[i];
+        }
+        return a;
+    }
+    else {
+        return add(b,b_size,a,a_size);
+    }
 }
 
+int add_int(int a, int b){return a+b;}
 int multiply(int a, int b) {
     return a * b;
 }

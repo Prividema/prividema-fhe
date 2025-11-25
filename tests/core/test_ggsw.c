@@ -1,11 +1,13 @@
-#include <stdio.h>
 #include <criterion/criterion.h>
-#include "glwe.h"
+#include <criterion/new/assert.h>
+#include "ggsw.h"
 
 // Test the add function
-Test(math_utils, test_add) {
-    cr_assert_eq(add(2, 3), 5, "2 + 3 should equal 5");
-    cr_assert_eq(add(-1, 1), 0, "-1 + 1 should equal 0");
+Test(ggsw, test_add) {
+    int a[1] = {1};
+    int b[1] = {1};
+    int c[1] = {2};
+    cr_assert(eq(int[1],add(a,1,b,1), c), "add(2, 3) should be 5 but was %d", add(a,1,b,1));
 }
 
 // Test the multiply function

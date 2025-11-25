@@ -54,8 +54,20 @@ add_subdirectory(src)
 
 
 
-# Add tests subdirectory if the build option BUILD_TESTS is ON
+# Add unit tests subdirectory if the build option BUILD_TESTS is ON
 # The option is OFF by default and can be turned OFF by executing cmake with -DBUILD_TESTS=ON
+# in order to do the criterion unit test, one should install criterion with those commands :
+
+# UBUNTU USERS
+# 1. git clone https://github.com/Snaipe/Criterion.git
+# 2. cd Criterion/ 
+# 3. mkdir build
+# 4. meson setup build
+# 5. meson install -C build
+# For Ubuntu users, Criterion library should be in the /usr/include directory
+
+# OTHER OS
+# COMMANDS TO BE DEFINED
 if(BUILD_TESTS)
     message(STATUS "Building Test Files")
     add_subdirectory(tests)

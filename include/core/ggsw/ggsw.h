@@ -66,10 +66,6 @@ void gsw_add(GGSWCiphertext* res,  // result
              GGSWCiphertext* ct2   // second operand
 );
 
-int add(int a, int b);
-
-int multiply(int a, int b);
-
 void ggsw_add_inplace(GGSWCiphertext* res,  // result
                       GGSWCiphertext* ct    // ciphertext
 );
@@ -84,4 +80,8 @@ void halfggsw_external_product(GLWECiphertext* res,     // result
                                GLWECiphertext* ct1,     // GLWE ciphertext
                                PartialGGSWCiphertext* ct2  // half GGSW ciphertext
 );
+
+int* add(int* a, int a_size, int* b, int b_size);
+int add_int(int a, int b);
+int multiply(int a, int b);
 #endif  // GGSW_H
