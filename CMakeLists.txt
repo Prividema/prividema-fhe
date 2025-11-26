@@ -49,22 +49,28 @@ else()
     add_compile_definitions(DEBUG=0)
 endif(ENABLE_DEBUG)
 
+# Import GSL For RNG
+# Have to install it beforewards. See README.
+# For Ubuntu users : sudo apt install libgsl-dev
+find_package(GSL REQUIRED)
+
 # Add subdirectories
 add_subdirectory(src)
-
-
 
 # Add unit tests subdirectory if the build option BUILD_TESTS is ON
 # The option is OFF by default and can be turned OFF by executing cmake with -DBUILD_TESTS=ON
 # in order to do the criterion unit test, one should install criterion with those commands :
 
 # UBUNTU USERS
-# 1. git clone https://github.com/Snaipe/Criterion.git
-# 2. cd Criterion/ 
-# 3. mkdir build
-# 4. meson setup build
-# 5. meson install -C build
+#[[
+git clone https://github.com/Snaipe/Criterion.git;
+cd Criterion/;
+mkdir build;
+sudo apt install meson;
+meson setup build;
+sudo meson install -C build;
 # For Ubuntu users, Criterion library should be in the /usr/include directory
+]]
 
 # OTHER OS
 # COMMANDS TO BE DEFINED
