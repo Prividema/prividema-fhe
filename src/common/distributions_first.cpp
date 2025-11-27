@@ -1,4 +1,4 @@
-#include "distributions.h"
+#include "distributions_first.h"
 
 RNG_UNI* cpp_new_rng_uni(int uni_min, int uni_max){
     return new RNG_UNI(uni_min, uni_max);
