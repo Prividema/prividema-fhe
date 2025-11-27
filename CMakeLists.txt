@@ -49,6 +49,15 @@ else()
     add_compile_definitions(DEBUG=0)
 endif(ENABLE_DEBUG)
 
+# Import sqplios
+FetchContent_Declare(
+    spqlios
+    GIT_REPOSITORY https://github.com/tfhe/spqlios-arithmetic.git
+    GIT_TAG main
+)
+set(ENABLE_TESTING OFF CACHE BOOL "Disable Tests" FORCE)
+FetchContent_MakeAvailable(spqlios)
+
 # Add subdirectories
 add_subdirectory(src)
 
