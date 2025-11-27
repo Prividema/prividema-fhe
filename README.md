@@ -2,24 +2,26 @@
 Prividema-fhe is a cryptographic library designed to unify multiple homomorphic encryption schemes under a single framework.
 
 # Requirements
--spqlios-arithmetic
--cmake version 3.10
+- CMake version 3.10
+- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic)
+- [GNU Scientific Library](https://www.gnu.org/software/gsl/) for random number generation.
+- [Criterion](https://github.com/Snaipe/Criterion) if you want to perform tests.
 
 # To compile and run
 Here's an example of how to build and run the test in `core`, from the root of the project :
 ```bash
 # Legacy method
-mkdir build
-cd build
-cmake .. -DBUILD_TESTS=ON
-make
+mkdir build;
+cd build;
+cmake .. -DBUILD_TESTS=ON;
+make;
 core/tests/hello
 ```
 
 ```bash
 # Modern method 
-cmake -S . -B build -DBUILD_TESTS=ON
-cmake --build build
+cmake -S . -B build -DBUILD_TESTS=ON;
+cmake --build build;
 build/core/tests/hello
 ```
 
