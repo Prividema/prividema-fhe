@@ -63,8 +63,8 @@ foreach(test_file ${TEST_COMMON_FILES})
     # Add directory of Criterion 
     target_include_directories(${test_name} PRIVATE /usr/include)
 
-    # Link with the main project library and Criterion
-    target_link_libraries(${test_name} COMMON criterion)
+    # Link with the main project library
+    target_link_libraries(${test_name} COMMON)
 
     # Add include path for headers
     target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
