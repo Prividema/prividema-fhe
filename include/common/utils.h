@@ -1,6 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-int rand_seed(unsigned long *seed);
+#include <gsl/gsl_rng.h>
+
+void gsl_init(gsl_rng *r);
+int gsl_refresh_seed(gsl_rng *r);
 
 #endif  // UTILS_H

@@ -1,6 +1,9 @@
-#include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
-#include <stdio.h>
-#include <time.h>
+#ifndef DISTRIBUTIONS_H
+#define DISTRIBUTIONS_H
 
-int64_t* uniform_random_vec(int64_t* res, int64_t res_size);
+#include <stdint.h>
+#include "utils.h"
+
+int uniform_random_vec(int64_t* res, int64_t res_size, gsl_rng *r);
+
+#endif // DISTRIBUTION_H
