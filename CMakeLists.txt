@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(prividema-fhe C)
+project(prividema-fhe)
 
 # To include spqlios and to do unit tests
 include(FetchContent)

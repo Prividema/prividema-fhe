@@ -1,6 +1,6 @@
 #include "math.h"
 #include "ggsw.h"
-#include "../../common/utils.h"
+#include "distributions.h" // Allow to draw random number following the uniform or normal law
 
 /**
  * @brief Compute the sum of two GGSW ciphertext
@@ -88,7 +88,7 @@ void ggsw_secret_encrypt(GGSWCiphertext* res,
     int64_t k_tilde = res->params->k_tilde;
     int64_t n_limbs_tilde = res->params->n_limbs_tilde;
 
-    // 
+    // Matrix parameters
     int64_t nb_partial = k_tilde;
     int64_t nb_rows_per_partial = n_limbs_tilde/k_tilde;
 
@@ -124,7 +124,8 @@ int* add(int* a, int a_size, int* b, int b_size) {
     }
 }
 
-int add_int(int a, int b){return a+b;}
+int add_random_int(int a, int b){
+    return a+b;}
 int multiply(int a, int b) {
     return a * b;
 }
