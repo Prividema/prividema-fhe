@@ -3,18 +3,6 @@
 #include <stdlib.h>
 
 /**
- * @brief Initializes an gsl Random Number Generator.
- * 
- * @param r The RNG.
- */
-void gsl_init(gsl_rng *r)
-{
-    gsl_rng_env_setup();
-    const gsl_rng_type *T = gsl_rng_default;
-    r = gsl_rng_alloc(T);
-}
-
-/**
  * @brief Generates a random seed.
  * 
  * @param seed A pointer to the seed that has to be filled.
