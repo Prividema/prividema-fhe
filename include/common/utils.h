@@ -1,7 +1,6 @@
-#include <stdint.h>
-/**
- * @brief 
- * 
- * @param a 
- */
-void dot_product(int64_t res);
+#ifndef UTILS_H
+#define UTILS_H
+
+int rand_seed(unsigned long *seed);
+
+#endif  // UTILS_H

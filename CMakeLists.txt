@@ -49,11 +49,6 @@ else()
     add_compile_definitions(DEBUG=0)
 endif(ENABLE_DEBUG)
 
-# Import GSL For RNG
-# Have to install it beforewards. See README.
-# For Ubuntu users : sudo apt install libgsl-dev
-find_package(GSL REQUIRED)
-
 # Add subdirectories
 add_subdirectory(src)
 
@@ -85,7 +80,6 @@ if(BUILD_EXAMPLES)
     message(STATUS "Building Exemples Files")
     add_subdirectory(examples)
 endif(BUILD_EXAMPLES)
-
 
 #[[
     Doxygen Integration.
