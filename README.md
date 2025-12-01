@@ -4,7 +4,6 @@ Prividema-fhe is a cryptographic library designed to unify multiple homomorphic 
 # Requirements
 - CMake version 3.10
 - [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic)
-- [GNU Scientific Library](https://www.gnu.org/software/gsl/) for random number generation.
 - [Criterion](https://github.com/Snaipe/Criterion) if you want to perform tests.
 
 # To compile and run

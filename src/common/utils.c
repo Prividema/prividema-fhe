@@ -1,7 +1,6 @@
 #include "utils.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <math.h>
 #define M_PI 3.14159265358979323846
 
@@ -37,7 +36,7 @@ int read_rand(uint64_t *result)
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int rand_uniform(int64_t *result) { return (int64_t)read_uniform(result); }
+int rand_uniform(int64_t *result) { return (int64_t)read_rand(result); }
 
 
 // Approximate inverse error function (erfinv) using Winitzki approximation
