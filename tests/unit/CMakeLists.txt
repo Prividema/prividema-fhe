@@ -7,6 +7,8 @@ file(GLOB TEST_SCHEMES_FILES schemes/*.c)
 # Function that build the test files
 function(BuildUnitTests testfiles libname)
     foreach(test_file IN LISTS ${testfiles})
+
+       message(STATUS "hey 2 hey")
         # Get filename without extension
         get_filename_component(test_name ${test_file} NAME_WE)
 

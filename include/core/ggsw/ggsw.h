@@ -81,6 +81,28 @@ void halfggsw_external_product(GLWECiphertext* res,     // result
                                PartialGGSWCiphertext* ct2  // half GGSW ciphertext
 );
 
+// Does the multiplication of (a_i)'s by the secret key (s_i)'s 
+// We have : 
+// 
+// Result = ∑_i{0,k-1} s_i ⋅ a_i 
+// Result = ∑_j{1,l} [ ∑_i{0,k-1} s_i ⋅ a_(i,j) ] ⋅ Y^j
+void biv_secret_key_mult(int64_t N, int64_t k, int64_t l,
+                         int64_t* res, 
+                         int64_t* c,
+                         int64_t* s
+);
+
+void decrypt_biv_glwe(int64_t* res, 
+                      GGSWSecretKey* key,
+                      int64_t* phase);
+
+int encrypt_biv_glwe(int64_t* res, 
+                      int64_t k, int64_t l, int64_t N,
+                      GGSWSecretKey* sk, 
+                      int64_t* phase,
+                      int encrypt_zero
+);
+
 int* add(int* a, int a_size, int* b, int b_size);
 int add_int(int a, int b);
 int multiply(int a, int b);

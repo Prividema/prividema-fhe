@@ -48,6 +48,49 @@ void add_vec_znx(int64_t* res, int64_t res_size,
 }
 
 /**
+ * @brief Decrypts the phase (message + noise) and puts it in phase
+ * 
+ * @param phase The phase 
+ * @param key The secret key
+ * @param c The ciphertext
+ */
+void decrypt_biv_glwe(int64_t* phase, 
+                      GGSWSecretKey* key,
+                      int64_t* c
+){
+
+}
+
+/**
+ * @brief Does the multiplication of (a_i)'s by the secret key (s_i)'s
+ * 
+ * @param N The a_is' degree in X  
+ * @param k The number of a_i
+ * @param l The a_is' degree in Y 
+ * @param res The result vector 
+ * @param c The ciphertext 
+ * @param s The secret key
+ */
+void biv_secret_key_mult(GLWECtParams* params,
+                         int64_t* res, 
+                         int64_t* c,
+                         int64_t* s
+){
+    int64_t N = params->N;
+    int64_t k = params->k;
+    int64_t n_limbs = params->n_limbs;
+    int64_t l = n_limbs / (k+1);
+
+    #ifndef WITHY0
+    for (int j = 0; j < l + 1 ; j++){
+        for (int i = 0; i < k ; i ++){
+            // TODO
+            mult(res + j*N*(k+1) + i*N, s + i*N);
+        }
+    }
+    #endif
+}
+/**
  * @brief Encrypts the phase (message + noise) and puts it in res
  * 
  * @param res The result
@@ -55,13 +98,29 @@ void add_vec_znx(int64_t* res, int64_t res_size,
  * @param phase message + noise
  * @param encrypt_zero 1 if enrypting zero, 0 otherwise
  */
-void encrypt_biv_glwe(int64_t* res, 
-                      GGSWSecretKey* sk, 
-                      int64_t* phase,
-                      int encrypt_zero
+int encrypt_biv_glwe(GLWECtParams* params, 
+                     int64_t* res, 
+                     GGSWSecretKey* sk, 
+                     int64_t* phase, int encrypt_zero
 ){
+    int64_t N = params->N;
+    int64_t k = params->k;
+    int64_t n_limbs = params->n_limbs;
+    int64_t l = n_limbs / (k+1);
 
+    if (uniform_random_vec(k * N, res , l, (k + 1) * N) > 0 ) {
+        if (encrypt_zero) {
+            
+            // multiply a and s
+            biv_secret_key_mult(params, res, res, sk->values );    
+        }
+    }
+    else {
+        // TODO
+        return -1;
+    }
 }
+
 
 /**
  * @brief Encrypts message m into GGSW ciphertext res with parameters enc_params
@@ -83,6 +142,7 @@ void ggsw_secret_encrypt(GGSWCiphertext* res,
     int64_t N = res->params->params->N;
     int64_t k = res->params->params->k;
     int64_t n_limbs = res->params->params->n_limbs;
+    int64_t l = n_limbs / (k+1);
 
     // GGSW parameters
     int64_t k_tilde = res->params->k_tilde;
@@ -96,13 +156,16 @@ void ggsw_secret_encrypt(GGSWCiphertext* res,
         for (int64_t j = 0 ; j < nb_rows_per_partial ; j++){
             int64_t* mm;
             #ifdef WITH_Y0 
-            encrypt_biv_glwe(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs, sk, mm, 0);
+            encrypt_biv_glwe(res->params->params, 
+                             res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs,
+                             sk, 
+                             mm, 1);
             add_vec_znx(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + i*(k+1)*N + j*N, N, 
                         res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + i*(k+1)*N + j*N, N, 
                         m, N);
             #endif 
             #ifndef WITH_Y0
-            encrypt_biv_glwe_without_y0(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs, sk, mm, 0);
+            encrypt_biv_glwe_without_y0(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs, sk, mm, 1);
             add_vec_znx(res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + (i - 1)*(k+1)*N + j*N, N, 
                         res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs + (i - 1)*(k+1)*N + j*N, N, 
                         m, N);
