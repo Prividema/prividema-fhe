@@ -16,17 +16,17 @@ function(BuildUnitTests testfiles libname)
         add_executable(${test_name} ${test_file})
 
         # Link libraries
-        target_link_libraries(${test_name} ${libname} criterion)
+        target_link_libraries(${test_name} ${libname} criterion m)
 
         # Add include path for headers
         target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
         
-        add_test(NAME ${test_name} COMMAND --exe $<TARGET_FILE:${test_name}>)
+        add_test(NAME ${test_name} COMMAND $<TARGET_FILE:${test_name}>)
     endforeach()
 endfunction()
 
 # Build all the test files
-BuildUnitTests("${TEST_BACKEND_FILES}" BACKEND)
-BuildUnitTests("${TEST_COMMON_FILES}" COMMON)
-BuildUnitTests("${TEST_CORE_FILES}" CORE)
-BuildUnitTests("${TEST_SCHEMES_FILES}" SCHEMES)
+BuildUnitTests(TEST_BACKEND_FILES BACKEND)
+BuildUnitTests(TEST_COMMON_FILES COMMON)
+BuildUnitTests(TEST_CORE_FILES CORE)
+BuildUnitTests(TEST_SCHEMES_FILES SCHEMES)
