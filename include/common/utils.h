@@ -1,8 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#include <gsl/gsl_rng.h>
-
-int gsl_refresh_seed(gsl_rng *r);
+int rand_uniform(int64_t *result);
+int rand_normal(int64_t *result);
 
 #endif  // UTILS_H

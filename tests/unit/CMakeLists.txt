@@ -14,7 +14,7 @@ function(BuildUnitTests testfiles libname)
         add_executable(${test_name} ${test_file})
 
         # Link libraries
-        target_link_libraries(${test_name} ${libname} criterion gsl)
+        target_link_libraries(${test_name} ${libname} criterion)
 
         # Add include path for headers
         target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
