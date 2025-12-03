@@ -11,9 +11,9 @@ typedef struct ggsw_ciphertext {
  // GGSW encode small integer polynomial represented via a function f
  // We represent GGSW as a matrix of size n_limbs x n_limbs_tilde with coefficients that are in ZnX
  // each row i is a GLWE ciphertext that encrypts f(H(i)).
- // [ GLWE(f(H(0)))
+ // [ GLWE(f(H(0,l_tilde)))
  // ...
- //  GLWE(f(H(n_limbs_tilde-1)))]
+ // GLWE(f(H(n_limbs_tilde-1,l_tilde)))]
 
 
  // H is the gadget matrix (bg=2^{kappa_tilde}) reorganized in power of bg (in order to keep the prefix property)

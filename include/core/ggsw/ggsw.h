@@ -8,7 +8,42 @@
 
 #define WITH_Y0
 
-void add_vec_znxy(GGSWCiphertext* res, GGSWCiphertext* c, GGSWCiphertext* d);
+/** @brief opaque type that are included in */
+typedef struct module_info_t MODULE;
+/** @brief opaque type that represents a vector of znx in DFT space */
+typedef struct vec_znx_dft_t VEC_ZNX_DFT;
+
+void dft_mult_add_j0k_i_inplace(GLWECtParams* params,
+                        double* a_j0k_i_dft,  
+                        double* sk_dft
+);
+
+
+
+void secret_key_mult_add_inplace(GLWECtParams* params,
+                         double* res_ct_dft,
+                         double* sk_dft
+);
+
+void add_inplace_m_to_ap_dft(GLWECtParams* params, 
+                         double* ct_in,
+                         double* m,
+                         int64_t p
+);
+
+int encrypt_biv_glwe(GLWECtParams* params, 
+                     int64_t* res_ct,
+                     const MODULE* module, 
+                     VEC_ZNX_DFT* sk_dft, int64_t sk_size, 
+                     VEC_ZNX_DFT* phase
+);
+
+void vec_znx_dft_mult(const MODULE* module, 
+              VEC_ZNX_DFT* res_dft, int64_t res_size,
+              VEC_ZNX_DFT* c_dft, int64_t c_size,  
+              VEC_ZNX_DFT* d_dft, int64_t d_size
+);
+
 
 // GGSWCiphertext is a struct encapsulating ciphertext values and params.
 // GGSWSecretKey is a struct encapsulating everything regarding the secret
@@ -16,7 +51,7 @@ void add_vec_znxy(GGSWCiphertext* res, GGSWCiphertext* c, GGSWCiphertext* d);
 // coefficients. Probably ZNX. GGSWCtParams encapsulate all the
 // encryption parameters.
 /* Encrypts message m into GGSW ciphertext res with parameters enc_params */
-void ggsw_secret_encrypt(GGSWCiphertext* res,           // result
+int ggsw_secret_encrypt(GGSWCiphertext* res,           // result
                          GGSWSecretKey* sk,             // secret key
                          int64_t* m,                // message
                          GGSWCtParams* enc_params  // parameters
@@ -61,7 +96,7 @@ void halfggsw_decrypt(int64_t* res,       // result
 );
 
 /* Adds two GGSW ciphertext with same params and put result in res */
-void gsw_add(GGSWCiphertext* res,  // result
+void ggsw_add(GGSWCiphertext* res,  // result
              GGSWCiphertext* ct1,  // first operand
              GGSWCiphertext* ct2   // second operand
 );
@@ -96,12 +131,9 @@ void decrypt_biv_glwe(int64_t* res,
                       GGSWSecretKey* key,
                       int64_t* phase);
 
-int encrypt_biv_glwe(int64_t* res, 
-                      int64_t k, int64_t l, int64_t N,
-                      GGSWSecretKey* sk, 
-                      int64_t* phase,
-                      int encrypt_zero
-);
+void ggsw_addition(GGSWCiphertext* ct_out,
+                   GGSWCiphertext* ct_in1, GGSWCiphertext* ct_in2);
+
 
 int* add(int* a, int a_size, int* b, int b_size);
 int add_int(int a, int b);

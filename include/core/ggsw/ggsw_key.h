@@ -5,8 +5,8 @@
 
 
 typedef struct ggsw_secret_key {
-  uint32_t size;        // Key size, usually k.N
-  int64_t* values;  // The key itself.
+  uint32_t size;       // Key size, usually k.N
+  int64_t* values;     // The key itself.
 } GGSWSecretKey;
 
 typedef struct ggsw_public_key {
