@@ -50,13 +50,13 @@ double erfinv(double x) {
 }
 
 /**
- * Generates a random number following a normal distribution.
+ * Generates a random number following a normal distribution. mu = 0 , sigma = 
  * 
  * @param result A pointer that will point to the generated value.
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int rand_normal(int64_t *result)
+int rand_normal(int64_t *result, double sigma)
 {
     // Generate an uniform number in [0, 2^64]
     uint64_t uniform;
