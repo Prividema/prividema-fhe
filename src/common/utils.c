@@ -39,8 +39,15 @@ int read_rand(uint64_t *result)
 int rand_uniform(int64_t *result) { return (int64_t)read_rand(result); }
 
 
-// Approximate inverse error function (erfinv) using Winitzki approximation
-// Good enough for practical purposes
+/**
+ * @brief Approximate inverse error function (erfinv) using Winitzki approximation
+ * 
+ * @param x A uniformly random value between 0 and 1.
+ * 
+ * @note If you have a uniform random variable X which is uniformly distributed between 0 and 1, you can map it to any distribution by using its inverse CDF.
+ * @note Since the iCDF of the normal distribution can be expressed with erfinv. We use this function for performance purpose.
+ * @note See Winitzki's paper called "A handy approximation for the error function and its inverse" or https://en.wikipedia.org/wiki/Error_function.
+ */
 double erfinv(double x) {
     double a = 0.147;
     double ln_1minusx2 = log(1.0 - x*x);
@@ -50,35 +57,33 @@ double erfinv(double x) {
 }
 
 /**
- * Generates a random number following a normal distribution. mu = 0 , sigma = 
+ * Generates a random number between 0 and 1 that follows a normal distribution with given mu and sigma.
  * 
  * @param result A pointer that will point to the generated value.
+ * @param mu     The mean value.
+ * @param sigma  The variance.
+ * 
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
+ * 
+ * @note This function transforms a uniformly sampled variable into a normally distributed variable using the inverse Cumulative Distribution Function (CDF).
  */
-int rand_normal(int64_t *result, double sigma)
+int rand_normal(double *result, double mu, double sigma)
 {
     // Generate an uniform number in [0, 2^64]
     uint64_t uniform;
     if (read_rand(&uniform) < 0)
         return -1;
 
-    // Convert it in (0,1) with an uniform distribution
+    // Scale uniform in (0,1) to U : U still follows an uniform distribution.
     double U = (uniform + 0.5) / ((double)UINT64_MAX);
 
-    // Convert U in (0,1) with a normal distribution
+    // Compute Z the inverse CDF of the normal distribution applied to U.
     double Z = sqrt(2.0) * erfinv(2.0 * U - 1.0);
 
-    // Convert Z in INT64 range
-    double sigma = (double)INT64_MAX / 6.0;
-    double Yd = sigma * Z;
-
-    // Clamp to int64
-    if (Yd < (double)INT64_MIN) Yd = (double)INT64_MIN;
-    if (Yd > (double)INT64_MAX) Yd = (double)INT64_MAX;
-
-    // Round to get the result
-    *result = (int64_t)llround(Yd);
+    // Scale and Shift with mu and sigma.
+    // result follow a normal distribution in (0,1)
+    double result = mu + sigma * Z;
 
     return 0;
 }
