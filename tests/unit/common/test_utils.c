@@ -2,6 +2,7 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define NB_BOXES 100
 #define NB_SAMPLES 100000
@@ -73,8 +74,43 @@ Test(common, test_rand_uniform)
     cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
 }
 
-// Test rand_normal
-Test(common, test_rand_normal) 
-{
+// Jarque-Bera test
+double jarque_bera(const double *x, int n) {
+    if (n < 3) return NAN;
 
+    double mean = 0.0;
+    for (int i = 0; i < n; i++)
+        mean += x[i];
+    mean /= n;
+
+    // Compute 2nd, 3rd, 4th moments
+    double m2 = 0.0, m3 = 0.0, m4 = 0.0;
+    for (int i = 0; i < n; i++) {
+        double d = x[i] - mean;
+        double d2 = d * d;
+        m2 += d2;
+        m3 += d2 * d;
+        m4 += d2 * d2;
+    }
+    m2 /= n;
+    m3 /= n;
+    m4 /= n;
+
+    // Skewness and kurtosis
+    double S = m3 / pow(m2, 1.5);
+    double K = m4 / (m2 * m2);
+
+    // Jarque-Bera statistic
+    return (n / 6.0) * (S*S + ( (K - 3.0)*(K - 3.0) ) / 4.0);
+}
+
+Test(common, test_rand_normal)
+{
+    double data[NB_SAMPLES];
+    for(int i = 0; i < NB_SAMPLES; i++)
+        if(rand_normal(data + i, 0, 1) < 0)
+            cr_fail("rand_normal faileds");
+
+    double JB = jarque_bera(data, NB_SAMPLES);
+    cr_assert(lt(dbl, JB, chi_critical_05[1]), "Expect %f < %f\n", JB, chi_critical_05[1]);
 }
