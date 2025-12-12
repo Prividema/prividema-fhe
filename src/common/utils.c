@@ -19,7 +19,7 @@ int read_rand(uint64_t *result)
         return -1;
     }
 
-    if (fread(result, sizeof(result), 1, f) != 1) {
+    if (fread(result, sizeof(*result), 1, f) != 1) {
         perror("fread");
         fclose(f);
         return -1;
@@ -36,7 +36,12 @@ int read_rand(uint64_t *result)
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int rand_uniform(int64_t *result) { return (int64_t)read_rand(result); }
+int rand_uniform(int64_t *result) { 
+    uint64_t r;
+    int res = read_rand(&r);
+    *result = (int64_t)r;
+    return res;
+}
 
 
 /**

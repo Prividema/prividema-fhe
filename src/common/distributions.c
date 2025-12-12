@@ -49,7 +49,7 @@ int normal_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t r
     for(int i = 0; i < n_limbs; i++)
         for(int j = 0; j < limb_len ; j++){
             
-            if(rand_normal((double*)(res + i*res_sl + j),0,1) < 0) // TODO : decompose to xy
+            if(rand_normal(res + (i * res_sl + j), 0.0, 1.0) < 0) // TODO : decompose to xy
                 return -1;
 
             }
