@@ -83,7 +83,7 @@ int rand_normal(double *result, double mu, double sigma)
 
     // Scale and Shift with mu and sigma.
     // result follow a normal distribution in (0,1)
-    double result = mu + sigma * Z;
+    *result = mu + sigma * Z;
 
     return 0;
 }

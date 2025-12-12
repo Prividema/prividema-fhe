@@ -38,13 +38,6 @@ int encrypt_biv_glwe(GLWECtParams* params,
                      VEC_ZNX_DFT* phase
 );
 
-void vec_znx_dft_mult(const MODULE* module, 
-              VEC_ZNX_DFT* res_dft, int64_t res_size,
-              VEC_ZNX_DFT* c_dft, int64_t c_size,  
-              VEC_ZNX_DFT* d_dft, int64_t d_size
-);
-
-
 // GGSWCiphertext is a struct encapsulating ciphertext values and params.
 // GGSWSecretKey is a struct encapsulating everything regarding the secret
 // key. INT_POL is a struct encapsulating a polynomial with integer
@@ -52,9 +45,35 @@ void vec_znx_dft_mult(const MODULE* module,
 // encryption parameters.
 /* Encrypts message m into GGSW ciphertext res with parameters enc_params */
 int ggsw_secret_encrypt(GGSWCiphertext* res,           // result
-                         GGSWSecretKey* sk,             // secret key
-                         int64_t* m,                // message
-                         GGSWCtParams* enc_params  // parameters
+                        GGSWSecretKey* sk,             // secret key
+                        int64_t* m,                // message
+                        GGSWCtParams* enc_params  // parameters
+);
+
+
+int encrypt_biv_glwe_dft(GLWECtParams* params, 
+                         double* res_ct,
+                         const MODULE* module, 
+                         SVPPreparedPoly** sk, 
+                         VEC_ZNX_DFT* phase
+);
+
+void vec_znx_dft_mult(const MODULE* module, 
+                      VEC_ZNX_DFT* res_dft, int64_t res_size,
+                      VEC_ZNX_DFT* c_dft, int64_t c_size,  
+                      VEC_ZNX_DFT* d_dft, int64_t d_size
+);
+
+// GGSWPreparedCt is a struct encapsulating ciphertext values and params in DFT Space.
+// GGSWSecretKey is a struct encapsulating everything regarding the secret
+// key. INT_POL is a struct encapsulating a polynomial with integer
+// coefficients. Probably ZNX. GGSWCtParams encapsulate all the
+// encryption parameters.
+/* Encrypts message m into GGSW ciphertext in DFT Space res with parameters enc_params */
+int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,           // result
+                            GGSWPreparedSK* sk,             // secret key
+                            int64_t* m,                // message
+                            GGSWCtParams* enc_params  // parameters
 );
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public
@@ -97,8 +116,8 @@ void halfggsw_decrypt(int64_t* res,       // result
 
 /* Adds two GGSW ciphertext with same params and put result in res */
 void ggsw_add(GGSWCiphertext* res,  // result
-             GGSWCiphertext* ct1,  // first operand
-             GGSWCiphertext* ct2   // second operand
+              GGSWCiphertext* ct1,  // first operand
+              GGSWCiphertext* ct2   // second operand
 );
 
 void ggsw_add_inplace(GGSWCiphertext* res,  // result

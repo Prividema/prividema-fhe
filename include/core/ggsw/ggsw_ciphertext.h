@@ -33,5 +33,11 @@ typedef struct ggsw_ciphertext {
   int64_t* ct; //represent a matrix of size n_limbs x n_limbs_tilde with coefficients that are in ZnX
 } GGSWCiphertext;
 
+typedef struct vmp_pmat_t VMP_PMAT;
+
+typedef struct ggsw_ciphertext_dft {
+  GGSWCtParams* params;
+  VMP_PMAT* ct;
+} GGSWPreparedCt;
 
 #endif  // GGSW_CIPHERTEXT_H
