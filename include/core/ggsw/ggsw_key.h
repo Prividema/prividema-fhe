@@ -3,7 +3,7 @@
 
 #include "ggsw_ciphertext.h"
 
-typedef struct svp_ppol_t SVPPreparedPoly;
+typedef struct svp_ppol_t SVP_PPOL;
 
 typedef struct ggsw_secret_key {
   uint32_t size;       // Key size, usually k.N
@@ -12,7 +12,7 @@ typedef struct ggsw_secret_key {
 
 typedef struct ggsw_prep_secret_key {
   uint32_t size;
-  SVPPreparedPoly** values;  // vec of size k, each element is prepared vec
+  PolyUnivDFT** values;  // vec of size k, each element is prepared vec
   void* data;
 } GGSWPreparedSK;
 

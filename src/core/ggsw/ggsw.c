@@ -37,23 +37,24 @@ void ggsw_add(GGSWCiphertext* res,  // result
  *
  */
 
-void add_inplace_m_to_ap_dft(GLWECtParams* params, 
-                         double* ct_in,
-                         double* m,
-                         int64_t p
+void add_inplace_m_to_aj_dft(GLWECtParams* params, 
+                         VecBivDFT* ct_in,
+                         PolyBivDFT* m,
+                         int64_t j
 ){
     int64_t N = params->N;
     int64_t k = params->k;
-    int64_t l = params->n_limbs/k; 
-    int64_t n_limbs = params->n_limbs;
+    int64_t l = params->n_limbs/(k+1); 
 
     for (int64_t i = 0 ; i < l ; i++){
-        for (int64_t j = 0 ; j < N ; j++){
+        for (int64_t p = 0 ; p < N ; p++){
             // No need to differenciate Re and Im since we are only adding m to ct_in
-            ct_in[i*n_limbs + p*N + j] = ct_in[i*n_limbs + p*N + j] + m[j];
+            ct_in[i*N*(k+1) + j*N + p] = ct_in[i*N*(k+1) + j*N + p] + m[j*N + p];
         }
     }
 }
+
+// TODO define multiplication for each type
 /**
  * @brief Compute the polynomial product of c and d, component-wise in DFT space.
  * 
@@ -114,8 +115,8 @@ void vec_znx_dft_mult(const MODULE* module,
  * @details ` DFT(b_i) = ∑_j{0,k-1}[ DFT(sk_j) * DFT(a_j_i) ]`
  */
 void dft_mult_add_j0k_i_inplace(GLWECtParams* params,
-                        double* a_j0k_i_dft,  
-                        double* sk_dft
+                        VecUnivDFT* a_j0k_i_dft,  
+                        VecUnivDFT* sk_dft
 ){  
     int64_t N = params->N;
     int64_t k = params->k;
@@ -209,7 +210,7 @@ int encrypt_biv_glwe(GLWECtParams* params,
     }
 
 
-    VEC_ZNX_DFT* res_ct_dft = new_vec_znx_dft(module, (k+1)*l);
+    VecBivDFT* res_ct_dft = new_vec_znx_dft(module, (k+1)*l);
     vec_znx_dft(module, res_ct_dft, (k+1)*l, res_ct, (k+1)*l, N);
 
     // Computes 
@@ -236,9 +237,9 @@ int encrypt_biv_glwe(GLWECtParams* params,
  * @retval - `0` otherwise.
  */
 int ggsw_secret_encrypt(GGSWCiphertext* res,           
-                         GGSWSecretKey* sk,             
-                         int64_t* m,                
-                         GGSWCtParams* enc_params 
+                        GGSWSecretKey* sk,             
+                        PolyUniv* m,                
+                        GGSWCtParams* enc_params 
 ){
     //def a
     //(a, sk *a ) + mu*ID n_limbs_tilde fois 
@@ -274,17 +275,19 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
     for (int64_t i = 0 ; i < nb_partial ; i++){
         for (int64_t j = 0 ; j < nb_rows_per_partial ; j++){
 
-            // The pointer to bivGLWE(m * s_j * Y^i)
+            // The pointer to bivGLWE(-m * s_j * Y^i)
             int64_t* ct_m_sj_Yi = res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs;
             
             // The pointer to DFT(sk_j)
             VEC_ZNX_DFT* sk_j_dft = (VEC_ZNX_DFT*)((double*)(sk_dft) + j*N);
             
-            // Mult m and s_j
+            // Compute -m * s_j
             vec_znx_dft_mult(module, m_sk_j_dft, 1, sk_j_dft, 1, m_dft, 1);
+            for(int64_t p = 0 ; p < N ; p++){
+                ((double*)m_sk_j_dft)[p] = -1 * ((double*)m_sk_j_dft)[p];  
+            }
 
             #ifdef WITH_Y0 
-            // Add // TODO
             if (encrypt_biv_glwe(res->params->params, ct_m_sj_Yi,
                                  module, sk_dft, sk->size, 
                                  m_sk_j_dft) < 0){
@@ -320,20 +323,22 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
  * @retval - `0` otherwise.
  */
 int encrypt_biv_glwe_dft(GLWECtParams* params, 
-                     double* res_ct,
-                     const MODULE* module, 
-                     SVPPreparedPoly** sk, 
-                     VEC_ZNX_DFT* phase
+                         VecBivDFT* res_ct,
+                         const MODULE* module, 
+                         GGSWPreparedSK* sk, 
+                         PolyBivDFT* phase
 ){
     int64_t N = params->N;
     int64_t k = params->k;
     int64_t n_limbs = params->n_limbs;
     int64_t l = n_limbs / (k+1);
 
-    if (uniform_random_vec(k * N, (int64_t *)res_ct , l, (k + 1) * N) > 0 )
+    int64_t* temp = calloc(N*l*(k+1),sizeof(int64_t));
+
+    if (uniform_random_vec(k * N, temp , l, (k + 1) * N) > 0 )
         return -1;
     
-    
+    // acc_(j+1) = acc_j + (DFT(s_j) * limb_1(a_j) , ... , DFT(s_j) * limb_l(a_j))
     double* acc = malloc(N*l*sizeof(double)); 
     if (!acc){
         perror("malloc failed");
@@ -344,42 +349,83 @@ int encrypt_biv_glwe_dft(GLWECtParams* params,
     for(int64_t j = 0 ; j < k ; j++)
     {
         // The j-ème component of the secret key sk_dft
-        SVPPreparedPoly* sk_j_dft = sk[j]; 
+        SVP_PPOL* sk_j_dft = (SVP_PPOL*)sk->values[j]; 
         
         // Computes resVec_j = (DFT(s_j) * limb_1(a_j) , ... , DFT(s_j) * limb_l(a_j))
-        // TODO CONFIRM WITH LOIS : can I only use one resVec_j, defined before the loop?
-        VEC_ZNX_DFT* resVec_j = new_vec_znx_dft(module, l); 
-        svp_apply_dft(module, resVec_j, l, sk_j_dft, (int64_t*)res_ct, l, N); 
+        // TODO : can I only use one resVec_j, defined before the loop?
+        PolyBivDFT* resVec_j = new_vec_znx_dft(module, l); 
+        svp_apply_dft(module, resVec_j, l, sk_j_dft, temp + j*N, l, (k+1)*N); 
         
-        // And adds it to limb_i(b), for each i in {1,l}
+        // And adds it to limb_i(b), for each i in {0,l}
         for(int64_t p = 0 ; p < N*l ; p++){
             acc[p] += ((double*)resVec_j)[p];
         }
         delete_vec_znx_dft(resVec_j);
     }
     
+    // Computes res in DFT space
+    vec_znx_dft(module, res_ct, l*(k+1), temp, l*(k+1), N);
+
     // For each i in {0,l} limb_i(b) = ∑_j{0,k-1}[DFT(s_j) * limb_i(a_j)] = acc_i
     for(int64_t i = 0 ; i < l ; i++)
     {
         // The pointer to limb_i(b)
-        double* b_i = res_ct + (k+1)*N*i + k*N;
+        double* b_i = ((double*)res_ct) + (k+1)*N*i + k*N;
         for(int64_t p = 0 ; p < N ; p++)
         {
             b_i[p] = acc[i*N + p];
         }
     }
 
+    // Adds error to the phase
+    // TODO
+
     // Adds the phase (message with error) to bivGLWE(0), the result is a ct of bivGLWE(m + e)
-    add_inplace_m_to_ap_dft(params, res_ct, (double *)phase, k);
-    free(acc);
+    add_inplace_m_to_ap_dft(params, res_ct, phase, k);
     
+    free(acc);
+    free(temp); 
+
     return 0;
 }
 
-int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,           // result
-                         GGSWPreparedSK* sk,             // secret key
-                         int64_t* m,                // message
-                         GGSWCtParams* enc_params  // parameters
+/**
+ * @brief Compute the base-2^kappa decomposition of the univariate phase and return in DFT space
+ * 
+ * @param params The GLWE parameters.
+ * @param phase_biv_dft The bivariate phase in DFT space
+ * @param phase_dft The univariate phase in DFT space
+ * @param i The degree in Y of DFT(-m * sk_j) * Y^i
+ */
+void aux(GLWECtParams* params, PolyBivDFT* phase_biv_dft, PolyUnivDFT* phase_dft, int64_t i){
+
+    int64_t N = params->N;
+    int64_t k = params->k;
+    int64_t kappa = params->kappa;
+    int64_t n_limbs = params->n_limbs;
+    int64_t l = n_limbs / (k+1);
+
+    MODULE* module = new_module_info(N,FFT64);
+    VEC_ZNX_BIG* phase = new_vec_znx_big(module, 1);
+    uint8_t* useless;
+    vec_znx_idft(module, phase, 1, phase_dft, 1, useless);
+    
+    // The bivariate phase
+    int64_t* phase_biv = calloc(N,sizeof(int64_t));
+
+    // Computes the bivariate phase
+    for(int64_t p = 0 ; p < N; p++)
+    {
+        phase_biv[i*N + p] = -1 * (int64_t)((double*)phase)[p]; // TODO does it works to do ((int64_t*)phase)[p]
+    }
+    // TODO Computes the bivariate phase
+    vec_znx_dft(module, phase_biv_dft, l, phase_biv, l, N);
+}
+
+int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,        // result
+                            GGSWPreparedSK* sk,         // secret key
+                            PolyUniv* msg,                 // message
+                            GGSWCtParams* enc_params    // parameters
 ){
     //def a
     //(a, sk *a ) + mu*ID n_limbs_tilde fois 
@@ -402,35 +448,41 @@ int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,           // result
     MODULE* module = new_module_info(N,FFT64);
     
     // Message
-    VEC_ZNX_DFT* m_dft = new_vec_znx_dft(module, 1);
-    vec_znx_dft(module, m_dft, 1, m, 1, N);
-    
-    // m * sk_j
-    VEC_ZNX_DFT* m_sk_j_dft = new_vec_znx_dft(module,1);
-    
+    VEC_ZNX_DFT* msg_dft = new_vec_znx_dft(module, 1);
+    vec_znx_dft(module, msg_dft, 1, msg, 1, N);
+
     for (int64_t i = 0 ; i < nb_partial ; i++)
     {
         for (int64_t j = 0 ; j < nb_rows_per_partial ; j++)
         {
-            // The pointer to bivGLWE(m * s_j * Y^i)
-            double* ct_m_sj_Yi = ((double *)res->ct) + i*nb_rows_per_partial*n_limbs + j*n_limbs;
+            // The pointer to bivGLWE(-m * s_j * Y^i) in DFT space
+            VecBivDFT* ct_biv_dft = res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs;
             
             // The pointer to DFT(sk_j)
-            VEC_ZNX_DFT* sk_j_dft = (VEC_ZNX_DFT*)((double*)(sk->values) + j*N);
+            PolyUnivDFT* sk_j_dft = sk->values[j];
             
-            // Mult m and s_j
-            vec_znx_dft_mult(module, m_sk_j_dft, 1, sk_j_dft, 1, m_dft, 1);
+            // Computes DFT(-m * sk_j) * Y^i
+            PolyUnivDFT* phase_dft = calloc(N,sizeof(double));
+            vec_znx_dft_mult(module, (VEC_ZNX_DFT*)phase_dft, 1, (VEC_ZNX_DFT*)sk_j_dft, 1, msg_dft, 1);
+
+            PolyBivDFT* phase_biv_dft = calloc(N*l,sizeof(double));
+
+
+            // TODO
+            // Compute the base-2^kappa decomposition of the phase and return in DFT space
+            aux(res->params->params, phase_biv_dft, phase_dft, i);
 
             #ifdef WITH_Y0 
-            // Compute bivGLWE(m * s_j * Y^i)
-            if (encrypt_biv_glwe_dft(res->params->params, ct_m_sj_Yi,
-                                 module, sk->values, m_sk_j_dft) < 0)
+            // Compute bivGLWE(-m * s_j * Y^i)
+            if (encrypt_biv_glwe_dft(res->params->params, ct_biv_dft,
+                                 module, sk->values, phase_biv_dft) < 0)
             {
-                delete_vec_znx_dft(m_dft);
-                delete_vec_znx_dft(m_sk_j_dft);
+                delete_vec_znx_dft(msg_dft);
                 delete_module_info(module);
                 return -1;
             }
+
+            delete_vec_znx_dft(phase_dft);
             
             #endif 
             #ifndef WITH_Y0
@@ -446,8 +498,7 @@ int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,           // result
             #endif 
         }
     }
-    delete_vec_znx_dft(m_dft);
-    delete_vec_znx_dft(m_sk_j_dft);
+    delete_vec_znx_dft(msg_dft);
     delete_module_info(module);
 }
 

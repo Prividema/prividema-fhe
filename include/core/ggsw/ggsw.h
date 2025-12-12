@@ -8,27 +8,21 @@
 
 #define WITH_Y0
 
-/** @brief opaque type that are included in */
-typedef struct module_info_t MODULE;
-/** @brief opaque type that represents a vector of znx in DFT space */
-typedef struct vec_znx_dft_t VEC_ZNX_DFT;
 
 void dft_mult_add_j0k_i_inplace(GLWECtParams* params,
                         double* a_j0k_i_dft,  
                         double* sk_dft
 );
 
-
-
 void secret_key_mult_add_inplace(GLWECtParams* params,
                          double* res_ct_dft,
                          double* sk_dft
 );
 
-void add_inplace_m_to_ap_dft(GLWECtParams* params, 
-                         double* ct_in,
-                         double* m,
-                         int64_t p
+void add_inplace_m_to_aj_dft(GLWECtParams* params, 
+                         VecBivDFT* ct_in,
+                         PolyBivDFT* m,
+                         int64_t j
 );
 
 int encrypt_biv_glwe(GLWECtParams* params, 
@@ -52,9 +46,9 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,           // result
 
 
 int encrypt_biv_glwe_dft(GLWECtParams* params, 
-                         double* res_ct,
+                         PolyBiv* res_ct,
                          const MODULE* module, 
-                         SVPPreparedPoly** sk, 
+                         GGSWPreparedSK* sk, 
                          VEC_ZNX_DFT* phase
 );
 
@@ -157,4 +151,4 @@ void ggsw_addition(GGSWCiphertext* ct_out,
 int* add(int* a, int a_size, int* b, int b_size);
 int add_int(int a, int b);
 int multiply(int a, int b);
-#endif  // GGSW_H
+#endif  // GGSW_H 
