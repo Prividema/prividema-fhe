@@ -9,11 +9,6 @@
 #define WITH_Y0
 
 
-void dft_mult_add_j0k_i_inplace(GLWECtParams* params,
-                        double* a_j0k_i_dft,  
-                        double* sk_dft
-);
-
 void secret_key_mult_add_inplace(GLWECtParams* params,
                          double* res_ct_dft,
                          double* sk_dft

@@ -21,30 +21,46 @@ typedef struct vmp_pmat_t VMP_PMAT;
 typedef double PolyBivDFT;
 
 /** @brief opaque type that represents a bivariate polynomial vector in DFT space 
- *  @note `Length = (k+1)*l*N` for a bivGLWE
+ *  @note `Length = (k+1) * l * N` for a bivGLWE
 */
 typedef double VecBivDFT;
 
 /** @brief opaque type that represents a bivariate polynomial matrix in DFT space
- *  @note `Length = n_limbs_tilde * (k+1)*l*N` for a bivGGSW
+ *  @note `Length = n_limbs_tilde * (k+1) * l * N` for a bivGGSW
 */
 typedef double MatBivDFT;
 
 /** @brief opaque type that represents a univariate polynomial in DFT space 
- *  @note `Length = N`
+ *  @note `Length = N for a polynomial in ZnX`
 */
 typedef double PolyUnivDFT;
 
+/** @brief opaque type that represents a univariate polynomial in DFT space 
+ *  @note `Length = k * N for a GLWE`
+*/
+typedef double VecUnivDFT;
 
 
-/** @brief opaque type that represents a bivariate polynomial */
+/** @brief opaque type that represents a bivariate polynomial 
+ *  @note `Length = l * N for bivariate polynomial in ZnXY`
+*/
 typedef double PolyBiv;
-/** @brief opaque type that represents a bivariate polynomial vector */
+
+/** @brief opaque type that represents a bivariate polynomial vector 
+ *  @note `Length = l * k * N for a bivGLWE`
+*/
 typedef double VecBiv;
-/** @brief opaque type that represents a bivariate polynomial matrix */
+
+/** @brief opaque type that represents a bivariate polynomial matrix 
+ *  @note `Length = n_limbs_tilde * l * k * N
+*/
 typedef double MatBiv;
-/** @brief opaque type that represents a univariate polynomial */
+
+/** @brief opaque type that represents a univariate polynomial 
+ *  @note `Length = N for a polynomial in ZnX`
+*/
 typedef double PolyUniv;
+
 
 // GGSW encode small integer polynomial represented via a function f
  // We represent GGSW as a matrix of size n_limbs x n_limbs_tilde with coefficients that are in ZnX
