@@ -4,6 +4,7 @@
 #include <math.h>
 #define M_PI 3.14159265358979323846
 
+// TODO if LINUX if WINDOWS if MAC
 /**
  * Read a random number on /dev/urandom
  * 

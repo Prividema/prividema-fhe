@@ -5,62 +5,66 @@
 
 #include "ggsw_ct_params.h"
 
-/** @brief opaque type that are included in */
+/** @brief type that are included in */
 typedef struct module_info_t MODULE;
 
-/** @brief opaque type that represents a vector of znx in DFT space */
+/** @brief type that represents a vector of znx in DFT space */
 typedef struct vec_znx_dft_t VEC_ZNX_DFT;
 
-/** @brief opaque type that represents a prepared matrix */
+/** @brief type that represents a prepared matrix */
 typedef struct vmp_pmat_t VMP_PMAT;
 
 
-/** @brief opaque type that represents a bivariate polynomial in DFT space 
+/** @brief type that represents a bivariate polynomial in DFT space 
  *  @note `Length = l*N`
 */
 typedef double PolyBivDFT;
 
-/** @brief opaque type that represents a bivariate polynomial vector in DFT space 
+/** @brief type that represents a bivariate polynomial vector in DFT space 
  *  @note `Length = (k+1) * l * N` for a bivGLWE
 */
 typedef double VecBivDFT;
 
-/** @brief opaque type that represents a bivariate polynomial matrix in DFT space
+/** @brief type that represents a bivariate polynomial matrix in DFT space
  *  @note `Length = n_limbs_tilde * (k+1) * l * N` for a bivGGSW
 */
 typedef double MatBivDFT;
 
-/** @brief opaque type that represents a univariate polynomial in DFT space 
+/** @brief type that represents a univariate polynomial in DFT space 
  *  @note `Length = N for a polynomial in ZnX`
 */
 typedef double PolyUnivDFT;
 
-/** @brief opaque type that represents a univariate polynomial in DFT space 
+/** @brief type that represents a univariate polynomial in DFT space 
  *  @note `Length = k * N for a GLWE`
 */
 typedef double VecUnivDFT;
 
 
-/** @brief opaque type that represents a bivariate polynomial 
+/** @brief type that represents a bivariate polynomial 
  *  @note `Length = l * N for bivariate polynomial in ZnXY`
 */
-typedef double PolyBiv;
+typedef int64_t PolyBiv;
 
-/** @brief opaque type that represents a bivariate polynomial vector 
+/** @brief type that represents a bivariate polynomial vector 
  *  @note `Length = l * k * N for a bivGLWE`
 */
-typedef double VecBiv;
+typedef int64_t VecBiv;
 
-/** @brief opaque type that represents a bivariate polynomial matrix 
+/** @brief type that represents a bivariate polynomial matrix 
  *  @note `Length = n_limbs_tilde * l * k * N
 */
-typedef double MatBiv;
+typedef int64_t MatBiv;
 
-/** @brief opaque type that represents a univariate polynomial 
+/** @brief type that represents a univariate polynomial 
  *  @note `Length = N for a polynomial in ZnX`
 */
-typedef double PolyUniv;
+typedef int64_t PolyUniv;
 
+/** @brief type that represents a bivariate polynomial vector 
+ *  @note `Length = k * N for a GLWE`
+*/
+typedef int64_t VecUniv;
 
 // GGSW encode small integer polynomial represented via a function f
  // We represent GGSW as a matrix of size n_limbs x n_limbs_tilde with coefficients that are in ZnX

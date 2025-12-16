@@ -33,18 +33,18 @@ int encrypt_biv_glwe(GLWECtParams* params,
 // coefficients. Probably ZNX. GGSWCtParams encapsulate all the
 // encryption parameters.
 /* Encrypts message m into GGSW ciphertext res with parameters enc_params */
-int ggsw_secret_encrypt(GGSWCiphertext* res,           // result
-                        GGSWSecretKey* sk,             // secret key
-                        int64_t* m,                // message
-                        GGSWCtParams* enc_params  // parameters
+int ggsw_secret_encrypt(GGSWCiphertext* res,           
+                        GGSWSecretKey* sk,             
+                        PolyUniv* msg,                
+                        GGSWCtParams* enc_params 
 );
 
 
 int encrypt_biv_glwe_dft(GLWECtParams* params, 
-                         PolyBiv* res_ct,
+                         VecBivDFT* res_ct,
                          const MODULE* module, 
                          GGSWPreparedSK* sk, 
-                         VEC_ZNX_DFT* phase
+                         PolyBivDFT* phase
 );
 
 void vec_znx_dft_mult(const MODULE* module, 
@@ -59,10 +59,10 @@ void vec_znx_dft_mult(const MODULE* module,
 // coefficients. Probably ZNX. GGSWCtParams encapsulate all the
 // encryption parameters.
 /* Encrypts message m into GGSW ciphertext in DFT Space res with parameters enc_params */
-int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,           // result
-                            GGSWPreparedSK* sk,             // secret key
-                            int64_t* m,                // message
-                            GGSWCtParams* enc_params  // parameters
+int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,        // result
+                            GGSWPreparedSK* sk,         // secret key
+                            PolyUniv* msg,                 // message
+                            GGSWCtParams* enc_params    // parameters
 );
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public

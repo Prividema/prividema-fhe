@@ -1,6 +1,5 @@
 #include "distributions.h"
 #include "utils.h"
-
 /**
  * @brief Generates a Random Vector following an Uniform distribution.
  * 
@@ -10,6 +9,7 @@
  * @param res_sl The stride (in elements) between two consecutive result limbs.
  *               It indicates how many elements must be skipped in memory to reach
  *               the start of the next limb in `res`.
+ * @param max The maximum int we want to draw
  *  
  * @retval - `-1` if an error occurs. In this case the error is from a syscall in rand_uniform.
  * @retval - `0` otherwise.
@@ -44,8 +44,8 @@ int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t 
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int normal_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t res_sl)
-{
+int normal_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t res_sl
+){
     for(int i = 0; i < n_limbs; i++)
         for(int j = 0; j < limb_len ; j++){
             
