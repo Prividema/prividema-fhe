@@ -1,6 +1,8 @@
 # Create one shared lib for GGSW.
 set(GGSW_SRCS
     ggsw.c
+    ggsw_ciphertext.c
+    ggsw_ct_params.c
 )
 add_library(GGSW SHARED ${GGSW_SRCS})
 

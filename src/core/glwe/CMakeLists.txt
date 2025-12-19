@@ -1,6 +1,7 @@
 # Create one shared lib for GLWE
 set(GLWE_SRCS
     glwe.c
+    glwe_ct_params.c
 )
 
 add_library(GLWE SHARED ${GLWE_SRCS})
