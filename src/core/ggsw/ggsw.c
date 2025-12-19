@@ -4,89 +4,6 @@
 #include "distributions.h" // Allow to draw random number following the uniform or normal law
 #include "vec_znx_arithmetic_private.h"
 
-/**
- * @brief Adds two GGSW ciphertexts with same params and put result in res
- * 
- * @param res The result GGSW ciphertext. 
- * @param ct1 The left-hand side GGSW ciphertext.
- * @param ct2 The right-hand side GGSW ciphertext.
- */
-void ggsw_add(GGSWCiphertext* res,  // result
-             GGSWCiphertext* ct1,  // first operand
-             GGSWCiphertext* ct2   // second operand
-){
-    int64_t nb_rows = res->params->n_limbs_tilde;
-    int64_t nb_cols = res->params->params->n_limbs;
-    int64_t N = res->params->params->N;
-
-    for (int64_t i = 0 ; i < nb_rows ; i++){
-        for (int64_t j = 0 ; j < nb_cols ; j++){
-            for (int64_t k = 0 ; k < N ; k++){
-                res->ct[i*N*nb_cols + j*N + k] = ct1->ct[i*N*nb_cols + j*N + k] + ct2->ct[i*N*nb_cols + j*N + k];
-            } 
-        }
-    }
-}
-
-/**
- * @brief  Multiply a GGSW ciphertext by a constant in ZnX
- * 
- * @param res The result GGSW ciphertext.
- * @param ct1 The GGSW ciphertext.
- * @param u The polynomial in ZnX, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
- */
-void ggsw_const_mult(GGSWCiphertext* res,  
-                     GGSWCiphertext* ct, 
-                     PolyUniv* u
-){
-    int64_t nb_rows = res->params->n_limbs_tilde;
-    int64_t nb_cols = res->params->params->n_limbs;
-    int64_t N = res->params->params->N;
-
-    MODULE* module = new_module_info(N, FFT64);
-    
-    // The polynomial in DFT space
-    SVP_PPOL* u_dft = new_svp_ppol(module);
-    svp_prepare(module, u_dft, u);
-
-    // The ciphertext in DFT space
-    MatBivDFT_* ct_dft = new_vec_znx_dft(module, nb_rows * nb_cols);
-    vec_znx_dft(module, ct_dft, nb_rows * nb_cols, ct->ct, nb_rows * nb_cols, N);
-
-    for (int64_t i = 0 ; i < nb_rows ; i++){
-        for (int64_t j = 0 ; j < nb_cols ; j++){
-            VecBiv* ct_biv = res->ct + nb_cols*i + j*N
-            
-            
-        }
-    }
-}
-
-/**
- * @brief  Multiply a GGSW ciphertext by a constant in ZnX
- * 
- * @param res The result GGSW ciphertext.
- * @param ct1 The GGSW ciphertext.
- * @param u The polynomial in ZnX, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
- */
-void ggsw_const_mult_dft(GGSWPreparedCt* res,  
-                         GGSWPreparedCt* ct, 
-                         SVP_PPOL* u
-){
-    int64_t nb_rows = res->params->n_limbs_tilde;
-    int64_t nb_cols = res->params->params->n_limbs;
-    int64_t N = res->params->params->N;
-
-    for (int64_t i = 0 ; i < nb_rows ; i++){
-        for (int64_t j = 0 ; j < nb_cols ; j++){
-            // Passing in DFT space
-            svp_apply_dft();
-            for (int64_t k = 0 ; k < N ; k++){
-                res->ct[i*N*nb_cols + j*N + k] = cst * ct->ct[i*N*nb_cols + j*N + k];
-            } 
-        }
-    }
-}
 
 /**
  * @brief Computes a random normal bivariate polynomial
@@ -115,7 +32,8 @@ int normal_random_biv_poly(MODULE* module, int64_t kappa, int64_t l, PolyBiv* re
     }
 
     uint8_t* tmp_space = vec_znx_normalize_base2k_tmp_bytes(module);
-    // Then decomposes into base-2K
+
+    // Then base-2K normalization 
     vec_znx_normalize_base2k(module, kappa, res, l, N, tmp_biv_pol, l, N, tmp_space);
 
     return 0;

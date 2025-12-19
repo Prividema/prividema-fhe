@@ -1,0 +1,58 @@
+/**
+ * @file ggsw_ciphertext.dox
+ * @brief Documentation of the GGSW ciphertext representation.
+ *
+ * This file contains the high-level documentation of the GGSW
+ * ciphertext encoding used in the library. It is intended for
+ * understanding the mathematical structure rather than the API.
+ */
+
+/**
+ * @page ggsw_ciphertext GGSW Ciphertext
+ *
+ * @section ggsw_overview Overview
+ *
+ * A GGSW ciphertext encodes a small integer polynomial represented
+ * by a function @p f.
+ *
+ * The ciphertext is represented as a matrix of size
+ * @p n_limbs × @p n_limbs_tilde with coefficients in ℤₙ[X].
+ *
+ * Each row @p i is a GLWE ciphertext encrypting @p f(H(i)).
+ *
+ * @verbatim
+ * [
+ *   GLWE(f(H(0, l_tilde)))
+ *   ...
+ *   GLWE(f(H(n_limbs_tilde - 1, l_tilde)))
+ * ]
+ * @endverbatim
+ *
+ * @section ggsw_gadget Gadget matrix
+ *
+ * The gadget matrix @p H is built using the gadget base
+ * @p bg = 2^{kappa_tilde}.
+ *
+ * It is reorganized in powers of @p bg in order to preserve
+ * the prefix property.
+ *
+ * @verbatim
+ * [ 1/bg        0         0    ...     0 ]
+ * [ 0        1/bg         0    ...     0 ]
+ * [ ...        ...        ...           ]
+ * [ 0           0         0    ...  1/bg ]
+ *
+ * [ 1/bg^2      0         0    ...     0 ]
+ * [ 0        1/bg^2       0    ...     0 ]
+ * [ ...        ...        ...           ]
+ * [ 0           0         0    ...  1/bg^2 ]
+ *
+ * ...
+ *
+ * [ 1/bg^{l_t}  0         0    ...     0 ]
+ * [ ...        ...        ...           ]
+ * [ 0           0         0    ...  1/bg^{l_t} ]
+ * @endverbatim
+ *
+ * Each block corresponds to one power of the gadget base.
+ */
