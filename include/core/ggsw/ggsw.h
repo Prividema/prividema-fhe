@@ -1,69 +1,30 @@
 #ifndef GGSW_H
 #define GGSW_H
 
-#include "ggsw_ct_params.h"
+#include "ggsw_ciphertext.h"
 #include "ggsw_key.h"
-#include "glwe_ciphertext.h"
-#include "partialggsw_ciphertext.h"
+#include "spqlios_alias.h"
 
 #define WITH_Y0
 
 
-void secret_key_mult_add_inplace(GLWECtParams* params,
-                         double* res_ct_dft,
-                         double* sk_dft
+//! GGSW PART (begin)
+
+int encrypt_biv_glwe(const MODULE* module,
+                     GLWECtParams* params, 
+                     VecBiv* res_ct,
+                     GGSWPreparedSK* sk, 
+                     PolyBiv* phase
 );
 
-void add_inplace_m_to_aj_dft(GLWECtParams* params, 
-                         VecBivDFT* ct_in,
-                         PolyBivDFT* m,
-                         int64_t j
-);
-
-int encrypt_biv_glwe(GLWECtParams* params, 
-                     int64_t* res_ct,
-                     const MODULE* module, 
-                     VEC_ZNX_DFT* sk_dft, int64_t sk_size, 
-                     VEC_ZNX_DFT* phase
-);
-
-// GGSWCiphertext is a struct encapsulating ciphertext values and params.
-// GGSWSecretKey is a struct encapsulating everything regarding the secret
-// key. INT_POL is a struct encapsulating a polynomial with integer
-// coefficients. Probably ZNX. GGSWCtParams encapsulate all the
-// encryption parameters.
-/* Encrypts message m into GGSW ciphertext res with parameters enc_params */
 int ggsw_secret_encrypt(GGSWCiphertext* res,           
-                        GGSWSecretKey* sk,             
+                        GGSWPreparedSK* sk,             
                         PolyUniv* msg,                
                         GGSWCtParams* enc_params 
 );
 
 
-int encrypt_biv_glwe_dft(GLWECtParams* params, 
-                         VecBivDFT* res_ct,
-                         const MODULE* module, 
-                         GGSWPreparedSK* sk, 
-                         PolyBivDFT* phase
-);
 
-void vec_znx_dft_mult(const MODULE* module, 
-                      VEC_ZNX_DFT* res_dft, int64_t res_size,
-                      VEC_ZNX_DFT* c_dft, int64_t c_size,  
-                      VEC_ZNX_DFT* d_dft, int64_t d_size
-);
-
-// GGSWPreparedCt is a struct encapsulating ciphertext values and params in DFT Space.
-// GGSWSecretKey is a struct encapsulating everything regarding the secret
-// key. INT_POL is a struct encapsulating a polynomial with integer
-// coefficients. Probably ZNX. GGSWCtParams encapsulate all the
-// encryption parameters.
-/* Encrypts message m into GGSW ciphertext in DFT Space res with parameters enc_params */
-int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,        // result
-                            GGSWPreparedSK* sk,         // secret key
-                            PolyUniv* msg,                 // message
-                            GGSWCtParams* enc_params    // parameters
-);
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public
 // key.
@@ -103,16 +64,6 @@ void halfggsw_decrypt(int64_t* res,       // result
                       PartialGGSWCiphertext* ct  // ciphertext
 );
 
-/* Adds two GGSW ciphertext with same params and put result in res */
-void ggsw_add(GGSWCiphertext* res,  // result
-              GGSWCiphertext* ct1,  // first operand
-              GGSWCiphertext* ct2   // second operand
-);
-
-void ggsw_add_inplace(GGSWCiphertext* res,  // result
-                      GGSWCiphertext* ct    // ciphertext
-);
-
 /* Should it be in glwe.h since result is GLWE ? */
 void ggsw_external_product(GLWECiphertext* res,  // result
                            GLWECiphertext* ct1,  // GLWE ciphertext
@@ -124,24 +75,28 @@ void halfggsw_external_product(GLWECiphertext* res,     // result
                                PartialGGSWCiphertext* ct2  // half GGSW ciphertext
 );
 
-// Does the multiplication of (a_i)'s by the secret key (s_i)'s 
-// We have : 
-// 
-// Result = ∑_i{0,k-1} s_i ⋅ a_i 
-// Result = ∑_j{1,l} [ ∑_i{0,k-1} s_i ⋅ a_(i,j) ] ⋅ Y^j
-void biv_secret_key_mult(int64_t N, int64_t k, int64_t l,
-                         int64_t* res, 
-                         int64_t* c,
-                         int64_t* s
-);
-
 void decrypt_biv_glwe(int64_t* res, 
                       GGSWSecretKey* key,
                       int64_t* phase);
 
-void ggsw_addition(GGSWCiphertext* ct_out,
-                   GGSWCiphertext* ct_in1, GGSWCiphertext* ct_in2);
 
+//! GGSW IN DFT PART (begin)   
+
+int encrypt_biv_glwe_dft(GLWECtParams* params, 
+                         VecBivDFT* res_ct,
+                         const MODULE* module, 
+                         GGSWPreparedSK* sk, 
+                         PolyBivDFT* phase
+);
+
+int ggsw_secret_encrypt_dft(GGSWCiphertextDFT* res,        // result
+                            GGSWPreparedSK* sk,         // secret key
+                            PolyUniv* msg,                 // message
+                            GGSWCtParams* enc_params    // parameters
+);
+
+
+//! COMMON PART (begin)
 
 int* add(int* a, int a_size, int* b, int b_size);
 int add_int(int a, int b);

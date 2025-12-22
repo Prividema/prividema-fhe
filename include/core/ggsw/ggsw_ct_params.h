@@ -24,6 +24,9 @@ typedef struct ggsw_ct_params {
 
 int new_ggsw_ct_params(GGSWCtParams* res, GLWECtParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t n_limbs_tilde);
 void delete_ggsw_ct_params(GGSWCtParams* ct);
+int64_t ggsw_size(GGSWCtParams* params);
+int64_t nb_partials(GGSWCtParams* params);
+int64_t nb_rows_per_partial(GGSWCtParams* params);
 
 /**
  * @struct PartialGGSWCtParams
