@@ -266,24 +266,15 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
                         PolyUniv* msg,                
                         GGSWCtParams* enc_params 
 ){
-    //def a
-    //(a, sk *a ) + mu*ID n_limbs_tilde fois 
-
     // GLWE parameters
     int64_t N = res->params->params->N;
-    int64_t k = res->params->params->k;
     int64_t n_limbs = res->params->params->n_limbs;
-    int64_t l = n_limbs / (k+1);
-
-    // GGSW parameters
-    int64_t k_tilde = res->params->k_tilde;
-    int64_t n_limbs_tilde = res->params->n_limbs_tilde;
 
     // Matrix parameters
-    int64_t nb_partial = k_tilde;
-    int64_t nb_rows_per_partial = n_limbs_tilde/k_tilde;
+    //! The partials' structure is described in ggsw_ciphertext.dox
+    int64_t nb_partial = res->params->n_limbs_tilde/(res->params->k_tilde + 1);
+    int64_t nb_rows_per_partial = res->params->k_tilde + 1;
     
-    // Prepare sk and m
     MODULE* module = new_module_info(N,FFT64);
     
     // Computes message in DFT space
@@ -294,7 +285,7 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
         for (int64_t j = 0 ; j < nb_rows_per_partial ; j++){
 
             // The pointer to bivGLWE(-m * s_j * Y^i)
-            VecBiv* ct_biv = res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs;
+            VecBiv* ct_biv = ggsw_Sj_Yi(res, i, j);
             
             // The pointer to DFT(sk_j)
             PolyUnivDFT* sk_j_dft = sk->values[j];
@@ -303,6 +294,7 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
             PolyUnivDFT* phase_dft = calloc(N,sizeof(double));
             if (phase_dft == NULL)
                 return -1;
+                
             vec_znx_dft_mult(module, (VEC_ZNX_DFT*)phase_dft, 1, (VEC_ZNX_DFT*)sk_j_dft, 1, (VEC_ZNX_DFT*)msg_dft, 1);
             for(int64_t p = 0 ; p < N ; p++){
                 phase_dft[p] = -1 * phase_dft[p];  
@@ -499,8 +491,9 @@ int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,        // result
     int64_t n_limbs_tilde = res->params->n_limbs_tilde;
 
     // Matrix parameters
-    int64_t nb_partial = k_tilde;
-    int64_t nb_rows_per_partial = n_limbs_tilde/k_tilde;
+    //! The partials' structure is described in ggsw_ciphertext.dox
+    int64_t nb_partial = n_limbs_tilde/(k_tilde + 1);
+    int64_t nb_rows_per_partial = k_tilde + 1;
     
     // Prepare sk and m
     MODULE* module = new_module_info(N,FFT64);
@@ -514,7 +507,7 @@ int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,        // result
         for (int64_t j = 0 ; j < nb_rows_per_partial ; j++)
         {
             // The pointer to bivGLWE(-m * s_j * Y^i) in DFT space
-            VecBivDFT* ct_biv_dft = res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs;
+            VecBivDFT* ct_biv_dft = res->ct + i*nb_rows_per_partial*n_limbs*N + j*n_limbs*N;
             
             // The pointer to DFT(sk_j)
             PolyUnivDFT* sk_j_dft = sk->values[j];
@@ -540,7 +533,7 @@ int ggsw_secret_encrypt_dft(GGSWPreparedCt* res,        // result
                 return -1;
             }
 
-            delete_vec_znx_dft(phase_dft);
+            delete_vec_znx_dft((VEC_ZNX_DFT*)phase_dft);
             
             #endif 
             #ifndef WITH_Y0

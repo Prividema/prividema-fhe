@@ -2,7 +2,7 @@
  * @file ggsw_ciphertext.dox
  * @brief Documentation of the GGSW ciphertext representation.
  *
- * This file contains the high-level documentation of the GGSW
+ * This file contains the documentation of the GGSW
  * ciphertext encoding used in the library. It is intended for
  * understanding the mathematical structure rather than the API.
  */
@@ -16,15 +16,15 @@
  * by a function @p f.
  *
  * The ciphertext is represented as a matrix of size
- * @p n_limbs × @p n_limbs_tilde with coefficients in ℤₙ[X].
+ * @p n_limbs_tilde × @p n_limbs with coefficients in ℤₙ[X].
  *
  * Each row @p i is a GLWE ciphertext encrypting @p f(H(i)).
  *
  * @verbatim
  * [
- *   GLWE(f(H(0, l_tilde)))
+ *   GLWE(f(H(0)))
  *   ...
- *   GLWE(f(H(n_limbs_tilde - 1, l_tilde)))
+ *   GLWE(f(H(n_limbs_tilde - 1)))
  * ]
  * @endverbatim
  *
@@ -55,4 +55,32 @@
  * @endverbatim
  *
  * Each block corresponds to one power of the gadget base.
+ *
+ * @section ggsw_partial Partial GGSW ciphertext
+ *
+ * A partial GGSW ciphertext (denoted @p partialGGSW) is obtained by
+ * restricting the full GGSW ciphertext to a subset of rows corresponding
+ * to a fixed power of the gadget base @p Bg.
+ *
+ * More precisely, for a given gadget level @p j, the partial GGSW is the
+ * submatrix of the GGSW ciphertext that encrypts the polynomial
+ * @p f multiplied by the gadget vector entries associated with
+ * @p 1 / Bg^{j}.
+ *
+ * In terms of the gadget matrix @p H, a partial GGSW corresponds to one
+ * block of @p n_limbs consecutive rows:
+ *
+ * @verbatim
+ * [ 1/Bg^{j}      0           0      ...     0 ]
+ * [ 0         1/Bg^{j}        0      ...     0 ]
+ * [ ...           ...        ...             ]
+ * [ 0             0           0      ...  1/Bg^{j} ]
+ * @endverbatim
+ *
+ * Each row of this block is a GLWE ciphertext encrypting
+ * @p f multiplied by the corresponding gadget coefficient.
+ *
+ * A full GGSW ciphertext can thus be seen as the vertical concatenation
+ * of all partial GGSW ciphertexts for @p j = 1, ..., l_tilde.
  */
+

@@ -2,6 +2,50 @@
 #include "vec_znx_arithmetic_private.h"
 
 /**
+ * @brief Return the pointer to biGLWE(-m * sk_j * Y^i).
+ * 
+ * @param ct A GGSW ciphertext.
+ * @param i The degree in Y of the phase = -m * sk_j * Y^i.
+ * @param j The j-th component of Sk.
+ * 
+ * @return VecBiv*
+ */
+VecBiv* ggsw_Sj_Yi(GGSWCiphertext* ct, int64_t i, int64_t j){
+    // GLWE parameters
+    int64_t N = ct->params->params->N;
+    int64_t k = ct->params->params->k;
+    int64_t n_limbs = ct->params->params->n_limbs;
+    int64_t l = n_limbs/(k + 1);
+
+    // GGSW parameters
+    int64_t k_tilde = ct->params->k_tilde;
+
+    return ct->ct + i*(k_tilde + 1)*n_limbs*N + j*n_limbs*N;
+}
+
+/**
+ * @brief Return the pointer to biGLWE(DFT(-m * sk_j) * Y^i) in DFT space.
+ * 
+ * @param ct A GGSW ciphertext in DFT space.
+ * @param i The degree in Y of the phase = -m * sk_j * Y^i.
+ * @param j The j-th component of Sk.
+ * 
+ * @return VecBivDFT*
+ */
+VecBivDFT* ggsw_Sj_Yi_dft(GGSWPreparedCt* ct, int64_t i, int64_t j){
+    // GLWE parameters
+    int64_t N = ct->params->params->N;
+    int64_t k = ct->params->params->k;
+    int64_t n_limbs = ct->params->params->n_limbs;
+    int64_t l = n_limbs/(k + 1);
+
+    // GGSW parameters
+    int64_t k_tilde = ct->params->k_tilde;
+
+    return ct->ct + i*(k_tilde + 1)*n_limbs*N + j*n_limbs*N;
+}
+
+/**
  * @brief Creates a bivGGSW, filled with 0.
  * 
  * @param res The result GGSW ciphertext.
@@ -44,6 +88,7 @@ void normalize_ggsw(GGSWCiphertext* res,
                     GGSWCiphertext* ct
 ){
     // GLWE parameters
+    int64_t N = res->params->params->N;
     int64_t n_limbs = res->params->params->n_limbs;
 
     // GGSW parameters
@@ -51,19 +96,28 @@ void normalize_ggsw(GGSWCiphertext* res,
     int64_t n_limbs_tilde = res->params->n_limbs_tilde;
 
     // Matrix parameters
-    int64_t nb_partial = k_tilde;
-    int64_t nb_rows_per_partial = n_limbs_tilde/k_tilde;
+    int64_t nb_partial = n_limbs_tilde/(k_tilde + 1);
+    int64_t nb_rows_per_partial = k_tilde + 1;
+
+    MODULE* module = new_module(N,FFT64);
 
     for(int64_t i = 0 ; i < nb_partial ; i++)
     {
-        for(int64_t )
+        for(int64_t j = 0 ; j < nb_rows_per_partial ; j++)
         {
             // The pointer to biGLWE(-m * sk_j * Y^i)
-            VecBiv* ct_biv = res->ct + i*nb_rows_per_partial*n_limbs + j*n_limbs;
-            vec_znx_normalize_base2k(module, ct->params->params->kappa, 
-                                    );
+            VecBiv* res_glwe = ggsw_Sj_Yi(res->ct, i, j);
+            VecBiv* ct_glwe = ggsw_Sj_Yi(ct->ct, i, j);
+            
+            // Normalize ct
+            uint8_t* tmp = vec_znx_normalize_base2k_tmp_bytes(module);
+            vec_znx_normalize_base2k(module, ct->params->params->kappa, res_glwe, n_limbs, N, ct_glwe, n_limbs, N, tmp);
+            
+            free(tmp);
         }
     }
+
+    free(module);
 }
 
 /**

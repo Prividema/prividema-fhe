@@ -3,8 +3,6 @@
 
 #include "ggsw_ciphertext.h"
 
-typedef struct svp_ppol_t SVP_PPOL;
-
 typedef struct ggsw_secret_key {
   uint32_t size;       // Key size, usually k.N
   int64_t* values;     // The key itself.
