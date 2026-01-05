@@ -26,9 +26,9 @@ int64_t* new_vec_znx_big_p(const MODULE* module,  // N
 
 void vec_znx_idft_p(const MODULE* module,                  // N
                     int64_t* res, uint64_t res_size,       // res
-                    const double* a_dft, uint64_t a_size,  // a
-                    uint8_t* tmp                           // useless
+                    const double* a_dft, uint64_t a_size   // a
 ){
+    uint8_t* tmp = NULL;
     vec_znx_idft(module, (VEC_ZNX_BIG*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size, tmp);
 }
 
@@ -65,12 +65,13 @@ double* new_vmp_pmat_p(const MODULE* module,           // N
     return (double*)new_vmp_pmat(module, nrows, ncols);
 }
 
-void vmp_prepare_contiguous_p(const MODULE* module,                                // N
-                              double* pmat,                                      // output
-                              const int64_t* mat, uint64_t nrows, uint64_t ncols,  // a
-                              uint8_t* tmp_space                                   // scratch space
+void vmp_prepare_contiguous_p(const MODULE* module,                               // N
+                              double* pmat,                                       // output
+                              const int64_t* mat, uint64_t nrows, uint64_t ncols  // a
 ){
+    uint8_t* tmp_space = malloc(vmp_prepare_contiguous_tmp_bytes(module, nrows, ncols));
     vmp_prepare_contiguous(module, (VMP_PMAT*)pmat, mat, nrows, ncols, tmp_space);
+    free(tmp_space);
 }
 
 void delete_vmp_pmat_p(double* pmat){
@@ -80,18 +81,30 @@ void delete_vmp_pmat_p(double* pmat){
 void vmp_apply_dft_p(const MODULE* module,                                   // N
                      double* res, uint64_t res_size,                         // res
                      const int64_t* a, uint64_t a_size, uint64_t a_sl,       // a
-                     const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols,  // prep matrix
-                     uint8_t* tmp_space                                      // scratch space
+                     const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols   // prep matrix
 ){
+    uint8_t* tmp_space = malloc(vmp_apply_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
     vmp_apply_dft(module, (VEC_ZNX_DFT*)res, res_size, a, a_size, a_sl, (VMP_PMAT*)pmat,nrows, ncols, tmp_space);
+    free(tmp_space);
 }
 
 void vmp_apply_dft_to_dft_p(const MODULE* module,                       // N
-                          double* res, const uint64_t res_size,  // res
-                          const double* a_dft, uint64_t a_size,  // a
-                          const MatBivDFT* pmat, const uint64_t nrows,
-                          const uint64_t ncols,  // prep matrix
-                          uint8_t* tmp_space     // scratch space (a_size*sizeof(reim4) bytes)
+                            double* res, const uint64_t res_size,         // res
+                            const double* a_dft, uint64_t a_size,         // a
+                            const MatBivDFT* pmat, const uint64_t nrows,
+                            const uint64_t ncols                          // prep matrix
 ){
+    uint8_t* tmp_space = malloc(vmp_apply_dft_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
     vmp_apply_dft_to_dft(module, (VEC_ZNX_DFT*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size, (VMP_PMAT*)pmat, nrows, ncols, tmp_space);
+    free(tmp_space);
+}
+
+void vec_znx_normalize_base2k_p(const MODULE* module,                              // N
+                                uint64_t log2_base2k,                              // output base 2^K
+                                int64_t* res, uint64_t res_size, uint64_t res_sl,  // res
+                                const int64_t* a, uint64_t a_size, uint64_t a_sl   //a
+){
+    uint8_t* tmp = malloc(vec_znx_normalize_base2k_tmp_bytes);
+    vec_znx_normalize_base2k(module, log2_base2k, res, res_size, res_sl, a, a_size, a_sl, tmp);
+    free(tmp);
 }

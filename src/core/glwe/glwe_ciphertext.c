@@ -1,5 +1,7 @@
 #include "glwe_ciphertext.h"
 #include "spqlios_alias.h"
+#include "vec_znx_arithmetic_private.h"
+#include <string.h>
 
 
 //! GLWE PART (begin)
@@ -48,16 +50,29 @@ int64_t poly_biv_size(GLWECtParams* params){
 }
 
 /**
- * @brief The size of a bivariate polynomial.
+ * @brief The number of bytes needed to store a bivariate polynomial.
  * 
- * @param params 
+ * @param params The GLWE parameters.
  * @return int64_t 
  * 
- * @note The size of a bivariate polynomial is the same in and out of DFT space.
+ * @note The number of bytes needed to store a bivariate polynomial is the same in and out of DFT space.
  */
 int64_t poly_biv_bytes(GLWECtParams* params){
     int64_t N = params->N;
     return poly_biv_size(params) * N * sizeof(int64_t);
+}
+
+/**
+ * @brief The number of bytes needed to store a univariate polynomial.
+ * 
+ * @param params The GLWE parameters.
+ * @return int64_t 
+ * 
+ * @note The number of bytes needed to store a univariate polynomial is the same in and out of DFT space.
+ */
+int64_t poly_univ_bytes(GLWECtParams* params){
+    int64_t N = params->N;
+    return N * sizeof(int64_t);
 }
 
 /**

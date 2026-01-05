@@ -132,7 +132,7 @@ void ggsw_add(GGSWCiphertext* res,  // result
  * @param ct1 The GGSW ciphertext.
  * @param u The polynomial in ZnX, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void ggsw_const_mult(GGSWCiphertext* res,  
+void const_mult_ggsw(GGSWCiphertext* res,  
                      GGSWCiphertext* ct, 
                      PolyUniv* u
 ){
@@ -155,8 +155,7 @@ void ggsw_const_mult(GGSWCiphertext* res,
     svp_apply_dft_p(module, ct_dft, mat_size, u_prep, ct->mat, mat_size, N);
 
     // Go back to ZnXY
-    uint8_t* tmp = NULL;
-    vec_znx_idft_p(module, res->mat, mat_size, ct_dft, mat_size, tmp);
+    vec_znx_idft_p(module, res->mat, mat_size, ct_dft, mat_size);
     
     // Normalization
     for(int64_t i = 0 ; i < nb_partials(params_ggsw) ; i++)
@@ -259,7 +258,7 @@ void delete_ggsw_prepared(GGSWCiphertextDFT* res_dft
  * @param ct1 The GGSW ciphertext.
  * @param u The polynomial in ZnX, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void ggsw_const_mult_dft(GGSWCiphertextDFT* res_dft,  
+void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,  
                          GGSWCiphertextDFT* ct_dft, 
                          PolyUniv* u
 ){
@@ -281,8 +280,7 @@ void ggsw_const_mult_dft(GGSWCiphertextDFT* res_dft,
     new_ggsw(tmp_ggsw_1, params_ggsw, tmp_mat);
 
     // Does tmp_ggsw = iDFT(ct_in_dft). Then ct_dft = DFT(u) * DFT(iDFT(ct_dft))) = DFT(u) * ct_in_dft
-    uint8_t* tmp_space = NULL;
-    vec_znx_idft_p(module, tmp_ggsw_1->mat, mat_size, ct_dft->pmat, mat_size, tmp_space);
+    vec_znx_idft_p(module, tmp_ggsw_1->mat, mat_size, ct_dft->pmat, mat_size);
     svp_apply_dft_p(module, ct_dft->pmat, mat_size, u_dft, tmp_ggsw_1->mat, mat_size, N);
 
     delete_ggsw(tmp_ggsw_1);
@@ -292,7 +290,7 @@ void ggsw_const_mult_dft(GGSWCiphertextDFT* res_dft,
     GGSWCiphertext* tmp_ggsw_2;
     new_ggsw(tmp_ggsw_2, params_ggsw, tmp);
 
-    vec_znx_idft_p(module, tmp_ggsw_2->mat, mat_size, ct_dft->pmat, mat_size, tmp);
+    vec_znx_idft_p(module, tmp_ggsw_2->mat, mat_size, ct_dft->pmat, mat_size);
     
     // Normalization of tmp_ggsw = u * iDFT(ct_dft_in) 
     for(int64_t i = 0 ; i < nb_partials(params_ggsw) ; i++)
@@ -300,10 +298,10 @@ void ggsw_const_mult_dft(GGSWCiphertextDFT* res_dft,
         for(int64_t j = 0 ; j < nb_rows_per_partial(params_ggsw) ; j++)
         {
             // The pointer to biGLWE(-m * sk_j * Y^i)
-            VecBivDFT* ct_biv = ggsw_Sj_Yi(tmp_ggsw_2, i, j);
+            VecBiv* ct_biv = ggsw_Sj_Yi(tmp_ggsw_2, i, j);
 
             // TODO Does it works to do it inplace ?
-            uint8_t* tmp = vec_znx_big_normalize_base2k_tmp_bytes(module);
+            uint8_t* tmp = malloc(vec_znx_big_normalize_base2k_tmp_bytes(module));
             vec_znx_normalize_base2k(module, ct_dft->params->params->kappa, 
                                      ct_biv, glwe_size(params_glwe), N,
                                      ct_biv, glwe_size(params_glwe), N,
@@ -314,7 +312,7 @@ void ggsw_const_mult_dft(GGSWCiphertextDFT* res_dft,
     }
 
     // Go back to DFT space
-    vec_znx_dft_p(module, res_dft->pmat, mat_size, tmp_ggsw_2, mat_size, N);
+    vec_znx_dft_p(module, res_dft->pmat, mat_size, tmp_ggsw_2->mat, mat_size, N);
 
     delete_ggsw(tmp_ggsw_2);
 }

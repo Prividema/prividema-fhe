@@ -34,6 +34,7 @@ void const_mult_glwe_dft(GLWEPreparedCt* res, PolyUniv* u, GLWEPreparedCt* ct);
 
 int64_t glwe_size(GLWECtParams* params);
 int64_t glwe_bytes(GLWECtParams* params);
+int64_t poly_univ_bytes(GLWECtParams* params);
 int64_t poly_biv_size(GLWECtParams* params);
 int64_t poly_biv_bytes(GLWECtParams* params);
 void vec_znx_dft_mult(const MODULE* module, 

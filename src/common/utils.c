@@ -63,7 +63,7 @@ double erfinv(double x) {
 }
 
 /**
- * Generates a random number between 0 and 1 that follows a normal distribution with given mu and sigma.
+ * Generates a random number that follows a normal distribution with given mu and sigma.
  * 
  * @param result A pointer that will point to the generated value.
  * @param mu     The mean value.

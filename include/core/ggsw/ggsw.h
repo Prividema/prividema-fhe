@@ -17,13 +17,17 @@ int encrypt_biv_glwe(const MODULE* module,
                      PolyBiv* phase
 );
 
-int ggsw_secret_encrypt(GGSWCiphertext* res,           
-                        GGSWPreparedSK* sk,             
-                        PolyUniv* msg,                
-                        GGSWCtParams* enc_params 
+int compute_phase_biv(GGSWCtParams* params, 
+                      PolyBiv* res,
+                      PolyUnivDFT* phase_univ_dft, 
+                      int64_t i
 );
 
-
+int ggsw_secret_encrypt(GGSWCiphertext* res,           
+                        GGSWPreparedSK* sk,             
+                        PolyUniv* msg_univ,                
+                        GGSWCtParams* enc_params 
+);
 
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public
@@ -82,17 +86,28 @@ void decrypt_biv_glwe(int64_t* res,
 
 //! GGSW IN DFT PART (begin)   
 
-int encrypt_biv_glwe_dft(GLWECtParams* params, 
-                         VecBivDFT* res_ct,
-                         const MODULE* module, 
-                         GGSWPreparedSK* sk, 
-                         PolyBivDFT* phase
+int compute_phase_biv_dft(GGSWCtParams* enc_params, 
+                          PolyBivDFT* res_dft,
+                          PolyUnivDFT* phase_univ_dft, 
+                          int64_t i
 );
 
-int ggsw_secret_encrypt_dft(GGSWCiphertextDFT* res,        // result
-                            GGSWPreparedSK* sk,         // secret key
-                            PolyUniv* msg,                 // message
-                            GGSWCtParams* enc_params    // parameters
+int add_error_dft(GLWECtParams* enc_params,
+                  PolyBivDFT* res_dft,
+                  PolyBivDFT* phase_dft 
+);
+
+int encrypt_biv_glwe_dft(GLWECtParams* enc_params, 
+                         const MODULE* module, 
+                         VecBivDFT* res_dft,
+                         GGSWPreparedSK* sk_dft, 
+                         PolyBivDFT* phase_dft
+);
+
+int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,    // parameters
+                            GGSWCiphertextDFT* res_dft,        // result
+                            GGSWPreparedSK* sk_dft,         // secret key
+                            PolyUniv* msg_univ                 // message                
 );
 
 
