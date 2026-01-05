@@ -29,6 +29,10 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
                         GGSWCtParams* enc_params 
 );
 
+void ggsw_decrypt(int64_t* res,   // result
+                  GGSWSecretKey* sk,  // secret key
+                  GGSWCiphertext* ct  // ciphertext
+);
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public
 // key.
@@ -54,12 +58,7 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* res,       // result
                              GGSWCtParams* enc_params  // parameters
 );
 
-/* Decrypts message res from GGSW ciphertext ct */
-/* /!\ Is that actually useful ? */
-void ggsw_decrypt(int64_t* res,   // result
-                  GGSWSecretKey* sk,  // secret key
-                  GGSWCiphertext* ct  // ciphertext
-);
+
 
 /* Decrypts message res from GGSW ciphertext ct */
 /* /!\ Is that actually useful ? */

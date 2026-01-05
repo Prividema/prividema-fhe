@@ -93,3 +93,4 @@ int rand_normal(double *result, double mu, double sigma)
 
     return 0;
 }
+

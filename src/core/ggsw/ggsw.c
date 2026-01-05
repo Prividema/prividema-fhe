@@ -45,48 +45,57 @@ int normal_random_biv_poly(MODULE* module,
     return 0;
 }
 
-/**
- * @brief Adds the bivariate polynomial m to the GGSW bivariate ciphertext. 
- * 
- * @details If ct_in = (a_0,..,a_p,..,a_k-1,b) then ct_in = (a_0,..,a_p + m,..,a_k-1,b).
- * 
- * @param params GGSW parameters.
- * @param ct_out GGSW bivariate ciphertext output.
- * @param m bivariate polynomial.
- * @param ct_in GGSW bivariate ciphertext input.
- * @param p the index of `a_p`.
- * @note If p = k then `a_k = b`. 
- */
-
-void add_inplace_m_to_aj_dft(GLWECtParams* params, 
-                             VecBivDFT* ct_in,
-                             PolyBivDFT* m,
-                             int64_t j
-){
-    int64_t N = params->N;
-    int64_t k = params->k;
-    int64_t l = params->n_limbs/(k+1); 
-
-    for (int64_t i = 0 ; i < l ; i++){
-        for (int64_t p = 0 ; p < N ; p++){
-            // No need to differenciate Re and Im since we are only adding m to ct_in
-            ct_in[i*N*(k+1) + j*N + p] = ct_in[i*N*(k+1) + j*N + p] + m[j*N + p];
-        }
-    }
-}
 
 /**
  * @brief Decrypts the phase (message + noise) and puts it in phase.
  * 
  * @param phase The phase. 
- * @param key The secret key.
+ * @param key The secret key in DFT space.
  * @param c The ciphertext.
  */
-void decrypt_biv_glwe(int64_t* phase, 
-                      GGSWSecretKey* key,
-                      int64_t* c
+void decrypt_biv_glwe(GLWECtParams* enc_params,
+                      int64_t* phase, 
+                      GGSWPreparedSK* sk_dft,
+                      GLWECiphertext* ct
 ){
+    // GLWE parameters
+    int64_t N = enc_params->N;
+    int64_t k = enc_params->k;
+    int64_t l = enc_params->n_limbs / (k+1);
 
+    MODULE* module = new_module_info(N, FFT64);
+
+    // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
+    PolyBiv* acc = malloc(poly_biv_bytes(enc_params)); 
+    if (!acc){
+        perror("calloc failed");
+        return -1;
+    }
+
+    // Computes ∑_j{0,k-1}[resVec_j_dft]
+    // Where resVec_j_dft = (DFT(s_j) * limb_1(a_j) , ... , DFT(s_j) * limb_l(a_j))
+    for(int64_t j = 0 ; j < k ; j++)
+    {
+        // The j-ème component of the secret key sk_dft
+        PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
+        
+        // Computes vec_j_dft = (DFT(s_j) * limb_1(a_j) , ... , DFT(s_j) * limb_l(a_j))
+        PolyBivDFT* vec_j_dft = new_vec_znx_dft_p(module, l); 
+        svp_apply_dft_p(module, vec_j_dft, l, sk_j_univ_dft, ct->vec + j*N, l, (k+1)*N); 
+        
+        // Computes resVec_j in ZnXY space
+        PolyBiv* vec_j = new_vec_znx_big_p(module, l); 
+        vec_znx_idft_p(module, vec_j, l, vec_j_dft, l);
+
+        // And adds it to acc_j
+        for(int64_t p = 0 ; p < N*l ; p++){
+            acc[p] += vec_j[p];
+        }
+        delete_vec_znx_dft_p(vec_j_dft);
+        delete_vec_znx_big_p(vec_j);
+    }
+
+    
 }
 
 
@@ -105,7 +114,7 @@ void decrypt_biv_glwe(int64_t* phase,
 int encrypt_biv_glwe(const MODULE* module,
                      GLWECtParams* params, 
                      VecBiv* res_ct,
-                     GGSWPreparedSK* sk, 
+                     GGSWPreparedSK* sk_dft, 
                      PolyBiv* phase
 ){
     int64_t N = params->N;
@@ -125,11 +134,11 @@ int encrypt_biv_glwe(const MODULE* module,
         return -1;
     }
 
-    // Computes ∑_j{0,k-1}[resVec_j]
+    // Computes ∑_j{0,k-1}[resVec_j_dft]
     for(int64_t j = 0 ; j < k ; j++)
     {
         // The j-ème component of the secret key sk_dft
-        PolyUnivDFT* sk_j_univ_dft = sk->values[j]; 
+        PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
         
         // Computes resVec_j_dft = (DFT(s_j) * limb_1(a_j) , ... , DFT(s_j) * limb_l(a_j))
         // TODO : can I only use one resVec_j, defined before the loop?
@@ -174,7 +183,11 @@ int encrypt_biv_glwe(const MODULE* module,
  * 
  * If p > l_tilde then the phase is to low and we round it to zero.
  */
-int compute_phase_biv(GGSWCtParams* params, PolyBiv* res, PolyUnivDFT* phase_univ_dft, int64_t i){
+int compute_phase_biv(GGSWCtParams* params, 
+                      PolyBiv* res, 
+                      PolyUnivDFT* phase_univ_dft, 
+                      int64_t i
+){
     // GGSW parameters
     int64_t kappa_tilde = params->kappa_tilde;
     int64_t l_tilde = params->n_limbs_tilde/(params->k_tilde + 1);
@@ -300,6 +313,7 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
 
 
 //! GGSW IN DFT PART (begin)
+
 /**
  * @brief Adds a bivariate error to the bivariate phase, returns in DFT space.
  * 

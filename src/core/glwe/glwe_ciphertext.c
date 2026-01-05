@@ -121,3 +121,25 @@ void vec_znx_dft_mult(const MODULE* module,
         vec_znx_dft_mult(module, res_dft, res_size, d_dft, d_size, c_dft, c_size);
     }
 }
+
+/**
+ * @brief Compute the univariate repreentation in RnX of a bivariate polynomial.
+ * 
+ * @param params The GLWE parameters.
+ * @param res_univ The result univariate polynomial.
+ * @param poly The input bivariate polynomial.
+ */
+void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* poly){
+    // GLWE parameters 
+    int64_t N = params->N; 
+    int64_t k = params->k; 
+    int64_t l = params->n_limbs / (k+1);
+
+    // acc_(i+1) = acc_i + limb_i(poly) * 1/Bg^i
+    double* acc = malloc(N * sizeof(double));
+    for(int64_t i = 0 ; i < l ; i++){
+        for(int64_t p = 0 ; p < N ; p++){
+            acc[p] = (double)poly[N*i + p] / ((double) params->kappa)
+        }
+    }
+}

@@ -8,8 +8,8 @@
 //! GLWE PART (begin)
 
 typedef struct glwe_ciphertext {
-  GLWECtParams* params;  // GLWE parameters
-  int64_t* vec;          // Represents a vector of size (k + 1) * l with coefficients that are in ZnX
+  GLWECtParams* params;   // GLWE parameters
+  VecBiv* vec;            // Represents a vector of size (k + 1) * l with coefficients that are in ZnX
 } GLWECiphertext;
 
 int new_glwe(GLWECiphertext* res, GLWECtParams* params);
@@ -21,8 +21,8 @@ void const_mult_glwe(GLWECiphertext* res, PolyUniv* u, GLWECiphertext* ct);
 //! GLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft {
-  GLWECtParams* params;  // GLWE parameters
-  int64_t* pvec;         // Prepared vector
+  GLWECtParams* params;     // GLWE parameters
+  VecBivDFT* pvec;          // Prepared vector
 } GLWEPreparedCt;
 
 int new_glwe_dft(GLWEPreparedCt* res, GLWECtParams* params);
@@ -42,5 +42,6 @@ void vec_znx_dft_mult(const MODULE* module,
               double* c_dft, int64_t c_size,  
               double* d_dft, int64_t d_size
 );
+void biv_to_univ(GLWECtParams* params, PolyUniv* res_univ, PolyBiv* poly);
 
 #endif  // GLWE_CIPHERTEXT_H
