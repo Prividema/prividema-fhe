@@ -29,9 +29,15 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
                         GGSWCtParams* enc_params 
 );
 
-void ggsw_decrypt(int64_t* res,   // result
-                  GGSWSecretKey* sk,  // secret key
+void ggsw_decrypt(double* res,   // result
+                  GGSWPreparedSK* sk_dft,  // secret key
                   GGSWCiphertext* ct  // ciphertext
+);
+
+int decrypt_biv_glwe(GLWECtParams* enc_params,
+                     double* phase, 
+                     GGSWPreparedSK* sk_dft,
+                     GLWECiphertext* ct
 );
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public
@@ -77,11 +83,6 @@ void halfggsw_external_product(GLWECiphertext* res,     // result
                                GLWECiphertext* ct1,     // GLWE ciphertext
                                PartialGGSWCiphertext* ct2  // half GGSW ciphertext
 );
-
-void decrypt_biv_glwe(int64_t* res, 
-                      GGSWSecretKey* key,
-                      int64_t* phase);
-
 
 //! GGSW IN DFT PART (begin)   
 

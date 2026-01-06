@@ -25,6 +25,7 @@ typedef struct ggsw_ciphertext {
   MatBiv* mat;           // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in ZnX
 } GGSWCiphertext;
 
+int64_t ggsw_coef_nb(GGSWCtParams* params);
 int new_ggsw(GGSWCiphertext* res, GGSWCtParams* params, MatBiv* ct);
 void delete_ggsw(GGSWCiphertext* ct);
 VecBiv* ggsw_Sj_Yi(GGSWCiphertext* ct, int64_t i, int64_t j);
@@ -38,6 +39,7 @@ typedef struct ggsw_ciphertext_dft {
   MatBivDFT* pmat;       // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in ZnX
 } GGSWCiphertextDFT;
 
+int64_t ggsw_coef_nb_dft(GGSWCtParams* params);
 int new_ggsw_dft(GGSWCiphertextDFT* res, GGSWCtParams* params, MatBivDFT* ct);
 void delete_ggsw_dft(GGSWCiphertextDFT* ct);
 VecBivDFT* ggsw_Sj_Yi_dft(GGSWCiphertextDFT* ct, int64_t i, int64_t j);

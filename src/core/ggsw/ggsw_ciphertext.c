@@ -5,6 +5,16 @@
 //! GGSW Part (begin)
 
 /**
+ * @brief The number of coefficient in a bivariate GGSW ciphertext.
+ * 
+ * @param params The GGSW parameters.
+ * @return int64_t 
+ */
+int64_t ggsw_coef_number(GGSWCtParams* params){
+    return params->n_limbs_tilde * glwe_coef_number(params->params);
+}
+
+/**
  * @brief Creates a bivGGSW, filled with 0.
  * 
  * @param res The result GGSW ciphertext.
@@ -108,7 +118,7 @@ void normalize_ggsw(GGSWCiphertext* res,
  * @param ct1 The left-hand side GGSW ciphertext.
  * @param ct2 The right-hand side GGSW ciphertext.
  */
-void ggsw_add(GGSWCiphertext* res,  // result
+void add_ggsw(GGSWCiphertext* res,  // result
              GGSWCiphertext* ct1,  // first operand
              GGSWCiphertext* ct2   // second operand
 ){
@@ -181,6 +191,19 @@ void const_mult_ggsw(GGSWCiphertext* res,
 //! GGSW DFT PART (begin)
 
 /**
+ * @brief The number of coefficient in a bivariate GGSW ciphertext in DFT space.
+ * 
+ * @param params The GGSW parameters.
+ * @return int64_t 
+ * 
+ * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in ZnX, 
+ * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
+ */
+int64_t ggsw_coef_number_dft(GGSWCtParams* params){
+    return (params->n_limbs_tilde * glwe_coef_number(params->params))/2;
+}
+
+/**
  * @brief Return the pointer to biGLWE(DFT(-m * sk_j) * Y^i) in DFT space.
  * 
  * @param ct A GGSW ciphertext in DFT space.
@@ -201,9 +224,6 @@ VecBivDFT* ggsw_Sj_Yi_dft(GGSWCiphertextDFT* ct_dft, int64_t i, int64_t j){
 
     return ct_dft->pmat + i*(k_tilde + 1)*n_limbs*N + j*n_limbs*N;
 }
-
-
-
 
 /**
  * @brief Creates a bivGGSW in DFT space, filled with 0.

@@ -104,7 +104,7 @@ void vec_znx_normalize_base2k_p(const MODULE* module,                           
                                 int64_t* res, uint64_t res_size, uint64_t res_sl,  // res
                                 const int64_t* a, uint64_t a_size, uint64_t a_sl   //a
 ){
-    uint8_t* tmp = malloc(vec_znx_normalize_base2k_tmp_bytes);
+    uint8_t* tmp = malloc(vec_znx_normalize_base2k_tmp_bytes(module));
     vec_znx_normalize_base2k(module, log2_base2k, res, res_size, res_sl, a, a_size, a_sl, tmp);
     free(tmp);
 }
