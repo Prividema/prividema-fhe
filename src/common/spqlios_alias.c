@@ -1,6 +1,10 @@
 #include "spqlios_alias.h"
 #include "vec_znx_arithmetic.h"
 
+MODULE* new_module_info_p(uint64_t N, MODULE_TYPE mode){
+    return new_module_info(N, mode);
+}
+
 double* new_vec_znx_dft_p(const MODULE* module,  // N
                           uint64_t size
 ){

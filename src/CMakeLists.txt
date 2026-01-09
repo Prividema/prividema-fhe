@@ -1,11 +1,15 @@
-# Build backend library : 
+# ----------------------------------------
+# Build project libraries
+# ----------------------------------------
+
+# Backend library
 add_subdirectory(backend)
 
-# Build common library :
+# Common library
 add_subdirectory(common)
 
-# Build core library : The library will be an interface that contains glwe and ggsw.
+# Core library (interface library containing GLWE and GGSW modules)
 add_subdirectory(core)
 
-# Build schemes library :
+# Schemes library
 add_subdirectory(schemes)

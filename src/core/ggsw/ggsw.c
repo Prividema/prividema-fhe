@@ -10,43 +10,6 @@
 //! GGSW PART (begin)
 
 /**
- * @brief Computes a random normal bivariate polynomial.
- * 
- * @param module The module holding the degree N and FFT64.
- * @param params The GLWE parameters.
- * @param res The result bivariate polynomial. 
- * @param res_sl The result's vector stride.
- * @return int 
- */
-
-int normal_random_biv_poly(MODULE* module, 
-                           GLWECtParams*  params, 
-                           PolyBiv* res, int64_t res_sl
-){
-    // GLWE parameters
-    int64_t N = params->N;
-    int64_t kappa = params->kappa;
-    int64_t l = params->n_limbs/(params->k + 1);
-
-    int64_t* tmp_biv_pol = malloc(poly_biv_bytes(params));
-    
-    // Fills res(Y^l) with coefficients in [-2^(kappa*l - 1) ; 2^(kappa*l - 1)]
-    for(int64_t p = 0 ; p < N ; p++)
-    {
-        if(rand_normal((double *)tmp_biv_pol + N*l + p, 0.0, 1.0) < 0) 
-                return -1;
-
-        tmp_biv_pol[N*l + p] = (int64_t) ldexp(tmp_biv_pol[N*l + p], kappa * l);
-    }
-
-    // Then does a base-2Kappa normalization 
-    vec_znx_normalize_base2k_p(module, kappa, res, poly_biv_size(params), res_sl, tmp_biv_pol, poly_biv_size(params), N);
-
-    return 0;
-}
-
-
-/**
  * @brief Decrypts the phase (message + noise) and puts it in phase.
  * 
  * @param enc_params The GLWE parameters.
@@ -348,7 +311,7 @@ int add_error_dft(GLWECtParams* enc_params,
     MODULE* module = new_module_info(enc_params->N, FFT64);
     vec_znx_idft_p(module, phase, poly_biv_size(enc_params), phase_dft, poly_biv_size(enc_params));
 
-    normal_random_biv_poly(module, enc_params, phase, enc_params->N);
+    normal_random_biv_poly(module, enc_params, phase);
 
     vec_znx_dft_p(module, res_dft, poly_biv_size(enc_params), phase, poly_biv_size(enc_params), enc_params->N);
 }
@@ -386,7 +349,6 @@ int encrypt_biv_glwe_dft(GLWECtParams* enc_params,
         free(tmp_ct);
         return -1;
     }
-    
     
     // acc_(j+1) = acc_j + (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
     PolyBiv* acc = calloc(N*l,sizeof(double)); 

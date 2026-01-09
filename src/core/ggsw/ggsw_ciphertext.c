@@ -20,26 +20,30 @@ int64_t ggsw_coef_number(GGSWCtParams* params){
  * @param res The result GGSW ciphertext.
  * @param params The GGSW parameters.
  */
-int new_ggsw(GGSWCiphertext* res, GGSWCtParams* params, MatBiv* ct
+GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct
 ){
     int64_t limb_size = params->params->N;
     int64_t nb_rows = params->n_limbs_tilde;
     int64_t nb_cols = params->n_limbs_tilde;
 
-    res = malloc(sizeof(GGSWCiphertext));
-    if(res == NULL)
-        return -1;
+    GGSWCiphertext* ggsw_ct = malloc(sizeof(GGSWCiphertext));
+    if(ggsw_ct == NULL)
+        perror("Malloc failed.");
+        return NULL;
 
-    res->params = params;   
+    ggsw_ct->params = params;   
 
     if(ct == NULL)
-        res->mat = calloc(nb_rows * nb_cols * limb_size, sizeof(int64_t));
-        if(res->mat == NULL)
-            return -1;
+    {
+        ggsw_ct->mat = calloc(ggsw_coef_number(params), sizeof(int64_t));
+        if(ggsw_ct->mat == NULL)
+            perror("Malloc failed.");
+            return NULL;
+    }
     else
-        res->mat = ct;
+        ggsw_ct->mat = ct;
     
-    return 0;
+    return ggsw_ct;
 }
 
 /**
@@ -231,24 +235,24 @@ VecBivDFT* ggsw_Sj_Yi_dft(GGSWCiphertextDFT* ct_dft, int64_t i, int64_t j){
  * @param res The result bivGGSW ciphertext in DFT space.
  * @param params The GGSW parameters.
  */
-int new_ggsw_prepared(GGSWCiphertextDFT* res_dft, GGSWCtParams* params, MatBivDFT* ct
+GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct
 ){
-    int64_t limb_size = params->params->N;
-    int64_t nb_rows = params->n_limbs_tilde;
-    int64_t nb_cols = params->n_limbs_tilde;
+    GGSWCiphertextDFT* ggsw_ct_dft = malloc(sizeof(GGSWCiphertext));
+    if(ggsw_ct_dft == NULL)
+        perror("Malloc failed.");
+        return NULL;
 
-    res_dft = malloc(sizeof(GGSWCiphertext));
-    if(res_dft == NULL)
-        return -1;
-
-    res_dft->params = params;   
+    ggsw_ct_dft->params = params;   
 
     if(ct == NULL)
-        res_dft->pmat = calloc(nb_rows * nb_cols * limb_size, sizeof(double));
-        if(res_dft->pmat == NULL)
-            return -1;
+    {
+        ggsw_ct_dft->pmat = calloc(2 * ggsw_coef_number_dft(params), sizeof(double));
+        if(ggsw_ct_dft->pmat == NULL)
+            perror("Malloc failed.");
+            return NULL;
+    }
     else
-        res_dft->pmat = ct;
+        ggsw_ct_dft->pmat = ct;
     
     return 0;
 }
@@ -295,9 +299,7 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,
     svp_prepare_p(module, u_dft, u);
 
     // Temporary GGSW ciphertext
-    MatBiv* tmp_mat = NULL;
-    GGSWCiphertext* tmp_ggsw_1;
-    new_ggsw(tmp_ggsw_1, params_ggsw, tmp_mat);
+    GGSWCiphertext* tmp_ggsw_1 = new_ggsw(params_ggsw, NULL);
 
     // Does tmp_ggsw = iDFT(ct_in_dft). Then ct_dft = DFT(u) * DFT(iDFT(ct_dft))) = DFT(u) * ct_in_dft
     vec_znx_idft_p(module, tmp_ggsw_1->mat, mat_size, ct_dft->pmat, mat_size);
@@ -306,9 +308,7 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,
     delete_ggsw(tmp_ggsw_1);
 
     // Does tmp_ggsw = iDFT(ct_dft) = u * iDFT(ct_dft_in)
-    MatBiv* tmp = NULL;
-    GGSWCiphertext* tmp_ggsw_2;
-    new_ggsw(tmp_ggsw_2, params_ggsw, tmp);
+    GGSWCiphertext* tmp_ggsw_2 = new_ggsw(params_ggsw, NULL);
 
     vec_znx_idft_p(module, tmp_ggsw_2->mat, mat_size, ct_dft->pmat, mat_size);
     

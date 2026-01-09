@@ -3,7 +3,8 @@
 
 //! DEFINE SPQLIOS ALIAS (begin) 
 
-/** @brief opaque structure that describr the modules (ZnX,TnX) and the hardware */
+typedef enum module_type_t MODULE_TYPE;
+/** @brief opaque structure that describe the modules (ZnX,TnX) and the hardware */
 typedef struct module_info_t MODULE;
 /** @brief opaque type that represents a prepared matrix */
 typedef struct vmp_pmat_t VMP_PMAT;
@@ -19,6 +20,10 @@ typedef struct cnv_pvec_l_t CNV_PVEC_L;
 typedef struct cnv_pvec_r_t CNV_PVEC_R;
 
 //! The p in "*_p" stands for PRIVIDEMA (begin)
+
+MODULE* new_module_info_p(uint64_t N, 
+                          MODULE_TYPE mode
+);
 
 double* new_vec_znx_dft_p(const MODULE* module,  // N
                           uint64_t size
