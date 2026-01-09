@@ -2,10 +2,9 @@
 #include "math.h"
 #include "ggsw.h"
 #include "distributions.h" // Allow to draw random number following the uniform or normal law
-#include "spqlios_alias.h"
 #include "glwe_ciphertext.h"
+#include "bivariate_polynomial.h"
 #include "vec_znx_arithmetic_private.h"
-#include "ggsw_ciphertext.h"
 
 //! GGSW PART (begin)
 
@@ -303,17 +302,13 @@ int add_error_dft(GLWECtParams* enc_params,
                   PolyBivDFT* res_dft,
                   PolyBivDFT* phase_dft 
 ){
-    PolyBiv* phase = malloc(poly_biv_bytes(enc_params));
-    if (phase == NULL)
-        perror("malloc failed.");
-        return -1;
-
     MODULE* module = new_module_info(enc_params->N, FFT64);
-    vec_znx_idft_p(module, phase, poly_biv_size(enc_params), phase_dft, poly_biv_size(enc_params));
-
-    normal_random_biv_poly(module, enc_params, phase);
-
-    vec_znx_dft_p(module, res_dft, poly_biv_size(enc_params), phase, poly_biv_size(enc_params), enc_params->N);
+    
+    // Compute a random error in DFT space
+    PolyBivDFT* err_dft = new_normal_random_biv_poly_dft(module, enc_params);
+    
+    // Add the error in DFT space
+    add_biv_poly_dft(enc_params, phase_dft, enc_params->N, phase_dft, enc_params->N, err_dft, enc_params->N);
 }
 
 /**

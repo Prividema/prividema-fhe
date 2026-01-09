@@ -1,6 +1,7 @@
 #include "ggsw_ciphertext.h"
 #include "vec_znx_arithmetic_private.h"
 #include "spqlios_alias.h"
+#include "glwe_ciphertext.h"
 
 //! GGSW Part (begin)
 

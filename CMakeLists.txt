@@ -45,6 +45,10 @@ option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
 # Debug print configuration
 # ----------------------------------------
 if(ENABLE_DEBUG)
+    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+        add_link_options(-fsanitize=address)
+    endif()
     message(STATUS "Debug Prints Enabled")
     add_compile_definitions(DEBUG=1)
 else()

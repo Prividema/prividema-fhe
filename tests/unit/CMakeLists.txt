@@ -66,6 +66,7 @@ function(BuildUnitTests testfiles libname)
         # Link project library + Criterion + SPQLIOS
         target_link_libraries(${test_name} PRIVATE
             ${libname}
+            GLWE
             criterion
             libspqlios   # <-- Add SPQLIOS here
         )

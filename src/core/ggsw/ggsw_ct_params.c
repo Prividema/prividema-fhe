@@ -1,24 +1,24 @@
 #include "ggsw_ct_params.h"
-#include <errno.h>
+#include <stdio.h>
 
 /**
  * @brief Create a GGSW parameters
  * 
  * @param params The 
  */
-GGSWCtParams* new_ggsw_ct_params(uint64_t k_tilde, uint64_t kappa_tilde,  uint64_t n_limbs_tilde
+GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,  uint64_t n_limbs_tilde
 ){
-    GGSWCtParams* params = malloc(sizeof(GGSWCtParams));
-    if (params == NULL)
+    GGSWCtParams* params_ggsw = malloc(sizeof(GGSWCtParams));
+    if (params_ggsw == NULL)
         perror("Malloc failed.");
         return NULL;
     
-    params->params = params;
-    params->k_tilde = k_tilde;
-    params->kappa_tilde = kappa_tilde;
-    params->n_limbs_tilde = n_limbs_tilde;
+    params_ggsw->params = params_glwe;
+    params_ggsw->k_tilde = k_tilde;
+    params_ggsw->kappa_tilde = kappa_tilde;
+    params_ggsw->n_limbs_tilde = n_limbs_tilde;
     
-    return params;
+    return params_ggsw;
 }
 
 /**

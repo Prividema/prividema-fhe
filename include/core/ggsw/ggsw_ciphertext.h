@@ -26,7 +26,7 @@ typedef struct ggsw_ciphertext {
 } GGSWCiphertext;
 
 int64_t ggsw_coef_number(GGSWCtParams* params);
-int new_ggsw(GGSWCiphertext* res, GGSWCtParams* params, MatBiv* ct);
+GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct);
 void delete_ggsw(GGSWCiphertext* ct);
 VecBiv* ggsw_Sj_Yi(GGSWCiphertext* ct, int64_t i, int64_t j);
 void add_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);

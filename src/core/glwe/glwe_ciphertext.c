@@ -7,29 +7,31 @@
 //! GLWE PART (begin)
 
 /**
- * @brief The number of coefficient in a bivariate glwe ciphertext.
+ * @brief Return the number of coefficient in a bivariate GLWE ciphertext.
  * 
- * @param params 
- * @return int64_t
+ * @param params The GLWE parameters.
+ * @return int64_t 
  */
 int64_t glwe_coef_number(GLWECtParams* params){
-    return params->n_limbs * params->N;
+    return glwe_size(params) * params->N;
 }
+
 
 //! GLWE IN DFT PART (begin)
 
 /**
- * @brief The number of coefficient in a bivariate glwe ciphertext in DFT space.
+ * @brief The number of coefficient in a bivariate GLWE ciphertext in DFT space.
  * 
- * @param params 
- * @return int64_t
+ * @param params The GLWE parameters.
+ * @return int64_t 
  * 
  * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in ZnX, 
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 int64_t glwe_coef_number_dft(GLWECtParams* params){
-    return (params->n_limbs * params->N)/2;
+    return glwe_size(params) * params->N / 2;
 }
+
 
 //! COMMON PART (begin)
 
@@ -45,7 +47,6 @@ int64_t glwe_size(GLWECtParams* params){
     return params->n_limbs;
 }
 
-
 /**
  * @brief The number of bytes needed to store a bivGLWE ciphertext.
  * 
@@ -55,7 +56,8 @@ int64_t glwe_size(GLWECtParams* params){
  * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of DFT space. 
  */
 int64_t glwe_bytes(GLWECtParams* params){
-    return glwe_coef_number(params) * sizeof(int64_t); 
+    int64_t N = params->N;
+    return glwe_size(params) * N * sizeof(int64_t); 
 }
 
 /**
@@ -102,28 +104,5 @@ void vec_znx_dft_mult(const MODULE* module,
     }
     else {
         vec_znx_dft_mult(module, res_dft, res_size, d_dft, d_size, c_dft, c_size);
-    }
-}
-
-
-/**
- * @brief Compute the univariate repreentation in RnX of a bivariate polynomial.
- * 
- * @param params The GLWE parameters.
- * @param res_univ The result univariate polynomial.
- * @param poly The input bivariate polynomial.
- */
-void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* poly){
-    // GLWE parameters 
-    int64_t N = params->N; 
-    int64_t k = params->k; 
-    int64_t l = params->n_limbs / (k+1);
-
-    // acc_(i+1) = acc_i + limb_i(poly) * 1/Bg^i
-    double* acc = malloc(N * sizeof(double));
-    for(int64_t i = 0 ; i < l ; i++){
-        for(int64_t p = 0 ; p < N ; p++){
-            acc[p] = (double)poly[N*i + p] / ((double) params->kappa);
-        }
     }
 }
