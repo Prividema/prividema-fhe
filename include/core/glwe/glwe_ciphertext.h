@@ -2,22 +2,49 @@
 #define GLWE_CIPHERTEXT_H
 
 #include <stdint.h>
+#include "glwe_ct_params.h"
+#include "bivariate_polynomial.h"
+#include "spqlios_alias.h"
 
-// TODO : To be Defined (spqlios).
-typedef struct b {
-} Base2kIntegerPoly;
+//! GLWE PART (begin)
 
 typedef struct glwe_ciphertext {
-  GLWECtParams* params;
-  int64_t* ct;  //  corresponds to (a_0, ..., a_{k-1}, b=a_k)
-  
-  // l_a = floor((n_limbs+1)/(k+1))
-  // l_b= n_limbs- k*l_a
-  // L (logalpha) = l_b*kappa //precision
-  // ct[p]= a_i[j], i= p%(k+1) in [0, l_a[ and j= floor(p/k+1) in [O,k[
-  // a0(Y) = a0[O] + a0[1]Y + .... + a0[la-1]Y^{la-1}
-  //
-  // ak(Y) = ak[0]+ ak[1]Y + ... + ak[lb-1]Y^{lb-1}
+  GLWECtParams* params;   // GLWE parameters
+  VecBiv* vec;            // Represents a vector of size (k + 1) * l with coefficients that are in ZnX
 } GLWECiphertext;
+
+
+int64_t glwe_coef_number(GLWECtParams* params);
+int new_glwe(GLWECiphertext* res, GLWECtParams* params);
+void delete_glwe(GLWECiphertext* ct);
+void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2);
+void const_mult_glwe(GLWECiphertext* res, PolyUniv* u, GLWECiphertext* ct);
+
+
+//! GLWE IN DFT PART (begin)
+
+typedef struct glwe_ciphertext_dft {
+  GLWECtParams* params;     // GLWE parameters
+  VecBivDFT* pvec;          // Prepared vector
+} GLWEPreparedCt;
+
+
+int64_t glwe_coef_number_dft(GLWECtParams* params);
+int new_glwe_dft(GLWEPreparedCt* res, GLWECtParams* params);
+void delete_glwe_dft(GLWEPreparedCt* ct);
+void add_glwe_dft(GLWEPreparedCt* res, GLWEPreparedCt* ct1, GLWEPreparedCt* ct2);
+void const_mult_glwe_dft(GLWEPreparedCt* res, PolyUniv* u, GLWEPreparedCt* ct);
+
+//! COMMON PART (begin)
+
+int64_t glwe_size(GLWECtParams* params);
+int64_t glwe_bytes(GLWECtParams* params);
+
+void vec_znx_dft_mult(const MODULE* module, 
+              double* res_dft, int64_t res_size,
+              double* c_dft, int64_t c_size,  
+              double* d_dft, int64_t d_size
+);
+
 
 #endif  // GLWE_CIPHERTEXT_H

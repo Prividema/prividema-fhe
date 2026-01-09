@@ -1,74 +1,132 @@
 cmake_minimum_required(VERSION 3.10)
-project(prividema-fhe C)
+project(prividema-fhe)
 
+# ----------------------------------------
+# Include FetchContent for external dependencies
+# Enable testing framework
+# ----------------------------------------
+include(FetchContent)
+include(CTest)
+enable_testing()
+
+# ----------------------------------------
 # Set C standard
+# ----------------------------------------
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-#[[
-    Build Options. Watchout for the following point :
-    When we build the project and specify the values of the different options, they are registered in a cache at build/CMakeCache.txt
-    So if you rebuild the project without specifying any value, thinking it will be OFF by default, Cmake would actualy read these values in its cache.
-    For example if I execute :
-    ```
-        cmake ..  -DBUILD_TESTS=ON
-    ```
-    and then :
-    ```
-        cmake ..
-    ```
-    BUILD_TESTS will still be ON.
-]]
+# ----------------------------------------
+# Build options
+# ----------------------------------------
+# ----------------------------------------
+# Build Options
+# ----------------------------------------
+# Note on CMake cache:
+# When you first configure the project with specific options (e.g., -DBUILD_TESTS=ON),
+# the values are stored in CMake's cache at build/CMakeCache.txt.
+# If you later re-run CMake without specifying the option, it will reuse the cached value,
+# which may not be what you expect.
+#
+# Example:
+#   cmake .. -DBUILD_TESTS=ON   # BUILD_TESTS is set to ON
+#   cmake ..                    # BUILD_TESTS will still be ON due to cache
+#
+# To reset, either:
+#   - Use -U option to remove cached variables
+#   - Delete the CMakeCache.txt file manually
+
 option(BUILD_TESTS "Build the Tests" ON)
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_GGSW "Build the ggsw library inside libcore" ON)
 option(ENABLE_DEBUG "Enable additional prints for debugging purpose" OFF)
 option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
 
-#[[ 
-    For setting up debug prints in the code we have 2 choices : 
-    On on hand lays Compiler Macros : 
-        - A macro is set at compilation and if ENABLE_DEBUG option is off it won't compile the debug code. 
-        - But you have to recompile the whole project if you want to turn on the macro.
-    On the other hand lays Runtime Variables :
-        - We can turn it on/off without recompiling.
-        - Tiny performance hit as we have to evaluate all the if(DEBUG).
-
-    For what we do, I think it's better to use compiler macros, even if the code may look a bit messier with lines like '#if DEBUG', '#else' and '#endif'.
-]]
+# ----------------------------------------
+# Debug print configuration
+# ----------------------------------------
 if(ENABLE_DEBUG)
     message(STATUS "Debug Prints Enabled")
     add_compile_definitions(DEBUG=1)
 else()
     add_compile_definitions(DEBUG=0)
-endif(ENABLE_DEBUG)
+endif()
 
-# Add subdirectories
+# ----------------------------------------
+# Import spqlios library
+# ----------------------------------------
+FetchContent_Declare(
+    spqlios
+    GIT_REPOSITORY https://github.com/tfhe/spqlios-arithmetic.git
+    GIT_TAG main
+)
+# Disable spqlios internal tests
+set(ENABLE_TESTING OFF CACHE BOOL "Disable Tests" FORCE)
+FetchContent_MakeAvailable(spqlios)
+
+# ----------------------------------------
+# Add main source directory
+# ----------------------------------------
 add_subdirectory(src)
 
+# ----------------------------------------
+# Criterion installation instructions
+# ----------------------------------------
 
+# UBUNTU USERS
+# ------------------------
+# 1. Install Meson (required for building Criterion):
+#      sudo apt install meson
+# 2. Clone and build Criterion (optional if you want latest version):
+#      git clone https://github.com/Snaipe/Criterion.git
+#      cd Criterion/
+#      mkdir build
+#      meson setup build
+#      sudo meson install -C build
+# 3. Verify installation:
+#      ls /usr/include/criterion
+#      ls /usr/lib/libcriterion*
+# Notes:
+#  - Linking math library (-lm) may be required on Linux
 
-# Add tests subdirectory if the build option BUILD_TESTS is ON
-# The option is OFF by default and can be turned OFF by executing cmake with -DBUILD_TESTS=ON
+# MAC USERS
+# ------------------------
+# 1. Install Criterion using Homebrew (recommended):
+#      brew install criterion
+# 2. Ensure Meson is installed (required by Criterion):
+#      brew install meson
+# 3. Verify installation:
+#      # Apple Silicon (arm64)
+#      ls /opt/homebrew/include/criterion
+#      ls /opt/homebrew/lib/libcriterion*
+#      # Intel macOS
+#      ls /usr/local/include/criterion
+#      ls /usr/local/lib/libcriterion*
+# 4. Optional: build from source
+#      git clone https://github.com/Snaipe/Criterion.git
+#      cd Criterion/
+#      mkdir build
+#      meson setup build
+#      meson install -C build
+
+# ----------------------------------------
+# Build unit tests if enabled
+# ----------------------------------------
 if(BUILD_TESTS)
     message(STATUS "Building Test Files")
     add_subdirectory(tests)
-endif(BUILD_TESTS)
+endif()
 
-# Add examples subdirectory if the build option BUILD_TESTS is ON
-# The option is ON by default and can be turned OFF by executing cmake with -DBUILD_TESTS=OFF
+# ----------------------------------------
+# Build examples if enabled
+# ----------------------------------------
 if(BUILD_EXAMPLES)
-    message(STATUS "Building Exemples Files")
+    message(STATUS "Building Example Files")
     add_subdirectory(examples)
-endif(BUILD_EXAMPLES)
+endif()
 
-
-#[[
-    Doxygen Integration.
-    Only generate the WebView and not Latex (it's rather useless...).
-
-    ! Make sure to have installed Doxygen beforewards !
-]]
+# ----------------------------------------
+# Doxygen documentation
+# ----------------------------------------
 if(BUILD_DOCS)
     message(STATUS "Building documentation")
     find_package(Doxygen)
@@ -76,12 +134,12 @@ if(BUILD_DOCS)
         set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
         set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
         configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-        add_custom_target( doc_doxygen ALL
+        add_custom_target(doc_doxygen ALL
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Generating API documentation with Doxygen"
-            VERBATIM )
-    else (DOXYGEN_FOUND)
-        message("Doxygen needs to be installed to generate the documentation")
-    endif(DOXYGEN_FOUND)
-endif(BUILD_DOCS)
+            VERBATIM)
+    else()
+        message(WARNING "Doxygen needs to be installed to generate the documentation")
+    endif()
+endif()

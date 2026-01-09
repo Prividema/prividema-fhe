@@ -1,3 +1,15 @@
-add_library(SCHEME scheme.c)
-set_target_properties(SCHEME PROPERTIES OUTPUT_NAME scheme)
-target_include_directories(SCHEME INTERFACE "${PROJECT_SOURCE_DIR}/include/scheme")
+# ----------------------------------------
+# Build SCHEMES library
+# ----------------------------------------
+
+# Create SCHEMES library
+add_library(SCHEMES scheme.c)
+
+# Set the output library name explicitly
+set_target_properties(SCHEMES PROPERTIES OUTPUT_NAME scheme)
+
+# Include directories
+target_include_directories(SCHEMES
+    INTERFACE
+        ${PROJECT_SOURCE_DIR}/include/schemes   # Public headers for consumers
+)
