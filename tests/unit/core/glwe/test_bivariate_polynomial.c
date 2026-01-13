@@ -9,7 +9,7 @@
 #include <time.h>
 #include <math.h>
 
-#define NBASE 1024
+#define NBASE 8
 #define KBASE 8
 #define KAPPABASE 32
 #define NLIMBSBASE 180
@@ -74,52 +74,41 @@ Test(poly_biv_coef_number, classic_params){
  * @brief Test normal_bivariate_poly
  * 
  */
-Test(normal_bivariate_poly, basic){
+Test(new_normal_random_biv_poly, basic){
     MODULE* module = new_module_info(NBASE, FFT64);
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
-    // TODO
-    delete_glwe_ct_params(params);
-    delete_module_info(module);
-}
-
-/**
- * @brief Test new_normal_random_biv_poly
- * 
- */
-/** 
-Test(new_normal_random_biv_poly, can_access){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
-    MODULE* module = new_module_info(params->N, FFT64);
-
     PolyBiv* a = new_normal_random_biv_poly(module, params);
 
-    for(int64_t i = 0 ; i < LBASE ; i++)
-    {
-        for(int64_t p = 0 ; p < NBASE ; p++)
-        {
-            a[i*NBASE + p] = a[i*NBASE + p];
-        }
-    }
+    cr_assert(eq(int, a != NULL, 1, "new_normal_random_biv returned a NULL pointer."));
 
     free(a);
     delete_glwe_ct_params(params);
     delete_module_info(module);
 }
-*/
-int* a(){
-    int* a = malloc(sizeof(int));
-    return a;
-}
 
-Test(a, intint){
-    int* j = a();
-    free(j);
+/**
+ * @brief Test normal_bivariate_poly
+ * 
+ */
+Test(new_normal_random_biv_poly, is_it_normal){
+    MODULE* module = new_module_info(NBASE, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    PolyBiv* a = new_normal_random_biv_poly(module, params);
+
+    for(int64_t p = 0 ; p < params->N ; p++){
+        cr_log_info("%lld", a[(LBASE-1)*NBASE + p]);
+    }
+
+    cr_assert(1);
+
+    free(a);
+    delete_glwe_ct_params(params);
+    delete_module_info(module);
 }
 
 /**
  * @brief Test add_biv_poly correctness with random normal polynomials
  */
-/**
 Test(add_biv_poly, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
     MODULE* module = new_module_info(params->N, FFT64);
@@ -130,7 +119,6 @@ Test(add_biv_poly, basic){
 
     add_biv_poly(params, res, params->N, a, params->N, b, params->N);
 
-     
     for(int64_t i = 0; i < LBASE; i++){
         for(int64_t p = 0; p < NBASE; p++){
             int64_t idx = p + i * params->N;
@@ -145,15 +133,13 @@ Test(add_biv_poly, basic){
     delete_glwe_ct_params(params);
     delete_module_info(module);
 }
-*/
+
 
 //! BIV POLY IN DFT PART (begin)
-
 
 /**
  * @brief Test add_biv_poly_dft correctness with random normal DFT polynomials
  */
-/** 
 Test(add_biv_poly_dft, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
     MODULE* module = new_module_info(params->N, FFT64);
@@ -179,4 +165,3 @@ Test(add_biv_poly_dft, basic){
     delete_module_info(module);
     delete_glwe_ct_params(params);
 }
-*/

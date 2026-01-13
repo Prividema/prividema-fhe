@@ -97,7 +97,7 @@ int encrypt_biv_glwe(const MODULE* module,
     int64_t n_limbs = params->n_limbs;
     int64_t l = n_limbs / (k+1);
 
-    if (uniform_random_vec(k * N, res_ct, l, (k + 1) * N) > 0 ) {
+    if (uniform_random_vec(k * N, res_ct, l, (k + 1) * N, -(1 << (kappa-1)), (1 << (kappa-1))) > 0) {
         return -1;
     }
     
@@ -172,13 +172,16 @@ int compute_phase_biv(GGSWCtParams* params,
     int64_t l = poly_biv_size(params->params);
 
     PolyUniv* phase_univ = malloc(poly_univ_bytes(params->params));
-    if (phase_univ == NULL)
+    if (phase_univ == NULL){
         perror("malloc failed");
         return -1;
+    }
+    
     PolyBiv* phase_biv = calloc(poly_biv_bytes(params->params),1);
-    if (phase_biv == NULL)
+    if (phase_biv == NULL){
         perror("malloc_faioled");
         return -1;
+    }
 
     int64_t p = (i * kappa)/kappa_tilde + 1;
 
@@ -262,6 +265,10 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
             // Compute the base-2^kappa decomposition of the phase = DFT(-m * sk_j) * (1/Bg)^i 
             // and return in DFT space
             PolyBiv* phase_biv = malloc(poly_biv_size(params_glwe) * sizeof(int64_t));
+            if(phase_biv == NULL){
+                perror("Malloc failed.");
+                return -1;
+            }
             compute_phase_biv(res->params, phase_biv, phase_univ_dft, i);
 
             #ifdef WITH_Y0 
@@ -337,9 +344,13 @@ int encrypt_biv_glwe_dft(GLWECtParams* enc_params,
 
     // Temporary bivGLWE ciphertext 
     VecBiv* tmp_ct = malloc(N*l*(k+1)*sizeof(int64_t));
+    if(tmp_ct == NULL){
+        perror("Malloc failed.");
+        return -1;
+    }
     
     // TODO coeff between 0 and Bg
-    if (uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N) < 0 )
+    if (uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N, -(1 << (kappa-1)), (1 << (kappa-1))) < 0 )
     {
         free(tmp_ct);
         return -1;

@@ -60,7 +60,7 @@ int rand_uniform_aux()
 }
 
 // Test rand_uniform
-Test(common, test_rand_uniform) 
+Test(rand_uniform, test_rand_uniform) 
 {
     int count = 0;
     for(int i = 0; i < 100; i++)
@@ -104,7 +104,7 @@ double jarque_bera(const double *x, int n) {
     return (n / 6.0) * (S*S + ( (K - 3.0)*(K - 3.0) ) / 4.0);
 }
 
-Test(common, test_rand_normal)
+Test(rand_normal, jarque_bera_test)
 {
     double data[NB_SAMPLES];
     for(int i = 0; i < NB_SAMPLES; i++)

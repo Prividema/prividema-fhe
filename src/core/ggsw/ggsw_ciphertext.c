@@ -28,18 +28,20 @@ GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct
     int64_t nb_cols = params->n_limbs_tilde;
 
     GGSWCiphertext* ggsw_ct = malloc(sizeof(GGSWCiphertext));
-    if(ggsw_ct == NULL)
+    if(ggsw_ct == NULL){
         perror("Malloc failed.");
         return NULL;
-
+    }
+    
     ggsw_ct->params = params;   
 
     if(ct == NULL)
     {
         ggsw_ct->mat = calloc(ggsw_coef_number(params), sizeof(int64_t));
-        if(ggsw_ct->mat == NULL)
+        if(ggsw_ct->mat == NULL){
             perror("Malloc failed.");
             return NULL;
+        }
     }
     else
         ggsw_ct->mat = ct;
@@ -106,13 +108,9 @@ void normalize_ggsw(GGSWCiphertext* res,
             VecBiv* ct_glwe = ggsw_Sj_Yi(ct, i, j);
             
             // Normalize ct
-            uint8_t* tmp = malloc(vec_znx_normalize_base2k_tmp_bytes(module));
-            vec_znx_normalize_base2k(module, ct->params->params->kappa, res_glwe, n_limbs, N, ct_glwe, n_limbs, N, tmp);
-            
-            free(tmp);
+            vec_znx_normalize_base2k_p(module, ct->params->params->kappa, res_glwe, n_limbs, N, ct_glwe, n_limbs, N);
         }
     }
-
     free(module);
 }
 
@@ -181,13 +179,10 @@ void const_mult_ggsw(GGSWCiphertext* res,
             VecBiv* ct_biv = ggsw_Sj_Yi(res, i, j);
 
             // TODO Does it works to do it inplace ?
-            uint8_t* tmp = malloc(vec_znx_big_normalize_base2k_tmp_bytes(module));
-            vec_znx_normalize_base2k(module, ct->params->params->kappa, 
+            vec_znx_normalize_base2k_p(module, ct->params->params->kappa, 
                                      ct_biv, glwe_size(params_glwe), N,
-                                     ct_biv, glwe_size(params_glwe), N,
-                                     tmp
-                                    );
-            free(tmp);
+                                     ct_biv, glwe_size(params_glwe), N
+            );
         }
     }
 }
@@ -239,18 +234,20 @@ VecBivDFT* ggsw_Sj_Yi_dft(GGSWCiphertextDFT* ct_dft, int64_t i, int64_t j){
 GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct
 ){
     GGSWCiphertextDFT* ggsw_ct_dft = malloc(sizeof(GGSWCiphertext));
-    if(ggsw_ct_dft == NULL)
+    if(ggsw_ct_dft == NULL){
         perror("Malloc failed.");
         return NULL;
+    }
 
     ggsw_ct_dft->params = params;   
 
     if(ct == NULL)
     {
         ggsw_ct_dft->pmat = calloc(2 * ggsw_coef_number_dft(params), sizeof(double));
-        if(ggsw_ct_dft->pmat == NULL)
+        if(ggsw_ct_dft->pmat == NULL){
             perror("Malloc failed.");
             return NULL;
+        }
     }
     else
         ggsw_ct_dft->pmat = ct;
@@ -322,13 +319,10 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,
             VecBiv* ct_biv = ggsw_Sj_Yi(tmp_ggsw_2, i, j);
 
             // TODO Does it works to do it inplace ?
-            uint8_t* tmp = malloc(vec_znx_big_normalize_base2k_tmp_bytes(module));
-            vec_znx_normalize_base2k(module, ct_dft->params->params->kappa, 
+            vec_znx_normalize_base2k_p(module, ct_dft->params->params->kappa, 
                                      ct_biv, glwe_size(params_glwe), N,
-                                     ct_biv, glwe_size(params_glwe), N,
-                                     tmp
-                                    );
-            free(tmp);
+                                     ct_biv, glwe_size(params_glwe), N
+            );
         }
     }
 
