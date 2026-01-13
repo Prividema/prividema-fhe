@@ -59,7 +59,9 @@ int rand_uniform_aux()
     return 1;
 }
 
-// Test rand_uniform
+/**
+ * @brief Test rand uniform
+
 Test(rand_uniform, test_rand_uniform) 
 {
     int count = 0;
@@ -73,8 +75,15 @@ Test(rand_uniform, test_rand_uniform)
     cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
     cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
 }
+ */
 
-// Jarque-Bera test
+/**
+ * @brief Jarque-Bera test
+ * 
+ * @param x 
+ * @param n 
+ * @return double 
+ */
 double jarque_bera(const double *x, int n) {
     if (n < 3) return NAN;
 
@@ -104,6 +113,9 @@ double jarque_bera(const double *x, int n) {
     return (n / 6.0) * (S*S + ( (K - 3.0)*(K - 3.0) ) / 4.0);
 }
 
+/**
+ * @brief Test rand_normal with a jarque bera test.
+ */
 Test(rand_normal, jarque_bera_test)
 {
     double data[NB_SAMPLES];
@@ -113,4 +125,23 @@ Test(rand_normal, jarque_bera_test)
 
     double JB = jarque_bera(data, NB_SAMPLES);
     cr_assert(lt(dbl, JB, chi_critical_05[1]), "Expect %f < %f\n", JB, chi_critical_05[1]);
+}
+
+/**
+ * @brief Test rand_normal just to see what it does.
+ */
+Test(rand_normal, what_s_inside)
+{
+    int nb_sample_bis = NB_SAMPLES/1000;
+    double data[nb_sample_bis];
+
+    cr_assert(1);
+
+    for(int p = 0 ; p < nb_sample_bis ; p++){
+        if(rand_normal(data + p, 0, 1e-3) < 0)
+            cr_fail("rand_normal faileds");
+        cr_log_info("%lf", data[p]);
+    }
+    double a = 1e-7;
+    cr_log_info("%e", a);
 }
