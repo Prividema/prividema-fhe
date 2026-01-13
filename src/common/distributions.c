@@ -16,17 +16,12 @@
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t res_sl, int64_t min, int64_t max)
+int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t res_sl, int nb_bits)
 {
     for(int i = 0; i < n_limbs; i++)
-    {
         for(int j = 0; j < limb_len ; j++)
-        {
-            if(rand_uniform(res + i*res_sl + j) < 0) // TODO : def a range 
+            if(rand_uniform(res + i*res_sl + j, nb_bits) < 0)
                 return -1;
-
-        }
-    }
     return 0;
 }
 

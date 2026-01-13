@@ -19,31 +19,47 @@ double chi_critical_05[100] = {
     120.990, 122.108, 123.225, 124.342
 };
 
-int rand_uniform_aux()
+int rand_uniform_aux(int nb_bits)
 {
+    // Setup the max value
+    int64_t max, min;
+    if(nb_bits == 8*sizeof(int64_t)) {
+        max = INT64_MAX;
+        min = INT64_MIN;
+    }
+    else {
+        max = (1 << (nb_bits - 1)) - 1;
+        min = - (1 << (nb_bits - 1));
+    }
+
     // boxes = {0, ..., 0}
     int64_t boxes[NB_BOXES];
     for(int i = 0; i < NB_BOXES; i++)
         boxes[i] = 0;
     
     // Fill the boxes
-    double step = ((double)(INT64_MAX) - (double)INT64_MIN) / (double)NB_BOXES;
+    double step = ((double)max - (double)min) / (double)NB_BOXES;
+    // printf("min = %ld\n", min);
+    // printf("max = %ld\n", max);
+    // printf("step = %f\n", step);
     for(size_t i = 0; i < NB_SAMPLES; i++) {
         int64_t sample = 0;
-        if(rand_uniform(&sample) < 0)
+        if(rand_uniform(&sample, nb_bits) < 0)
             return 1;
-
-       
         // This loop only fill NB_BOXES - 1 elements of boxes.
         int j = 0;
-        for(double v = (double)INT64_MIN; v < (double)INT64_MAX; v += step) {
+        for(double v = (double)min; v < (double)max; v += step) {
             if(sample < v + step) {
+                // printf("%ld < %f placed in box %d\n", sample, v + step, j);
                 boxes[j]++;
                 break;
             }
             j++;
         }
     }
+    // for(int i = 0; i < NB_BOXES; i++)
+    //     printf("%ld, ", boxes[i]);
+    // printf("\n");
 
     // Apply Chi square test
     double expected = (double) NB_SAMPLES / (double) NB_BOXES; // For an uniform distribution
@@ -59,14 +75,12 @@ int rand_uniform_aux()
     return 1;
 }
 
-/**
- * @brief Test rand uniform
-
-Test(rand_uniform, test_rand_uniform) 
+// Test rand_uniform on the whole interval
+Test(rand_uniform_whole, test_rand_uniform) 
 {
     int count = 0;
     for(int i = 0; i < 100; i++)
-        count += rand_uniform_aux();
+        count += rand_uniform_aux(64);
 
     // As Chi square has 5% chance of failing, we count the number of times it fails.
     // On 100 iterations it fails 5 times in average.
@@ -75,15 +89,29 @@ Test(rand_uniform, test_rand_uniform)
     cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
     cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
 }
- */
 
-/**
- * @brief Jarque-Bera test
- * 
- * @param x 
- * @param n 
- * @return double 
- */
+// Test rand_uniform on the interval [-32768,32767]
+Test(rand_uniform, test_rand_uniform) 
+{
+    int count = 0;
+    for(int i = 0; i < 100; i++)
+        count += rand_uniform_aux(16);
+
+    // As Chi square has 5% chance of failing, we count the number of times it fails.
+    // On 100 iterations it fails 5 times in average.
+    // We determined experimentally the standard deviation sigma = 4
+    // So the number of failures should be in range 5 +- 4.
+    cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
+    cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
+}
+
+// -------------------------------------------------------------------------------------
+// Gaussian Distribution Test
+//
+// We use the Jarque-Bera test : https://en.wikipedia.org/wiki/Jarque%E2%80%93Bera_test
+// -------------------------------------------------------------------------------------
+
+// Jarque-Bera test
 double jarque_bera(const double *x, int n) {
     if (n < 3) return NAN;
 
@@ -121,7 +149,7 @@ Test(rand_normal, jarque_bera_test)
     double data[NB_SAMPLES];
     for(int i = 0; i < NB_SAMPLES; i++)
         if(rand_normal(data + i, 0, 1) < 0)
-            cr_fail("rand_normal faileds");
+            cr_fail("rand_normal failed");
 
     double JB = jarque_bera(data, NB_SAMPLES);
     cr_assert(lt(dbl, JB, chi_critical_05[1]), "Expect %f < %f\n", JB, chi_critical_05[1]);
