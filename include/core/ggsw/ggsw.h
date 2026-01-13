@@ -18,9 +18,9 @@ int encrypt_biv_glwe(const MODULE* module,
 );
 
 int compute_phase_biv(GGSWCtParams* params, 
-                      PolyBiv* res,
-                      PolyUnivDFT* phase_univ_dft, 
-                      int64_t i
+                      PolyBiv* res, 
+                      PolyUniv* phase_univ, 
+                      int64_t i_tilde
 );
 
 int ggsw_secret_encrypt(GGSWCiphertext* res,           
@@ -32,12 +32,6 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
 void ggsw_decrypt(double* res,   // result
                   GGSWPreparedSK* sk_dft,  // secret key
                   GGSWCiphertext* ct  // ciphertext
-);
-
-int decrypt_biv_glwe(GLWECtParams* enc_params,
-                     double* phase, 
-                     GGSWPreparedSK* sk_dft,
-                     GLWECiphertext* ct
 );
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public
@@ -84,6 +78,12 @@ void halfggsw_external_product(GLWECiphertext* res,     // result
                                PartialGGSWCiphertext* ct2  // half GGSW ciphertext
 );
 
+int decrypt_biv_glwe(GLWECtParams* enc_params,
+                     double* phase, 
+                     GGSWPreparedSK* sk_dft,
+                     GLWECiphertext* ct
+);
+
 //! GGSW IN DFT PART (begin)   
 
 int compute_phase_biv_dft(GGSWCtParams* enc_params, 
@@ -116,4 +116,4 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,    // parameters
 int* add(int* a, int a_size, int* b, int b_size);
 int add_int(int a, int b);
 int multiply(int a, int b);
-#endif  // GGSW_H 
+#endif  // GGSW_H

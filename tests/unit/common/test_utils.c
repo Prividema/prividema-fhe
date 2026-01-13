@@ -130,7 +130,7 @@ Test(rand_normal, jarque_bera_test)
 /**
  * @brief Test rand_normal just to see what it does.
  */
-Test(rand_normal, what_s_inside)
+Test(rand_normal, what_is_inside)
 {
     int nb_sample_bis = NB_SAMPLES/1000;
     double data[nb_sample_bis];
@@ -138,10 +138,8 @@ Test(rand_normal, what_s_inside)
     cr_assert(1);
 
     for(int p = 0 ; p < nb_sample_bis ; p++){
-        if(rand_normal(data + p, 0, 1e-3) < 0)
+        if(rand_normal(data + p, 0, 1e-7) < 0)
             cr_fail("rand_normal faileds");
-        cr_log_info("%lf", data[p]);
+        cr_log_info("%e", data[p]);
     }
-    double a = 1e-7;
-    cr_log_info("%e", a);
 }

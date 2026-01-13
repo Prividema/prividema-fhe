@@ -11,7 +11,7 @@
 
 #define NBASE 8
 #define KBASE 8
-#define KAPPABASE 32
+#define KAPPABASE 4
 #define NLIMBSBASE 180
 #define LBASE NLIMBSBASE/(KBASE+1)
 
@@ -23,8 +23,8 @@
 Test(poly_biv_size, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
 
-    cr_assert_eq(poly_biv_size(params), LBASE, 
-                "poly_biv_size failed: got %lld, expected %lld", poly_biv_size(params), LBASE);
+    cr_assert(eq(i64, poly_biv_size(params), LBASE, 
+                "poly_biv_size failed: got %lld, expected %lld", poly_biv_size(params), LBASE));
     
     delete_glwe_ct_params(params);
 }
@@ -35,8 +35,8 @@ Test(poly_biv_size, basic){
 Test(poly_univ_bytes, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
 
-    cr_assert_eq(poly_univ_bytes(params), NBASE*sizeof(int64_t), 
-                "poly_univ_bytes failed: got %lld, expected %lld", poly_univ_bytes(params), NBASE*sizeof(int64_t));
+    cr_assert(eq(i64, poly_univ_bytes(params), NBASE*sizeof(int64_t), 
+                "poly_univ_bytes failed: got %lld, expected %lld", poly_univ_bytes(params), NBASE*sizeof(int64_t)));
     
     delete_glwe_ct_params(params);
 }
@@ -47,12 +47,32 @@ Test(poly_univ_bytes, basic){
 Test(poly_biv_bytes, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
 
-    cr_assert_eq(poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t), 
-                "poly_biv_bytes failed: got %lld, expected %lld", poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t));
+    cr_assert(eq(i64, poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t), 
+                "poly_biv_bytes failed: got %lld, expected %lld", poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t)));
     
     delete_glwe_ct_params(params);
 }
 
+/**
+ * @brief Test biv_to_univ
+*/
+Test(biv_to_univ, test_with_random_biv_generation ){
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    double* pol_univ = malloc(poly_univ_bytes(params));
+    PolyBiv* pol = new_normal_random_biv_poly(module, params);
+    
+    biv_to_univ(params, pol_univ, pol);
+
+    for(int64_t p = 0 ; p < NBASE ; p++){
+        cr_log_info("%e X^%ld", pol_univ[p], p);
+    }
+
+    free(pol_univ); free(pol);
+    delete_glwe_ct_params(params);
+    delete_module_info(module);
+} 
 
 
 //! BIV POLY PART (begin) 
@@ -64,8 +84,8 @@ Test(poly_biv_bytes, basic){
 Test(poly_biv_coef_number, classic_params){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE); 
 
-    cr_assert_eq(poly_biv_coef_number(params), NBASE * LBASE, 
-                "poly_biv_coef_number failed: got %lld, expected %lld", poly_biv_coef_number(params), NBASE * LBASE);
+    cr_assert(eq(i64, poly_biv_coef_number(params), NBASE * LBASE, 
+                "poly_biv_coef_number failed: got %lld, expected %lld", poly_biv_coef_number(params), NBASE * LBASE));
 
     delete_glwe_ct_params(params);
 }
@@ -87,18 +107,22 @@ Test(new_normal_random_biv_poly, basic){
 }
 
 /**
- * @brief Test normal_bivariate_poly
+ * @brief Test new_normal_random_biv_poly
  * 
  */
-Test(new_normal_random_biv_poly, is_it_normal){
+Test(new_normal_random_biv_poly, is_it_working){
     MODULE* module = new_module_info(NBASE, FFT64);
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
     PolyBiv* a = new_normal_random_biv_poly(module, params);
 
-    for(int64_t p = 0 ; p < params->N ; p++){
-        cr_log_info("%lld", a[(LBASE-1)*NBASE + p]);
+    for(int64_t i = 0 ; i < LBASE ; i++)
+    {
+        for(int64_t p = 0 ; p < params->N ; p++)
+        {
+            cr_assert(le(i64, a[i*NBASE + p], (1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
+            cr_assert(ge(i64, a[i*NBASE + p], -(1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
+        }
     }
-
     cr_assert(1);
 
     free(a);
@@ -119,8 +143,10 @@ Test(add_biv_poly, basic){
 
     add_biv_poly(params, res, params->N, a, params->N, b, params->N);
 
-    for(int64_t i = 0; i < LBASE; i++){
-        for(int64_t p = 0; p < NBASE; p++){
+    for(int64_t i = 0; i < LBASE; i++)
+    {
+        for(int64_t p = 0; p < NBASE; p++)
+        {
             int64_t idx = p + i * params->N;
             cr_assert(eq(dbl, res[idx], a[idx] + b[idx]),
                 "add_biv_poly mismatch at index %lld: %lld + %lld = %lld, got %lld",
@@ -151,8 +177,10 @@ Test(add_biv_poly_dft, basic){
     add_biv_poly_dft(params, res, params->N, a, params->N, b, params->N);
 
     
-    for(int64_t i = 0; i < LBASE; i++){
-        for(int64_t p = 0; p < NBASE; p++){
+    for(int64_t i = 0; i < LBASE; i++)
+    {
+        for(int64_t p = 0; p < NBASE; p++)
+        {
             int64_t idx = p + i * params->N;
             cr_assert(epsilon_eq(dbl, res[idx], a[idx] + b[idx], 1e-9),
                 "add_biv_poly_dft mismatch at index %lld: %f + %f = %f, got %f",
@@ -164,4 +192,38 @@ Test(add_biv_poly_dft, basic){
     free(a); free(b); free(res);
     delete_module_info(module);
     delete_glwe_ct_params(params);
+}
+
+/**
+ * @brief Test new_normal_random_biv_poly_dft
+ * 
+ */
+Test(new_normal_random_biv_poly_dft, is_it_working){
+    MODULE* module = new_module_info(NBASE, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    
+    PolyBivDFT* a_dft = new_normal_random_biv_poly_dft(module, params);
+    PolyBiv* a = malloc(poly_biv_bytes(params));
+    PolyBiv* a_normalized = malloc(poly_biv_bytes(params));
+
+    vec_znx_idft(module, (VEC_ZNX_BIG *)a, LBASE, (VEC_ZNX_DFT *)a_dft, LBASE, NULL);
+    uint8_t* tmp = malloc(vec_znx_normalize_base2k_tmp_bytes(module));
+    vec_znx_normalize_base2k(module, KAPPABASE, a_normalized, LBASE, NBASE, a, LBASE, NBASE, tmp);
+
+    for(int64_t i = 0 ; i < LBASE ; i++)
+    {
+        for(int64_t p = 0 ; p < params->N ; p++)
+        {
+            cr_assert(le(i64, a_normalized[i*NBASE + p], (1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
+            cr_assert(ge(i64, a_normalized[i*NBASE + p], -(1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
+        }
+    }
+    cr_assert(1);
+
+    free(tmp);
+    free(a_dft);
+    free(a);
+    free(a_normalized);
+    delete_glwe_ct_params(params);
+    delete_module_info(module);
 }

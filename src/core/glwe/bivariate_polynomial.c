@@ -2,6 +2,7 @@
 #include "distributions.h"
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
 
 
 //! BIV POLY PART (begin) 
@@ -42,9 +43,9 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
         perror("Malloc failed.");
         return NULL;
     }
-    // Bivariate polynomial in RnXY
-    double* tmp_pol_inR = malloc(poly_biv_bytes(params));
-    if(tmp_pol_inR==NULL){
+    // Univariate polynomial in RnX
+    double* tmp_pol_inR_univ = malloc(poly_univ_bytes(params));
+    if(tmp_pol_inR_univ==NULL){
         perror("Malloc failed.");
         free(pol);
         return NULL;}
@@ -54,21 +55,25 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
     if(tmp_pol_inZ==NULL){
         perror("Malloc failed.");
         free(pol);
-        free(tmp_pol_inR);
+        free(tmp_pol_inR_univ);
         return NULL;}
     
-    // Fills tmp_pol_inR(Y^(l-1)) with coefficients in [-2^(kappa*(l-1) - 1) ; 2^(kappa*(l-1) - 1)]
-    for(int64_t p = 0 ; p < N ; p++)
-    {
-        if(rand_normal(tmp_pol_inR + N*(l-1) + p, 0.0, 1.0) < 0) 
-            return NULL;
-
-        tmp_pol_inZ[N*(l-1) + p] = (int64_t) ldexp(tmp_pol_inR[N*(l-1) + p], kappa * (l-1) - 1);
+    // Fills each tmp_pol_inZ(X^p, Y^i) with coefficients in [-2^(kappa* - 1) ; 2^(kappa - 1) - 1]
+    int64_t mask = (1 << (kappa + 1)) - 1;
+    for(int64_t p = 0 ; p < N ; p++){
+        if(rand_normal(tmp_pol_inR_univ + p, 0.0, 1e-7) < 0) 
+                return NULL;
+                // TODO Test
+        for(int64_t i = 0 ; i < l ; i++){
+            // tmp_pol_inZ(X^p, Y^i) = the i_ème block of kappa bits, starting from the MSB, of tmp_pol_inR_univ(X^p)
+            tmp_pol_inZ[i*N + p] = ((int64_t)ldexp(tmp_pol_inR_univ[p], i*kappa)) & mask;
+        }
     }
+
     // Then does a base-2Kappa normalization 
     vec_znx_normalize_base2k_p(module, kappa, pol, poly_biv_size(params), N, tmp_pol_inZ, poly_biv_size(params), N);
 
-    free(tmp_pol_inR);
+    free(tmp_pol_inR_univ);
     free(tmp_pol_inZ);
 
     return pol;
@@ -229,10 +234,10 @@ void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* poly){
     int64_t kappa = params->kappa;
     int64_t l = poly_biv_size(params);
 
-    // res_univ(X^p) = ∑_i{0,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
-    for(int64_t i = 0 ; i < l ; i++){
+    // res_univ(X^p) = ∑_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
+    for(int64_t i = 1 ; i < l ; i++){
         for(int64_t p = 0 ; p < N ; p++){
-            res_univ[p] += poly[i*N + p] * (1 << (i*kappa*l));
+            res_univ[p] += ldexp((double)poly[i*N + p], - i*kappa);
         }
     }
 }

@@ -151,16 +151,14 @@ int encrypt_biv_glwe(const MODULE* module,
  * @param i The exponent of 1/Bg_tilde.
  * @return int 
  * 
- * @note We look for the minimal p such that, p*kappa > i*kappa_tilde,
- * ie p = qot(i*kappa_tilde,kappa) + 1 and we compute `(-m * sk_j) * (Bg^p)/(Bg_tilde^i)`.
- * Finally we put it in front of Y^p and normalize.
- * 
+ * @note We look for the minimal p such that, p*kappa > i_tilde*kappa_tilde,
+ * ie p = qot(i_tilde*kappa_tilde,kappa) + 1.
  * If p > l_tilde then the phase is to low and we round it to zero.
  */
 int compute_phase_biv(GGSWCtParams* params, 
                       PolyBiv* res, 
-                      PolyUnivDFT* phase_univ_dft, 
-                      int64_t i
+                      PolyUniv* phase_univ, 
+                      int64_t i_tilde
 ){
     // GGSW parameters
     int64_t kappa_tilde = params->kappa_tilde;
@@ -171,45 +169,38 @@ int compute_phase_biv(GGSWCtParams* params,
     int64_t kappa = params->params->kappa;
     int64_t l = poly_biv_size(params->params);
 
-    PolyUniv* phase_univ = malloc(poly_univ_bytes(params->params));
-    if (phase_univ == NULL){
+    PolyBiv* phase_biv = calloc(poly_biv_bytes(params->params),1);
+    if (phase_biv == NULL){
         perror("malloc failed");
         return -1;
     }
-    
-    PolyBiv* phase_biv = calloc(poly_biv_bytes(params->params),1);
-    if (phase_biv == NULL){
-        perror("malloc_faioled");
-        return -1;
-    }
 
-    int64_t p = (i * kappa)/kappa_tilde + 1;
+    int64_t p = (i_tilde * kappa_tilde)/kappa + 1;
 
     if (p <= l_tilde)
     {
         MODULE* module = new_module_info(N, FFT64);
 
-        // Compute iDFT(DFT(-m * sk_j)) = -m * sk_j
-        vec_znx_idft_p(module, phase_univ, 1, phase_univ_dft, 1);
-        
-        // Compute -m * sk_j * (Bg_tilde^p)/(Bg^i) = -m * sk_j * 2^(p*kappa_tilde - i*kappa).
-        // Then, put it in phase_biv at Y^p.
-        for(int64_t t = 0 ; t < N ; t++) // TODO to discuss 
+        // Fills each tmp_pol_inZ(X^p, Y^i) with coefficients in [-2^(kappa* - 1) ; 2^(kappa - 1) - 1]
+        int64_t mask = (1 << (kappa + 1)) - 1;
+        for(int64_t p = 0 ; p < N ; p++)
         {
-            phase_univ[t] = phase_univ[t] << (p*kappa_tilde - i*kappa); 
-            phase_biv[p*N + t] = phase_univ[t];
+            for(int64_t i = 0 ; i < l ; i++)
+            {
+                // phase_biv(X^p, Y^i) = the i_ème block of kappa bits, starting from the MSB, of tmp_pol_inR_univ(X^p)
+                phase_biv[i*N + p] = ((int64_t)ldexp(((double)phase_univ[p]), i*kappa - i_tilde*kappa_tilde )) & mask;
+            }
         }
-        
+
         // Normalize phase_biv.
-        
         vec_znx_normalize_base2k_p(module, kappa_tilde, res, l, N, phase_biv, l, N);
 
         free(module);
-        free(phase_univ);
         free(phase_biv);
+
+        return 0;
     }
 
-    free(phase_univ);
     free(phase_biv);
 
     return 0;
@@ -240,7 +231,7 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
     MODULE* module = new_module_info(N,FFT64);
     
     // Computes message in DFT space
-    PolyUnivDFT* msg_univ_dft = new_vec_znx_dft_p(module, 1);
+    PolyUnivDFT* msg_univ_dft = malloc(poly_univ_bytes(params_glwe));
     vec_znx_dft_p(module, msg_univ_dft, 1, msg_univ, 1, N);
     
     for (int64_t i = 0 ; i < nb_partials(params_ggsw) ; i++){
@@ -253,18 +244,25 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
             PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
             
             // Compute -DFT(msg * sk_j)
-            PolyUnivDFT* phase_univ_dft = calloc(N,sizeof(double));
-            if (phase_univ_dft == NULL)
+            PolyUnivDFT* phase_univ_dft = malloc(poly_univ_bytes(params_glwe));
+            if (phase_univ_dft == NULL){
+                delete_module_info(module);
+                free(msg_univ_dft);  
                 return -1;
+            }
                 
             vec_znx_dft_mult(module, phase_univ_dft, 1, sk_j_univ_dft, 1, msg_univ_dft, 1);
             for(int64_t p = 0 ; p < N ; p++){
                 phase_univ_dft[p] = -1 * phase_univ_dft[p];  
             }
             
+            // Compute msg * sk_j
+            PolyUniv* phase_univ = malloc(poly_univ_bytes(params_glwe));
+            vec_znx_idft_p(module, phase_univ, 1, phase_univ_dft, 1);
+
             // Compute the base-2^kappa decomposition of the phase = DFT(-m * sk_j) * (1/Bg)^i 
             // and return in DFT space
-            PolyBiv* phase_biv = malloc(poly_biv_size(params_glwe) * sizeof(int64_t));
+            PolyBiv* phase_biv = malloc(poly_biv_bytes(params_glwe));
             if(phase_biv == NULL){
                 perror("Malloc failed.");
                 return -1;
@@ -423,7 +421,7 @@ int encrypt_biv_glwe_dft(GLWECtParams* enc_params,
  * @return int 
  * 
  * @note We look for the minimal p such that, p*kappa > i*kappa_tilde,
- * ie p = qot(i*kappa_tilde,kappa) + 1 and we compute `(-m * sk_j) * (Bg^p)/(Bg_tilde^i)`.
+ * ie p = qot(i_tilde*kappa_tilde,kappa) + 1 and we compute `(-m * sk_j) * (Bg^p)/(Bg_tilde^i)`.
  * Finally we put it in front of Y^p and normalize.
  * 
  * If p > l_tilde then the phase is to low and we round it to zero.
@@ -431,58 +429,32 @@ int encrypt_biv_glwe_dft(GLWECtParams* enc_params,
 int compute_phase_biv_dft(GGSWCtParams* enc_params, 
                           PolyBivDFT* res_dft, 
                           PolyUnivDFT* phase_univ_dft, 
-                          int64_t i
+                          int64_t i_tilde
 ){
-    // GGSW parameters
-    int64_t kappa_tilde = enc_params->kappa_tilde;
-    int64_t l_tilde = enc_params->n_limbs_tilde/(enc_params->k_tilde + 1);
-
-    // GLWE parameters
     int64_t N = enc_params->params->N;
-    int64_t kappa = enc_params->params->kappa;
-    int64_t l = poly_biv_size(enc_params->params);
+    MODULE* module = new_module_info(N, FFT64);
 
     PolyUniv* phase_univ = malloc(poly_univ_bytes(enc_params->params));
-    if (phase_univ == NULL)
+    if (phase_univ == NULL){
         perror("malloc failed");
         return -1;
-    PolyBiv* phase = calloc(poly_biv_bytes(enc_params->params),1);
-    if (phase == NULL)
+    }
+    vec_znx_idft_p(module, phase_univ, poly_biv_size(enc_params->params), phase_univ_dft, poly_biv_size(enc_params->params));
+
+    PolyBiv* phase_biv = calloc(poly_biv_bytes(enc_params->params),1);
+    if (phase_biv == NULL){
         perror("malloc_faioled");
-        return -1;
-
-    int64_t p = (i * kappa)/kappa_tilde + 1;
-
-    if (p <= l_tilde)
-    {
-        MODULE* module = new_module_info(N, FFT64);
-
-        // Compute iDFT(DFT(-m * sk_j)) = -m * sk_j
-        vec_znx_idft_p(module, phase_univ, 1, phase_univ_dft, 1);
-        
-        // Compute -m * sk_j * (Bg_tilde^p)/(Bg^i) = -m * sk_j * 2^(p*kappa_tilde - i*kappa).
-        // Then, put it in phase_biv at Y^p.
-        for(int64_t t = 0 ; t < N ; t++) // TODO to discuss 
-        {
-            phase_univ[t] = phase_univ[t] << (p*kappa_tilde - i*kappa); 
-            phase[p*N + t] = phase_univ[t];
-        }
-        
-        // Normalize phase_biv.
-        
-        vec_znx_normalize_base2k_p(module, kappa_tilde, phase, l, N, phase, l, N);
-        vec_znx_dft_p(module, res_dft, l, phase, l, N);
-
-        free(module);
         free(phase_univ);
-        free(phase);
+        return -1;
     }
 
-    free(phase);
-    free(phase_univ);
+    if(compute_phase_biv(enc_params, phase_biv, phase_univ, i_tilde) < 0){
+        return -1;
+    }
+
+    vec_znx_dft_p(module, res_dft, poly_biv_size(enc_params->params), phase_biv, poly_biv_size(enc_params->params), N);
 
     return 0;
-
 }
 
 int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,    // parameters
@@ -556,22 +528,4 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,    // parameters
     delete_module_info(module);
 
     return 0;
-}
-
-int* add(int* a, int a_size, int* b, int b_size) {
-    if (a_size >= b_size){
-        for (int i = 0; i < b_size ; i++){
-            a[i] = a[i] + b[i];
-        }
-        return a;
-    }
-    else {
-        return add(b,b_size,a,a_size);
-    }
-}
-
-int add_random_int(int a, int b){
-    return a+b;}
-int multiply(int a, int b) {
-    return a * b;
 }
