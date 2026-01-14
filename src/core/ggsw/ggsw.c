@@ -97,7 +97,7 @@ int encrypt_biv_glwe(const MODULE* module,
     int64_t n_limbs = params->n_limbs;
     int64_t l = n_limbs / (k+1);
 
-    if (uniform_random_vec(k * N, res_ct, l, (k + 1) * N, -(1 << (kappa-1)), (1 << (kappa-1))) > 0) {
+    if (uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0) {
         return -1;
     }
     
@@ -348,7 +348,7 @@ int encrypt_biv_glwe_dft(GLWECtParams* enc_params,
     }
     
     // TODO coeff between 0 and Bg
-    if (uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N, -(1 << (kappa-1)), (1 << (kappa-1))) < 0 )
+    if (uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N, kappa) < 0 )
     {
         free(tmp_ct);
         return -1;

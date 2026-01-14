@@ -258,7 +258,7 @@ int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ
     int64_t kappa = params->kappa;
     int64_t l = poly_biv_size(params);
 
-    PolyBiv* tmp_pol_biv = calloc(poly_biv_bytes(params),1);
+    PolyBiv* tmp_pol_biv = malloc(poly_biv_bytes(params));
     if (tmp_pol_biv == NULL){
         perror("malloc failed");
         return -1;

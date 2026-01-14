@@ -11,20 +11,22 @@
     #pragma comment(lib, "bcrypt.lib")
 #endif
 
-#define M_PI 3.14159265358979323846
-
+// On some distros math.h doesn't define M_PI so we define it here just in case.
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
 
 /**
  * Read a random number depending on the OS :
  * - On Windows : Uses Windows' Cryptographic API called CNG.
- * - On MACOS/BSD : Call to arc4random_buf.
+ * - On MACOS/FreeBSD : Call to arc4random_buf.
  * - On other Linux distributions : read /dev/urandom.
  *
  * @param result A pointer that will point to the generated value.
  * @retval - `-1` if an error occurs on Windows and other Linux distributions.
  * @retval - `0` otherwise.
  * 
- * @note According to arc4random's doc, the whole program crashes if an error occurs during the generation.
+ * @note For MACOS/FreeBSD : According to arc4random's doc, the whole program crashes if an error occurs during the generation.
  */
 int read_rand(uint64_t* result) {
     // For Windows
@@ -35,7 +37,7 @@ int read_rand(uint64_t* result) {
         return -1;
     }
 
-    // For MACOS/BSD
+    // For MACOS/FreeBSD
     // According to arc4random's doc, the function crashes if an error occurs :
     // "Cryptographic randomness is considered fundamental — if it’s broken, continuing execution is unsafe."
     #elif defined(__APPLE__) || defined(__FreeBSD__)
@@ -61,18 +63,52 @@ int read_rand(uint64_t* result) {
     return 0;
 }
 /**
- * Generates a random number following an uniform distribution.
+ * Generates a random number following an uniform distribution with the given number of bits.
  *
  * @param result A pointer that will point to the generated value.
- * @retval - `-1` if an error occurs. In this case the error is from a syscall
- * and perror is called.
+ * @param nb_bits The number of bits of the result. Should be a power of two dividable by 8.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int rand_uniform(int64_t* result) {
-  uint64_t r;
-  int res = read_rand(&r);
-  *result = (int64_t)r;
-  return res;
+int rand_uniform(int64_t* result, int nb_bits) {
+    // As result points to an int64_t nb_bits shall not exceed its size
+    if(nb_bits > 8 * sizeof(int64_t)) {
+        fprintf(stderr, "Attempt to generate a random number but nb_bits exceeds the maximum value.\n");
+        return -1;
+    }
+    // Plus, nb_bits should be dividable by 8 to keep the cryptosafe property of the RNG.
+    else if (nb_bits & 8 != 0) {
+        fprintf(stderr, "Attempt to generate a random number but nb_bits is not dividable by 8.\n");
+        return -1;
+    }
+
+    // Generate a random uint64_t
+    // r is in the interval [0, UINT64_MAX]
+    uint64_t r;
+    int res;
+    if((res = read_rand(&r)) < 0) 
+        return -1;
+
+    // If nb_bits equals the max. size, we just have to convert r to an int64_t.
+    if (nb_bits == 8 * sizeof(int64_t))
+        *result = (int64_t)r;
+
+    // If nb_bits is not the max. size
+    // r is in the interval [0, UINT64_MAX]
+    // We bring r into the inteval [0, 2p] with a modular reduction that keeps the cryptosafe property.
+    // Then we apply an offset to get a result in [-p, p)
+    else {
+        // Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
+        // As r is still an unsigned int, it is now in hte interval [0, p]
+        uint64_t p = (1 << nb_bits);
+        r &= p - 1;
+
+        // Apply an offset if needed so result is in [-p/2, p/2)
+        *result = (int64_t)r - (int64_t)p/2;
+    }
+
+    return 0;
 }
 
 /**

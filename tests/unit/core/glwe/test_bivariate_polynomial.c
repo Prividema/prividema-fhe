@@ -64,15 +64,15 @@ Test(biv_to_univ, test_with_random_biv_generation ){
     MODULE* module = new_module_info(NBASE, FFT64);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
-    PolyBiv* pol = new_normal_random_biv_poly(module, params);
+    PolyBiv* pol_biv = new_normal_random_biv_poly(module, params);
     
-    biv_to_univ(params, pol_univ, pol);
+    biv_to_univ(params, pol_univ, pol_biv);
 
     for(int64_t p = 0 ; p < NBASE ; p++){
         cr_log_info("%e X^%ld", pol_univ[p], p);
     }
 
-    free(pol_univ); free(pol);
+    free(pol_univ); free(pol_biv);
     delete_glwe_ct_params(params);
     delete_module_info(module);
 } 
@@ -86,6 +86,13 @@ Test(univ_to_biv, basic){
 
     double* pol_univ = malloc(poly_univ_bytes(params));
     normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-7);
+
+    PolyBiv* pol_biv = malloc(poly_biv_bytes(params));
+    univ_to_biv(params, pol_biv, pol_univ);
+    
+    free(pol_univ); free(pol_biv);
+    delete_glwe_ct_params(params);
+    delete_module_info(module);
 }
 
 //! BIV POLY PART (begin) 
