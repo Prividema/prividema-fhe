@@ -257,32 +257,34 @@ int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ
     int64_t N = params->N;
     int64_t kappa = params->kappa;
     int64_t l = poly_biv_size(params);
-
-    PolyBiv* tmp_pol_biv = malloc(poly_biv_bytes(params));
-    if (tmp_pol_biv == NULL){
-        perror("malloc failed");
-        return -1;
-    }
-
-    MODULE* module = new_module_info(N, FFT64);
+    int64_t Bg = 1LL << kappa;
 
     // Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa - 1) - 1]
-    int64_t mask = (1 << (kappa + 1)) - 1;
+    int64_t mask = Bg - 1;
     for(int64_t p = 0 ; p < N ; p++)
     {
-        for(int64_t i = 0 ; i < l ; i++)
+        // For each p, we substract Bg/2 * Bg^(-i) to pol_univ[p]
+        for(int64_t i = 1 ; i < l ; i++) //TODO to discuss
+            pol_univ[p] -= ldexp(pol_univ[p], kappa * (1-i) -1);
+            
+        if(pol_univ[p] >= 0)
         {
-            // phase_biv(X^p, Y^i) = the i_ème block of kappa bits, starting from the MSB, of tmp_pol_inR_univ(X^p)
-            tmp_pol_biv[i*N + p] = ((int64_t)ldexp(pol_univ[p], i*kappa)) & mask;
+            for(int64_t i = 0 ; i < l ; i++) //TODO to discuss
+            {
+                // phase_biv(X^p, Y^i) = the i-ème block of kappa bits, starting from the MSB, of tmp_pol_inR_univ(X^p)
+                pol_biv[i*N + p] = ((int64_t)ldexp(pol_univ[p], i*kappa)) & mask;
+            }
+        }
+        else{
+            printf("\nbefore change %lf", pol_univ[p]);
+            pol_univ[p] -= floor(pol_univ[p]);
+            printf("after change %lf\n", pol_univ[p]);
+            for(int64_t i = 0 ; i < l ; i++) //TODO to discuss
+            {
+                // phase_biv(X^p, Y^i) = the i_ème block of kappa bits, starting from the MSB, of tmp_pol_inR_univ(X^p)
+                pol_biv[i*N + p] = (((int64_t)ldexp(pol_univ[p], i*kappa)) & mask) - Bg/2;
+            }
         }
     }
-
-    // Normalize tmp_pol_biv
-    vec_znx_normalize_base2k_p(module, kappa, pol_biv, l, N, tmp_pol_biv, l, N);
-
-    free(module);
-    free(tmp_pol_biv);
-
     return 0;
-
 }
