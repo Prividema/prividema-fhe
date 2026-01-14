@@ -12,7 +12,7 @@
  * @brief Decrypts the phase (message + noise) and puts it in phase.
  * 
  * @param enc_params The GLWE parameters.
- * @param phase The phase in RnX. 
+ * @param phase The phase in Rn[X]. 
  * @param key The secret key in DFT space.
  * @param ct The ciphertext.
  */
@@ -119,7 +119,7 @@ int encrypt_biv_glwe(const MODULE* module,
         PolyBivDFT* resVec_j_dft = new_vec_znx_dft_p(module, l); 
         svp_apply_dft_p(module, resVec_j_dft, l, sk_j_univ_dft, res_ct + j*N, l, (k+1)*N); 
         
-        // Computes resVec_j in ZnXY space
+        // Computes resVec_j in Zn[XY] space
         PolyBiv* resVec_j = new_vec_znx_big_p(module, l); 
         vec_znx_idft_p(module, resVec_j, l, resVec_j_dft, l);
 
@@ -193,7 +193,7 @@ int compute_phase_biv(GGSWCtParams* params,
         }
 
         // Normalize phase_biv.
-        vec_znx_normalize_base2k_p(module, kappa_tilde, res, l, N, phase_biv, l, N);
+        vec_znx_normalize_base2k_p(module, kappa, res, l, N, phase_biv, l, N);
 
         free(module);
         free(phase_biv);
@@ -267,7 +267,7 @@ int ggsw_secret_encrypt(GGSWCiphertext* res,
                 perror("Malloc failed.");
                 return -1;
             }
-            compute_phase_biv(res->params, phase_biv, phase_univ_dft, i);
+            compute_phase_biv(res->params, phase_biv, phase_univ, i);
 
             #ifdef WITH_Y0 
             if (encrypt_biv_glwe(module, res->params->params, 
@@ -368,7 +368,7 @@ int encrypt_biv_glwe_dft(GLWECtParams* enc_params,
         PolyBivDFT* resVec_j_dft = new_vec_znx_dft_p(module, l); 
         svp_apply_dft_p(module, resVec_j_dft, l, sk_j_univ_dft, tmp_ct + j*N, l, (k+1)*N); 
         
-        // Computes resVec_j in ZnXY space
+        // Computes resVec_j in Zn[XY] space
         PolyBiv* resVec_j = new_vec_znx_big_p(module, l); 
         vec_znx_idft_p(module, resVec_j, l, resVec_j_dft, l);
 
@@ -381,7 +381,7 @@ int encrypt_biv_glwe_dft(GLWECtParams* enc_params,
         delete_vec_znx_big_p(resVec_j);
     }
     
-    // The pointer to limb_0(b) in ZnXY
+    // The pointer to limb_0(b) in Zn[XY]
     PolyUniv* b_0_univ = tmp_ct + k*N;
 
     // For each i in {0,l} limb_i(b) = acc_i = ∑_j{0,k-1}[s_j * limb_i(a_j)]
@@ -473,7 +473,7 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,    // parameters
     // Prepare sk and m
     MODULE* module = new_module_info(N,FFT64);
     
-    // Message, univariate polynomial in ZnX
+    // Message, univariate polynomial in Zn[X]
     PolyUnivDFT* msg_univ_dft = new_vec_znx_dft_p(module, 1);
     vec_znx_dft_p(module, msg_univ_dft, 1, msg_univ, 1, N);
 

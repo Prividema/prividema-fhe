@@ -40,6 +40,7 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module,
 
 int64_t poly_univ_bytes(GLWECtParams* params);
 int64_t poly_biv_bytes(GLWECtParams* params);
-void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* poly);
+void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* pol);
+int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ);
 
 #endif // BIVARIATE_POLYNOMIAL_H

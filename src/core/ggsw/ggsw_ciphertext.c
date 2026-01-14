@@ -139,11 +139,11 @@ void add_ggsw(GGSWCiphertext* res,  // result
 }
 
 /**
- * @brief  Multiply a GGSW ciphertext by a constant in ZnX
+ * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
  * 
  * @param res The result GGSW ciphertext.
  * @param ct1 The GGSW ciphertext.
- * @param u The polynomial in ZnX, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
+ * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
 void const_mult_ggsw(GGSWCiphertext* res,  
                      GGSWCiphertext* ct, 
@@ -167,7 +167,7 @@ void const_mult_ggsw(GGSWCiphertext* res,
 
     svp_apply_dft_p(module, ct_dft, mat_size, u_prep, ct->mat, mat_size, N);
 
-    // Go back to ZnXY
+    // Go back to Zn[XY]
     vec_znx_idft_p(module, res->mat, mat_size, ct_dft, mat_size);
     
     // Normalization
@@ -196,7 +196,7 @@ void const_mult_ggsw(GGSWCiphertext* res,
  * @param params The GGSW parameters.
  * @return int64_t 
  * 
- * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in ZnX, 
+ * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in Zn[X], 
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 int64_t ggsw_coef_number_dft(GGSWCtParams* params){
@@ -267,18 +267,18 @@ void delete_ggsw_prepared(GGSWCiphertextDFT* res_dft
 }
 
 /**
- * @brief  Multiply a GGSW ciphertext by a constant in ZnX
+ * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
  * 
  * @param res The result GGSW ciphertext.
  * @param ct1 The GGSW ciphertext.
- * @param u The polynomial in ZnX, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
+ * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
 /**
- * @brief  Multiply a GGSW ciphertext by a constant in ZnX
+ * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
  * 
  * @param res The result GGSW ciphertext.
  * @param ct1 The GGSW ciphertext.
- * @param u The polynomial in ZnX, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
+ * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
 void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,  
                          GGSWCiphertextDFT* ct_dft, 

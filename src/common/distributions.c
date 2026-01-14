@@ -5,7 +5,7 @@
  * 
  * @param limb_size The size of each limb. N for TGLWE and TGGSW.
  * @param res The result.
- * @param n_limbs The number of limbs.
+ * @param res_size The number of limbs.
  * @param res_sl The stride (in elements) between two consecutive result limbs.
  *               It indicates how many elements must be skipped in memory to reach
  *               the start of the next limb in `res`.
@@ -16,13 +16,13 @@
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t res_sl, int64_t min, int64_t max)
+int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t res_size, int64_t res_sl, int64_t min, int64_t max)
 {
-    for(int i = 0; i < n_limbs; i++)
+    for(int i = 0; i < res_size; i++)
     {
         for(int j = 0; j < limb_len ; j++)
         {
-            if(rand_uniform(res + i*res_sl + j) < 0) // TODO : def a range 
+            if(rand_uniform(res + i*res_sl + j) < 0) 
                 return -1;
 
         }
@@ -35,7 +35,7 @@ int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t 
  * 
  * @param limb_size The size of each limb. N for TGLWE and TGGSW.
  * @param res The result.
- * @param n_limbs The number of limbs.
+ * @param res_size The number of limbs.
  * @param res_sl The stride (in elements) between two consecutive result limbs.
  *             It indicates how many elements must be skipped in memory to reach
  *             the start of the next limb in `res`.
@@ -45,12 +45,14 @@ int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t 
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int normal_random_vec(int64_t limb_len, int64_t* res, int64_t n_limbs, int64_t res_sl
+int normal_random_vec(int64_t limb_len, 
+                      int64_t* res, int64_t res_size, int64_t res_sl,
+                      double mu, double sigma
 ){
-    for(int i = 0; i < n_limbs; i++)
+    for(int i = 0; i < res_size; i++)
         for(int j = 0; j < limb_len ; j++){
             
-            if(rand_normal((double*)res + (i * res_sl + j), 0.0, 1.0) < 0) // TODO : decompose to xy
+            if(rand_normal((double*)res + (i * res_sl + j), mu, sigma) < 0) 
                 return -1;
 
             }

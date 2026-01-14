@@ -25,7 +25,7 @@ int64_t glwe_coef_number(GLWECtParams* params){
  * @param params The GLWE parameters.
  * @return int64_t 
  * 
- * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in ZnX, 
+ * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in Zn[X], 
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 int64_t glwe_coef_number_dft(GLWECtParams* params){

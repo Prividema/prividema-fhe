@@ -2,7 +2,7 @@
 //! DEFINE STRUCTURE ALIAS, NOT DFT & DFT (begin)
 
 /** @brief type that represents a univariate polynomial.
- *  @note `Length = N for a polynomial in ZnX`.
+ *  @note `Length = N for a polynomial in Zn[X]`.
 */
 typedef int64_t PolyUniv;
 
@@ -17,7 +17,7 @@ typedef int64_t VecUniv;
 typedef int64_t MatUniv;
 
 /** @brief type that represents a univariate polynomial in DFT space.
- *  @note `Length = N for a polynomial in ZnX`.
+ *  @note `Length = N for a polynomial in Zn[X]`.
 */
 typedef double PolyUnivDFT;
 
@@ -34,7 +34,7 @@ typedef double MatUnivDFT;
 //! DEFINE STRUCTURE ALIAS, NOT DFT & DFT (begin)
 
 /** @brief type that represents a bivariate polynomial 
- *  @note `Length = l * N for bivariate polynomial in ZnXY`
+ *  @note `Length = l * N for bivariate polynomial in Zn[XY]`
 */
 typedef int64_t PolyBiv;
 

@@ -1,5 +1,6 @@
 #include "bivariate_polynomial.h"
 #include "distributions.h"
+#include "vec_znx_arithmetic_private.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -37,20 +38,20 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
     int64_t kappa = params->kappa;
     int64_t l = params->n_limbs/(params->k + 1);
 
-    // Base-2Kappa normalized bivariate polynomial in ZnXY
+    // Base-2Kappa normalized bivariate polynomial in Zn[XY]
     PolyBiv* pol = malloc(poly_biv_bytes(params));
     if(pol==NULL){
         perror("Malloc failed.");
         return NULL;
     }
-    // Univariate polynomial in RnX
+    // Univariate polynomial in Rn[X]
     double* tmp_pol_inR_univ = malloc(poly_univ_bytes(params));
     if(tmp_pol_inR_univ==NULL){
         perror("Malloc failed.");
         free(pol);
         return NULL;}
 
-    // Bivariate polynomial in ZnXY
+    // Bivariate polynomial in Zn[XY]
     int64_t* tmp_pol_inZ = malloc(poly_biv_bytes(params));
     if(tmp_pol_inZ==NULL){
         perror("Malloc failed.");
@@ -84,11 +85,11 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
  * 
  * @param params The GLWE parameters.
  * @param res The result bivariate polynomial.
- * @param res_sl The stride between each ZnX polynomial.
+ * @param res_sl The stride between each Zn[X] polynomial.
  * @param a The left-hand side bivariate polynomial.
- * @param a_sl The stride between each ZnX polynomial.
+ * @param a_sl The stride between each Zn[X] polynomial.
  * @param b The right-hand side bivariate polynomial.
- * @param b_sl The stride between each ZnX polynomial.
+ * @param b_sl The stride between each Zn[X] polynomial.
  */
 void add_biv_poly(GLWECtParams* params, 
                   PolyBiv* res, int64_t res_sl,
@@ -147,7 +148,7 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module,
  * @param params The GLWE parameters. 
  * @return int64_t 
  * 
- * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in ZnX, 
+ * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in Zn[X], 
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 int64_t poly_biv_coef_number_dft(GLWECtParams* params){
@@ -160,11 +161,11 @@ int64_t poly_biv_coef_number_dft(GLWECtParams* params){
  * 
  * @param params The GLWE parameters.
  * @param res The result bivariate polynomial in DFT space.
- * @param res_sl The stride between each ZnX polynomial.
+ * @param res_sl The stride between each Zn[X] polynomial.
  * @param a The left-hand side bivariate polynomial in DFT space.
- * @param a_sl The stride between each ZnX polynomial.
+ * @param a_sl The stride between each Zn[X] polynomial.
  * @param b The right-hand side bivariate polynomial in DFT space.
- * @param b_sl The stride between each ZnX polynomial.
+ * @param b_sl The stride between each Zn[X] polynomial.
  */
 void add_biv_poly_dft(GLWECtParams* params, 
                       PolyBivDFT* res, int64_t res_sl,
@@ -225,10 +226,10 @@ int64_t poly_univ_bytes(GLWECtParams* params){
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
  * 
  * @param params The GLWE parameters.
- * @param res_univ The result univariate polynomial in RnX.
+ * @param res_univ The result univariate polynomial in Rn[X].
  * @param poly The input bivariate polynomial.
  */
-void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* poly){
+void biv_to_univ(GLWECtParams* params, double* pol_univ, PolyBiv* pol_biv){
     //GLWE parameters
     int64_t N = params->N;
     int64_t kappa = params->kappa;
@@ -237,7 +238,51 @@ void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* poly){
     // res_univ(X^p) = ∑_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
     for(int64_t i = 1 ; i < l ; i++){
         for(int64_t p = 0 ; p < N ; p++){
-            res_univ[p] += ldexp((double)poly[i*N + p], - i*kappa);
+            pol_univ[p] += ldexp((double)pol_biv[i*N + p], - i*kappa);
         }
     }
+}
+
+/**
+ * @brief Computes the bivariate decomposition in Zn[XY] of a polynomial in Rn[X].
+ * 
+ * @param params The GLWE parameters. 
+ * @param pol_biv The bivariate decomposition.
+ * @param pol_univ The univariate polynomial.
+ * @return int 
+ */
+int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ
+){
+    // GLWE parameters
+    int64_t N = params->N;
+    int64_t kappa = params->kappa;
+    int64_t l = poly_biv_size(params);
+
+    PolyBiv* tmp_pol_biv = calloc(poly_biv_bytes(params),1);
+    if (tmp_pol_biv == NULL){
+        perror("malloc failed");
+        return -1;
+    }
+
+    MODULE* module = new_module_info(N, FFT64);
+
+    // Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa - 1) - 1]
+    int64_t mask = (1 << (kappa + 1)) - 1;
+    for(int64_t p = 0 ; p < N ; p++)
+    {
+        for(int64_t i = 0 ; i < l ; i++)
+        {
+            // phase_biv(X^p, Y^i) = the i_ème block of kappa bits, starting from the MSB, of tmp_pol_inR_univ(X^p)
+            tmp_pol_biv[i*N + p] = ((int64_t)ldexp(pol_univ[p], i*kappa)) & mask;
+        }
+    }
+
+    // Normalize tmp_pol_biv
+    vec_znx_normalize_base2k_p(module, kappa, pol_biv, l, N, tmp_pol_biv, l, N);
+
+    free(module);
+    free(tmp_pol_biv);
+
+    return 0;
+
 }

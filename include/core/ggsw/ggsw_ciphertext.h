@@ -22,7 +22,7 @@
 
 typedef struct ggsw_ciphertext {
   GGSWCtParams* params;  // GGSW parameters
-  MatBiv* mat;           // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in ZnX
+  MatBiv* mat;           // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
 } GGSWCiphertext;
 
 int64_t ggsw_coef_number(GGSWCtParams* params);
@@ -36,7 +36,7 @@ void const_mult_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct, PolyUniv* u);
 //! GGSW IN DFT PART
 typedef struct ggsw_ciphertext_dft {
   GGSWCtParams* params;  // GGSW parameters
-  MatBivDFT* pmat;       // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in ZnX
+  MatBivDFT* pmat;       // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
 } GGSWCiphertextDFT;
 
 int64_t ggsw_coef_numberb_dft(GGSWCtParams* params);

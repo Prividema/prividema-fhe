@@ -1,8 +1,11 @@
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe.h"
+#include "common/distributions.h"
 #include "vec_znx_arithmetic_private.h"
+
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+
 #include <stdlib.h>
 #include <string.h>
 #include <signal.h>
@@ -74,6 +77,16 @@ Test(biv_to_univ, test_with_random_biv_generation ){
     delete_module_info(module);
 } 
 
+/**
+ * @brief Test univ_to_biv
+ */
+Test(univ_to_biv, basic){
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    double* pol_univ = malloc(poly_univ_bytes(params));
+    normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-7);
+}
 
 //! BIV POLY PART (begin) 
 

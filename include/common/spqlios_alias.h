@@ -8,9 +8,9 @@ typedef enum module_type_t MODULE_TYPE;
 typedef struct module_info_t MODULE;
 /** @brief opaque type that represents a prepared matrix */
 typedef struct vmp_pmat_t VMP_PMAT;
-/** @brief opaque type that represents a vector of znx in DFT space */
+/** @brief opaque type that represents a vector of Zn[X] in DFT space */
 typedef struct vec_znx_dft_t VEC_ZNX_DFT;
-/** @brief opaque type that represents a vector of znx in large coeffs space */
+/** @brief opaque type that represents a vector of Zn[X] in large coeffs space */
 typedef struct vec_znx_bigcoeff_t VEC_ZNX_BIG;
 /** @brief opaque type that represents a prepared scalar vector product */
 typedef struct svp_ppol_t SVP_PPOL;

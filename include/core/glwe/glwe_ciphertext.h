@@ -10,7 +10,7 @@
 
 typedef struct glwe_ciphertext {
   GLWECtParams* params;   // GLWE parameters
-  VecBiv* vec;            // Represents a vector of size (k + 1) * l with coefficients that are in ZnX
+  VecBiv* vec;            // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
 
