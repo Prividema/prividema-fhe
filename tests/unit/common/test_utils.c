@@ -39,27 +39,30 @@ int rand_uniform_aux(int nb_bits)
     
     // Fill the boxes
     double step = ((double)max - (double)min) / (double)NB_BOXES;
-    // printf("min = %ld\n", min);
-    // printf("max = %ld\n", max);
-    // printf("step = %f\n", step);
     for(size_t i = 0; i < NB_SAMPLES; i++) {
         int64_t sample = 0;
         if(rand_uniform(&sample, nb_bits) < 0)
             return 1;
-        // This loop only fill NB_BOXES - 1 elements of boxes.
+
+        // This loop fills the NB_BOXES elements of boxes.
+        // We have separated our interval into [min, min + step) ... [min + (NB_BOXES-1)step, max)
+        // But if a generated number is exactly max, a buffer overflow is thrown.
+        // To fix this we include the max value in the last box.
         int j = 0;
         for(double v = (double)min; v < (double)max; v += step) {
-            if(sample < v + step) {
-                // printf("%ld < %f placed in box %d\n", sample, v + step, j);
-                boxes[j]++;
-                break;
+            if(j != NB_BOXES) {
+                if(sample < v + step) {
+                    boxes[j]++;
+                    break;
+                }
+                j++;
             }
-            j++;
+
+            // In this case the element equals max.
+            else
+                boxes[j - 1] ++;
         }
     }
-    // for(int i = 0; i < NB_BOXES; i++)
-    //     printf("%ld, ", boxes[i]);
-    // printf("\n");
 
     // Apply Chi square test
     double expected = (double) NB_SAMPLES / (double) NB_BOXES; // For an uniform distribution
