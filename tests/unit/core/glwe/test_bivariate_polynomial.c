@@ -84,17 +84,17 @@ Test(univ_to_biv, one_test){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
     MODULE* module = new_module_info(NBASE, FFT64);
 
-    double* pol_univ = malloc(poly_univ_bytes(params));
-    normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+    double* pol_univ = calloc(poly_univ_bytes(params),1);
+    pol_univ[0] = 0.0625;
 
-    int64_t mask = (1LL << KAPPABASE) - 1;
-    for(int64_t p = 0 ; p < NBASE ; p++){
-        cr_log_info("A %e X^%ld", pol_univ[p], p);
-        for(int64_t i = 1 ; i < LBASE ; i++){
+    // int64_t mask = (1LL << KAPPABASE) - 1;
+    // for(int64_t p = 0 ; p < NBASE ; p++){
+    //     cr_log_info("A %e X^%ld", pol_univ[p], p);
+        // for(int64_t i = 1 ; i < LBASE ; i++){
             // cr_log_info("A(XY) %e Y^%ld", ldexp(pol_univ[p], i*KAPPABASE), i) ;
             // cr_log_info("A(XY) %ld Y^%ld", (int64_t) ldexp(pol_univ[p], i*KAPPABASE) & mask, i) ;
-            }
-    }
+    //         }
+    // }
 
     PolyBiv* pol_biv = malloc(poly_biv_bytes(params));
     univ_to_biv(params, pol_biv, pol_univ);
@@ -111,8 +111,8 @@ Test(univ_to_biv, one_test){
             acc += ldexp((double)pol_biv[i * NBASE + p], -i * KAPPABASE);
         }
         cr_log_info("acc %lf pol %lf p %ld", acc, pol_univ[p], p);
-        cr_assert(epsilon_eq(dbl, acc - pol_univ[p], 0, ldexp(1.0,-(LBASE-1)*KAPPABASE)), "acc %e pol %e p %ld", acc, pol_univ[p], p);
-        
+        cr_assert(epsilon_eq(dbl, acc - floor(acc) - pol_univ[p] + floor(pol_univ[p]), 0, ldexp(1.0,-(LBASE-1)*KAPPABASE))
+                  , "acc %lf pol %lf p %ld", acc - floor(acc), - pol_univ[p] + floor(pol_univ[p]), p);
     }
     free(pol_univ); free(pol_biv);
     delete_glwe_ct_params(params);
