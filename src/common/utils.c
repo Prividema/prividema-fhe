@@ -78,7 +78,7 @@ int rand_uniform(int64_t* result, int nb_bits) {
         return -1;
     }
     // Plus, nb_bits should be dividable by 8 to keep the cryptosafe property of the RNG.
-    else if (nb_bits & 8 != 0) {
+    else if (nb_bits & 8) {
         fprintf(stderr, "Attempt to generate a random number but nb_bits is not dividable by 8.\n");
         return -1;
     }
