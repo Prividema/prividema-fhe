@@ -28,7 +28,10 @@ typedef struct ggsw_ciphertext {
 int64_t ggsw_coef_number(GGSWCtParams* params);
 GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct);
 void delete_ggsw(GGSWCiphertext* ct);
-VecBiv* ggsw_Sj_Yi(GGSWCiphertext* ct, int64_t i, int64_t j);
+VecBiv* ggsw_Sj_Yti(GGSWCiphertext* ct, int64_t i, int64_t j);
+void normalize_ggsw(GGSWCiphertext* res,
+                    GGSWCiphertext* ct
+);
 void add_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
 void const_mult_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct, PolyUniv* u);
 
@@ -42,7 +45,7 @@ typedef struct ggsw_ciphertext_dft {
 int64_t ggsw_coef_numberb_dft(GGSWCtParams* params);
 GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct);
 void delete_ggsw_dft(GGSWCiphertextDFT* ct);
-VecBivDFT* ggsw_Sj_Yi_dft(GGSWCiphertextDFT* ct, int64_t i, int64_t j);
+VecBivDFT* ggsw_Sj_Yti_dft(GGSWCiphertextDFT* ct, int64_t i, int64_t j);
 void add_ggsw_dft(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
 void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u);
 

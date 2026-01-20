@@ -2,16 +2,21 @@
 #include <stdio.h>
 
 /**
- * @brief Create a GGSW parameters
+ * @brief Create a set of GGSW parameters.
  * 
- * @param params The 
+ * @param params_glwe The GLWE parameters.
+ * @param k_tilde The number of ZnX polynomial in the secret key.
+ * @param kappa_tilde The 2-exponent of the base Bg_tilde.
+ * @param n_limbs_tilde (k_tilde + 1)*l_tilde.
+ * @return GGSWCtParams* 
  */
 GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,  uint64_t n_limbs_tilde
 ){
     GGSWCtParams* params_ggsw = malloc(sizeof(GGSWCtParams));
-    if (params_ggsw == NULL)
+    if (params_ggsw == NULL){
         perror("Malloc failed.");
         return NULL;
+    }
     
     params_ggsw->params = params_glwe;
     params_ggsw->k_tilde = k_tilde;
@@ -27,7 +32,6 @@ GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params_glwe, uint64_t k_tilde, ui
  * @param params 
  */
 void delete_ggsw_ct_params(GGSWCtParams* params){
-    delete_glwe_ct_params(params->params);
     free(params);
 }
 

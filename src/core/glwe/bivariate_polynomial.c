@@ -26,9 +26,7 @@ int64_t poly_biv_coef_number(GLWECtParams* params){
  * 
  * @param module The module holding the degree N and FFT64.
  * @param params The GLWE parameters.
- * @param res The result bivariate polynomial. 
- * @param res_sl The result's vector stride.
- * @return int 
+ * @return PolyBiv* 
  */
 PolyBiv* new_normal_random_biv_poly(MODULE* module, 
                                     GLWECtParams* params
@@ -38,46 +36,54 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
     int64_t kappa = params->kappa;
     int64_t l = params->n_limbs/(params->k + 1);
 
-    // Base-2Kappa normalized bivariate polynomial in Zn[XY]
-    PolyBiv* pol = malloc(poly_biv_bytes(params));
-    if(pol==NULL){
+    // Draws a random univariate polynomial P(X) in Rn[X]
+    double* rd_pol_univ = malloc(poly_univ_bytes(params));
+    if(rd_pol_univ == NULL){
         perror("Malloc failed.");
         return NULL;
     }
-    // Univariate polynomial in Rn[X]
-    double* tmp_pol_inR_univ = malloc(poly_univ_bytes(params));
-    if(tmp_pol_inR_univ==NULL){
-        perror("Malloc failed.");
-        free(pol);
-        return NULL;}
-
-    // Bivariate polynomial in Zn[XY]
-    int64_t* tmp_pol_inZ = malloc(poly_biv_bytes(params));
-    if(tmp_pol_inZ==NULL){
-        perror("Malloc failed.");
-        free(pol);
-        free(tmp_pol_inR_univ);
-        return NULL;}
-    
-    // Fills each tmp_pol_inZ(X^p, Y^i) with coefficients in [-2^(kappa* - 1) ; 2^(kappa - 1) - 1]
-    int64_t mask = (1 << (kappa + 1)) - 1;
     for(int64_t p = 0 ; p < N ; p++){
-        if(rand_normal(tmp_pol_inR_univ + p, 0.0, 1e-7) < 0) 
+        if(rand_normal(rd_pol_univ + p, 0.0, params->sigma) < 0) 
                 return NULL;
-                // TODO Test
-        for(int64_t i = 0 ; i < l ; i++){
-            // tmp_pol_inZ(X^p, Y^i) = the i_ème block of kappa bits, starting from the MSB, of tmp_pol_inR_univ(X^p)
-            tmp_pol_inZ[i*N + p] = ((int64_t)ldexp(tmp_pol_inR_univ[p], i*kappa)) & mask;
+    }
+
+    // Stores the base-2kappa normalized bivariate form Pbiv(X,Y) of P(X)
+    int64_t* rd_pol = malloc(poly_biv_bytes(params));
+    if(rd_pol == NULL){
+        perror("Malloc failed.");
+        free(rd_pol_univ);
+        return NULL;
+    }
+    
+    // For each, (p,i) in [0,N-1]x[0,l-1], Pbiv_p_i = centered(floor(P_p * Bg^i))
+    // Where centered(_) is in [-2^(kappa-1) ; 2^(kappa-1) - 1]
+    int64_t mask = (1LL << kappa) - 1;
+    for(int64_t p = 0 ; p < N ; p++)
+    {
+        // For each p, we substract Bg/2 * Bg^(-i) to P_p
+        for(int64_t i = 1 ; i < l ; i++){
+            rd_pol_univ[p] += ldexp(1.0, kappa - 1 - kappa*i);
+        }
+
+        if(rd_pol_univ[p] >= 0)
+        {
+            for(int64_t i = 0 ; i < l ; i++)
+            {
+                rd_pol[i*N + p] = (((int64_t)ldexp(rd_pol_univ[p], i*kappa)) & mask) - (1LL << (kappa - 1));
+            }
+        }
+        else{
+            rd_pol_univ[p] -= floor(rd_pol_univ[p]);
+            for(int64_t i = 0 ; i < l ; i++)
+            {
+                rd_pol[i*N + p] = (((int64_t)ldexp(rd_pol_univ[p], i*kappa)) & mask) - (1LL << (kappa - 1));
+            }
         }
     }
 
-    // Then does a base-2Kappa normalization 
-    vec_znx_normalize_base2k_p(module, kappa, pol, poly_biv_size(params), N, tmp_pol_inZ, poly_biv_size(params), N);
+    free(rd_pol_univ);
 
-    free(tmp_pol_inR_univ);
-    free(tmp_pol_inZ);
-
-    return pol;
+    return rd_pol;
 }
 
 /**
@@ -120,26 +126,26 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module,
                                            GLWECtParams* params
 ){
     // Base-2Kappa normalized bivariate polynomial in DFt space
-    PolyBivDFT* pol_dft = malloc(poly_biv_bytes(params));
-    if(pol_dft == NULL){
+    PolyBivDFT* rd_pol_dft = malloc(poly_biv_bytes(params));
+    if(rd_pol_dft == NULL){
         perror("Malloc failed.");
         return NULL;
     }
 
     // Base-2Kappa normalized bivariate polynomial
-    PolyBiv* tmp_pol = new_normal_random_biv_poly(module, params);
-    if(tmp_pol == NULL){
+    PolyBiv* rd_pol = new_normal_random_biv_poly(module, params);
+    if(rd_pol == NULL){
         perror("Malloc failed.");
-        free(pol_dft);
+        free(rd_pol_dft);
         return NULL;
     }
     
     // Then compute in DFT space
-    vec_znx_dft_p(module, pol_dft, poly_biv_size(params), tmp_pol, poly_biv_size(params), params->N);
+    vec_znx_dft_p(module, rd_pol_dft, poly_biv_size(params), rd_pol, poly_biv_size(params), params->N);
 
-    free(tmp_pol);
+    free(rd_pol);
     
-    return pol_dft;
+    return rd_pol_dft;
 }
 
 /**
@@ -226,8 +232,8 @@ int64_t poly_univ_bytes(GLWECtParams* params){
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
  * 
  * @param params The GLWE parameters.
- * @param res_univ The result univariate polynomial in Rn[X].
- * @param poly The input bivariate polynomial.
+ * @param pol_univ The result univariate polynomial in Rn[X].
+ * @param pol_biv The input bivariate polynomial.
  */
 void biv_to_univ(GLWECtParams* params, double* pol_univ, PolyBiv* pol_biv){
     //GLWE parameters
@@ -235,7 +241,7 @@ void biv_to_univ(GLWECtParams* params, double* pol_univ, PolyBiv* pol_biv){
     int64_t kappa = params->kappa;
     int64_t l = poly_biv_size(params);
 
-    // res_univ(X^p) = ∑_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
+    // res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
     for(int64_t i = 1 ; i < l ; i++){
         for(int64_t p = 0 ; p < N ; p++){
             pol_univ[p] += ldexp((double)pol_biv[i*N + p], - i*kappa);

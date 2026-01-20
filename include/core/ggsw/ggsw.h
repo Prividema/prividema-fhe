@@ -10,26 +10,31 @@
 
 //! GGSW PART (begin)
 
-int encrypt_biv_glwe(const MODULE* module,
-                     GLWECtParams* params, 
-                     VecBiv* res_ct,
-                     GGSWPreparedSK* sk, 
-                     PolyBiv* phase
+void add_error(GLWECtParams* enc_params,
+               PolyBiv* res,
+               PolyBiv* phase
 );
 
-int compute_phase_biv(GGSWCtParams* params, 
-                      PolyBiv* res, 
-                      PolyUniv* phase_univ, 
-                      int64_t i_tilde
+int glwe_secret_demasking(GLWECtParams* enc_params,
+                          double* phase, 
+                          GGSWPreparedSK* sk_dft,
+                          GLWECiphertext* ct
 );
 
-int ggsw_secret_encrypt(GGSWCiphertext* res,           
+int glwe_secret_masking(const MODULE* module,
+                        GLWECtParams* params, 
+                        VecBiv* res_ct,
+                        GGSWPreparedSK* sk, 
+                        PolyBiv* phase
+);
+
+int ggsw_secret_masking(GGSWCiphertext* res,           
                         GGSWPreparedSK* sk,             
                         PolyUniv* msg_univ,                
                         GGSWCtParams* enc_params 
 );
 
-void ggsw_decrypt(double* res,   // result
+void ggsw_secret_demasking(double* res,   // result
                   GGSWPreparedSK* sk_dft,  // secret key
                   GGSWCiphertext* ct  // ciphertext
 );
@@ -58,8 +63,6 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* res,       // result
                              GGSWCtParams* enc_params  // parameters
 );
 
-
-
 /* Decrypts message res from GGSW ciphertext ct */
 /* /!\ Is that actually useful ? */
 void halfggsw_decrypt(int64_t* res,       // result
@@ -78,33 +81,22 @@ void halfggsw_external_product(GLWECiphertext* res,     // result
                                PartialGGSWCiphertext* ct2  // half GGSW ciphertext
 );
 
-int decrypt_biv_glwe(GLWECtParams* enc_params,
-                     double* phase, 
-                     GGSWPreparedSK* sk_dft,
-                     GLWECiphertext* ct
-);
 
 //! GGSW IN DFT PART (begin)   
 
-int compute_phase_biv_dft(GGSWCtParams* enc_params, 
-                          PolyBivDFT* res_dft,
-                          PolyUnivDFT* phase_univ_dft, 
-                          int64_t i
-);
-
-int add_error_dft(GLWECtParams* enc_params,
+void add_error_dft(GLWECtParams* enc_params,
                   PolyBivDFT* res_dft,
                   PolyBivDFT* phase_dft 
 );
 
-int encrypt_biv_glwe_dft(GLWECtParams* enc_params, 
+int glwe_secret_masking_dft(GLWECtParams* enc_params, 
                          const MODULE* module, 
                          VecBivDFT* res_dft,
                          GGSWPreparedSK* sk_dft, 
                          PolyBivDFT* phase_dft
 );
 
-int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,    // parameters
+int ggsw_secret_masking_dft(GGSWCtParams* enc_params,    // parameters
                             GGSWCiphertextDFT* res_dft,        // result
                             GGSWPreparedSK* sk_dft,         // secret key
                             PolyUniv* msg_univ                 // message                

@@ -8,6 +8,7 @@ set(GLWE_SRCS
     glwe_ct_params.c
     glwe_ciphertext.c
     bivariate_polynomial.c
+    glwe_key.c
 )
 
 # Create a shared library named GLWE

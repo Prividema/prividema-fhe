@@ -18,10 +18,12 @@ int64_t ggsw_coef_number(GGSWCtParams* params){
 /**
  * @brief Creates a bivGGSW, filled with 0.
  * 
- * @param res The result GGSW ciphertext.
  * @param params The GGSW parameters.
+ * @param mat The GGSW matrix.
+ * 
+ * @return GGSWCiphertext*
  */
-GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct
+GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* mat
 ){
     int64_t limb_size = params->params->N;
     int64_t nb_rows = params->n_limbs_tilde;
@@ -35,7 +37,7 @@ GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct
     
     ggsw_ct->params = params;   
 
-    if(ct == NULL)
+    if(mat == NULL)
     {
         ggsw_ct->mat = calloc(ggsw_coef_number(params), sizeof(int64_t));
         if(ggsw_ct->mat == NULL){
@@ -44,7 +46,7 @@ GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct
         }
     }
     else
-        ggsw_ct->mat = ct;
+        ggsw_ct->mat = mat;
     
     return ggsw_ct;
 }
@@ -56,20 +58,20 @@ GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct
  */
 void delete_ggsw(GGSWCiphertext* ct
 ){
-    delete_ggsw_ct_params(ct->params);
+    free(ct->mat);
     free(ct);
 }
 
 /**
- * @brief Return the pointer to biGLWE(-m * sk_j * Y^i).
+ * @brief Return the pointer to biGLWE(-m * sk_j / Bg_t^i).
  * 
  * @param ct A GGSW ciphertext.
- * @param i The degree in Y of the phase = -m * sk_j * Y^i.
+ * @param i The degree in Y of the phase = -m * sk_j / Bg_t^i.
  * @param j The j-th component of Sk.
  * 
  * @return VecBiv*
  */
-VecBiv* ggsw_Sj_Yi(GGSWCiphertext* ct, int64_t i, int64_t j){
+VecBiv* ggsw_Sj_Yti(GGSWCiphertext* ct, int64_t j, int64_t i){
     // GLWE parameters
     int64_t N = ct->params->params->N;
     int64_t k = ct->params->params->k;
@@ -82,6 +84,12 @@ VecBiv* ggsw_Sj_Yi(GGSWCiphertext* ct, int64_t i, int64_t j){
     return ct->mat + i*(k_tilde + 1)*n_limbs*N + j*n_limbs*N;
 }
 
+/**
+ * @brief Normalize a GGSW ciphertext.
+ * 
+ * @param res The result normalized GGSW ciphertext.
+ * @param ct The input GGSW ciphertext.
+ */
 void normalize_ggsw(GGSWCiphertext* res,
                     GGSWCiphertext* ct
 ){
@@ -104,8 +112,8 @@ void normalize_ggsw(GGSWCiphertext* res,
         for(int64_t j = 0 ; j < nb_rows_per_partial ; j++)
         {
             // The pointer to biGLWE(-m * sk_j * Y^i)
-            VecBiv* res_glwe = ggsw_Sj_Yi(res, i, j);
-            VecBiv* ct_glwe = ggsw_Sj_Yi(ct, i, j);
+            VecBiv* res_glwe = ggsw_Sj_Yti(res, j, i);
+            VecBiv* ct_glwe = ggsw_Sj_Yti(ct, j, i);
             
             // Normalize ct
             vec_znx_normalize_base2k_p(module, ct->params->params->kappa, res_glwe, n_limbs, N, ct_glwe, n_limbs, N);
@@ -135,14 +143,14 @@ void add_ggsw(GGSWCiphertext* res,  // result
                 res->mat[i*N*nb_cols + j*N + k] = ct1->mat[i*N*nb_cols + j*N + k] + ct2->mat[i*N*nb_cols + j*N + k];
             } 
         }
-    }
+    }   
 }
 
 /**
  * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
  * 
  * @param res The result GGSW ciphertext.
- * @param ct1 The GGSW ciphertext.
+ * @param ct The GGSW ciphertext.
  * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
 void const_mult_ggsw(GGSWCiphertext* res,  
@@ -176,7 +184,7 @@ void const_mult_ggsw(GGSWCiphertext* res,
         for(int64_t j = 0 ; j < nb_rows_per_partial(params_ggsw) ; j++)
         {
             // The pointer to biGLWE(-m * sk_j * Y^i)
-            VecBiv* ct_biv = ggsw_Sj_Yi(res, i, j);
+            VecBiv* ct_biv = ggsw_Sj_Yti(res, j, i);
 
             // TODO Does it works to do it inplace ?
             vec_znx_normalize_base2k_p(module, ct->params->params->kappa, 
@@ -206,13 +214,13 @@ int64_t ggsw_coef_number_dft(GGSWCtParams* params){
 /**
  * @brief Return the pointer to biGLWE(DFT(-m * sk_j) * Y^i) in DFT space.
  * 
- * @param ct A GGSW ciphertext in DFT space.
+ * @param ct_dft A GGSW ciphertext in DFT space.
  * @param i The degree in Y of the phase = -m * sk_j * Y^i.
  * @param j The j-th component of Sk.
  * 
  * @return VecBivDFT*
  */
-VecBivDFT* ggsw_Sj_Yi_dft(GGSWCiphertextDFT* ct_dft, int64_t i, int64_t j){
+VecBivDFT* ggsw_Sj_Yti_dft(GGSWCiphertextDFT* ct_dft, int64_t j, int64_t i){
     // GLWE parameters
     int64_t N = ct_dft->params->params->N;
     int64_t k = ct_dft->params->params->k;
@@ -228,10 +236,10 @@ VecBivDFT* ggsw_Sj_Yi_dft(GGSWCiphertextDFT* ct_dft, int64_t i, int64_t j){
 /**
  * @brief Creates a bivGGSW in DFT space, filled with 0.
  * 
- * @param res The result bivGGSW ciphertext in DFT space.
  * @param params The GGSW parameters.
+ * @param pmat The prepared GGSW matrix.
  */
-GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct
+GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* pmat
 ){
     GGSWCiphertextDFT* ggsw_ct_dft = malloc(sizeof(GGSWCiphertext));
     if(ggsw_ct_dft == NULL){
@@ -241,7 +249,7 @@ GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct
 
     ggsw_ct_dft->params = params;   
 
-    if(ct == NULL)
+    if(pmat == NULL)
     {
         ggsw_ct_dft->pmat = calloc(2 * ggsw_coef_number_dft(params), sizeof(double));
         if(ggsw_ct_dft->pmat == NULL){
@@ -250,7 +258,7 @@ GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct
         }
     }
     else
-        ggsw_ct_dft->pmat = ct;
+        ggsw_ct_dft->pmat = pmat;
     
     return 0;
 }
@@ -258,26 +266,19 @@ GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct
 /**
  * @brief Delete a bivGGSW in DFT space.
  * 
- * @param ct The bivGGSW in DFT space.
+ * @param res_dft The bivGGSW in DFT space.
  */
 void delete_ggsw_prepared(GGSWCiphertextDFT* res_dft
 ){
-    delete_ggsw_ct_params(res_dft->params);
+    free(res_dft->pmat);
     free(res_dft);
 }
 
 /**
  * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
  * 
- * @param res The result GGSW ciphertext.
- * @param ct1 The GGSW ciphertext.
- * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
- */
-/**
- * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
- * 
- * @param res The result GGSW ciphertext.
- * @param ct1 The GGSW ciphertext.
+ * @param res_dft The result GGSW ciphertext.
+ * @param ct_dft The GGSW ciphertext.
  * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
 void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,  
@@ -316,7 +317,7 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,
         for(int64_t j = 0 ; j < nb_rows_per_partial(params_ggsw) ; j++)
         {
             // The pointer to biGLWE(-m * sk_j * Y^i)
-            VecBiv* ct_biv = ggsw_Sj_Yi(tmp_ggsw_2, i, j);
+            VecBiv* ct_biv = ggsw_Sj_Yti(tmp_ggsw_2, j, i);
 
             // TODO Does it works to do it inplace ?
             vec_znx_normalize_base2k_p(module, ct_dft->params->params->kappa, 
@@ -359,6 +360,5 @@ int64_t ggsw_bytes(GGSWCtParams* params){
     int64_t N = params->params->N;
     return ggsw_size(params) * N * sizeof(int64_t); 
 }
-
 
 

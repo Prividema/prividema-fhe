@@ -23,8 +23,8 @@
  * - On other Linux distributions : read /dev/urandom.
  *
  * @param result A pointer that will point to the generated value.
- * @retval - `-1` if an error occurs on Windows and other Linux distributions.
- * @retval - `0` otherwise.
+ * @retval `-1` if an error occurs on Windows and other Linux distributions.
+ * @retval `0` otherwise.
  * 
  * @note For MACOS/FreeBSD : According to arc4random's doc, the whole program crashes if an error occurs during the generation.
  */
@@ -68,8 +68,8 @@ int read_rand(uint64_t* result) {
  * @param result A pointer that will point to the generated value.
  * @param nb_bits The number of bits of the result. Should be a power of two dividable by 8.
  * 
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval `0` otherwise.
  */
 int rand_uniform(int64_t* result, int nb_bits) {
     // As result points to an int64_t nb_bits shall not exceed its size
@@ -140,9 +140,9 @@ double erfinv(double x) {
  * @param mu     The mean value.
  * @param sigma  The variance.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall
+ * @retval `-1` if an error occurs. In this case the error is from a syscall
  * and perror is called.
- * @retval - `0` otherwise.
+ * @retval `0` otherwise.
  *
  * @note This function transforms a uniformly sampled variable into a normally
  * distributed variable using the inverse Cumulative Distribution Function

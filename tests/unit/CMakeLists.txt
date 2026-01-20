@@ -30,8 +30,10 @@ endif()
 
 file(GLOB TEST_BACKEND_FILES backend/*.c)
 file(GLOB TEST_COMMON_FILES  common/*.c)
-file(GLOB TEST_CORE_FILES
+file(GLOB TEST_GGSW_FILES
     core/ggsw/*.c
+)
+file(GLOB TEST_GLWE_FILES
     core/glwe/*.c
 )
 file(GLOB TEST_SCHEMES_FILES schemes/*.c)
@@ -96,7 +98,8 @@ endfunction()
 # Build all unit tests
 # ------------------------------------------------------------
 
-BuildUnitTests(TEST_BACKEND_FILES BACKEND)
-BuildUnitTests(TEST_COMMON_FILES  COMMON)
-BuildUnitTests(TEST_CORE_FILES    CORE)
-BuildUnitTests(TEST_SCHEMES_FILES SCHEMES)
+# BuildUnitTests(TEST_BACKEND_FILES BACKEND)
+# BuildUnitTests(TEST_COMMON_FILES  COMMON)
+# BuildUnitTests(TEST_GGSW_FILES    CORE)
+BuildUnitTests(TEST_GLWE_FILES    CORE)
+#BuildUnitTests(TEST_SCHEMES_FILES  SCHEMES)

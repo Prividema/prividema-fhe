@@ -3,7 +3,7 @@
 /**
  * @brief Generates a Random Vector following an Uniform distribution.
  * 
- * @param limb_size The size of each limb. N for TGLWE and TGGSW.
+ * @param limb_len The size of each limb. N for TGLWE and TGGSW.
  * @param res The result.
  * @param res_size The number of limbs.
  * @param res_sl The stride (in elements) between two consecutive result limbs.
@@ -11,8 +11,8 @@
  *               the start of the next limb in `res`.
  * @param nb_bits The exponent of the range = [-2^e, 2^e].
  *  
- * @retval - `-1` if an error occurs. In this case the error is from a syscall in rand_uniform.
- * @retval - `0` otherwise.
+ * @retval `-1` if an error occurs. In this case the error is from a syscall in rand_uniform.
+ * @retval `0` otherwise.
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
@@ -34,7 +34,7 @@ int uniform_random_vec(int64_t limb_len,
 /**
  * @brief Generates a Random Vector following an Uniform distribution.
  * 
- * @param limb_size The size of each limb. N for TGLWE and TGGSW.
+ * @param limb_len The size of each limb. N for TGLWE and TGGSW.
  * @param res The result.
  * @param res_size The number of limbs.
  * @param res_sl The stride (in elements) between two consecutive result limbs.
@@ -43,8 +43,8 @@ int uniform_random_vec(int64_t limb_len,
  * @param mu The mean value of the distribution.
  * @param sigma The variance of the distribution.
  *  
- * @retval - `-1` if an error occurs. In this case the error is from a syscall in rand_uniform.
- * @retval - `0` otherwise.
+ * @retval `-1` if an error occurs. In this case the error is from a syscall in rand_uniform.
+ * @retval `0` otherwise.
  * 
  * @note For each call to this function, we'll generate a new seed.
  */

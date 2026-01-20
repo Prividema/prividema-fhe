@@ -15,7 +15,7 @@ typedef struct glwe_ciphertext {
 
 
 int64_t glwe_coef_number(GLWECtParams* params);
-int new_glwe(GLWECiphertext* res, GLWECtParams* params);
+GLWECiphertext* new_glwe(GLWECtParams* params);
 void delete_glwe(GLWECiphertext* ct);
 void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2);
 void const_mult_glwe(GLWECiphertext* res, PolyUniv* u, GLWECiphertext* ct);

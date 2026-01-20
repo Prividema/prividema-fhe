@@ -17,6 +17,7 @@
 #define KAPPABASE 4
 #define NLIMBSBASE 45
 #define LBASE NLIMBSBASE/(KBASE+1)
+#define SIGMABASE 1e-7
 
 //! COMMON PART (begin)
 
@@ -24,7 +25,7 @@
  * @brief Test poly_biv_size
  */
 Test(poly_biv_size, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
     cr_assert(eq(i64, poly_biv_size(params), LBASE, 
                 "poly_biv_size failed: got %lld, expected %lld", poly_biv_size(params), LBASE));
@@ -36,7 +37,7 @@ Test(poly_biv_size, basic){
  * @brief Test poly_biv_bytes
  */
 Test(poly_univ_bytes, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
     cr_assert(eq(i64, poly_univ_bytes(params), NBASE*sizeof(int64_t), 
                 "poly_univ_bytes failed: got %lld, expected %lld", poly_univ_bytes(params), NBASE*sizeof(int64_t)));
@@ -48,7 +49,7 @@ Test(poly_univ_bytes, basic){
  * @brief Test poly_biv_bytes
  */
 Test(poly_biv_bytes, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
     cr_assert(eq(i64, poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t), 
                 "poly_biv_bytes failed: got %lld, expected %lld", poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t)));
@@ -60,7 +61,7 @@ Test(poly_biv_bytes, basic){
  * @brief Test biv_to_univ
 */
 Test(biv_to_univ, test_with_random_biv_generation ){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(NBASE, FFT64);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
@@ -77,7 +78,7 @@ Test(biv_to_univ, test_with_random_biv_generation ){
  * @brief Test univ_to_biv
  */
 Test(univ_to_biv, one_test){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(NBASE, FFT64);
 
     double* pol_univ = calloc(poly_univ_bytes(params),1);
@@ -110,7 +111,7 @@ Test(univ_to_biv, one_test){
  * @brief Test univ_to_biv
  */
 Test(univ_to_biv, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(NBASE, FFT64);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
@@ -152,7 +153,7 @@ Test(univ_to_biv, basic){
  * @brief Test univ_to_biv
  */
 Test(univ_to_biv, maths_test){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(NBASE, FFT64);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
@@ -182,7 +183,7 @@ Test(univ_to_biv, maths_test){
  * @note n_limbs = (k + 1) * l
  */
 Test(poly_biv_coef_number, classic_params){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE); 
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
     cr_assert(eq(i64, poly_biv_coef_number(params), NBASE * LBASE, 
                 "poly_biv_coef_number failed: got %lld, expected %lld", poly_biv_coef_number(params), NBASE * LBASE));
@@ -196,7 +197,7 @@ Test(poly_biv_coef_number, classic_params){
  */
 Test(new_normal_random_biv_poly, basic){
     MODULE* module = new_module_info(NBASE, FFT64);
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     PolyBiv* a = new_normal_random_biv_poly(module, params);
 
     cr_assert(eq(int, a != NULL, 1, "new_normal_random_biv returned a NULL pointer."));
@@ -212,7 +213,7 @@ Test(new_normal_random_biv_poly, basic){
  */
 Test(new_normal_random_biv_poly, is_it_working){
     MODULE* module = new_module_info(NBASE, FFT64);
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     PolyBiv* a = new_normal_random_biv_poly(module, params);
 
     for(int64_t i = 0 ; i < LBASE ; i++)
@@ -234,7 +235,7 @@ Test(new_normal_random_biv_poly, is_it_working){
  * @brief Test add_biv_poly correctness with random normal polynomials
  */
 Test(add_biv_poly, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(params->N, FFT64);
 
     PolyBiv* a = new_normal_random_biv_poly(module, params);
@@ -267,7 +268,7 @@ Test(add_biv_poly, basic){
  * @brief Test add_biv_poly_dft correctness with random normal DFT polynomials
  */
 Test(add_biv_poly_dft, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(params->N, FFT64);
     
     PolyBivDFT* a = new_normal_random_biv_poly_dft(module, params);
@@ -300,7 +301,7 @@ Test(add_biv_poly_dft, basic){
  */
 Test(new_normal_random_biv_poly_dft, is_it_working){
     MODULE* module = new_module_info(NBASE, FFT64);
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     
     PolyBivDFT* a_dft = new_normal_random_biv_poly_dft(module, params);
     PolyBiv* a = malloc(poly_biv_bytes(params));

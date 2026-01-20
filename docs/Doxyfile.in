@@ -1,0 +1,13 @@
+INPUT                  = "@CMAKE_CURRENT_SOURCE_DIR@/docs"
+FILE_PATTERNS          = *.md *.dox
+RECURSIVE              = YES
+
+MARKDOWN_SUPPORT       = YES
+
+USE_MATHJAX            = YES
+MATHJAX_RELPATH        = https://cdn.jsdelivr.net/npm/mathjax@3/es5/
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+
+GENERATE_LATEX         = NO

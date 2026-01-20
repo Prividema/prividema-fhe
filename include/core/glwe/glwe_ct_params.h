@@ -11,9 +11,10 @@ typedef struct glwe_ct_params {
   // ct(a,b)
   uint64_t n_limbs;   // (k+1)l or (k+1)l - 1 if l_a and l_b are different l, 
                       // at each limb we have a polynomial of degree N (ZnX)
+  uint64_t sigma;     // The standard deviation of the error distribution.                
 } GLWECtParams;
 
-GLWECtParams* new_glwe_ct_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs);
+GLWECtParams* new_glwe_ct_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs, uint64_t sigma);
 void delete_glwe_ct_params(GLWECtParams* params);
 int64_t glwe_size(GLWECtParams* params);
 int64_t poly_biv_size(GLWECtParams* params);

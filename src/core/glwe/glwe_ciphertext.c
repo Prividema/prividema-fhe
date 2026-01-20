@@ -16,6 +16,36 @@ int64_t glwe_coef_number(GLWECtParams* params){
     return glwe_size(params) * params->N;
 }
 
+/**
+ * @brief Creates a bivGLWE, filled with 0.
+ * 
+ * @param params The GLWE parameters.
+ * @return GLWECiphertext*
+ */
+GLWECiphertext* new_glwe(GLWECtParams* params
+){
+    GLWECiphertext* ct = malloc(sizeof(GLWECiphertext));
+    if(ct == NULL){
+        perror("Malloc failed.");
+        return NULL;
+    }
+
+    ct->params = params;
+
+    ct->vec = calloc(glwe_bytes(params), 1);
+    if(ct->vec == NULL){
+        perror("Malloc failed.");
+        return NULL;
+    }
+
+    return ct;
+}
+
+void delete_glwe(GLWECiphertext* ct){
+    free(ct->vec);
+    free(ct);
+}
+
 
 //! GLWE IN DFT PART (begin)
 
