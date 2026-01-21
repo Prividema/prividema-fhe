@@ -79,7 +79,7 @@ int rand_uniform(int64_t* result, int nb_bits) {
     // If nb_bits is not the max. size, r is in the interval [0, UINT64_MAX]
     // We bring r into the inteval [0, 2^nb_bits) with a modulo 
     // that is equivalent to truncating bits so we keep the cryptosafe property.
-    // Then we apply an offset to get a result in [-p/2, p/2)
+    // Then we apply an offset to get a result in [-2^(nb_bits-1), 2^(nb_bits-1))
     else {
         // Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
         // As r is still an unsigned int, it is now in [0, p) 
