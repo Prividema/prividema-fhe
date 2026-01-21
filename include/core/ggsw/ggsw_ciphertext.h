@@ -27,7 +27,7 @@ typedef struct ggsw_ciphertext {
 
 
 /**
- * @brief The number of coefficient in a bivariate GGSW ciphertext.
+ * @brief The number of coefficients in a bivariate GGSW ciphertext.
  * 
  * @param params The GGSW parameters.
  * @return int64_t 
