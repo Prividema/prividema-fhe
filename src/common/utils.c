@@ -66,7 +66,7 @@ int read_rand(uint64_t* result) {
  * Generates a random number following an uniform distribution with the given number of bits.
  *
  * @param result A pointer that will point to the generated value.
- * @param nb_bits The number of bits of the result. Should be a power of two dividable by 8.
+ * @param nb_bits The number of bits of the result.
  * 
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
@@ -75,11 +75,6 @@ int rand_uniform(int64_t* result, int nb_bits) {
     // As result points to an int64_t nb_bits shall not exceed its size
     if(nb_bits > 8 * sizeof(int64_t)) {
         fprintf(stderr, "Attempt to generate a random number but nb_bits exceeds the maximum value.\n");
-        return -1;
-    }
-    // Plus, nb_bits should be dividable by 8 to keep the cryptosafe property of the RNG.
-    else if (nb_bits & 8) {
-        fprintf(stderr, "Attempt to generate a random number but nb_bits is not dividable by 8.\n");
         return -1;
     }
 
@@ -94,17 +89,17 @@ int rand_uniform(int64_t* result, int nb_bits) {
     if (nb_bits == 8 * sizeof(int64_t))
         *result = (int64_t)r;
 
-    // If nb_bits is not the max. size
-    // r is in the interval [0, UINT64_MAX]
-    // We bring r into the inteval [0, 2p] with a modular reduction that keeps the cryptosafe property.
-    // Then we apply an offset to get a result in [-p, p)
+    // If nb_bits is not the max. size, r is in the interval [0, UINT64_MAX]
+    // We bring r into the inteval [0, 2^nb_bits) with a modulo 
+    // that is equivalent to truncating bits so we keep the cryptosafe property.
+    // Then we apply an offset to get a result in [-p/2, p/2)
     else {
         // Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
-        // As r is still an unsigned int, it is now in hte interval [0, p]
+        // As r is still an unsigned int, it is now in [0, p)
         uint64_t p = (1 << nb_bits);
         r &= p - 1;
 
-        // Apply an offset if needed so result is in [-p/2, p/2)
+        // Apply an offset so result is in [-p/2, p/2)
         *result = (int64_t)r - (int64_t)p/2;
     }
 

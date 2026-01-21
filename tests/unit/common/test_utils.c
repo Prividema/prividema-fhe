@@ -4,7 +4,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define NB_BOXES 100
 #define NB_SAMPLES 100000
 
 // Chi-square critical value for alpha = 0.05 depending on the degrees of freedom
@@ -19,7 +18,18 @@ double chi_critical_05[100] = {
     120.990, 122.108, 123.225, 124.342
 };
 
-int rand_uniform_aux(int nb_bits)
+/**
+ * Function that apply a Chi-square test.
+ * 
+ * It splits the interval [-2^nb_bits, 2^nb_bits) into
+ * a given number of boxes and then build a distribution
+ * by generating random numbers.
+ * 
+ * @param nb_bits  The number of bits of the range.
+ *                 e.g if the range is [-2^e, 2^e), then nb_bits = e + 1.
+ * @param nb_boxes The number of boxes we split the range into
+ */
+int rand_uniform_aux(int nb_bits, int nb_boxes)
 {
     // Setup the max value
     int64_t max, min;
@@ -33,47 +43,45 @@ int rand_uniform_aux(int nb_bits)
     }
 
     // boxes = {0, ..., 0}
-    int64_t boxes[NB_BOXES];
-    for(int i = 0; i < NB_BOXES; i++)
+    int64_t boxes[nb_boxes];
+    for(int i = 0; i < nb_boxes; i++)
         boxes[i] = 0;
     
     // Fill the boxes
-    double step = ((double)max - (double)min) / (double)NB_BOXES;
+    double step = ((double)max - (double)min) / (double)nb_boxes;
     for(size_t i = 0; i < NB_SAMPLES; i++) {
         int64_t sample = 0;
         if(rand_uniform(&sample, nb_bits) < 0)
-            return 1;
+            return -1;
 
-        // This loop fills the NB_BOXES elements of boxes.
-        // We have separated our interval into [min, min + step) ... [min + (NB_BOXES-1)step, max)
+        // This loop fills the nb_boxes elements of boxes.
+        // We have separated our interval into [min, min + step) ... [min + (nb_boxes-1)step, max)
         // But if a generated number is exactly max, a buffer overflow is thrown.
         // To fix this we include the max value in the last box.
         int j = 0;
         for(double v = (double)min; v < (double)max; v += step) {
-            if(j != NB_BOXES) {
+            if(j != nb_boxes) {
                 if(sample < v + step) {
                     boxes[j]++;
                     break;
                 }
                 j++;
             }
-
             // In this case the element equals max.
-            else
-                boxes[j - 1] ++;
+            else boxes[j - 1] ++;
         }
     }
 
     // Apply Chi square test
-    double expected = (double) NB_SAMPLES / (double) NB_BOXES; // For an uniform distribution
+    double expected = (double) NB_SAMPLES / (double) nb_boxes; // For an uniform distribution
     double T = 0.0;
-    for(int i = 0; i < NB_BOXES; i++) {
+    for(int i = 0; i < nb_boxes; i++) {
         double num = (((double)boxes[i]) - expected);
         T += (num * num) / expected;
     }
 
     // The test has 5% chance of failing
-    if (T < chi_critical_05[NB_BOXES - 2])
+    if (T < chi_critical_05[nb_boxes - 2])
         return 0;
     return 1;
 }
@@ -83,7 +91,12 @@ Test(rand_uniform_whole, test_rand_uniform)
 {
     int count = 0;
     for(int i = 0; i < 100; i++)
-        count += rand_uniform_aux(64);
+    {
+        int c;
+        if((c = rand_uniform_aux(64)) < 0)
+            cr_fatal("Error occured during generation");
+        count += c;
+    }
 
     // As Chi square has 5% chance of failing, we count the number of times it fails.
     // On 100 iterations it fails 5 times in average.
