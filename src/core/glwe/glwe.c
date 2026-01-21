@@ -12,7 +12,7 @@
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_priv_masking(GLWECiphertext* ct,  // ciphertext
+int glwe_secret_masking(GLWECiphertext* ct,  // ciphertext
                       GLWEPreparedSK* sk_dft,   // secret key: vec of size k
                       PolyBiv* phase    // message + noise
 ){

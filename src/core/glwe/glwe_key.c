@@ -1,6 +1,7 @@
 #include "glwe_key.h"
 #include <stdio.h>
 
+
 GLWEPreparedSK* new_glwe_secret_key_dft(PolyUnivDFT** values, int64_t N, int64_t k){
     GLWEPreparedSK* sk_dft = malloc(sizeof(GLWEPreparedSK));
     if(sk_dft == NULL){
@@ -23,4 +24,10 @@ GLWEPreparedSK* new_glwe_secret_key_dft(PolyUnivDFT** values, int64_t N, int64_t
     {
         sk_dft->values = values;
     }
+}
+
+void delete_glwe_secret_key_dft(GLWEPreparedSK* sk_dft
+){
+    free(sk_dft->values);
+    free(sk_dft);
 }

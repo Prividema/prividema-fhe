@@ -22,6 +22,7 @@ typedef struct glwe_secret_key {
 } GLWESecretKey;
 
 GLWESecretKey* new_glwe_secret_key(int64_t* values, int64_t n);
+void delete_glwe_secret_key(GLWESecretKey* sk);
 
 typedef struct glwe_prep_secret_key {
   uint64_t N;
@@ -30,7 +31,22 @@ typedef struct glwe_prep_secret_key {
   void* data;
 } GLWEPreparedSK;
 
+/**
+ * @brief Creates a GLWE Secret key in DFT space
+ * 
+ * @param values The values of the secret key in DFT space.
+ * @param N The polynomials' maximum degree in X.
+ * @param k The number of ZnX polynomial in the secret key.
+ * @return GLWEPreparedSK* 
+ */
 GLWEPreparedSK* new_glwe_secret_key_dft(PolyUnivDFT** values, int64_t N, int64_t k);
+
+/**
+ * @brief Delete the secret key that is in DFT space.
+ * 
+ * @param sk_dft The secret key in DFT space.
+ */
+void delete_glwe_secret_key_dft(GLWEPreparedSK* sk_dft);
 
 typedef struct glwe_public_key {
   uint64_t N;

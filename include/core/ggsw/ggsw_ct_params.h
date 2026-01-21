@@ -41,7 +41,7 @@ GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params,
  * 
  * @param params 
  */
-void delete_ggsw_ct_params(GGSWCtParams* ct);
+void delete_ggsw_ct_params(GGSWCtParams* params);
 
 /**
  * @brief Return the number of partialGGSW in a GGSW.

@@ -11,13 +11,32 @@ typedef struct tnx_element {
   double* coeffs;
 } TNXElement;
 
-// secret key encrypt
+/**
+ * @brief Masks the phase (message + noise) and puts it in res.
+ *  
+ * @param ct The result bivariate ciphertext. 
+ * @param sk_dft The secret key in DFT space.
+ * @param phase message + noise.
+ * 
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval `0` otherwise.
+ */
 int glwe_secret_masking(GLWECiphertext* ct,  // ciphertext
                       GLWEPreparedSK* sk_dft,   // secret key: vec of size k
                       PolyBiv* phase    // message + noise
 );
 
-// secret key decrypt (compute the phase)
+/**
+ * @brief Decrypts the phase (message + noise) and puts it in phase.
+ * 
+ * @param enc_params The GLWE parameters.
+ * @param phase The phase in Rn[X]. 
+ * @param sk_dft The secret key in DFT space.
+ * @param ct The ciphertext.
+ * 
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval `0` otherwise.
+ */
 int glwe_secret_demasking(GLWECtParams* enc_params,
                           TNXElement* phase,  
                           GLWEPreparedSK* sk_dft, 
