@@ -17,9 +17,7 @@
 
 //! COMMON PART (begin)
 
-/**
- * @brief Test ggsw_size.
- */
+// Test ggsw_size
 Test(ggsw_size, basic){
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
@@ -30,9 +28,7 @@ Test(ggsw_size, basic){
     delete_ggsw_ct_params(params);
 }
 
-/**
- * @brief Test ggsw_bytes.
- */
+// Test ggsw_bytes
 Test(ggsw_bytes, basic){
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
@@ -46,9 +42,7 @@ Test(ggsw_bytes, basic){
 
 //! GGSW Part (begin)
 
-/**
- * @brief Test ggsw_coef_number.
- */
+// Test ggsw_coef_number
 Test(ggsw_coef_number, basic){
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
@@ -59,9 +53,7 @@ Test(ggsw_coef_number, basic){
     delete_ggsw_ct_params(params);
 }
 
-/**
- * @brief Test new_ggsw.
- */
+// Test new_ggsw
 Test(new_ggsw, basic){
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
@@ -76,9 +68,7 @@ Test(new_ggsw, basic){
     delete_ggsw_ct_params(params);
 }
 
-/**
- * @brief Test ggsw_Sj_Yti.
- */
+// Test ggsw_Sj_Yti
 Test(ggsw_Sj_Yti, basic){
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
@@ -99,10 +89,7 @@ Test(ggsw_Sj_Yti, basic){
     delete_ggsw_ct_params(params);
 }
 
-/**
- * @brief Test normalize_ggsw
- * 
- */
+// Test normalize_ggsw
 Test(normalize_ggsw, basic){
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);

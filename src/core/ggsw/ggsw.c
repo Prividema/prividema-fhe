@@ -1,24 +1,17 @@
 #include <string.h>
 #include "math.h"
 #include "ggsw.h"
-#include "distributions.h" // Allow to draw random number following the uniform or normal law
+#include "distributions.h" // Allow to draw uniform or normal random number
 #include "glwe_ciphertext.h"
 #include "bivariate_polynomial.h"
 #include "vec_znx_arithmetic_private.h"
 
 //! GGSW PART (begin)
 
-/**
- * @brief Adds a bivariate error to the bivariate phase.
- * 
- * @param enc_params The GLWE parameters.
- * @param res The result bivariate phase.
- * @param phase The input phase.
- */
 void add_error(GLWECtParams* enc_params,
               PolyBiv* res,
-              PolyBiv* phase
-){
+              PolyBiv* phase)
+{
     MODULE* module = new_module_info(enc_params->N, FFT64);
     
     // Compute a random error in DFT space
@@ -28,19 +21,11 @@ void add_error(GLWECtParams* enc_params,
     add_biv_poly(enc_params, phase, enc_params->N, phase, enc_params->N, err, enc_params->N);
 }
 
-/**
- * @brief Decrypts the phase (message + noise) and puts it in phase.
- * 
- * @param enc_params The GLWE parameters.
- * @param phase The phase in Rn[X]. 
- * @param sk_dft The secret key in DFT space.
- * @param ct The ciphertext.
- */
 int glwe_secret_demasking(GLWECtParams* enc_params,
-                     double* phase, 
+                     double* phase,
                      GGSWPreparedSK* sk_dft,
-                     GLWECiphertext* ct
-){
+                     GLWECiphertext* ct)
+{
     // GLWE parameters
     int64_t N = enc_params->N;
     int64_t k = enc_params->k;
@@ -92,33 +77,21 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
     return 0;
 }
 
-/**
- * @brief Encrypts the phase (message + noise) and puts it in res.
- * 
- * @param module The module stocking the degree N.
- * @param params The GLWE parameters.
- * @param res_ct The result bivariate ciphertext. 
- * @param sk_dft The secret key in DFT space.
- * @param phase message + noise.
- * 
- * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
- */ // TODO false
+// TODO false
 int glwe_secret_masking(const MODULE* module,
                         GLWECtParams* params, 
                         VecBiv* res_ct,
                         GGSWPreparedSK* sk_dft, 
-                        PolyBiv* phase
-){
+                        PolyBiv* phase)
+{
     int64_t N = params->N;
     int64_t k = params->k;
     int64_t kappa = params->kappa;
     int64_t n_limbs = params->n_limbs;
     int64_t l = n_limbs / (k+1);
 
-    if (uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0) {
+    if (uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0)
         return -1;
-    }
     
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
     PolyBiv* acc = calloc(N*l,sizeof(double)); 
@@ -168,22 +141,11 @@ int glwe_secret_masking(const MODULE* module,
     return 0;
 }
 
-/**
- * @brief Encrypts the message m into GGSW ciphertext res with parameters enc_params.
- * 
- * @param enc_params The encryption params
- * @param res The encrypted message
- * @param sk_dft The secret key
- * @param msg_univ The message
- * 
- * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
- */
 int ggsw_secret_encrypt(GGSWCtParams* enc_params,
                         GGSWCiphertext* res,           
                         GGSWPreparedSK* sk_dft,             
-                        PolyUniv* msg_univ
-){
+                        PolyUniv* msg_univ)
+{
     // GGSW & GLWE parameters
     GGSWCtParams* params_ggsw = enc_params;
     GLWECtParams* params_glwe = enc_params->params;
@@ -291,17 +253,10 @@ int ggsw_secret_encrypt(GGSWCtParams* enc_params,
 
 //! GGSW IN DFT PART (begin)
 
-/**
- * @brief Adds a bivariate error to the bivariate phase, returns in DFT space.
- * 
- * @param enc_params The GLWE parameters.
- * @param res_dft The result bivariate phase in DFT space.
- * @param phase_dft The input phase.
- */
 void add_error_dft(GLWECtParams* enc_params,
                   PolyBivDFT* res_dft,
-                  PolyBivDFT* phase_dft
-){
+                  PolyBivDFT* phase_dft)
+{
     MODULE* module = new_module_info(enc_params->N, FFT64);
     
     // Compute a random error in DFT space
@@ -311,24 +266,12 @@ void add_error_dft(GLWECtParams* enc_params,
     add_biv_poly_dft(enc_params, phase_dft, enc_params->N, phase_dft, enc_params->N, err_dft, enc_params->N);
 }
 
-/**
- * @brief Masks the phase (message + noise) in DFT space and puts it in res_ct.
- * 
- * @param enc_params The GLWE parameters.
- * @param module The module stocking the degree N.
- * @param res_dft The result ciphertext in DFT space. 
- * @param sk_dft The secret key in DFT space.
- * @param phase_dft message + error.
- * 
- * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
- */
 int glwe_secret_masking_dft(GLWECtParams* enc_params, 
                             const MODULE* module, 
                             VecBivDFT* res_dft,
                             GGSWPreparedSK* sk_dft, 
-                            PolyBivDFT* phase_dft
-){
+                            PolyBivDFT* phase_dft)
+{
     int64_t N = enc_params->N;
     int64_t k = enc_params->k;
     int64_t kappa = enc_params->kappa;
@@ -402,22 +345,11 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
     return 0;
 }
 
-/**
- * @brief Encrypts the message m into GGSW ciphertext res with parameters enc_params in DFT space.
- * 
- * @param enc_params The encryption params
- * @param res_dft The encrypted message
- * @param sk_dft The secret key
- * @param msg_univ The message
- * 
- * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
- */
-int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,    // parameters
-                            GGSWCiphertextDFT* res_dft,        // result
-                            GGSWPreparedSK* sk_dft,         // secret key
-                            PolyUniv* msg_univ                 // message
-){
+int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
+                            GGSWCiphertextDFT* res_dft,
+                            GGSWPreparedSK* sk_dft,
+                            PolyUniv* msg_univ)
+{
     // GGSW & GLWE parameters
     GGSWCtParams* params_ggsw = enc_params;
     GLWECtParams* params_glwe = enc_params->params;
