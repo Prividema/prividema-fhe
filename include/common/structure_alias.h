@@ -34,7 +34,7 @@ typedef double MatUnivDFT;
 //! DEFINE STRUCTURE ALIAS, NOT DFT & DFT (begin)
 
 /** @brief type that represents a bivariate polynomial 
- *  @note `Length = l * N for bivariate polynomial in Zn[XY]`
+ *  @note `Length = l * N for bivariate polynomial in Zn[X,Y]`
 */
 typedef int64_t PolyBiv;
 

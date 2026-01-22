@@ -90,7 +90,7 @@ int glwe_secret_masking(const MODULE* module,
     int64_t n_limbs = params->n_limbs;
     int64_t l = n_limbs / (k+1);
 
-    if (uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0)
+    if (new_uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0)
         return -1;
     
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
@@ -205,7 +205,7 @@ int ggsw_secret_encrypt(GGSWCtParams* enc_params,
             VecBiv* ct_biv = ggsw_Sj_Yti(res, i, j);
             
             // Computes DFT(msg * sk_j)
-            vec_znx_dft_mult(module, phase_univ_dft, 1, sk_dft->values[j], 1, msg_univ_dft, 1);
+            mult_vec_znx_dft(module, phase_univ_dft, 1, sk_dft->values[j], 1, msg_univ_dft, 1);
             
             // Computes -DFT(msg * sk_j)
             for(int64_t p = 0 ; p < N ; p++){
@@ -286,7 +286,7 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
     }
     
     // TODO coeff between 0 and Bg
-    if (uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N, kappa) < 0 )
+    if (new_uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N, kappa) < 0 )
     {
         free(tmp_ct);
         return -1;
@@ -306,7 +306,7 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
         PolyBivDFT* resVec_j_dft = new_vec_znx_dft_p(module, l); 
         svp_apply_dft_p(module, resVec_j_dft, l, sk_j_univ_dft, tmp_ct + j*N, l, (k+1)*N); 
         
-        // Computes resVec_j in Zn[XY] space
+        // Computes resVec_j in Zn[X,Y] space
         PolyBiv* resVec_j = new_vec_znx_big_p(module, l); 
         vec_znx_idft_p(module, resVec_j, l, resVec_j_dft, l);
 
@@ -319,7 +319,7 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
         delete_vec_znx_big_p(resVec_j);
     }
     
-    // The pointer to limb_0(b) in Zn[XY]
+    // The pointer to limb_0(b) in Zn[X,Y]
     PolyUniv* b_0_univ = tmp_ct + k*N;
 
     // For each i in {0,l} limb_i(b) = acc_i = Sum_j{0,k-1}[s_j * limb_i(a_j)]
@@ -419,7 +419,7 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
             VecBivDFT* ct_biv_dft = ggsw_Sj_Yti_dft(res_dft, i, j);
             
             // Computes DFT(-m * sk_j)
-            vec_znx_dft_mult(module, phase_univ_dft, 1, sk_dft->values[j], 1, msg_univ_dft, 1);
+            mult_vec_znx_dft(module, phase_univ_dft, 1, sk_dft->values[j], 1, msg_univ_dft, 1);
 
             // Computes -msg * sk_j
             vec_znx_idft_p(module, phase_univ_inZ, 1, phase_univ_dft, 1);

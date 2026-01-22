@@ -135,7 +135,7 @@ int64_t poly_biv_size(GLWECtParams* params);
 void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* pol);
 
 /**
- * @brief Computes the bivariate decomposition in Zn[XY] of a polynomial in Rn[X].
+ * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Rn[X].
  * 
  * @param params The GLWE parameters. 
  * @param pol_biv The bivariate decomposition.

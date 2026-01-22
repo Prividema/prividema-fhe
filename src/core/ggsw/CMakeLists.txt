@@ -7,6 +7,7 @@ set(GGSW_SRCS
     ggsw.c
     ggsw_ciphertext.c
     ggsw_ct_params.c
+    ggsw_key.c
 )
 
 # Create a shared library named GGSW

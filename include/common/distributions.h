@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 #include "utils.h"
+#include "structure_alias.h"
+#include "spqlios_alias.h"
 
 /**
  * @brief Generates a random vector following a uniform distribution.
@@ -20,7 +22,22 @@
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t res_size, int64_t res_sl, int nb_bits);
+int new_uniform_random_vec(int64_t limb_len, int64_t* res, int64_t res_size, int64_t res_sl, int nb_bits);
+
+/**
+ * @brief Generates a random vector following a uniform distribution and return it in DFT space.
+ * 
+ * @param module   The module holding the degree N in X.
+ * @param res      The result.
+ * @param res_size The number of limbs.
+ * @param nb_bits  The exponent of the range = [-2^nb_bits, 2^nb_bits).
+ *  
+ * @retval `-1` if an error occurs.
+ * @retval `0` otherwise.
+ * 
+ * @note For each call to this function, we'll generate a new seed.
+ */
+int new_uniform_random_vec_dft(MODULE* module, PolyUnivDFT* res, int64_t res_size, int nb_bits);
 
 /**
  * @brief Generates a Random Vector following a normal distribution.
@@ -39,6 +56,6 @@ int uniform_random_vec(int64_t limb_len, int64_t* res, int64_t res_size, int64_t
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int normal_random_vec(int64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma);
+int new_normal_random_vec(int64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma);
 
 #endif // DISTRIBUTION_H

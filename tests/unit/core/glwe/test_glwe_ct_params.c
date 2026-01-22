@@ -1,4 +1,4 @@
-#include "glwe_ct_params.h"
+#include "core/glwe/glwe_ct_params.h"
 
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>

@@ -115,7 +115,7 @@ Test(univ_to_biv, basic){
     MODULE* module = new_module_info(NBASE, FFT64);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
-    normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+    new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
 
     int64_t mask = (1LL << KAPPABASE) - 1;
     for(int64_t p = 0 ; p < NBASE ; p++){
@@ -157,7 +157,7 @@ Test(univ_to_biv, maths_test){
     MODULE* module = new_module_info(NBASE, FFT64);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
-    normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+    new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
 
     PolyBiv* pol_biv = malloc(poly_biv_bytes(params));
     univ_to_biv(params, pol_biv, pol_univ);

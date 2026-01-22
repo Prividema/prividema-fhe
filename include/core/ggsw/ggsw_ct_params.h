@@ -25,7 +25,7 @@ typedef struct ggsw_ct_params {
  * @brief Create a set of GGSW parameters.
  * 
  * @param params_glwe The GLWE parameters.
- * @param k_tilde The number of ZnX polynomial in the secret key.
+ * @param k_tilde The number of Zn[X] polynomial in the secret key.
  * @param kappa_tilde The 2-exponent of the base Bg_tilde.
  * @param n_limbs_tilde (k_tilde + 1)*l_tilde.
  * 

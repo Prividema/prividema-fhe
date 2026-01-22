@@ -10,7 +10,7 @@ typedef struct glwe_ct_params {
   uint64_t kappa;     // Used for the base-2^kappa representation (K)
   // ct(a,b)
   uint64_t n_limbs;   // (k+1)l or (k+1)l - 1 if l_a and l_b are different l, 
-                      // at each limb we have a polynomial of degree N (ZnX)
+                      // at each limb we have a polynomial of degree N (Zn[X])
   uint64_t sigma;     // The standard deviation of the error distribution.                
 } GLWECtParams;
 
@@ -18,7 +18,7 @@ typedef struct glwe_ct_params {
  * @brief Creates a new set of GLWE parameters.
  * 
  * @param N The polynomial maximum degree in X
- * @param k The number of ZnX polynomial in the secret key.
+ * @param k The number of Zn[X] polynomial in the secret key.
  * @param kappa The exponent for the base-2^kappa representation.
  * @param n_limbs (k+1)*l.
  * @param sigma The standard deviation of the error distribution.

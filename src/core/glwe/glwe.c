@@ -12,9 +12,9 @@
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking(GLWECiphertext* ct,  // ciphertext
-                      GLWEPreparedSK* sk_dft,   // secret key: vec of size k
-                      PolyBiv* phase    // message + noise
+int glwe_secret_masking(GLWECiphertext* ct, 
+                        GLWEPreparedSK* sk_dft,  
+                        PolyBiv* phase  
 ){
     int64_t N = ct->params->N;
     int64_t k = ct->params->k;
@@ -22,7 +22,7 @@ int glwe_secret_masking(GLWECiphertext* ct,  // ciphertext
     int64_t l = poly_biv_size(ct->params);
 
     MODULE* module = new_module_info(N, FFT64);
-    if (uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) > 0) {
+    if (new_uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) > 0) {
         return -1;
     }
     

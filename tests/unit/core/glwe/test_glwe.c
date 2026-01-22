@@ -14,7 +14,7 @@
 /**
  * @brief Test glwe_encrypt_priv.
  */
-Test(glwe_encrypt_priv, basic)
+Test(glwe_secret_masking, basic)
 {
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(NBASE, FFT64);

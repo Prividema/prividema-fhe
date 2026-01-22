@@ -124,7 +124,7 @@ void const_mult_ggsw(GGSWCiphertext* res,
 
     svp_apply_dft_p(module, ct_dft, mat_size, u_prep, ct->mat, mat_size, N);
 
-    // Go back to Zn[XY]
+    // Go back to Zn[X,Y]
     vec_znx_idft_p(module, res->mat, mat_size, ct_dft, mat_size);
     
     // Normalization

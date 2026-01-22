@@ -4,7 +4,7 @@
 //! DEFINE SPQLIOS ALIAS (begin) 
 
 typedef enum module_type_t MODULE_TYPE;
-/** @brief opaque structure that describe the modules (ZnX,TnX) and the hardware */
+/** @brief opaque structure that describe the modules (Zn[X],TnX) and the hardware */
 typedef struct module_info_t MODULE;
 /** @brief opaque type that represents a prepared matrix */
 typedef struct vmp_pmat_t VMP_PMAT;
@@ -21,9 +21,16 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
 
 //! The p in "*_p" stands for PRIVIDEMA (begin)
 
-MODULE* new_module_info_p(uint64_t N, 
-                          MODULE_TYPE mode
+/**
+ * @brief Creates a new module holding N referring to Z_N[X] and we suppose that we use the FFT64 Discrete Fourier Transform method.
+ * 
+ * @param N 
+ * @return MODULE* 
+ */
+MODULE* new_module_info_p(uint64_t N
 );
+
+void delete_module_info_p(MODULE* module);
 
 double* new_vec_znx_dft_p(const MODULE* module,  // N
                           uint64_t size
