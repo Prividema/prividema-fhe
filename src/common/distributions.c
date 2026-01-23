@@ -29,6 +29,8 @@ int new_uniform_random_vec_dft(MODULE* module,
 
     vec_znx_dft_p(module, res, res_size, tmp_space, res_size, N);
     
+    free(tmp_space);
+
     return 0;
 }
 

@@ -26,11 +26,7 @@ Test(new_glwe_secret_key_dft, values_is_null){
  * @brief Tests whether new_glwe_secret_key_dft returns a non-NULL pointer when values != NULL.
  */
 Test(new_glwe_secret_key_dft, values_not_null){
-    PolyBivDFT** values = malloc((KBASE + 1)*sizeof(PolyBivDFT*));
-    for(int64_t j = 0 ; j < KBASE ; j++)
-    {
-        values[j] = calloc(NBASE * sizeof(int64_t),1);
-    }
+    PolyBivDFT** values = new_secret_key_values_dft(KBASE, NBASE);
     GLWEPreparedSK* sk_dft = new_glwe_secret_key_dft(values, NBASE, KBASE);
 
     cr_assert(eq(int, (sk_dft != NULL) && (sk_dft->values != NULL), 1));
@@ -46,14 +42,9 @@ Test(new_glwe_secret_key_dft, values_not_null){
 /**
  * @brief Tests whether new_uniform_glwe_secret_key_gen works as intended.
  */
-Test(new_uniform_glwe_secret_key_gen, what_s_inside){
-    GLWEPreparedSK* sk_dft = new_uniform_glwe_secret_key_gen(NBASE, KBASE, 2);
-    PolyUniv** values = secret_key_values_dft_to_not_dft(sk_dft);
-
-    for(int64_t j = 0 ; j < KBASE ; j++)
-    {
-        values[j] = calloc(NBASE * sizeof(int64_t),1);
-    }
+Test(new_uniform_glwe_secret_key_dft, what_s_inside){
+    GLWEPreparedSK* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 2);
+    PolyUniv** values = transform_secret_key_values_dft_to_not_dft(sk_dft);
 
     for(int64_t j = 0 ; j < KBASE ; j++)
         for(int64_t p = 0 ; p < NBASE ; p++)
@@ -62,8 +53,6 @@ Test(new_uniform_glwe_secret_key_gen, what_s_inside){
     cr_assert(1);
     
     delete_glwe_secret_key_dft(sk_dft);
-    for(int64_t j = 0 ; j < KBASE ; j++)
-        free(values[j]);
-    free(values);
+    delete_secret_key_values(values, KBASE);
 }
     
