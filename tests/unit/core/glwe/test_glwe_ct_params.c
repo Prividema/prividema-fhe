@@ -18,7 +18,7 @@ Test(new_glwe_ct_params, basic){
     cr_assert(eq(i64, params->k, KBASE));
     cr_assert(eq(i64, params->kappa, KAPPABASE));
     cr_assert(eq(i64, params->n_limbs, NLIMBSBASE));
-    cr_assert(eq(i64, params->sigma, SIGMABASE));
+    cr_assert(eq(dbl, params->sigma, SIGMABASE));
 
     delete_glwe_ct_params(params);
 }

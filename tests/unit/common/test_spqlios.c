@@ -14,10 +14,11 @@
 #define KAPPABASE 32
 #define NLIMBSBASE 180
 #define LBASE NLIMBSBASE/(KBASE+1)
+#define SIGMABASE 1e-7
 
 
 Test(vec_znx_normalize_base2k_p, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
     MODULE* module = new_module_info(params->N, FFT64);
     
     PolyBiv* a = malloc(LBASE * NBASE * sizeof(int64_t));

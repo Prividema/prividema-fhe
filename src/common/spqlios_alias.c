@@ -10,12 +10,12 @@ void delete_module_info_p(MODULE* module){
   delete_module_info(module);
 }
 
-double* new_vec_znx_dft_p(const MODULE* module, uint64_t size) {
+double* new_vec_znx_dft_p(const MODULE* module, int64_t size) {
   return (double*)new_vec_znx_dft(module, size);
 }
 
-void vec_znx_dft_p(const MODULE* module, double* res, uint64_t res_size,
-                   const int64_t* a, uint64_t a_size, uint64_t a_sl) {
+void vec_znx_dft_p(const MODULE* module, double* res, int64_t res_size,
+                   const int64_t* a, int64_t a_size, int64_t a_sl) {
   vec_znx_dft(module, (VEC_ZNX_DFT*)res, res_size, a, a_size, a_sl);
 }
 
@@ -23,12 +23,12 @@ void delete_vec_znx_dft_p(double* res) {
   delete_vec_znx_dft((VEC_ZNX_DFT*)res);
 }
 
-int64_t* new_vec_znx_big_p(const MODULE* module, uint64_t size) {
+int64_t* new_vec_znx_big_p(const MODULE* module, int64_t size) {
   return (int64_t*)new_vec_znx_big(module, size);
 }
 
-void vec_znx_idft_p(const MODULE* module, int64_t* res, uint64_t res_size,
-                    const double* a_dft, uint64_t a_size) {
+void vec_znx_idft_p(const MODULE* module, int64_t* res, int64_t res_size,
+                    const double* a_dft, int64_t a_size) {
   uint8_t* tmp = NULL;
   vec_znx_idft(module, (VEC_ZNX_BIG*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size,
                tmp);
@@ -49,9 +49,9 @@ void svp_prepare_p(const MODULE* module, PolyUnivDFT* ppol,
 
 void delete_svp_ppol_p(double* pmat) { delete_svp_ppol(((SVP_PPOL*)pmat)); }
 
-void svp_apply_dft_p(const MODULE* module, const double* res, uint64_t res_size,
-                     const PolyUnivDFT* ppol, const int64_t* a, uint64_t a_size,
-                     uint64_t a_sl) {
+void svp_apply_dft_p(const MODULE* module, const double* res, int64_t res_size,
+                     const PolyUnivDFT* ppol, const int64_t* a, int64_t a_size,
+                     int64_t a_sl) {
     svp_apply_dft(module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)ppol, a, a_size, a_sl);
 }
 
@@ -70,8 +70,8 @@ void vmp_prepare_contiguous_p(const MODULE* module, double* pmat,
 
 void delete_vmp_pmat_p(double* pmat) { delete_vmp_pmat(((VMP_PMAT*)pmat)); }
 
-void vmp_apply_dft_p(const MODULE* module, double* res, uint64_t res_size,
-                     const int64_t* a, uint64_t a_size, uint64_t a_sl,
+void vmp_apply_dft_p(const MODULE* module, double* res, int64_t res_size,
+                     const int64_t* a, int64_t a_size, int64_t a_sl,
                      const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols)
 {
     uint8_t* tmp_space = malloc(vmp_apply_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
@@ -81,8 +81,8 @@ void vmp_apply_dft_p(const MODULE* module, double* res, uint64_t res_size,
 }
 
 void vmp_apply_dft_to_dft_p(const MODULE* module, double* res,
-                            const uint64_t res_size, const double* a_dft,
-                            uint64_t a_size, const MatBivDFT* pmat,
+                            const int64_t res_size, const double* a_dft,
+                            int64_t a_size, const MatBivDFT* pmat,
                             const uint64_t nrows, const uint64_t ncols) {
     uint8_t* tmp_space = malloc(vmp_apply_dft_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
     vmp_apply_dft_to_dft(module, (VEC_ZNX_DFT*)res, res_size, (VEC_ZNX_DFT*)a_dft,
@@ -91,9 +91,9 @@ void vmp_apply_dft_to_dft_p(const MODULE* module, double* res,
 }
 
 void vec_znx_normalize_base2k_p(const MODULE* module, uint64_t log2_base2k,
-                                int64_t* res, uint64_t res_size,
-                                uint64_t res_sl, const int64_t* a,
-                                uint64_t a_size, uint64_t a_sl) {
+                                int64_t* res, int64_t res_size,
+                                int64_t res_sl, const int64_t* a,
+                                int64_t a_size, int64_t a_sl) {
     uint8_t* tmp = malloc(vec_znx_normalize_base2k_tmp_bytes(module));
     vec_znx_normalize_base2k(module, log2_base2k, res, res_size, res_sl, a,
                              a_size, a_sl, tmp);

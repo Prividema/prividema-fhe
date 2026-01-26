@@ -32,7 +32,7 @@ typedef struct ggsw_ciphertext {
  * @param params The GGSW parameters.
  * @return int64_t 
  */
-int64_t ggsw_coef_number(GGSWCtParams* params);
+uint64_t ggsw_coef_number(GGSWCtParams* params);
 
 /**
  * @brief Creates a bivGGSW, filled with 0.
@@ -104,7 +104,7 @@ typedef struct ggsw_ciphertext_dft {
  * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in Zn[X], 
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-int64_t ggsw_coef_number_dft(GGSWCtParams* params);
+uint64_t ggsw_coef_number_dft(GGSWCtParams* params);
 
 /**
  * @brief Creates a bivGGSW in DFT space, filled with 0.
@@ -156,7 +156,7 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, 
  * 
  * @note The size of a bivGGSW ciphertext is the same in and out of DFT space.
  */
-int64_t ggsw_size(GGSWCtParams* params);
+uint64_t ggsw_size(GGSWCtParams* params);
 
 /**
  * @brief The number of bytes needed to store a bivGGSW ciphertext.
@@ -166,7 +166,7 @@ int64_t ggsw_size(GGSWCtParams* params);
  * 
  * @note The number of bytes needed to store a bivGGSW ciphertext, is the same in and out of DFT space. 
  */
-int64_t ggsw_bytes(GGSWCtParams* params);
+uint64_t ggsw_bytes(GGSWCtParams* params);
 
 
 #endif  // GGSW_CIPHERTEXT_H

@@ -17,7 +17,7 @@
  * 
  * @note The number of coefficient is the same in and out DFT space. 
  */
-int64_t poly_biv_coef_number(GLWECtParams* params);
+uint64_t poly_biv_coef_number(GLWECtParams* params);
 
 
 /**
@@ -59,7 +59,7 @@ void add_biv_poly(GLWECtParams* params,
  * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in Zn[X], 
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-int64_t poly_biv_coef_number_dft(GLWECtParams* params);
+uint64_t poly_biv_coef_number_dft(GLWECtParams* params);
 
 /**
  * @brief Computes a random normal bivariate polynomial in DFT space.
@@ -103,7 +103,7 @@ void add_biv_poly_dft(GLWECtParams* params,
  * 
  * @note The number of bytes needed to store a univariate polynomial is the same in and out of DFT space.
  */
-int64_t poly_univ_bytes(GLWECtParams* params);
+uint64_t poly_univ_bytes(GLWECtParams* params);
 
 /**
  * @brief Returns the number of bytes needed to store a bivariate polynomial.
@@ -113,7 +113,7 @@ int64_t poly_univ_bytes(GLWECtParams* params);
  * 
  * @note The number of bytes needed to store a bivariate polynomial is the same in and out of DFT space.
  */
-int64_t poly_biv_bytes(GLWECtParams* params);
+uint64_t poly_biv_bytes(GLWECtParams* params);
 
 /**
  * @brief Returns the size of a bivariate polynomial.
@@ -123,7 +123,7 @@ int64_t poly_biv_bytes(GLWECtParams* params);
  * 
  * @note The size of a bivariate polynomial is the same in and out of DFT space.
  */
-int64_t poly_biv_size(GLWECtParams* params);
+uint64_t poly_biv_size(GLWECtParams* params);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.

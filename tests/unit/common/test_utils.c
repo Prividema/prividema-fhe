@@ -32,7 +32,7 @@ double chi_critical_05[100] = {
  * a given number of boxes and then build a distribution
  * by generating random numbers.
  */
-int rand_uniform_aux(int nb_bits, int nb_boxes)
+int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 {
     // Setup the max, min values
     int64_t max, min;

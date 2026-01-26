@@ -3,8 +3,8 @@
 
 
 GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params_glwe,
-                                uint64_t k_tilde,
-                                uint64_t kappa_tilde,
+                                uint64_t k_tilde ,
+                                uint64_t kappa_tilde ,
                                 uint64_t n_limbs_tilde)
 {
     GGSWCtParams* params_ggsw = malloc(sizeof(GGSWCtParams));
@@ -25,10 +25,10 @@ void delete_ggsw_ct_params(GGSWCtParams* params){
     free(params);
 }
 
-int64_t nb_partials(GGSWCtParams* params){
+uint64_t nb_partials(GGSWCtParams* params){
     return params->n_limbs_tilde/(params->k_tilde + 1);
 }
 
-int64_t nb_rows_per_partial(GGSWCtParams* params){
+uint64_t nb_rows_per_partial(GGSWCtParams* params){
     return params->k_tilde + 1;
 }

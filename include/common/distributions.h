@@ -22,13 +22,13 @@
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int new_uniform_random_vec(int64_t limb_len, int64_t* res, int64_t res_size, int64_t res_sl, int nb_bits);
+int new_uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t res_size, int64_t res_sl, uint64_t nb_bits);
 
 /**
  * @brief Generates a random vector following a uniform distribution and return it in DFT space.
  * 
  * @param module   The module holding the degree N in X.
- * @param res      The result.
+ * @param res_dft      The result in DFT space.
  * @param res_size The number of limbs.
  * @param nb_bits  The exponent of the range = [-2^nb_bits, 2^nb_bits).
  *  
@@ -37,7 +37,7 @@ int new_uniform_random_vec(int64_t limb_len, int64_t* res, int64_t res_size, int
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int new_uniform_random_vec_dft(MODULE* module, PolyUnivDFT* res, int64_t res_size, int nb_bits);
+int new_uniform_random_vec_dft(MODULE* module, PolyUnivDFT* res_dft, int64_t res_size, uint64_t nb_bits);
 
 /**
  * @brief Generates a Random Vector following a normal distribution.
@@ -56,6 +56,6 @@ int new_uniform_random_vec_dft(MODULE* module, PolyUnivDFT* res, int64_t res_siz
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int new_normal_random_vec(int64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma);
+int new_normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma);
 
 #endif // DISTRIBUTION_H

@@ -6,7 +6,7 @@
 
 //! GLWE PART (begin)
 
-int64_t glwe_coef_number(GLWECtParams* params){
+uint64_t glwe_coef_number(GLWECtParams* params){
     return glwe_size(params) * params->N;
 }
 
@@ -37,7 +37,7 @@ void delete_glwe(GLWECiphertext* ct){
 
 //! GLWE IN DFT PART (begin)
 
-int64_t glwe_coef_number_dft(GLWECtParams* params){
+uint64_t glwe_coef_number_dft(GLWECtParams* params){
     return glwe_size(params) * params->N / 2;
 }
 
@@ -67,13 +67,13 @@ void delete_glwe_dft(GLWEPreparedCt* ct){
 
 //! COMMON PART (begin)
 
-int64_t glwe_size(GLWECtParams* params){
+uint64_t glwe_size(GLWECtParams* params){
     return params->n_limbs;
 }
 
 
-int64_t glwe_bytes(GLWECtParams* params){
-    int64_t N = params->N;
+uint64_t glwe_bytes(GLWECtParams* params){
+    uint64_t N = params->N;
     return glwe_size(params) * N * sizeof(int64_t); 
 }
 
@@ -83,7 +83,7 @@ void mult_vec_znx_dft(const MODULE* module,
               double* c_dft, int64_t c_size,  
               double* d_dft, int64_t d_size
 ){
-    int64_t N = module->nn;
+    uint64_t N = module->nn;
 
     if (c_size <= d_size){
         int64_t smin = c_size < res_size ? c_size : res_size;
