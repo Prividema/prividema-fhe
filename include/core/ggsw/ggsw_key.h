@@ -24,7 +24,7 @@ typedef struct ggsw_prep_secret_key {
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GGSWPreparedSK* 
  */
-GGSWPreparedSK* new_ggsw_secret_key_dft(PolyUnivDFT** values, int64_t N, int64_t k);
+GGSWPreparedSK* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k);
 
 /**
  * @brief Delete the secret key that is in DFT space.

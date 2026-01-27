@@ -75,11 +75,11 @@ Test(mult_vec_znx_dft, size_equal_one){
     for(int64_t p = 0 ; p < NBASE ; p++)
     {
         int64_t acc = 0;
-        for(int64_t k = 0 ; k <= p; k++)
+        for(uint64_t k = 0 ; k <= p; k++)
         {
             acc += a[k]*b[p-k];
         } 
-        for(int64_t k = p + 1; k < NBASE; k++)
+        for(uint64_t k = p + 1; k < NBASE; k++)
         {
             acc += -a[k]*b[NBASE + p - k];
         }  
@@ -136,11 +136,11 @@ Test(mult_vec_znx_dft, random_size){
         for(int64_t p = 0 ; p < NBASE ; p++)
         {
             int64_t acc = 0;
-            for(int64_t k = 0 ; k <= p; k++)
+            for(uint64_t k = 0 ; k <= p; k++)
             {
                 acc += a[i*NBASE + k]*b[i*NBASE + p-k];
             } 
-            for(int64_t k = p + 1; k < NBASE; k++)
+            for(uint64_t k = p + 1; k < NBASE; k++)
             {
                 acc += -a[i*NBASE + k]*b[i*NBASE + NBASE + p - k];
             }  

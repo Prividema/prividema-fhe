@@ -9,8 +9,8 @@
 //! BIV POLY PART (begin) 
 
 
-int64_t poly_biv_coef_number(GLWECtParams* params){
-    int64_t N = params->N;
+uint64_t poly_biv_coef_number(GLWECtParams* params){
+    uint64_t N = params->N;
     return poly_biv_size(params) * N;
 }
 
@@ -19,9 +19,9 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
                                     GLWECtParams* params
 ){
     // GLWE parameters
-    int64_t N = params->N;
-    int64_t kappa = params->kappa;
-    int64_t l = params->n_limbs/(params->k + 1);
+    uint64_t N = params->N;
+    uint64_t kappa = params->kappa;
+    uint64_t l = params->n_limbs/(params->k + 1);
 
     // Draws a random univariate polynomial P(X) in Rn[X]
     double* rd_pol_univ = malloc(poly_univ_bytes(params));
@@ -101,8 +101,8 @@ void add_biv_poly(GLWECtParams* params,
 //! BIV POLY IN DFT PART (begin) 
 
 
-int64_t poly_biv_coef_number_dft(GLWECtParams* params){
-    int64_t N = params->N;
+uint64_t poly_biv_coef_number_dft(GLWECtParams* params){
+    uint64_t N = params->N;
     return (poly_biv_size(params) * N)/2;
 }
 
@@ -150,24 +150,24 @@ void add_biv_poly_dft(GLWECtParams* params,
 
 //! COMMON PART (begin)
 
-int64_t poly_biv_bytes(GLWECtParams* params){
+uint64_t poly_biv_bytes(GLWECtParams* params){
     return poly_biv_coef_number(params) * sizeof(int64_t);
 }
 
-int64_t poly_biv_size(GLWECtParams* params){
+uint64_t poly_biv_size(GLWECtParams* params){
     return params->n_limbs/(params->k + 1);
 }
 
-int64_t poly_univ_bytes(GLWECtParams* params){
-    int64_t N = params->N;
+uint64_t poly_univ_bytes(GLWECtParams* params){
+    uint64_t N = params->N;
     return N * sizeof(int64_t);
 }
 
 void biv_to_univ(GLWECtParams* params, double* pol_univ, PolyBiv* pol_biv){
     //GLWE parameters
-    int64_t N = params->N;
-    int64_t kappa = params->kappa;
-    int64_t l = poly_biv_size(params);
+    uint64_t N = params->N;
+    uint64_t kappa = params->kappa;
+    uint64_t l = poly_biv_size(params);
 
     // res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
     for(int64_t i = 1 ; i < l ; i++){
@@ -180,9 +180,9 @@ void biv_to_univ(GLWECtParams* params, double* pol_univ, PolyBiv* pol_biv){
 int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ
 ){
     // GLWE parameters
-    int64_t N = params->N;
-    int64_t kappa = params->kappa;
-    int64_t l = poly_biv_size(params);
+    uint64_t N = params->N;
+    uint64_t kappa = params->kappa;
+    uint64_t l = poly_biv_size(params);
 
     // Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa - 1) - 1]
     int64_t mask = (1LL << kappa) - 1;

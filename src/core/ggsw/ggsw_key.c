@@ -1,7 +1,7 @@
 #include "ggsw_key.h"
 #include "stdio.h"
 
-GGSWPreparedSK* new_ggsw_secret_key_dft(PolyUnivDFT** values, int64_t N, int64_t k
+GGSWPreparedSK* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k
 ){
     GGSWPreparedSK* sk_dft = malloc(sizeof(GGSWPreparedSK));
     if(sk_dft == NULL){

@@ -83,7 +83,7 @@ void mult_vec_znx_dft(const MODULE* module,
               double* c_dft, int64_t c_size,  
               double* d_dft, int64_t d_size
 ){
-    int64_t N = module->nn;
+    uint64_t N = module->nn;
 
     if (c_size <= d_size){
         int64_t smin = c_size < res_size ? c_size : res_size;

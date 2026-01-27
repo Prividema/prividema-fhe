@@ -16,20 +16,25 @@ int glwe_secret_masking(GLWECiphertext* ct,
                         GLWEPreparedSK* sk_dft,  
                         PolyBiv* phase  
 ){
-    int64_t N = ct->params->N;
-    int64_t k = ct->params->k;
-    int64_t kappa = ct->params->kappa;
-    int64_t l = poly_biv_size(ct->params);
+    printf("\n\n\nBegin\n\n\n");
+    uint64_t N = ct->params->N;
+    uint64_t k = ct->params->k;
+    uint64_t kappa = ct->params->kappa;
+    uint64_t l = poly_biv_size(ct->params);
 
+    printf("\n\n\nEnd\n\n\n");
     MODULE* module = new_module_info(N, FFT64);
     if (new_uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) > 0) {
+        delete_module_info_p(module);
         return -1;
     }
     
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
+    printf("N*l %lld", N*l);
     PolyBiv* acc = calloc(N*l,sizeof(double)); 
     if (!acc){
         perror("calloc failed");
+        delete_module_info_p(module);
         return -1;
     }
 
@@ -70,6 +75,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
     vec_znx_normalize_base2k_p(module, kappa, b_0, l, N*(k+1), acc, l, N);
     
     free(acc);
+    delete_module_info_p(module);
 
     return 0;
 }
@@ -78,7 +84,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
  * @brief Decrypts the phase (message + noise) and puts it in phase.
  * 
  * @param enc_params The GLWE parameters.
- * @param phase The phase in Rn[X]. 
+ * @param phase The phase in Zn[X,Y]. 
  * @param sk_dft The secret key in DFT space.
  * @param ct The ciphertext.
  * 
@@ -86,20 +92,21 @@ int glwe_secret_masking(GLWECiphertext* ct,
  * @retval `0` otherwise.
  */
 int glwe_secret_demasking(GLWECtParams* enc_params,
-                          TNXElement* phase,  
+                          PolyBiv* phase,  
                           GLWEPreparedSK* sk_dft, 
                           GLWECiphertext* ct 
 ){
     // GLWE parameters
-    int64_t N = ct->params->N;
-    int64_t k = ct->params->k;
-    int64_t l = poly_biv_size(ct->params);
+    uint64_t N = ct->params->N;
+    uint64_t k = ct->params->k;
+    uint64_t l = poly_biv_size(ct->params);
 
     MODULE* module = new_module_info(N, FFT64);
 
     PolyBiv* acc = malloc(poly_biv_bytes(ct->params)); 
-    if (!acc){
+    if (acc == NULL){
         perror("calloc failed");
+        delete_module_info_p(module);
         return -1;
     }
 
@@ -118,7 +125,7 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
         PolyBiv* as_j = new_vec_znx_big_p(module, l); 
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
-        // And subs it to acc
+        // Computes acc = acc - sk_j * a_j
         for(int64_t p = 0 ; p < N*l ; p++){
             acc[p] -= as_j[p];
         }
@@ -130,12 +137,10 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
     int64_t* b = ct->vec + N*k;
     add_biv_poly(ct->params, acc, N, b, N*(k+1), acc, N);
     
-    PolyBiv* acc_normalized = malloc(poly_biv_bytes(ct->params));
-    vec_znx_normalize_base2k_p(module, ct->params->kappa, acc_normalized, l, N, acc, l, N);
+    vec_znx_normalize_base2k_p(module, ct->params->kappa, phase, l, N, acc, l, N);
 
-    biv_to_univ(ct->params, phase->coeffs, acc_normalized);
-
-    free(acc); free(acc_normalized);
+    free(acc);
+    delete_module_info_p(module);
     
     return 0;
 }

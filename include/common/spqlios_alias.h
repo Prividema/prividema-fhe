@@ -33,23 +33,23 @@ MODULE* new_module_info_p(uint64_t N
 void delete_module_info_p(MODULE* module);
 
 double* new_vec_znx_dft_p(const MODULE* module,  // N
-                          uint64_t size
+                          int64_t size
 );
 
 void vec_znx_dft_p(const MODULE* module,                             // N
-                   double* res, uint64_t res_size,                   // res
-                   const int64_t* a, uint64_t a_size, uint64_t a_sl  // a
+                   double* res, int64_t res_size,                   // res
+                   const int64_t* a, int64_t a_size, int64_t a_sl  // a
 );
 
 void delete_vec_znx_dft_p(double* res);
 
 int64_t* new_vec_znx_big_p(const MODULE* module,  // N
-                           uint64_t size
+                           int64_t size
 );
 
 void vec_znx_idft_p(const MODULE* module,                  // N
-                    int64_t* res, uint64_t res_size,       // res
-                    const double* a_dft, uint64_t a_size   // a
+                    int64_t* res, int64_t res_size,       // res
+                    const double* a_dft, int64_t a_size   // a
 );
 
 void delete_vec_znx_big_p(int64_t* res);
@@ -62,9 +62,9 @@ void svp_prepare_p(const MODULE* module,  // N
 );
 
 void svp_apply_dft_p(const MODULE* module,                             // N
-                     const double* res, uint64_t res_size,             // output
+                     const double* res, int64_t res_size,             // output
                      const PolyUnivDFT* ppol,                          // prepared pol
-                     const int64_t* a, uint64_t a_size, uint64_t a_sl  // a
+                     const int64_t* a, int64_t a_size, int64_t a_sl  // a
 );
 
 void delete_svp_ppol_p(double* res);
@@ -77,14 +77,14 @@ void vmp_prepare_contiguous_p(const MODULE* module,                             
 );
 
 void vmp_apply_dft_p(const MODULE* module,                                   // N
-                     double* res, uint64_t res_size,                         // res
-                     const int64_t* a, uint64_t a_size, uint64_t a_sl,       // a
+                     double* res, int64_t res_size,                         // res
+                     const int64_t* a, int64_t a_size, int64_t a_sl,       // a
                      const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols   // prep matrix
 );
 
 void vmp_apply_dft_to_dft_p(const MODULE* module,                       // N
-                            double* res, const uint64_t res_size,       // res
-                            const double* a_dft, uint64_t a_size,       // a
+                            double* res, const int64_t res_size,       // res
+                            const double* a_dft, int64_t a_size,       // a
                             const MatBivDFT* pmat, const uint64_t nrows,
                             const uint64_t ncols                        // prep matrix
 );
@@ -93,6 +93,6 @@ void delete_vmp_pmat_p(double* pmat);
 
 void vec_znx_normalize_base2k_p(const MODULE* module,                              // N
                                 uint64_t log2_base2k,                              // output base 2^K
-                                int64_t* res, uint64_t res_size, uint64_t res_sl,  // res
-                                const int64_t* a, uint64_t a_size, uint64_t a_sl   //a
+                                int64_t* res, int64_t res_size, int64_t res_sl,  // res
+                                const int64_t* a, int64_t a_size, int64_t a_sl   //a
 );

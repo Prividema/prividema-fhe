@@ -23,7 +23,7 @@
  *                      if an error occurs during the generation.
  * - On other Linux distributions : read /dev/urandom.
  */
-int read_rand(uint64_t* result) {
+int read_rand(int64_t* result) {
     // For Windows
     #ifdef _WIN32
         NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, sizeof(*result), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
@@ -58,16 +58,16 @@ int read_rand(uint64_t* result) {
     return 0;
 }
 
-int rand_uniform(int64_t* result, int nb_bits) {
-    // As result points to an int64_t nb_bits shall not exceed its size
+int rand_uniform(int64_t* result, uint64_t nb_bits) {
+    // As result points to an uint64_t  nb_bits shall not exceed its size
     if(nb_bits > 8 * sizeof(int64_t)) {
-        fprintf(stderr, "rand_uniform() : nb_bits exceeds the maximum value (%ld).\n", 8 * sizeof(int64_t));
+        fprintf(stderr, "rand_uniform() : nb_bits %llu exceeds the maximum value (%ld).\n", nb_bits, 8 * sizeof(int64_t));
         return -1;
     }
 
-    // Generate a random uint64_t
-    // r is in the interval [0, UINT64_MAX]
-    uint64_t r;
+    // Generate a random int64_t
+    // r is in the interval [0, int64_MAX]
+    int64_t r;
     int res;
     if((res = read_rand(&r)) < 0) 
         return -1;
@@ -76,14 +76,14 @@ int rand_uniform(int64_t* result, int nb_bits) {
     if (nb_bits == 8 * sizeof(int64_t))
         *result = (int64_t)r;
 
-    // If nb_bits is not the max. size, r is in the interval [0, UINT64_MAX]
+    // If nb_bits is not the max. size, r is in the interval [0, int64_MAX]
     // We bring r into the inteval [0, 2^nb_bits) with a modulo 
     // that is equivalent to truncating bits so we keep the cryptosafe property.
     // Then we apply an offset to get a result in [-2^(nb_bits-1), 2^(nb_bits-1))
     else {
         // Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
         // As r is still an unsigned int, it is now in [0, p) 
-        uint64_t p = (1 << nb_bits);
+        int64_t p = (1 << nb_bits);
         r &= p - 1;
 
         // Apply an offset so result is in [-p/2, p/2)
@@ -121,11 +121,11 @@ double erfinv(double x) {
  */
 int rand_normal(double* result, double mu, double sigma) {
     // Generate an uniform number in [0, 2^64]
-    uint64_t uniform;
+    int64_t uniform;
     if (read_rand(&uniform) < 0) return -1;
 
     // Scale uniform in (0,1) to U : U still follows an uniform distribution.
-    double U = (uniform + 0.5) / ((double)UINT64_MAX);
+    double U = (uniform + 0.5) / ((double)INT64_MAX);
 
     // Compute Z the inverse CDF of the normal distribution applied to U.
     double Z = sqrt(2.0) * erfinv(2.0 * U - 1.0);

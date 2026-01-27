@@ -22,15 +22,15 @@ typedef struct tnx_element {
  * @retval `0` otherwise.
  */
 int glwe_secret_masking(GLWECiphertext* ct,  // ciphertext
-                      GLWEPreparedSK* sk_dft,   // secret key: vec of size k
-                      PolyBiv* phase    // message + noise
+                        GLWEPreparedSK* sk_dft,   // secret key: vec of size k
+                        PolyBiv* phase    // message + noise
 );
 
 /**
  * @brief Decrypts the phase (message + noise) and puts it in phase.
  * 
  * @param enc_params The GLWE parameters.
- * @param phase The phase in Rn[X]. 
+ * @param phase The phase in Zn[X,Y]. 
  * @param sk_dft The secret key in DFT space.
  * @param ct The ciphertext.
  * 
@@ -38,7 +38,7 @@ int glwe_secret_masking(GLWECiphertext* ct,  // ciphertext
  * @retval `0` otherwise.
  */
 int glwe_secret_demasking(GLWECtParams* enc_params,
-                          TNXElement* phase,  
+                          PolyBiv* phase,  
                           GLWEPreparedSK* sk_dft, 
                           GLWECiphertext* ct 
 );

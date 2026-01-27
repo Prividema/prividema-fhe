@@ -30,9 +30,9 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
                           VecBiv* ct)
 {
     // GLWE parameters
-    int64_t N = enc_params->N;
-    int64_t k = enc_params->k;
-    int64_t l = poly_biv_size(enc_params);
+    uint64_t N = enc_params->N;
+    uint64_t k = enc_params->k;
+    uint64_t l = poly_biv_size(enc_params);
 
     MODULE* module = new_module_info(N, FFT64);
 
@@ -87,11 +87,11 @@ int glwe_secret_masking(const MODULE* module,
                         GGSWPreparedSK* sk_dft, 
                         PolyBiv* phase)
 {
-    int64_t N = params->N;
-    int64_t k = params->k;
-    int64_t kappa = params->kappa;
-    int64_t n_limbs = params->n_limbs;
-    int64_t l = n_limbs / (k+1);
+    uint64_t N = params->N;
+    uint64_t k = params->k;
+    uint64_t kappa = params->kappa;
+    uint64_t n_limbs = params->n_limbs;
+    uint64_t l = n_limbs / (k+1);
 
     if (new_uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0)
         return -1;
@@ -152,7 +152,7 @@ int ggsw_secret_encrypt(GGSWCtParams* enc_params,
     // GGSW & GLWE parameters
     GGSWCtParams* params_ggsw = enc_params;
     GLWECtParams* params_glwe = enc_params->params;
-    int64_t N = params_glwe->N;
+    uint64_t N = params_glwe->N;
     
     MODULE* module = new_module_info(N,FFT64);
     
@@ -305,11 +305,11 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
                             GGSWPreparedSK* sk_dft, 
                             PolyBivDFT* phase_dft)
 {
-    int64_t N = enc_params->N;
-    int64_t k = enc_params->k;
-    int64_t kappa = enc_params->kappa;
-    int64_t n_limbs = enc_params->n_limbs;
-    int64_t l = n_limbs / (k+1);
+    uint64_t N = enc_params->N;
+    uint64_t k = enc_params->k;
+    uint64_t kappa = enc_params->kappa;
+    uint64_t n_limbs = enc_params->n_limbs;
+    uint64_t l = n_limbs / (k+1);
 
     // Temporary bivGLWE ciphertext 
     VecBiv* tmp_ct = malloc(N*l*(k+1)*sizeof(int64_t));
@@ -386,7 +386,7 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
     // GGSW & GLWE parameters
     GGSWCtParams* params_ggsw = enc_params;
     GLWECtParams* params_glwe = enc_params->params;
-    int64_t N = params_glwe->N;
+    uint64_t N = params_glwe->N;
 
     // Prepare sk and m
     MODULE* module = new_module_info(N,FFT64);

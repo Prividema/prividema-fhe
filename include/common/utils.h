@@ -12,7 +12,7 @@
  * @retval `-1` if an error occurs. A message will be printed in this case.
  * @retval `0` otherwise.
  */
-int rand_uniform(int64_t *result, int nb_bits);
+int rand_uniform(int64_t *result, uint64_t nb_bits);
 
 /**
  * Generates a gaussian random number with the given parameters.
