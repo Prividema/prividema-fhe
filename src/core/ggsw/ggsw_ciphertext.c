@@ -6,15 +6,11 @@
 //! GGSW Part (begin)
 
 uint64_t ggsw_coef_number(GGSWCtParams* params){
-uint64_t ggsw_coef_number(GGSWCtParams* params){
     return params->n_limbs_tilde * glwe_coef_number(params->params);
 }
 
 GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* mat)
 {
-    uint64_t limb_size = params->params->N;
-    uint64_t nb_rows = params->n_limbs_tilde;
-    uint64_t nb_cols = params->n_limbs_tilde;
     uint64_t limb_size = params->params->N;
     uint64_t nb_rows = params->n_limbs_tilde;
     uint64_t nb_cols = params->n_limbs_tilde;
@@ -152,7 +148,6 @@ void const_mult_ggsw(GGSWCiphertext* res,
 //! GGSW DFT PART (begin)
 
 uint64_t ggsw_coef_number_dft(GGSWCtParams* params){
-uint64_t ggsw_coef_number_dft(GGSWCtParams* params){
     return (params->n_limbs_tilde * glwe_coef_number(params->params))/2;
 }
 
@@ -255,7 +250,6 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,
 
 //! COMMON PART (begin)
 
-uint64_t ggsw_size(GGSWCtParams* params){
 uint64_t ggsw_size(GGSWCtParams* params){
     return params->n_limbs_tilde * params->params->n_limbs;
 }

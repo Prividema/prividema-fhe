@@ -1,7 +1,7 @@
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe.h"
 #include "common/distributions.h"
-#include "vec_znx_arithmetic_private.h"
+#include "common/spqlios_alias.h"
 
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
@@ -17,7 +17,7 @@
 #define KAPPABASE 4
 #define NLIMBSBASE 45
 #define LBASE NLIMBSBASE/(KBASE+1)
-#define SIGMABASE 1e-7
+#define SIGMABASE -7
 
 //! COMMON PART (begin)
 
@@ -25,7 +25,7 @@
  * @brief Test poly_biv_size
  */
 Test(poly_biv_size, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_biv_size(params), LBASE, 
                 "poly_biv_size failed: got %lld, expected %lld", poly_biv_size(params), LBASE));
@@ -37,7 +37,7 @@ Test(poly_biv_size, basic){
  * @brief Test poly_biv_bytes
  */
 Test(poly_univ_bytes, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_univ_bytes(params), NBASE*sizeof(int64_t), 
                 "poly_univ_bytes failed: got %lld, expected %lld", poly_univ_bytes(params), NBASE*sizeof(int64_t)));
@@ -49,7 +49,7 @@ Test(poly_univ_bytes, basic){
  * @brief Test poly_biv_bytes
  */
 Test(poly_biv_bytes, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t), 
                 "poly_biv_bytes failed: got %lld, expected %lld", poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t)));
@@ -61,8 +61,8 @@ Test(poly_biv_bytes, basic){
  * @brief Test biv_to_univ
 */
 Test(biv_to_univ, test_with_random_biv_generation ){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-    MODULE* module = new_module_info(NBASE, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+    MODULE* module = new_module_info_p(NBASE);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
     PolyBiv* pol_biv = new_normal_random_biv_poly(module, params);
@@ -71,15 +71,15 @@ Test(biv_to_univ, test_with_random_biv_generation ){
 
     free(pol_univ); free(pol_biv);
     delete_glwe_ct_params(params);
-    delete_module_info(module);
+    delete_module_info_p(module);
 } 
 
 /**
  * @brief Test univ_to_biv
  */
 Test(univ_to_biv, one_test){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-    MODULE* module = new_module_info(NBASE, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+    MODULE* module = new_module_info_p(NBASE);
 
     double* pol_univ = calloc(poly_univ_bytes(params),1);
     pol_univ[0] = 0.0625;
@@ -104,15 +104,15 @@ Test(univ_to_biv, one_test){
     }
     free(pol_univ); free(pol_biv);
     delete_glwe_ct_params(params);
-    delete_module_info(module);
+    delete_module_info_p(module);
 }
 
 /**
  * @brief Test univ_to_biv
  */
 Test(univ_to_biv, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-    MODULE* module = new_module_info(NBASE, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+    MODULE* module = new_module_info_p(NBASE);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
     new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
@@ -146,15 +146,15 @@ Test(univ_to_biv, basic){
     }
     free(pol_univ); free(pol_biv);
     delete_glwe_ct_params(params);
-    delete_module_info(module);
+    delete_module_info_p(module);
 }
 
 /**
  * @brief Test univ_to_biv
  */
 Test(univ_to_biv, maths_test){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-    MODULE* module = new_module_info(NBASE, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+    MODULE* module = new_module_info_p(NBASE);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
     new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
@@ -170,10 +170,10 @@ Test(univ_to_biv, maths_test){
                   , "pol_univ[%ld] %lf pol_univ_bis[%ld] %lf", p, pol_univ[p], p, pol_univ_bis[p]);
     }
     
-    free(pol_univ); free(pol_univ_bis); free(pol_biv);
+    free(pol_univ); free(pol_biv); free(pol_univ_bis); 
     delete_glwe_ct_params(params);
-    delete_module_info(module);
-}
+    delete_module_info_p(module);
+} 
 
 
 //! BIV POLY PART (begin) 
@@ -183,7 +183,7 @@ Test(univ_to_biv, maths_test){
  * @note n_limbs = (k + 1) * l
  */
 Test(poly_biv_coef_number, classic_params){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_biv_coef_number(params), NBASE * LBASE, 
                 "poly_biv_coef_number failed: got %lld, expected %lld", poly_biv_coef_number(params), NBASE * LBASE));
@@ -196,15 +196,15 @@ Test(poly_biv_coef_number, classic_params){
  * 
  */
 Test(new_normal_random_biv_poly, basic){
-    MODULE* module = new_module_info(NBASE, FFT64);
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info_p(NBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     PolyBiv* a = new_normal_random_biv_poly(module, params);
 
     cr_assert(eq(int, a != NULL, 1, "new_normal_random_biv returned a NULL pointer."));
 
     free(a);
     delete_glwe_ct_params(params);
-    delete_module_info(module);
+    delete_module_info_p(module);
 }
 
 /**
@@ -212,8 +212,8 @@ Test(new_normal_random_biv_poly, basic){
  * 
  */
 Test(new_normal_random_biv_poly, is_it_working){
-    MODULE* module = new_module_info(NBASE, FFT64);
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info_p(NBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     PolyBiv* a = new_normal_random_biv_poly(module, params);
 
     for(int64_t i = 0 ; i < LBASE ; i++)
@@ -227,15 +227,15 @@ Test(new_normal_random_biv_poly, is_it_working){
     
     free(a);
     delete_glwe_ct_params(params);
-    delete_module_info(module);
+    delete_module_info_p(module);
 }
 
 /**
  * @brief Test add_biv_poly correctness with random normal polynomials
  */
 Test(add_biv_poly, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-    MODULE* module = new_module_info(params->N, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+    MODULE* module = new_module_info_p(NBASE);
 
     PolyBiv* a = new_normal_random_biv_poly(module, params);
     PolyBiv* b = new_normal_random_biv_poly(module, params);
@@ -257,7 +257,7 @@ Test(add_biv_poly, basic){
 
     free(a); free(b); free(res);
     delete_glwe_ct_params(params);
-    delete_module_info(module);
+    delete_module_info_p(module);
 }
 
 
@@ -267,8 +267,8 @@ Test(add_biv_poly, basic){
  * @brief Test add_biv_poly_dft correctness with random normal DFT polynomials
  */
 Test(add_biv_poly_dft, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-    MODULE* module = new_module_info(params->N, FFT64);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+    MODULE* module = new_module_info_p(NBASE);
     
     PolyBivDFT* a = new_normal_random_biv_poly_dft(module, params);
     PolyBivDFT* b = new_normal_random_biv_poly_dft(module, params);
@@ -290,7 +290,7 @@ Test(add_biv_poly_dft, basic){
     
 
     free(a); free(b); free(res);
-    delete_module_info(module);
+    delete_module_info_p(module);
     delete_glwe_ct_params(params);
 }
 
@@ -299,16 +299,15 @@ Test(add_biv_poly_dft, basic){
  * 
  */
 Test(new_normal_random_biv_poly_dft, is_it_working){
-    MODULE* module = new_module_info(NBASE, FFT64);
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info_p(NBASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     
     PolyBivDFT* a_dft = new_normal_random_biv_poly_dft(module, params);
     PolyBiv* a = malloc(poly_biv_bytes(params));
     PolyBiv* a_normalized = malloc(poly_biv_bytes(params));
 
-    vec_znx_idft(module, (VEC_ZNX_BIG *)a, LBASE, (VEC_ZNX_DFT *)a_dft, LBASE, NULL);
-    uint8_t* tmp = malloc(vec_znx_normalize_base2k_tmp_bytes(module));
-    vec_znx_normalize_base2k(module, KAPPABASE, a_normalized, LBASE, NBASE, a, LBASE, NBASE, tmp);
+    vec_znx_idft_p(module, a, LBASE, a_dft, LBASE);
+    vec_znx_normalize_base2k_p(module, KAPPABASE, a_normalized, LBASE, NBASE, a, LBASE, NBASE);
 
     for(int64_t i = 0 ; i < LBASE ; i++)
     {
@@ -320,10 +319,7 @@ Test(new_normal_random_biv_poly_dft, is_it_working){
     }
     cr_assert(1);
 
-    free(tmp);
-    free(a_dft);
-    free(a);
-    free(a_normalized);
+    free(a_dft); free(a); free(a_normalized);
     delete_glwe_ct_params(params);
-    delete_module_info(module);
+    delete_module_info_p(module);
 }

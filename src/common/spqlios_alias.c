@@ -80,10 +80,11 @@ void vmp_apply_dft_p(const MODULE* module, double* res, int64_t res_size,
     free(tmp_space);
 }
 
-void vmp_apply_dft_to_dft_p(const MODULE* module, VecBivDFT* res,
-                            const uint64_t res_size, const VecBivDFT* a_dft,
-                            uint64_t a_size, const MatBivDFT* pmat,
-                            const uint64_t nrows, const uint64_t ncols) {
+void vmp_apply_dft_to_dft_p(const MODULE* module, 
+                            VecBivDFT* res, const uint64_t res_size, 
+                            const VecBivDFT* a_dft, uint64_t a_size, 
+                            const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols
+){
     uint8_t* tmp_space = malloc(vmp_apply_dft_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
     vmp_apply_dft_to_dft(module, (VEC_ZNX_DFT*)res, res_size, (VEC_ZNX_DFT*)a_dft,
                          a_size, (VMP_PMAT*)pmat, nrows, ncols, tmp_space);

@@ -82,11 +82,10 @@ void vmp_apply_dft_p(const MODULE* module,                                   // 
                      const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols   // prep matrix
 );
 
-void vmp_apply_dft_to_dft_p(const MODULE* module,                       // N
-                            double* res, const int64_t res_size,       // res
-                            const double* a_dft, int64_t a_size,       // a
-                            const MatBivDFT* pmat, const uint64_t nrows,
-                            const uint64_t ncols                        // prep matrix
+void vmp_apply_dft_to_dft_p(const MODULE* module, 
+                            VecBivDFT* res, const uint64_t res_size, 
+                            const VecBivDFT* a_dft, uint64_t a_size, 
+                            const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols
 );
 
 void delete_vmp_pmat_p(double* pmat);
