@@ -35,8 +35,8 @@ typedef struct glwe_prep_secret_key {
 /**
  * @brief Creates a new secret key values component.
  * 
- * @param k The number of Zn[X] polynomials in a secret key.
  * @param N The dimension of the module Zn[X].
+ * @param k The number of Zn[X] polynomials in a secret key.
  * @return PolyUniv** 
  */
 PolyUniv** new_secret_key_values(int64_t N, int64_t k);
@@ -89,8 +89,8 @@ PolyUniv** transform_secret_key_values_dft_to_not_dft(GLWEPreparedSK* sk_dft);
 /**
  * @brief Creates a new secret key values component in DFT space.
  * 
- * @param k The number of Zn[X] polynomials in a secret key.
  * @param N The dimension of the module Zn[X].
+ * @param k The number of Zn[X] polynomials in a secret key.
  * @return PolyUnivDFT** 
  */
 PolyUnivDFT** new_secret_key_values_dft(int64_t N, int64_t k);

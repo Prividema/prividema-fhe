@@ -9,14 +9,14 @@
 #define KAPPABASE 4
 #define NLIMBSBASE 45
 #define LBASE NLIMBSBASE/(KBASE+1)
-#define SIGMABASE 1e-7
+#define SIGMABASE -12
 
 /**
  * @brief Test glwe_encrypt_priv.
  */
 Test(glwe_secret_masking, basic)
 {
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     MODULE* module = new_module_info(NBASE, FFT64);
 
     GLWECiphertext* ct = new_glwe(params);

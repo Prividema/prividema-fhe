@@ -8,10 +8,10 @@
 #define KAPPABASE 4
 #define NLIMBSBASE 45
 #define LBASE NLIMBSBASE/(KBASE+1)
-#define SIGMABASE 1e-7
+#define SIGMABASE -12
 
 Test(new_glwe_ct_params, basic){
-    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(int, params != NULL, 1));
     cr_assert(eq(i64, params->N, NBASE));

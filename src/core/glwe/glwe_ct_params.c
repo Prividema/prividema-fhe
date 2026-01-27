@@ -2,7 +2,7 @@
 #include "glwe_ct_params.h"
 
 
-GLWECtParams* new_glwe_ct_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs, uint64_t sigma
+GLWECtParams* new_glwe_ct_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma
 ){
     GLWECtParams* params = malloc(sizeof(GLWECtParams));
     params->N = N;

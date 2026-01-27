@@ -8,7 +8,7 @@
 #define KAPPABASE 4
 #define NLIMBSBASE 45
 #define LBASE NLIMBSBASE/(KBASE+1)
-#define SIGMABASE 1e-7
+#define SIGMABASE -12
 
 /**
  * @brief Tests whether new_glwe_secret_key_dft returns a non-NULL pointer when values = NULL.

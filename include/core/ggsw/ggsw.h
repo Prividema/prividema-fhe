@@ -31,7 +31,7 @@ void add_error(GLWECtParams* enc_params,
 int glwe_secret_demasking(GLWECtParams* enc_params,
                           double* phase,
                           GGSWPreparedSK* sk_dft,
-                          GLWECiphertext* ct);
+                          VecBiv* ct);
 
 /**
  * @brief Encrypts the phase (message + noise) and puts it in res.
@@ -70,16 +70,6 @@ int ggsw_secret_encrypt(GGSWCtParams* enc_params,
 
 // TODO : the 8 functions below are not implemented
 
-int ggsw_secret_masking(GGSWCiphertext* res,
-                        GGSWPreparedSK* sk,
-                        PolyUniv* msg_univ,     
-                        GGSWCtParams* enc_params);
-
-void ggsw_secret_demasking(double* res,   // result
-                  GGSWPreparedSK* sk_dft, // secret key
-                  GGSWCiphertext* ct      // ciphertext
-);
-
 // GGSWPublicKey is a struct encapsulating everything regarding the public
 // key.
 /* Encrypts message m into GGSW ciphertext res with parameters enc_params */
@@ -111,16 +101,18 @@ void halfggsw_decrypt(int64_t* res,       // result
                       PartialGGSWCiphertext* ct  // ciphertext
 );
 
-/* Should it be in glwe.h since result is GLWE ? */
+/**
+ * @brief Computes the external product between a bivGLWE and a bivGGSW.
+ * 
+ * @param res The bivariate GLWE result ciphertext.
+ * @param ct_glwe The bivariate GLWE input ciphertext.
+ * @param ct_ggsw The bivariate GGSW input ciphertext. 
+ */
 void ggsw_external_product(GLWECiphertext* res,  // result
-                           GLWECiphertext* ct1,  // GLWE ciphertext
-                           GGSWCiphertext* ct2   // GGSW ciphertext
+                           GLWECiphertext* ct_glwe,  // GLWE ciphertext
+                           GGSWCiphertext* ct_ggsw   // GGSW ciphertext
 );
 
-void halfggsw_external_product(GLWECiphertext* res,     // result
-                               GLWECiphertext* ct1,     // GLWE ciphertext
-                               PartialGGSWCiphertext* ct2  // half GGSW ciphertext
-);
 
 //! GGSW IN DFT PART (begin)   
 
@@ -169,6 +161,18 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
                             GGSWPreparedSK* sk_dft,
                             PolyUniv* msg_univ);
 
+
+/**
+ * @brief Computes the external product between a bivGLWE and a biv GGSW.
+ * 
+ * @param res_dft The bivariate GLWE result ciphertext in DFT space.
+ * @param ct_glwe_dft The bivariate GLWE input ciphertext in DFT space.
+ * @param ct_ggsw_dft The bivariate GGSW input ciphertext in DFT space.
+ */
+void ggsw_external_product_dft(GLWEPreparedCt* res_dft,  
+                               GLWEPreparedCt* ct_glwe_dft, 
+                               GGSWCiphertextDFT* ct_ggsw_dft  
+);
 
 //! COMMON PART (begin)
 

@@ -30,6 +30,11 @@ GGSWPreparedSK* new_ggsw_secret_key_dft(PolyUnivDFT** values, int64_t N, int64_t
 
 void delete_ggsw_secret_key_dft(GGSWPreparedSK* sk_dft
 ){
+    
+    for(int64_t j = 0 ; j < sk_dft->k ; j++)
+    {
+        free(sk_dft->values[j]);
+    }
     free(sk_dft->values);
     free(sk_dft);
 }

@@ -19,7 +19,7 @@ typedef struct glwe_ciphertext {
  * @param params The GLWE parameters.
  * @return int64_t 
  */
-int64_t glwe_coef_number(GLWECtParams* params);
+uint64_t glwe_coef_number(GLWECtParams* params);
 
 /**
  * @brief Creates a bivGLWE, filled with 0.
@@ -49,7 +49,7 @@ typedef struct glwe_ciphertext_dft {
  * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in Zn[X], 
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-int64_t glwe_coef_number_dft(GLWECtParams* params);
+uint64_t glwe_coef_number_dft(GLWECtParams* params);
 GLWEPreparedCt* new_glwe_dft(GLWECtParams* params);
 void delete_glwe_dft(GLWEPreparedCt* ct);
 void add_glwe_dft(GLWEPreparedCt* res, GLWEPreparedCt* ct1, GLWEPreparedCt* ct2);
@@ -65,7 +65,7 @@ void const_mult_glwe_dft(GLWEPreparedCt* res, PolyUniv* u, GLWEPreparedCt* ct);
  * 
  * @note The size of a bivGLWE ciphertext is the same in and out of DFT space.
  */
-int64_t glwe_size(GLWECtParams* params);
+uint64_t glwe_size(GLWECtParams* params);
 
 /**
  * @brief The number of bytes needed to store a bivGLWE ciphertext.
@@ -75,7 +75,7 @@ int64_t glwe_size(GLWECtParams* params);
  * 
  * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of DFT space. 
  */
-int64_t glwe_bytes(GLWECtParams* params);
+uint64_t glwe_bytes(GLWECtParams* params);
 
 /**
  * @brief Compute the polynomial product of c and d, component-wise in DFT space.

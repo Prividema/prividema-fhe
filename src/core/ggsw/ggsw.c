@@ -9,8 +9,8 @@
 //! GGSW PART (begin)
 
 void add_error(GLWECtParams* enc_params,
-              PolyBiv* res,
-              PolyBiv* phase)
+               PolyBiv* res,
+               PolyBiv* phase)
 {
     MODULE* module = new_module_info(enc_params->N, FFT64);
     
@@ -18,13 +18,16 @@ void add_error(GLWECtParams* enc_params,
     PolyBiv* err = new_normal_random_biv_poly(module, enc_params);
     
     // Add the error in DFT space
-    add_biv_poly(enc_params, phase, enc_params->N, phase, enc_params->N, err, enc_params->N);
+    add_biv_poly(enc_params, res, enc_params->N, phase, enc_params->N, err, enc_params->N);
+
+    free(err);
+    delete_module_info_p(module);
 }
 
 int glwe_secret_demasking(GLWECtParams* enc_params,
-                     double* phase,
-                     GGSWPreparedSK* sk_dft,
-                     GLWECiphertext* ct)
+                          double* phase,
+                          GGSWPreparedSK* sk_dft,
+                          VecBiv* ct)
 {
     // GLWE parameters
     int64_t N = enc_params->N;
@@ -44,7 +47,7 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
     {
         // The j-ème component of resp. the secret key and the bivGLWE ciphertext 
         PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
-        PolyUniv* a_j = ct->vec + j*N;
+        PolyUniv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
         PolyBivDFT* as_j_dft = new_vec_znx_dft_p(module, l); 
@@ -63,13 +66,13 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
     }
 
     // Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
-    int64_t* b = ct->vec + N*k;
+    int64_t* b = ct + N*k;
     add_biv_poly(enc_params, acc, N, b, N*(k+1), acc, N);
     
-    PolyBiv* acc_normalized = malloc(poly_biv_bytes(ct->params));
-    vec_znx_normalize_base2k_p(module, ct->params->kappa, acc_normalized, l, N, acc, l, N);
+    PolyBiv* acc_normalized = malloc(poly_biv_bytes(enc_params));
+    vec_znx_normalize_base2k_p(module, enc_params->kappa, acc_normalized, l, N, acc, l, N);
 
-    biv_to_univ(ct->params, phase, acc_normalized);
+    biv_to_univ(enc_params, phase, acc_normalized);
     
     free(acc); free(acc_normalized);
     delete_module_info(module);
@@ -250,6 +253,36 @@ int ggsw_secret_encrypt(GGSWCtParams* enc_params,
     return 0;
 }
 
+void ggsw_external_product(GLWECiphertext* res,  // result
+                           GLWECiphertext* ct_glwe,  // GLWE ciphertext
+                           GGSWCiphertext* ct_ggsw   // GGSW ciphertext
+){
+    uint64_t N = res->params->N;
+    MODULE* module = new_module_info_p(N);
+
+    // The bivGGSW ciphertext ct_ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs 
+    // The bivGLWE ciphertext ct_glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
+    // As the result of the vector-matrix product ct_glwe * ct_ggsw, 
+    // the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
+    uint64_t nrows = ct_ggsw->params->n_limbs_tilde;
+    uint64_t ncols = ct_ggsw->params->params->n_limbs;
+
+    // Computes the GGSW ciphertext in DFT space
+    MatBivDFT* pmat = malloc(ggsw_coef_number(ct_ggsw->params) * sizeof(double));
+    vec_znx_dft_p(module, pmat, nrows*ncols, ct_ggsw->mat, nrows*ncols, N);
+
+    MatBivDFT* pvec = malloc(glwe_coef_number(res->params)*sizeof(double));
+
+    // Computes ExternalProduct(ct_glwe, ct_ggsw)
+    vmp_apply_dft_p(module, pvec, ncols, 
+                            ct_glwe->vec, nrows, N,
+                            pmat, nrows, ncols);
+
+    vec_znx_idft_p(module, res->vec, ncols, pvec, ncols);
+
+    free(pmat); free(pvec);                        
+    delete_module_info_p(module);
+}
 
 //! GGSW IN DFT PART (begin)
 
@@ -466,4 +499,24 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
     free(msg_univ_dft); free(phase_univ_dft); free(phase_univ_inZ); free(phase_univ_inR); free(phase); free(phase_dft);
 
     return 0;
+}
+
+void ggsw_external_product_dft(GLWEPreparedCt* res_dft,  // result
+                               GLWEPreparedCt* ct_glwe_dft,  // GLWE ciphertext
+                               GGSWCiphertextDFT* ct_ggsw_dft   // GGSW ciphertext
+){
+    uint64_t N = res_dft->params->N;
+    MODULE* module = new_module_info_p(N);
+
+    // The bivGGSW ciphertext ct_ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs 
+    // The bivGLWE ciphertext ct_glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
+    // As the result of the vector-matrix product ct_glwe * ct_ggsw, 
+    // the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
+    uint64_t nrows = ct_ggsw_dft->params->n_limbs_tilde;
+    uint64_t ncols = ct_ggsw_dft->params->params->n_limbs;
+
+    // Computes ExternalProduct(ct_glwe, ct_ggsw)
+    vmp_apply_dft_to_dft_p(module, res_dft->pvec, ncols, 
+                                   ct_glwe_dft->pvec, nrows, 
+                                   ct_ggsw_dft->pmat, nrows, ncols);
 }

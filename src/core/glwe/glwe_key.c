@@ -5,7 +5,7 @@
 
 //! GLWE PART (begin)
 
-PolyUniv** new_secret_key_values(int64_t k, int64_t N
+PolyUniv** new_secret_key_values(int64_t N, int64_t k
 ){
     PolyUniv** values = malloc(k*sizeof(PolyUniv*));
 
@@ -35,7 +35,7 @@ GLWESecretKey* new_glwe_secret_key(PolyUniv** values, int64_t N, int64_t k
 
     if(values == NULL)
     {
-        sk->values = new_secret_key_values(k, N);
+        sk->values = new_secret_key_values(N, k);
     }
     else
     {
@@ -113,7 +113,7 @@ GLWEPreparedSK* new_glwe_secret_key_dft(PolyUnivDFT** values, int64_t N, int64_t
 
     if(values == NULL)
     {
-        sk_dft->values = new_secret_key_values(k, N);
+        sk_dft->values = new_secret_key_values_dft(N, k);
     }
     else
     {

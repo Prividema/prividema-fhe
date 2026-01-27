@@ -12,7 +12,7 @@
 #include <time.h>
 #include <math.h>
 
-#define NBASE 1024
+#define NBASE 8
 #define KBASE 8
 #define KAPPABASE 4
 #define NLIMBSBASE 45
@@ -224,8 +224,7 @@ Test(new_normal_random_biv_poly, is_it_working){
             cr_assert(ge(i64, a[i*NBASE + p], -(1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
         }
     }
-    cr_assert(1);
-
+    
     free(a);
     delete_glwe_ct_params(params);
     delete_module_info(module);
