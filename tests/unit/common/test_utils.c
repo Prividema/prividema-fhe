@@ -92,38 +92,38 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 
 // Test rand_uniform on the whole interval
 
-// Test(rand_uniform_64, test_rand_uniform) 
-// {
-//     int count = 0;
-//     for(int i = 0; i < 100; i++) {
-//         int c;
-//         if((c = rand_uniform_aux(64, 100)) < 0)
-//             cr_fatal("Error occured during generation");
-//         count += c;
-//     }
+Test(rand_uniform_64, test_rand_uniform) 
+{
+    int count = 0;
+    for(int i = 0; i < 100; i++) {
+        int c;
+        if((c = rand_uniform_aux(64, 100)) < 0)
+            cr_fatal("Error occured during generation");
+        count += c;
+    }
 
-//     As Chi-squared has 5% chance of failing, we count the number of times it fails.
-//     On 100 iterations it fails 5 times in average.
-//     We determined experimentally the standard deviation sigma = 4
-//     So the number of failures should be in range 5 +- 4.
-//     cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
-//     cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
-// }
+    // As Chi-squared has 5% chance of failing, we count the number of times it fails.
+    // On 100 iterations it fails 5 times in average.
+    // We determined experimentally the standard deviation sigma = 4
+    // So the number of failures should be in range 5 +- 4.
+    cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
+    cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
+}
 
 // Test rand_uniform on the interval [-32768,32767]
-// Test(rand_uniform_16, test_rand_uniform) 
-// {
-//     int count = 0;
-//     for(int i = 0; i < 100; i++)
-//         count += rand_uniform_aux(16, 100);
+Test(rand_uniform_16, test_rand_uniform) 
+{
+    int count = 0;
+    for(int i = 0; i < 100; i++)
+        count += rand_uniform_aux(16, 100);
 
-//     // As Chi-squared has 5% chance of failing, we count the number of times it fails.
-//     // On 100 iterations it fails 5 times in average.
-//     // We determined experimentally the standard deviation sigma = 4
-//     // So the number of failures should be in range 5 +- 4.
-//     cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
-//     cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
-// }
+    // As Chi-squared has 5% chance of failing, we count the number of times it fails.
+    // On 100 iterations it fails 5 times in average.
+    // We determined experimentally the standard deviation sigma = 4
+    // So the number of failures should be in range 5 +- 4.
+    cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
+    cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
+}
 
 // -------------------------------------------------------------------------------------
 // Gaussian Distribution Test

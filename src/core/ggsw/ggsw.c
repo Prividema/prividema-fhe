@@ -24,7 +24,7 @@ void add_error(GLWECtParams* enc_params,
     delete_module_info_p(module);
 }
 
-int glwe_secret_demasking(GLWECtParams* enc_params,
+int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
                           double* phase,
                           GGSWPreparedSK* sk_dft,
                           VecBiv* ct)
@@ -81,7 +81,7 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
 }
 
 // TODO false
-int glwe_secret_masking(const MODULE* module,
+int glwe_secret_masking_ggsw_lib(const MODULE* module,
                         GLWECtParams* params, 
                         VecBiv* res_ct,
                         GGSWPreparedSK* sk_dft, 
@@ -231,7 +231,7 @@ int ggsw_secret_encrypt(GGSWCtParams* enc_params,
             add_error(params_glwe, phase_biv, phase_biv);
 
             #ifdef WITH_Y0 
-            if (glwe_secret_masking(module, res->params->params, 
+            if (glwe_secret_masking_ggsw_lib(module, res->params->params, 
                                  ct_biv, sk_dft, phase_biv) < 0){
                 return -1;
             }

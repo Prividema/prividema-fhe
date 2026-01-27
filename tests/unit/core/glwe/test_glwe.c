@@ -1,6 +1,7 @@
 #include "core/glwe/glwe.h"
-#include "vec_znx_arithmetic_private.h"
+#include "common/spqlios_alias.h"
 
+#include <stdio.h>
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 
@@ -17,7 +18,7 @@
 Test(glwe_secret_masking, basic)
 {
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-    MODULE* module = new_module_info(NBASE, FFT64);
+    MODULE* module = new_module_info_p(NBASE);
 
     GLWECiphertext* ct = new_glwe(params);
     GLWEPreparedSK* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
@@ -25,12 +26,17 @@ Test(glwe_secret_masking, basic)
     // Draws err in Zn[X,Y]
     PolyBiv* input_phase = new_normal_random_biv_poly(module, params);
 
-    printf("input_phase : ");
+    printf("input_phase : \n");
     for(int64_t i = 0 ; i < LBASE ; i++)
-    {
+    { 
+        printf("Y^%ld  :  ", i);
         for(int64_t p = 0 ; p < NBASE ; p++)
         {
-        printf("%e X^%ld ", input_phase[i*NBASE + p], p);
+            if(input_phase[i*NBASE + p] >= 0)
+                printf(" %ld X^%ld ", input_phase[i*NBASE + p], p);
+            else
+                printf("%ld X^%ld ", input_phase[i*NBASE + p], p);
+
         }
     printf("\n");
     }
@@ -47,4 +53,10 @@ Test(glwe_secret_masking, basic)
             cr_assert(eq(i64, computed_phase[i*NBASE + p], input_phase[i*NBASE + p]));
         }
     }*/
+
+    delete_glwe_ct_params(params);
+    delete_module_info_p(module);
+    delete_glwe(ct);
+    delete_glwe_secret_key_dft(sk_dft);
+    free(input_phase);
 }

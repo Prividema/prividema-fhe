@@ -29,19 +29,13 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
         perror("Malloc failed.");
         return NULL;
     }
-    printf("%e\n", params->sigma);
+    
     for(int64_t p = 0 ; p < N ; p++){
         if(rand_normal(rd_pol_univ + p, 0.0, params->sigma) < 0) {
             free(rd_pol_univ);
             return NULL;
         }
     }
-
-    printf("rd_pol_univ : ");
-    for(int64_t p = 0 ; p < N ; p++)
-        printf("%e X^%ld ", rd_pol_univ[p], p);
-    printf("\n");
-    
 
     // Stores the base-2kappa normalized bivariate form Pbiv(X,Y) of P(X)
     PolyBiv* rd_pol = malloc(poly_biv_bytes(params));

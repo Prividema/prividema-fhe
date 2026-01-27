@@ -21,20 +21,20 @@ void add_error(GLWECtParams* enc_params,
                PolyBiv* phase);
 
 /**
- * @brief Decrypts the phase (message + noise) and puts it in phase.
+ * @brief Demasks the phase (message + noise) and puts it in phase.
  * 
  * @param enc_params The GLWE parameters.
  * @param phase The phase in Rn[X]. 
  * @param sk_dft The secret key in DFT space.
  * @param ct The ciphertext.
  */
-int glwe_secret_demasking(GLWECtParams* enc_params,
+int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
                           double* phase,
                           GGSWPreparedSK* sk_dft,
                           VecBiv* ct);
 
 /**
- * @brief Encrypts the phase (message + noise) and puts it in res.
+ * @brief Masks the phase (message + noise) and puts it in res.
  * 
  * @param module The module stocking the degree N.
  * @param params The GLWE parameters.
@@ -45,7 +45,7 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
  * @retval `-1` if an error occurs.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking(const MODULE* module,
+int glwe_secret_masking_ggsw_lib(const MODULE* module,
                         GLWECtParams* params,
                         VecBiv* res_ct,
                         GGSWPreparedSK* sk,

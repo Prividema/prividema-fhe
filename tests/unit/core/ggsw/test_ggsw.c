@@ -29,7 +29,7 @@ Test(add_error, basic){
     free(res); free(phase);
 }
 
-Test(glwe_secret_masking, basic){
+Test(glwe_secret_masking_ggsw_lib, basic){
     MODULE* module = new_module_info_p(NBASE);
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     
@@ -38,7 +38,7 @@ Test(glwe_secret_masking, basic){
     VecBiv* res = malloc(glwe_coef_number(params_glwe)*sizeof(int64_t));
     PolyBiv* phase = new_normal_random_biv_poly(module, params_glwe);
 
-    glwe_secret_masking(module, params_glwe, res, sk_dft, phase);
+    glwe_secret_masking_ggsw_lib(module, params_glwe, res, sk_dft, phase);
 
     free(res); free(phase);
     delete_module_info_p(module);
@@ -46,7 +46,7 @@ Test(glwe_secret_masking, basic){
     delete_ggsw_secret_key_dft(sk_dft);
 }
 
-Test(glwe_secret_demasking, basic){
+Test(glwe_secret_demasking_ggsw_lib, basic){
     MODULE* module = new_module_info_p(NBASE);
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     
@@ -63,32 +63,39 @@ Test(glwe_secret_demasking, basic){
     // The computed phase
     double* phase_univ = malloc(poly_univ_bytes(params_glwe));
 
-    glwe_secret_demasking(params_glwe, phase_univ, sk_dft, ct_glwe);
+    glwe_secret_demasking_ggsw_lib(params_glwe, phase_univ, sk_dft, ct_glwe);
 
-    PolyBiv* phase = malloc(poly_biv_bytes(params_glwe));
-    univ_to_biv(params_glwe, phase, phase_univ);
+    PolyBiv* phase_computed = malloc(poly_biv_bytes(params_glwe));
+    univ_to_biv(params_glwe, phase_computed, phase_univ);
+
     // Compare both phase
-
-    printf("\n phase : ");
-    for(int64_t i = 0 ; i < LBASE ; i++)
+    for(int64_t i = 1 ; i < LBASE ; i++)
     {
-        printf("\nY^%ld  ", i);
         for(int64_t p = 0 ; p < NBASE ; p++){
-            printf(" %ld X^%ld ", phase_input[i*NBASE + p], p);
+            cr_assert(eq(i64, phase_computed[i*NBASE+p], phase_input[i*NBASE + p]));
         }
     }
+
+    // printf("\n phase : ");
+    // for(int64_t i = 0 ; i < LBASE ; i++)
+    // {
+    //     printf("\nY^%ld  ", i);
+    //     for(int64_t p = 0 ; p < NBASE ; p++){
+    //         printf(" %ld X^%ld ", phase_input[i*NBASE + p], p);
+    //     }
+    // }
     
-    printf("\n phase_input : ");
+    // printf("\n phase_input : ");
 
-    for(int64_t i = 0 ; i < LBASE ; i++)
-    {
-        printf("\nY^%ld  ", i);
-        for(int64_t p = 0 ; p < NBASE ; p++){
-            printf(" %ld X^%ld ", phase[i*NBASE + p], p);
-        }
-    }
+    // for(int64_t i = 0 ; i < LBASE ; i++)
+    // {
+    //     printf("\nY^%ld  ", i);
+    //     for(int64_t p = 0 ; p < NBASE ; p++){
+    //         printf(" %ld X^%ld ", phase_computed[i*NBASE + p], p);
+    //     }
+    // }
 
-    free(ct_glwe); free(phase_input); free(phase_univ); free(phase);
+    free(ct_glwe); free(phase_input); free(phase_univ); free(phase_computed);
     delete_module_info_p(module);
     delete_glwe_ct_params(params_glwe);
     delete_ggsw_secret_key_dft(sk_dft);
