@@ -2,8 +2,25 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 
+#include <stdio.h> 
+
 #define NBASE 4
 #define KBASE 2
+
+Test(new_normal_random_vec, basic)
+{
+    MODULE* module = new_module_info_p(NBASE);
+    double* pol_univ = malloc(NBASE * KBASE *sizeof(double));
+
+    new_normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001);
+
+    for(int64_t p = 0 ; p < NBASE ; p++){
+        printf("\n %e X^%ld \n", pol_univ[p], p);
+    }
+
+    delete_module_info_p(module);
+    free(pol_univ);
+}
 
 Test(new_uniform_random_vec_dft, basic)
 {

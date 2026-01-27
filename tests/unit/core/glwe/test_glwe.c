@@ -25,6 +25,16 @@ Test(glwe_secret_masking, basic)
     // Draws err in Zn[X,Y]
     PolyBiv* input_phase = new_normal_random_biv_poly(module, params);
 
+    printf("input_phase : ");
+    for(int64_t i = 0 ; i < LBASE ; i++)
+    {
+        for(int64_t p = 0 ; p < NBASE ; p++)
+        {
+        printf("%e X^%ld ", input_phase[i*NBASE + p], p);
+        }
+    printf("\n");
+    }
+
     // Computes bivGLWE(msg + err)
     glwe_secret_masking(ct, sk_dft, input_phase);
     /*

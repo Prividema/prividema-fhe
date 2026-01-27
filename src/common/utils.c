@@ -125,7 +125,7 @@ int rand_normal(double* result, double mu, double sigma) {
     if (read_rand(&uniform) < 0) return -1;
 
     // Scale uniform in (0,1) to U : U still follows an uniform distribution.
-    double U = (uniform + 0.5) / ((double)INT64_MAX);
+    double U = ((uint64_t)uniform) / ((double)UINT64_MAX);
 
     // Compute Z the inverse CDF of the normal distribution applied to U.
     double Z = sqrt(2.0) * erfinv(2.0 * U - 1.0);

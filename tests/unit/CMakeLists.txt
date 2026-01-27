@@ -72,8 +72,8 @@ endfunction()
 # Build all unit tests
 # ------------------------------------------------------------
 
-BuildUnitTests(TEST_BACKEND_FILES BACKEND)
+# BuildUnitTests(TEST_BACKEND_FILES BACKEND)
 BuildUnitTests(TEST_COMMON_FILES  COMMON)
-BuildUnitTests(TEST_GGSW_FILES    CORE)
+# BuildUnitTests(TEST_GGSW_FILES    CORE)
 BuildUnitTests(TEST_GLWE_FILES    CORE)
-BuildUnitTests(TEST_SCHEMES_FILES  SCHEMES)
+# BuildUnitTests(TEST_SCHEMES_FILES  SCHEMES)

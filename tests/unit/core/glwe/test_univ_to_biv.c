@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <time.h>
 #include <math.h>
+#include <stdio.h>
 
 #define NBASE 8
 #define KBASE 8
@@ -27,24 +28,15 @@ Test(univ_to_biv, basic){
     MODULE* module = new_module_info_p(NBASE);
 
     double* pol_univ = malloc(poly_univ_bytes(params));
-    new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
-
-    int64_t mask = (1LL << KAPPABASE) - 1;
-    for(int64_t p = 0 ; p < NBASE ; p++){
-        cr_log_info("A %e X^%ld", pol_univ[p], p);
-        for(int64_t i = 1 ; i < LBASE ; i++){
-            // cr_log_info("A(XY) %e Y^%ld", ldexp(pol_univ[p], i*KAPPABASE), i) ;
-            // cr_log_info("A(XY) %ld Y^%ld", (int64_t) ldexp(pol_univ[p], i*KAPPABASE) & mask, i) ;
-            }
-    }
+    new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, params->sigma);
 
     PolyBiv* pol_biv = malloc(poly_biv_bytes(params));
     univ_to_biv(params, pol_biv, pol_univ);
     
     for(int64_t p = 0 ; p < NBASE ; p++){
-        cr_log_info("A %e X^%ld", pol_univ[p], p);
+        printf("\n\nA_p : %e X^%ld \n", pol_univ[p], p);
         for(int64_t i = 1 ; i < LBASE ; i++)
-            cr_log_info("A(XY) %ld Y^%ld", pol_biv[i*NBASE + p], i);
+            printf(" %ld Y^%ld ", pol_biv[i*NBASE + p], i);
     }
 
     for(int64_t p = 0 ; p < NBASE ; p++){
