@@ -1,4 +1,6 @@
 #include "utils.h"
+#include "logger.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,10 +29,8 @@ int read_rand(int64_t* result) {
     // For Windows
     #ifdef _WIN32
         NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, sizeof(*result), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-        if (status != STATUS_SUCCESS) {
-            fprintf(stderr, "Random generation failed\n");
-            return -1;
-        }
+        if (status != STATUS_SUCCESS)
+            return log_msg(LOG_ERROR, "BCryptGenRandom() Failed");
 
     // For MACOS/FreeBSD
     // According to arc4random's doc, the function crashes if an error occurs :
@@ -41,18 +41,10 @@ int read_rand(int64_t* result) {
     // For other Linux Distro
     #else
         FILE* f = fopen("/dev/urandom", "rb");
-        if (!f) {
-            perror("fopen");
-            return -1;
-        }
-
-        if (fread(result, sizeof(*result), 1, f) != 1) {
-            perror("fread");
-            fclose(f);
-            return -1;
-        }
-
+        if (!f) return log_perror("fopen");
+        int r = fread(result, sizeof(*result), 1, f);
         fclose(f);
+        if (r != 1) return log_perror("fread");
     #endif
 
     return 0;
@@ -60,10 +52,8 @@ int read_rand(int64_t* result) {
 
 int rand_uniform(int64_t* result, uint64_t nb_bits) {
     // As result points to an uint64_t  nb_bits shall not exceed its size
-    if(nb_bits > 8 * sizeof(int64_t)) {
-        fprintf(stderr, "rand_uniform() : nb_bits %llu exceeds the maximum value (%ld).\n", nb_bits, 8 * sizeof(int64_t));
-        return -1;
-    }
+    if(nb_bits > 8 * sizeof(int64_t))
+        return log_msg(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits, 8 * sizeof(int64_t));
 
     // Generate a random int64_t
     // r is in the interval [0, int64_MAX]

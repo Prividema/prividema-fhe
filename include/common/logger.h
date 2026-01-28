@@ -1,0 +1,37 @@
+#ifndef LOGGER_H
+#define LOGGER_H
+
+/**
+ *  @brief Enum that defines the different log levels :
+ * `LOG_DEBUG`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`
+ */
+typedef enum {
+    LOG_DEBUG,
+    LOG_INFO,
+    LOG_WARN,
+    LOG_ERROR
+} LogLevel;
+
+/**
+ * @brief Set the program's log level.
+ * @param level The log level. Should be an element of the enum.
+ */ 
+void set_log_level(LogLevel level);
+
+/**
+ * @brief Log a message with string formatting.
+ * @param level The log level.
+ * @param fmt A va_list with the string to format and its arguments.
+ * @retval -1 if the level is LOG_ERROR.
+ * @retval  0 otherwise.
+ */
+int log_msg(LogLevel level, const char* fmt, ...);
+
+/**
+ * @brief Log a syscall error like perror but with LOG_ERROR
+ * @param header The perror message haeder
+ * @return always -1 as a syscall error is often fatal.
+ */
+int log_perror(const char *header);
+
+#endif // LOGGER_H
