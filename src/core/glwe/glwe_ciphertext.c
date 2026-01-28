@@ -1,6 +1,4 @@
 #include "glwe_ciphertext.h"
-#include "spqlios_alias.h"
-#include "vec_znx_arithmetic_private.h"
 #include <string.h>
 
 
@@ -41,8 +39,8 @@ uint64_t glwe_coef_number_dft(GLWECtParams* params){
     return glwe_size(params) * params->N / 2;
 }
 
-GLWEPreparedCt* new_glwe_dft(GLWECtParams* params){
-    GLWEPreparedCt* ct = malloc(sizeof(GLWEPreparedCt));
+GLWECiphertextDFT* new_glwe_dft(GLWECtParams* params){
+    GLWECiphertextDFT* ct = malloc(sizeof(GLWECiphertextDFT));
     if(ct == NULL){
         perror("Malloc failed.");
         return NULL;
@@ -59,7 +57,7 @@ GLWEPreparedCt* new_glwe_dft(GLWECtParams* params){
     return ct;
 }
 
-void delete_glwe_dft(GLWEPreparedCt* ct){
+void delete_glwe_dft(GLWECiphertextDFT* ct){
     free(ct->pvec);
     free(ct);
 }

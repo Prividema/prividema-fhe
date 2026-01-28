@@ -14,7 +14,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "ggsw_ct_params.h"
-#include "structure_alias.h"
+#include "maths_structures.h"
 #include "partialggsw_ciphertext.h"
 
 
@@ -146,8 +146,7 @@ void add_ggsw_dft(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2)
  * @param ct_dft The GGSW ciphertext.
  * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u, ,
-                     int do_normalization);
+void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u);
 
 //! COMMON PART (begin)
 

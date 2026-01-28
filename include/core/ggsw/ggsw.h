@@ -169,8 +169,8 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
  * @param ct_glwe_dft The bivariate GLWE input ciphertext in DFT space.
  * @param ct_ggsw_dft The bivariate GGSW input ciphertext in DFT space.
  */
-void ggsw_external_product_dft(GLWEPreparedCt* res_dft,  
-                               GLWEPreparedCt* ct_glwe_dft, 
+void ggsw_external_product_dft(GLWECiphertextDFT* res_dft,  
+                               GLWECiphertextDFT* ct_glwe_dft, 
                                GGSWCiphertextDFT* ct_ggsw_dft  
 );
 

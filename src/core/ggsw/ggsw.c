@@ -1,7 +1,7 @@
 #include <string.h>
 #include "math.h"
 #include "ggsw.h"
-#include "distributions.h" // Allow to draw uniform or normal random number
+#include "rng.h"
 #include "glwe_ciphertext.h"
 #include "bivariate_polynomial.h"
 #include "vec_znx_arithmetic_private.h"
@@ -579,8 +579,8 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
     return 0;
 }
 
-void ggsw_external_product_dft(GLWEPreparedCt* res_dft,  // result
-                               GLWEPreparedCt* ct_glwe_dft,  // GLWE ciphertext
+void ggsw_external_product_dft(GLWECiphertextDFT* res_dft,  // result
+                               GLWECiphertextDFT* ct_glwe_dft,  // GLWE ciphertext
                                GGSWCiphertextDFT* ct_ggsw_dft   // GGSW ciphertext
 ){
     uint64_t N = res_dft->params->N;

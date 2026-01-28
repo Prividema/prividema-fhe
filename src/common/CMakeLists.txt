@@ -3,10 +3,10 @@
 # ----------------------------------------
 
 # Source files for COMMON
-set(COMMON_SRCS 
-    utils.c 
-    distributions.c
+set(COMMON_SRCS
+    logger.c
     spqlios_alias.c
+    rng.c
 )
 
 # Create a shared library named COMMON

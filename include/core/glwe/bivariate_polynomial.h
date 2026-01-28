@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include "glwe_ct_params.h"
-#include "structure_alias.h"
+#include "maths_structures.h"
 #include "spqlios_alias.h"
 
 

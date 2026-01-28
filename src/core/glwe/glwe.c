@@ -1,6 +1,5 @@
 #include "glwe.h"
-#include "vec_znx_arithmetic_private.h"
-#include "distributions.h"
+#include "rng.h"
 
 int glwe_secret_masking(GLWECiphertext* ct, 
                         GLWEPreparedSK* sk_dft,  

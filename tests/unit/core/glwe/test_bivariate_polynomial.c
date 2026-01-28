@@ -1,6 +1,6 @@
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe.h"
-#include "common/distributions.h"
+#include "common/rng.h"
 #include "common/spqlios_alias.h"
 
 #include <criterion/criterion.h>

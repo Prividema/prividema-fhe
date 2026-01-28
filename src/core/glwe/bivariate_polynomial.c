@@ -1,6 +1,4 @@
 #include "bivariate_polynomial.h"
-#include "distributions.h"
-#include "vec_znx_arithmetic_private.h"
 #include <math.h>
 #include <stdio.h>
 #include <string.h>

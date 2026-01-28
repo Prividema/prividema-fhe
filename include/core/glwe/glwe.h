@@ -2,6 +2,7 @@
 #define GLWE_H
 
 #include "glwe_key.h"
+#include "vec_znx_arithmetic_private.h"
 
 // tnx element R[X] mod X^N+1 mod 1
 typedef struct tnx_element {
@@ -35,8 +36,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
  * @param sk_dft 
  * @return int 
  */
-int add_mult(MODULE* module, PolyBiv* res,  GLWECiphertext* ct, GLWEPreparedSK* sk_dft
-);
+int add_multadd_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWEPreparedSK* sk_dft);
 
 /**
  * @brief Decrypts the phase (message + noise) and puts it in phase.

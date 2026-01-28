@@ -1,7 +1,6 @@
 #include "glwe_key.h"
-#include "distributions.h"
+#include "rng.h"
 #include "spqlios_alias.h"
-#include <stdio.h>
 
 //! GLWE PART (begin)
 

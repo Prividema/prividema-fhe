@@ -5,6 +5,7 @@
 #include "glwe_ct_params.h"
 #include "bivariate_polynomial.h"
 #include "spqlios_alias.h"
+#include "vec_znx_arithmetic_private.h"
 
 //! GLWE PART (begin)
 
@@ -50,10 +51,10 @@ typedef struct glwe_ciphertext_dft {
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 uint64_t glwe_coef_number_dft(GLWECtParams* params);
-GLWEPreparedCt* new_glwe_dft(GLWECtParams* params);
-void delete_glwe_dft(GLWEPreparedCt* ct);
-void add_glwe_dft(GLWEPreparedCt* res, GLWEPreparedCt* ct1, GLWEPreparedCt* ct2);
-void const_mult_glwe_dft(GLWEPreparedCt* res, PolyUniv* u, GLWEPreparedCt* ct);
+GLWECiphertextDFT* new_glwe_dft(GLWECtParams* params);
+void delete_glwe_dft(GLWECiphertextDFT* ct);
+void add_glwe_dft(GLWECiphertextDFT* res, GLWECiphertextDFT* ct1, GLWECiphertextDFT* ct2);
+void const_mult_glwe_dft(GLWECiphertextDFT* res, PolyUniv* u, GLWECiphertextDFT* ct);
 
 //! COMMON PART (begin)
 

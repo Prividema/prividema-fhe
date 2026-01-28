@@ -1,5 +1,5 @@
-#include "structure_alias.h"
-
+#include "maths_structures.h"
+#include "vec_znx_arithmetic_private.h"
 
 //! DEFINE SPQLIOS ALIAS (begin) 
 

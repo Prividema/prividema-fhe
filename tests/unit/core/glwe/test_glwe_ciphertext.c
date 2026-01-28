@@ -198,7 +198,7 @@ Test(glwe_coef_number_dft, basic){
  */
 Test(new_glwe_dft, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-    GLWEPreparedCt* ct = new_glwe_dft(params);
+    GLWECiphertextDFT* ct = new_glwe_dft(params);
     
     cr_assert(eq(int, (ct != NULL)&&(ct->pvec != NULL), 1));
 
