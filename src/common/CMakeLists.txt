@@ -6,7 +6,6 @@
 set(COMMON_SRCS 
     utils.c 
     distributions.c
-    structure_alias.c
     spqlios_alias.c
 )
 

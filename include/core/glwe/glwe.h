@@ -21,24 +21,35 @@ typedef struct tnx_element {
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking(GLWECiphertext* ct,  // ciphertext
-                        GLWEPreparedSK* sk_dft,   // secret key: vec of size k
-                        PolyBiv* phase    // message + noise
+int glwe_secret_masking(GLWECiphertext* ct,  
+                        GLWEPreparedSK* sk_dft,   
+                        PolyBiv* phase   
+);
+
+/**
+ * @brief Computes Sum_j{0,k-1}[s_j * a_j]
+ * 
+ * @param module The module.
+ * @param res The bivariate result.
+ * @param ct The GLWE ciphertext
+ * @param sk_dft 
+ * @return int 
+ */
+int add_mult(MODULE* module, PolyBiv* res,  GLWECiphertext* ct, GLWEPreparedSK* sk_dft
 );
 
 /**
  * @brief Decrypts the phase (message + noise) and puts it in phase.
  * 
  * @param enc_params The GLWE parameters.
- * @param phase The phase in Zn[X,Y]. 
+ * @param phase The phase in Rn[X]. 
  * @param sk_dft The secret key in DFT space.
  * @param ct The ciphertext.
  * 
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_demasking(GLWECtParams* enc_params,
-                          PolyBiv* phase,  
+int glwe_secret_demasking(double* res_univ,  
                           GLWEPreparedSK* sk_dft, 
                           GLWECiphertext* ct 
 );
@@ -48,9 +59,9 @@ int glwe_secret_demasking(GLWECtParams* enc_params,
 // public key encrypt
 void glwe_public_masking(const Core* core,  // all params of the library: is fft or
                                          // ntt, all N that are used
-                      GLWECiphertext* ct,  // ciphertext
-                      GLWEPublicKey* pk,   // public key
-                      TNXElement* phase    // message + noise
+						GLWECiphertext* ct,  // ciphertext
+						GLWEPublicKey* pk,   // public key
+						TNXElement* phase    // message + noise
 );
 
 // public key decrypt

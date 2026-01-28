@@ -133,6 +133,8 @@ PolyUnivDFT** new_uniform_secret_key_values_dft(uint64_t N, uint64_t k, uint64_t
         new_uniform_random_vec_dft(module, values_dft[j], 1, nb_bits);
     }
     
+    delete_module_info_p(module);
+    
     return values_dft;
 }   
 

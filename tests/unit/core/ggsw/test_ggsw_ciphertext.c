@@ -77,7 +77,7 @@ Test(ggsw_Sj_Yti, basic){
 
     VecBiv* vec = ggsw_Sj_Yti(ct, 0, 2);
 
-    // Modify the two firsts coefficients of biGLWE(-m * sk_j / Bg_t^i).
+    // Modify the two firsts coefficients of biGLWE(-m * sk_j / (2^kappa_tilde)^i).
     vec[0] = 1;
     vec[1] = 2;
     

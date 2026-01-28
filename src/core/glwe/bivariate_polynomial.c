@@ -45,12 +45,12 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
         return NULL;
     }
     
-    // For each, (p,i) in [0,N-1]x[0,l-1], Pbiv_p_i = centered(floor(P_p * Bg^i))
+    // For each, (p,i) in [0,N-1]x[0,l-1], Pbiv_p_i = centered(floor(P_p * (2^kappa)^i))
     // Where centered(_) is in [-2^(kappa-1) ; 2^(kappa-1) - 1]
     int64_t mask = (1LL << kappa) - 1;
     for(int64_t p = 0 ; p < N ; p++)
     {
-        // For each p, we substract Bg/2 * Bg^(-i) to P_p
+        // For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to P_p
         for(int64_t i = 1 ; i < l ; i++){
             rd_pol_univ[p] += ldexp(1.0, kappa - 1 - kappa*i);
         }
@@ -157,7 +157,7 @@ uint64_t poly_univ_bytes(GLWECtParams* params){
     return N * sizeof(int64_t);
 }
 
-void biv_to_univ(GLWECtParams* params, double* pol_univ, PolyBiv* pol_biv){
+void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* pol_biv){
     //GLWE parameters
     uint64_t N = params->N;
     uint64_t kappa = params->kappa;
@@ -166,12 +166,12 @@ void biv_to_univ(GLWECtParams* params, double* pol_univ, PolyBiv* pol_biv){
     // res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
     for(int64_t i = 1 ; i < l ; i++){
         for(int64_t p = 0 ; p < N ; p++){
-            pol_univ[p] += ldexp((double)pol_biv[i*N + p], - i*kappa);
+            res_univ[p] += ldexp((double)pol_biv[i*N + p], - i*kappa);
         }
     }
 }
 
-int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ
+int univ_to_biv(GLWECtParams* params, PolyBiv* res, double* pol_univ
 ){
     // GLWE parameters
     uint64_t N = params->N;
@@ -185,7 +185,7 @@ int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ
 
     for(int64_t p = 0 ; p < N ; p++)
     {
-        // For each p, we substract Bg/2 * Bg^(-i) to pol_univ[p]
+        // For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to pol_univ[p]
         tmp_pol_univ[p] = pol_univ[p];
         for(int64_t i = 1 ; i < l ; i++){
             tmp_pol_univ[p] += ldexp(1.0, kappa - 1 - kappa*i);
@@ -195,14 +195,14 @@ int univ_to_biv(GLWECtParams* params, PolyBiv* pol_biv, double* pol_univ
         {
             for(int64_t i = 0 ; i < l ; i++) //TODO to discuss
             {
-                pol_biv[i*N + p] = (((int64_t)ldexp(tmp_pol_univ[p], i*kappa)) & mask) - (1LL << (kappa - 1));
+                res[i*N + p] = (((int64_t)ldexp(tmp_pol_univ[p], i*kappa)) & mask) - (1LL << (kappa - 1));
             }
         }
         else{
             tmp_pol_univ[p] -= floor(tmp_pol_univ[p]);
             for(int64_t i = 0 ; i < l ; i++) //TODO to discuss
             {
-                pol_biv[i*N + p] = (((int64_t)ldexp(tmp_pol_univ[p], i*kappa)) & mask) - (1LL << (kappa - 1));
+                res[i*N + p] = (((int64_t)ldexp(tmp_pol_univ[p], i*kappa)) & mask) - (1LL << (kappa - 1));
             }
         }
     }

@@ -38,7 +38,7 @@ void const_mult_glwe(GLWECiphertext* res, PolyUniv* u, GLWECiphertext* ct);
 typedef struct glwe_ciphertext_dft {
   GLWECtParams* params;     // GLWE parameters
   VecBivDFT* pvec;          // Prepared vector
-} GLWEPreparedCt;
+} GLWECiphertextDFT;
 
 /**
  * @brief The number of coefficient in a bivariate GLWE ciphertext in DFT space.

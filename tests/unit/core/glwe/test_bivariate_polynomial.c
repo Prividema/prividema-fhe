@@ -156,21 +156,22 @@ Test(univ_to_biv, maths_test){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     MODULE* module = new_module_info_p(NBASE);
 
-    double* pol_univ = malloc(poly_univ_bytes(params));
-    new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+    // A univariate polynomial drawn normaly in Rn[X]
+    double* pol_input_univ = malloc(poly_univ_bytes(params));
+    new_normal_random_vec(NBASE, pol_input_univ, 1, NBASE, 0.0, 1e-2);
 
-    PolyBiv* pol_biv = malloc(poly_biv_bytes(params));
-    univ_to_biv(params, pol_biv, pol_univ);
+    PolyBiv* pol_input = malloc(poly_biv_bytes(params));
+    univ_to_biv(params, pol_input, pol_input_univ);
 
-    double* pol_univ_bis = calloc(poly_univ_bytes(params),1);
-    biv_to_univ(params, pol_univ_bis, pol_biv);
+    double* pol_computed_univ = calloc(poly_univ_bytes(params),1);
+    biv_to_univ(params, pol_computed_univ, pol_input);
     
     for(int64_t p = 0 ; p < NBASE ; p++){
-        cr_assert(epsilon_eq(dbl, pol_univ[p] - floor(pol_univ[p]) - pol_univ_bis[p] + floor(pol_univ_bis[p]), 0, ldexp(1.0,-(LBASE-1)*KAPPABASE))
-                  , "pol_univ[%ld] %lf pol_univ_bis[%ld] %lf", p, pol_univ[p], p, pol_univ_bis[p]);
+        cr_assert(epsilon_eq(dbl, pol_input_univ[p] - floor(pol_input_univ[p]) - pol_computed_univ[p] + floor(pol_computed_univ[p]), 0, ldexp(1.0,-(LBASE-1)*KAPPABASE))
+                  , "pol_input_univ[%ld] %lf pol_computed_univ[%ld] %lf", p, pol_input_univ[p], p, pol_computed_univ[p]);
     }
     
-    free(pol_univ); free(pol_biv); free(pol_univ_bis); 
+    free(pol_input_univ); free(pol_input); free(pol_computed_univ); 
     delete_glwe_ct_params(params);
     delete_module_info_p(module);
 } 

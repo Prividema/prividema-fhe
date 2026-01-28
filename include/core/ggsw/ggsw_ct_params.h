@@ -17,7 +17,7 @@
 typedef struct ggsw_ct_params {
 	GLWECtParams* params;    //!< GLWE parameters. */
 	uint64_t k_tilde ;        //!< k_tilde = 1 for RGSW (by default k=k_tilde=1). */ 
-	uint64_t kappa_tilde ;    //!< Bg = 2^-kappa_tilde. */
+	uint64_t kappa_tilde ;    //!< (2^kappa) = 2^-kappa_tilde. */
 	uint64_t n_limbs_tilde;  //!< n_limbs_tilde = (k_tilde + 1)*l_tilde. */
 } GGSWCtParams;
 
@@ -26,7 +26,7 @@ typedef struct ggsw_ct_params {
  * 
  * @param params_glwe The GLWE parameters.
  * @param k_tilde The number of Zn[X] polynomial in the secret key.
- * @param kappa_tilde The 2-exponent of the base Bg_tilde.
+ * @param kappa_tilde The 2-exponent of the base (2^kappa_tilde)ilde.
  * @param n_limbs_tilde (k_tilde + 1)*l_tilde.
  * 
  * @return GGSWCtParams* 
@@ -66,7 +66,7 @@ uint64_t nb_rows_per_partial(GGSWCtParams* params);
  */
 typedef struct partialggsw_ct_params {
 	GLWECtParams* params;	//!< GLWE parameters. */
-	uint64_t kappa_tilde ;   //!< Bg = 2^-kappa_tilde. */
+	uint64_t kappa_tilde ;   //!< (2^kappa) = 2^-kappa_tilde. */
 	uint64_t l_tilde; 		//!< The precision. */
 } PartialGGSWCtParams;
 

@@ -104,7 +104,8 @@ void add_ggsw(GGSWCiphertext* res,  // result
 
 void const_mult_ggsw(GGSWCiphertext* res,  
                      GGSWCiphertext* ct, 
-                     PolyUniv* u)
+                     PolyUniv* u,
+                     int do_normalization)
 {
     // GGSW & GLWE params
     GGSWCtParams* params_ggsw = res->params;
@@ -134,12 +135,12 @@ void const_mult_ggsw(GGSWCiphertext* res,
         {
             // The pointer to biGLWE(-m * sk_j * Y^i)
             VecBiv* ct_biv = ggsw_Sj_Yti(res, j, i);
-
-            // TODO Does it works to do it inplace ?
-            vec_znx_normalize_base2k_p(module, ct->params->params->kappa, 
+            if (do_normalization){
+                vec_znx_normalize_base2k_p(module, ct->params->params->kappa, 
                                      ct_biv, glwe_size(params_glwe), N,
                                      ct_biv, glwe_size(params_glwe), N
-            );
+                );
+            }
         }
     }
 }

@@ -52,10 +52,10 @@ GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct);
 void delete_ggsw(GGSWCiphertext* ct);
 
 /**
- * @brief Return the pointer to biGLWE(-m * sk_j / Bg_t^i).
+ * @brief Return the pointer to biGLWE(-m * sk_j / (2^kappa_tilde)^i).
  * 
  * @param ct A GGSW ciphertext.
- * @param i The degree in Y of the phase = -m * sk_j / Bg_t^i.
+ * @param i The degree in Y of the phase = -m * sk_j / (2^kappa_tilde)^i.
  * @param j The j-th component of Sk.
  * 
  * @return VecBiv*
@@ -86,10 +86,12 @@ void add_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
  * @param ct The GGSW ciphertext.
  * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void const_mult_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct, PolyUniv* u);
+void const_mult_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct, PolyUniv* u, int do_normalization);
 
 
 //! GGSW IN DFT PART
+// The same functions but the operation are done in DFT space. The parameters are the same but the ciphertext are in DFT space.
+
 typedef struct ggsw_ciphertext_dft {
     GGSWCtParams* params;  // GGSW parameters
     MatBivDFT* pmat;       // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
@@ -144,7 +146,8 @@ void add_ggsw_dft(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2)
  * @param ct_dft The GGSW ciphertext.
  * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u);
+void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u, ,
+                     int do_normalization);
 
 //! COMMON PART (begin)
 
