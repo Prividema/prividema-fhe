@@ -5,7 +5,7 @@
 
 #include "vec_znx_arithmetic_private.h"
 #include "spqlios_alias.h"
-#include "distributions.h"
+#include "rng.h"
 #include "utils.h"
 
 #define NBASE 4
@@ -51,11 +51,11 @@ Test(mult_vec_znx_dft, size_equal_one){
     
     // def a = 1 + X
     int64_t* a = calloc(poly_univ_bytes(params), 1);
-    new_uniform_random_vec(NBASE, a, 1, NBASE, 14);
+    inplace_uniform_random_vec(NBASE, a, 1, NBASE, 14);
 
     //def b = 1 + X
     int64_t* b = calloc(poly_univ_bytes(params), 1);
-    new_uniform_random_vec(NBASE, b, 1, NBASE, 14);
+    inplace_uniform_random_vec(NBASE, b, 1, NBASE, 14);
 
     double* res_dft = calloc(poly_univ_bytes(params),1);
     double* a_dft = calloc(poly_univ_bytes(params),1);
@@ -111,11 +111,11 @@ Test(mult_vec_znx_dft, random_size){
     
     // def a = 1 + X
     int64_t* a = calloc(poly_univ_bytes(params)*size, 1);
-    new_uniform_random_vec(NBASE, a, size, NBASE, 14);
+    inplace_uniform_random_vec(NBASE, a, size, NBASE, 14);
 
     //def b = 1 + X
     int64_t* b = calloc(poly_univ_bytes(params)*size, 1);
-    new_uniform_random_vec(NBASE, b, size, NBASE, 14);
+    inplace_uniform_random_vec(NBASE, b, size, NBASE, 14);
 
     double* res_dft = calloc(poly_univ_bytes(params)*size,1);
     double* a_dft = calloc(poly_univ_bytes(params)*size,1);

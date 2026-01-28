@@ -23,7 +23,7 @@ typedef struct tnx_element {
  * @retval `0` otherwise.
  */
 int glwe_secret_masking(GLWECiphertext* ct,  
-                        GLWEPreparedSK* sk_dft,   
+                        GLWESecretKeyDFT* sk_dft,   
                         PolyBiv* phase   
 );
 
@@ -33,10 +33,10 @@ int glwe_secret_masking(GLWECiphertext* ct,
  * @param module The module.
  * @param res The bivariate result.
  * @param ct The GLWE ciphertext
- * @param sk_dft 
+ * @param sk_dft The Secret key in DFT space.
  * @return int 
  */
-int add_multadd_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWEPreparedSK* sk_dft);
+int add_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Decrypts the phase (message + noise) and puts it in phase.
@@ -50,7 +50,7 @@ int add_multadd_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, Vec
  * @retval `0` otherwise.
  */
 int glwe_secret_demasking(double* res_univ,  
-                          GLWEPreparedSK* sk_dft, 
+                          GLWESecretKeyDFT* sk_dft, 
                           GLWECiphertext* ct 
 );
 
@@ -68,7 +68,7 @@ void glwe_public_masking(const Core* core,  // all params of the library: is fft
 void glwe_public_demasking(const Core* core,    // all params of the library: is fft or
                                          // ntt, all N that are used
                     GLWECiphertext* ct,  // ciphertext
-                    GLWEPreparedSK* sk_dft,   // secret key: vec of size k
+                    GLWESecretKeyDFT* sk_dft,   // secret key: vec of size k
                     TNXElement* phase    // message + noise
 );
 

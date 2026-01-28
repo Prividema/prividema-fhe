@@ -112,9 +112,9 @@ uint64_t ggsw_coef_number_dft(GGSWCtParams* params);
  * @brief Creates a bivGGSW in DFT space, filled with 0.
  * 
  * @param params The GGSW parameters.
- * @param pmat The prepared GGSW matrix.
+ * @param mat_dft The GGSW matrix in DFT space.
  */
-GGSWCiphertextDFT* new_ggsw_prepared( GGSWCtParams* params, MatBivDFT* ct);
+GGSWCiphertextDFT* new_ggsw_dft( GGSWCtParams* params, MatBivDFT* ct);
 
 /**
  * @brief Delete a bivGGSW in DFT space.

@@ -27,7 +27,7 @@ typedef struct glwe_prep_secret_key {
   uint64_t k;
   PolyUnivDFT** values;  // vec of size k, each element is prepared vec
   void* data;
-} GLWEPreparedSK;
+} GLWESecretKeyDFT;
 
 
 //! GLWE KEY PART (begin)
@@ -65,7 +65,7 @@ void delete_secret_key_values(PolyUniv** values, uint64_t k);
  * @param values The values of the secret key.
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
- * @return GLWEPreparedSK* 
+ * @return GLWESecretKeyDFT* 
  */
 GLWESecretKey* new_glwe_secret_key(PolyUniv** values, uint64_t N, uint64_t k);
 
@@ -75,7 +75,7 @@ GLWESecretKey* new_glwe_secret_key(PolyUniv** values, uint64_t N, uint64_t k);
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
- * @return GLWEPreparedSK* 
+ * @return GLWESecretKeyDFT* 
  */
 GLWESecretKey* new_uniform_glwe_secret_key(uint64_t N, uint64_t k, uint64_t  nb_bits);
 
@@ -92,7 +92,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  * @param sk_dft The secret key in DFT space.
  * @return GLWESecretKey* 
  */
-GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(GLWEPreparedSK* sk_dft);
+GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Computes the values of the secret key out of DFT space.
@@ -139,25 +139,25 @@ void delete_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
  * @param values The values of the secret key in DFT space.
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
- * @return GLWEPreparedSK* 
+ * @return GLWESecretKeyDFT* 
  */
-GLWEPreparedSK* new_glwe_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k);
+GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k);
 
 /**
  * @brief Draws a secret key uniformly in DFT space.
  * 
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
- * @return GLWEPreparedSK* 
+ * @return GLWESecretKeyDFT* 
  */
-GLWEPreparedSK* new_uniform_glwe_secret_key_dft(uint64_t N, uint64_t k, uint64_t nb_bits);
+GLWESecretKeyDFT* new_uniform_glwe_secret_key_dft(uint64_t N, uint64_t k, uint64_t nb_bits);
 
 /**
  * @brief Delete the secret key that is in DFT space.
  * 
  * @param sk_dft The secret key in DFT space.
  */
-void delete_glwe_secret_key_dft(GLWEPreparedSK* sk_dft);
+void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Computes the secret key in DFT space.
@@ -165,7 +165,7 @@ void delete_glwe_secret_key_dft(GLWEPreparedSK* sk_dft);
  * @param sk The secret key out of DFT space.
  * @return GLWESecretKey* 
  */
-GLWEPreparedSK* transform_glwe_secret_key_not_dft_to_dft(GLWESecretKey* sk);
+GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(GLWESecretKey* sk);
 
 /**
  * @brief Computes the values of the secret key in DFT space.

@@ -1,4 +1,6 @@
 #include "bivariate_polynomial.h"
+#include "rng.h"
+
 #include <math.h>
 #include <stdio.h>
 #include <string.h>
@@ -87,7 +89,6 @@ void add_biv_poly(GLWECtParams* params,
         }
     }
 }
-
 
 
 //! BIV POLY IN DFT PART (begin) 

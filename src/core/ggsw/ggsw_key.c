@@ -1,9 +1,9 @@
 #include "ggsw_key.h"
 #include "stdio.h"
 
-GGSWPreparedSK* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k
+GGSWSecretKeyDFT* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k
 ){
-    GGSWPreparedSK* sk_dft = malloc(sizeof(GGSWPreparedSK));
+    GGSWSecretKeyDFT* sk_dft = malloc(sizeof(GGSWSecretKeyDFT));
     if(sk_dft == NULL){
         perror("Malloc failed.");
         return NULL;
@@ -28,7 +28,7 @@ GGSWPreparedSK* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64
     return sk_dft;
 }
 
-void delete_ggsw_secret_key_dft(GGSWPreparedSK* sk_dft
+void delete_ggsw_secret_key_dft(GGSWSecretKeyDFT* sk_dft
 ){
     
     for(int64_t j = 0 ; j < sk_dft->k ; j++)

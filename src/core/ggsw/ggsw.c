@@ -26,7 +26,7 @@ void add_error(GLWECtParams* enc_params,
 
 int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
                           double* phase,
-                          GGSWPreparedSK* sk_dft,
+                          GGSWSecretKeyDFT* sk_dft,
                           VecBiv* ct)
 {
     // GLWE parameters
@@ -91,8 +91,8 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
  * @return int 
  */
 // TODO
-int add_mult(const MODULE* module, GLWECtParams* params,
-             PolyBiv* res, VecBiv* as, GGSWPreparedSK* sk_dft
+int add_mult_ggsw(const MODULE* module, GLWECtParams* params,
+             PolyBiv* res, VecBiv* as, GGSWSecretKeyDFT* sk_dft
 ){
     uint64_t N = params->N;
     uint64_t k = params->k;
@@ -124,7 +124,7 @@ int add_mult(const MODULE* module, GLWECtParams* params,
 int glwe_secret_masking_ggsw_lib(const MODULE* module,
                         GLWECtParams* params, 
                         VecBiv* res_ct,
-                        GGSWPreparedSK* sk_dft, 
+                        GGSWSecretKeyDFT* sk_dft, 
                         PolyBiv* phase)
 {
     uint64_t N = params->N;
@@ -133,7 +133,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module,
     uint64_t n_limbs = params->n_limbs;
     uint64_t l = n_limbs / (k+1);
 
-    if (new_uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0)
+    if (inplace_uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0)
         return -1;
     
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
@@ -184,7 +184,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module,
 
 int ggsw_secret_encrypt(GGSWCtParams* enc_params,
                         GGSWCiphertext* res,           
-                        GGSWPreparedSK* sk_dft,             
+                        GGSWSecretKeyDFT* sk_dft,             
                         PolyUniv* msg_univ)
 {
     // GGSW & GLWE parameters
@@ -348,8 +348,8 @@ void add_error_dft(GLWECtParams* enc_params,
  * @return int 
  */
 // TODO
-int add_mult_dft(const MODULE* module, GLWECtParams* params,
-                 PolyBiv* res, VecBiv* as, GGSWPreparedSK* sk_dft
+int add_mult_dft_ggsw(const MODULE* module, GLWECtParams* params,
+                 PolyBiv* res, VecBiv* as, GGSWSecretKeyDFT* sk_dft
 ){
     uint64_t N = params->N;
     uint64_t k = params->k;
@@ -380,7 +380,7 @@ int add_mult_dft(const MODULE* module, GLWECtParams* params,
 int glwe_secret_masking_dft(GLWECtParams* enc_params, 
                             const MODULE* module, 
                             VecBivDFT* res_dft,
-                            GGSWPreparedSK* sk_dft, 
+                            GGSWSecretKeyDFT* sk_dft, 
                             PolyBivDFT* phase_dft)
 {
     uint64_t N = enc_params->N;
@@ -397,7 +397,7 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
     }
     
     // TODO coeff between 0 and (2^kappa)
-    if (new_uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N, kappa) < 0 )
+    if (inplace_uniform_random_vec(k * N, tmp_ct, l, (k + 1) * N, kappa) < 0 )
     {
         free(tmp_ct);
         return -1;
@@ -458,7 +458,7 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
 
 int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
                             GGSWCiphertextDFT* res_dft,
-                            GGSWPreparedSK* sk_dft,
+                            GGSWSecretKeyDFT* sk_dft,
                             PolyUniv* msg_univ)
 {
     // GGSW & GLWE parameters

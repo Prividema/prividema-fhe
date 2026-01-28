@@ -2,7 +2,7 @@
 #include "rng.h"
 
 int glwe_secret_masking(GLWECiphertext* ct, 
-                        GLWEPreparedSK* sk_dft,  
+                        GLWESecretKeyDFT* sk_dft,  
                         PolyBiv* phase  
 ){
     uint64_t N = ct->params->N;
@@ -11,7 +11,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
     uint64_t l = poly_biv_size(ct->params);
 
     MODULE* module = new_module_info(N, FFT64);
-    if (new_uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) > 0) {
+    if (inplace_uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) > 0) {
         delete_module_info_p(module);
         return -1;
     }
@@ -66,7 +66,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
 }
 
 int add_mult(GLWECtParams* enc_params, MODULE* module, 
-             PolyBiv* res, VecBiv* ct, GLWEPreparedSK* sk_dft
+             PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
 ){
     // GLWE parameters
     uint64_t N = enc_params->N;
@@ -81,19 +81,19 @@ int add_mult(GLWECtParams* enc_params, MODULE* module,
         PolyBiv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
-        PolyBivDFT* as_j_dft = new_vec_znx_dft_p(module, l); 
+        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(enc_params)); 
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        PolyBiv* as_j = new_vec_znx_big_p(module, l); 
+        PolyBiv* as_j = malloc(poly_biv_bytes(enc_params)); 
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // Computes acc = acc - sk_j * a_j
         for(int64_t p = 0 ; p < N*l ; p++){
             res[p] -= as_j[p];
         }
-        delete_vec_znx_dft_p(as_j_dft);
-        delete_vec_znx_big_p(as_j);
+        free(as_j_dft);
+        free(as_j);
     }
 }
 
@@ -108,7 +108,7 @@ int add_mult(GLWECtParams* enc_params, MODULE* module,
  * @retval `0` otherwise.
  */
 int glwe_secret_demasking(double* res_univ,  
-                          GLWEPreparedSK* sk_dft, 
+                          GLWESecretKeyDFT* sk_dft, 
                           GLWECiphertext* ct 
 ){
     // GLWE parameters

@@ -33,7 +33,7 @@ Test(glwe_secret_masking_ggsw_lib, basic){
     MODULE* module = new_module_info_p(NBASE);
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     
-    GGSWPreparedSK* sk_dft = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
+    GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
     
     VecBiv* res = malloc(glwe_coef_number(params_glwe)*sizeof(int64_t));
     PolyBiv* phase = new_normal_random_biv_poly(module, params_glwe);
@@ -50,7 +50,7 @@ Test(glwe_secret_demasking_ggsw_lib, basic){
     MODULE* module = new_module_info_p(NBASE);
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     
-    GGSWPreparedSK* sk_dft = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
+    GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
     
     // The result bivGLWE
     VecBiv* ct_glwe = malloc(glwe_coef_number(params_glwe)*sizeof(int64_t));

@@ -205,7 +205,7 @@ Test(new_normal_random_vec, basic)
     free(pol_univ);
 }
 
-Test(new_uniform_random_vec_dft, basic)
+Test(inplace_uniform_random_vec_dft, basic)
 {
     MODULE* module = new_module_info_p(NBASE);
     PolyUnivDFT* res_dft = malloc(NBASE * KBASE *sizeof(double));
@@ -214,7 +214,7 @@ Test(new_uniform_random_vec_dft, basic)
         cr_fail();
     }
 
-    if(new_uniform_random_vec_dft(module, res_dft, KBASE, 2) < 0)
+    if(inplace_uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0)
     {
         // TODO : Fill the error message.
         log_msg(LOG_ERROR, "");

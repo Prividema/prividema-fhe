@@ -30,7 +30,7 @@ void add_error(GLWECtParams* enc_params,
  */
 int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
                           double* phase,
-                          GGSWPreparedSK* sk_dft,
+                          GGSWSecretKeyDFT* sk_dft,
                           VecBiv* ct);
 
 /**
@@ -48,7 +48,7 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
 int glwe_secret_masking_ggsw_lib(const MODULE* module,
                         GLWECtParams* params,
                         VecBiv* res_ct,
-                        GGSWPreparedSK* sk,
+                        GGSWSecretKeyDFT* sk,
                         PolyBiv* phase);
 
 
@@ -65,7 +65,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module,
  */
 int ggsw_secret_encrypt(GGSWCtParams* enc_params,
                         GGSWCiphertext* res,           
-                        GGSWPreparedSK* sk_dft,             
+                        GGSWSecretKeyDFT* sk_dft,             
                         PolyUniv* msg_univ);
 
 // TODO : the 8 functions below are not implemented
@@ -142,7 +142,7 @@ void add_error_dft(GLWECtParams* enc_params,
 int glwe_secret_masking_dft(GLWECtParams* enc_params,
                          const MODULE* module,
                          VecBivDFT* res_dft,
-                         GGSWPreparedSK* sk_dft,
+                         GGSWSecretKeyDFT* sk_dft,
                          PolyBivDFT* phase_dft);
 
 /**
@@ -158,7 +158,7 @@ int glwe_secret_masking_dft(GLWECtParams* enc_params,
  */
 int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
                             GGSWCiphertextDFT* res_dft,
-                            GGSWPreparedSK* sk_dft,
+                            GGSWSecretKeyDFT* sk_dft,
                             PolyUniv* msg_univ);
 
 

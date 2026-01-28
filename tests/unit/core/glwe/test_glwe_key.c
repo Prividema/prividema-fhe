@@ -94,7 +94,7 @@ Test(new_uniform_glwe_secret_key, values_not_null){
  * @brief Tests wether transform_glwe_secret_key_dft_to_not_dft transforms the secret key in DFT space, out of DFT space.
  */
 Test(transform_glwe_secret_key_dft_to_not_dft, basic){
-    GLWEPreparedSK* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
+    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
     GLWESecretKey* sk = transform_glwe_secret_key_dft_to_not_dft(sk_dft);
 
     for(int64_t j = 0 ; j < KBASE ; j++){
@@ -161,7 +161,7 @@ Test(transform_secret_key_values_not_dft_to_dft, basic){
  */
 Test(new_glwe_secret_key_dft, values_not_null){
     PolyBivDFT** values = new_secret_key_values_dft(KBASE, NBASE);
-    GLWEPreparedSK* sk_dft = new_glwe_secret_key_dft(values, NBASE, KBASE);
+    GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(values, NBASE, KBASE);
 
     cr_assert(eq(int, sk_dft != NULL, 1));
     cr_assert(eq(int, sk_dft->values != NULL, 1));
@@ -177,7 +177,7 @@ Test(new_glwe_secret_key_dft, values_not_null){
  * @brief Tests whether new_uniform_glwe_secret_key_gen works as intended.
  */
 Test(new_uniform_glwe_secret_key_dft, what_s_inside){
-    GLWEPreparedSK* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 2);
+    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 2);
 
     cr_assert(eq(int, sk_dft != NULL, 1));
     cr_assert(eq(int, sk_dft->values != NULL, 1));
@@ -194,7 +194,7 @@ Test(new_uniform_glwe_secret_key_dft, what_s_inside){
  */
 Test(transform_glwe_secret_key_not_dft_to_dft, basic){
     GLWESecretKey* sk = new_uniform_glwe_secret_key(NBASE, KBASE, 3);
-    GLWEPreparedSK* sk_dft = transform_glwe_secret_key_not_dft_to_dft(sk);
+    GLWESecretKeyDFT* sk_dft = transform_glwe_secret_key_not_dft_to_dft(sk);
 
     for(int64_t j = 0 ; j < KBASE ; j++){
         for(int64_t p = 0 ; p < NBASE ; p++){
