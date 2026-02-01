@@ -118,6 +118,8 @@ int add_mult_ggsw(const MODULE* module, GLWECtParams* params,
         }
         free(as_j_dft); free(as_j);
     }
+
+    return 0;
 }
 
 // TODO false
@@ -375,6 +377,8 @@ int add_mult_dft_ggsw(const MODULE* module, GLWECtParams* params,
         }
         free(as_j_dft); free(as_j);
     }
+
+    return 0;
 }
 
 int glwe_secret_masking_dft(GLWECtParams* enc_params, 
