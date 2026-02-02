@@ -62,3 +62,17 @@ typedef double VecBivDFT;
  *  @note `Length = n_limbs_tilde * l * (k+1) * N` for a bivGGSW.
 */
 typedef double MatBivDFT;
+
+//! DEFINE FUNCTION TO PRINT THEM
+
+void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l);
+
+void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size, int64_t N, int64_t l);
+
+void printf_poly_univ_ZnX(PolyUniv* pol, int64_t N);
+
+void printf_poly_univ_RnX(double* pol, int64_t N);
+
+void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t N);
+
+void printf_secret_key(PolyUniv** sk_values, int64_t N, int64_t k);

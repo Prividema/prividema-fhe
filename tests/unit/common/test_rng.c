@@ -77,7 +77,7 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
     }
 
     // Apply Chi squared test
-    double expected = (double) NB_SAMPLES / (double) nb_boxes; // For an uniform distribution
+    double expected = (double) NB_SAMPLES / (double) nb_boxes; // For a uniform distribution
     double T = 0.0;
     for(int i = 0; i < nb_boxes; i++) {
         double num = (((double)boxes[i]) - expected);

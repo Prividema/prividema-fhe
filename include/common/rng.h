@@ -8,7 +8,7 @@
 // Random Numbers
 
 /**
- * Generates an uniform random number.
+ * Generates a uniform random number.
  *
  * @param result A pointer that will point to the generated value.
  * @param nb_bits The number of bits of the result, sign bit included.

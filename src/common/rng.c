@@ -112,11 +112,11 @@ double erfinv(double x) {
     (CDF).
  */
 int rand_normal(double* result, double mu, double sigma) {
-    // Generate an uniform number in [0, 2^64]
+    // Generate a uniform number in [0, 2^64]
     int64_t uniform;
     if (read_rand(&uniform) < 0) return -1;
 
-    // Scale uniform in (0,1) to U : U still follows an uniform distribution.
+    // Scale uniform in (0,1) to U : U still follows a uniform distribution.
     double U = ((uint64_t)uniform) / ((double)UINT64_MAX);
 
     // Compute Z the inverse CDF of the normal distribution applied to U.

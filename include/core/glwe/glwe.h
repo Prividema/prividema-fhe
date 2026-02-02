@@ -13,6 +13,20 @@ typedef struct tnx_element {
 } TNXElement;
 
 /**
+ * @brief Computes Sum_j{0,k-1}[s_j * a_j]
+ * 
+ * @param module The module.
+ * @param res The bivariate result.
+ * @param ct The GLWE ciphertext
+ * @param sk_dft The Secret key in DFT space.
+ * @return int 
+ */
+int add_mult(GLWECtParams* enc_params, MODULE* module, 
+             PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
+);
+
+
+/**
  * @brief Masks the phase (message + noise) and puts it in res.
  *  
  * @param ct The result bivariate ciphertext. 
@@ -28,7 +42,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
 );
 
 /**
- * @brief Computes Sum_j{0,k-1}[s_j * a_j]
+ * @brief Computes -Sum_j{0,k-1}[s_j * a_j]
  * 
  * @param module The module.
  * @param res The bivariate result.
@@ -36,7 +50,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
  * @param sk_dft The Secret key in DFT space.
  * @return int 
  */
-int add_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
+int sub_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Decrypts the phase (message + noise) and puts it in phase.
@@ -49,7 +63,7 @@ int add_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_demasking(double* res_univ,  
+int glwe_secret_demasking(PolyBiv* res,  
                           GLWESecretKeyDFT* sk_dft, 
                           GLWECiphertext* ct 
 );

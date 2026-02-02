@@ -36,7 +36,7 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
 
     MODULE* module = new_module_info(N, FFT64);
 
-    PolyBiv* acc = malloc(poly_biv_bytes(enc_params)); 
+    PolyBiv* acc = calloc(N*l, sizeof(int64_t)); 
     if (!acc){
         perror("calloc failed");
         return -1;

@@ -1,5 +1,6 @@
 #include "bivariate_polynomial.h"
 #include "rng.h"
+#include "logger.h"
 
 #include <math.h>
 #include <stdio.h>
@@ -13,7 +14,6 @@ uint64_t poly_biv_coef_number(GLWECtParams* params){
     uint64_t N = params->N;
     return poly_biv_size(params) * N;
 }
-
 
 PolyBiv* new_normal_random_biv_poly(MODULE* module, 
                                     GLWECtParams* params
@@ -76,6 +76,21 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
     return rd_pol;
 }
 
+PolyBiv* new_uniform_random_biv_poly(MODULE* module, 
+                                     GLWECtParams*  params
+){
+    PolyBiv* pol = calloc(poly_biv_coef_number(params), sizeof(int64_t));
+    if(pol == NULL){
+        log_perror("Malloc failed.");
+        return NULL;
+    }
+
+    for(int64_t p = 0 ; p < poly_biv_coef_number(params) ; p++)
+        rand_uniform(pol + p, params->kappa);
+
+    return pol;
+}
+
 void add_biv_poly(GLWECtParams* params, 
                   PolyBiv* res, int64_t res_sl,
                   PolyBiv* a, int64_t a_sl,
@@ -123,6 +138,20 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module,
     free(rd_pol);
     
     return rd_pol_dft;
+}
+
+PolyBivDFT* new_uniform_random_biv_poly_dft(MODULE* module, 
+                                            GLWECtParams*  params
+){
+    PolyBiv* pol = new_uniform_random_biv_poly(module, params);
+    if(pol == NULL) return NULL;
+
+    PolyBivDFT* pol_dft = malloc(poly_biv_bytes(params));
+    vec_znx_dft_p(module, pol_dft, poly_biv_size(params), pol, poly_biv_size(params), params->N);
+
+    free(pol);
+    
+    return pol_dft;
 }
 
 void add_biv_poly_dft(GLWECtParams* params, 

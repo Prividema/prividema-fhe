@@ -32,6 +32,17 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
 );
 
 /**
+ * @brief Computes a random uniform bivariate polynomial.
+ * 
+ * @param module The module holding the degree N and FFT64.
+ * @param params The GLWE parameters.
+ * @return PolyBiv* 
+ */
+PolyBiv* new_uniform_random_biv_poly(MODULE* module, 
+                                     GLWECtParams*  params
+);
+
+/**
  * @brief Adds two bivariate polynomial and puts it in res. 
  * 
  * @param params The GLWE parameters.
@@ -69,7 +80,18 @@ uint64_t poly_biv_coef_number_dft(GLWECtParams* params);
  * @return PolyBivDFT*
  */
 PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module, 
-                                GLWECtParams*  params
+    GLWECtParams*  params
+);
+
+/**
+ * @brief Computes a random uniform bivariate polynomial.
+ * 
+ * @param module The module holding the degree N and FFT64.
+ * @param params The GLWE parameters.
+ * @return PolyBiv* 
+ */
+PolyBivDFT* new_uniform_random_biv_poly_dft(MODULE* module, 
+                                            GLWECtParams*  params
 );
 
 /**

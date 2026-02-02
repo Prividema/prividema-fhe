@@ -20,6 +20,7 @@ GLWECiphertext* new_glwe(GLWECtParams* params
 
     ct->vec = calloc(glwe_bytes(params), 1);
     if(ct->vec == NULL){
+        free(ct);
         perror("Malloc failed.");
         return NULL;
     }
