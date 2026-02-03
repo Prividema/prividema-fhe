@@ -25,9 +25,9 @@ void add_error(GLWECtParams* enc_params,
 }
 
 int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
-                          double* phase,
-                          GGSWSecretKeyDFT* sk_dft,
-                          VecBiv* ct)
+                                   PolyBiv* phase,
+                                   GGSWSecretKeyDFT* sk_dft,
+                                   VecBiv* ct)
 {
     // GLWE parameters
     uint64_t N = enc_params->N;
@@ -69,58 +69,14 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
     int64_t* b = ct + N*k;
     add_biv_poly(enc_params, acc, N, b, N*(k+1), acc, N);
     
-    PolyBiv* acc_normalized = malloc(poly_biv_bytes(enc_params));
-    vec_znx_normalize_base2k_p(module, enc_params->kappa, acc_normalized, l, N, acc, l, N);
-
-    biv_to_univ(enc_params, phase, acc_normalized);
+    vec_znx_normalize_base2k_p(module, enc_params->kappa, phase, l, N, acc, l, N);
     
-    free(acc); free(acc_normalized);
+    free(acc);
     delete_module_info(module);
 
     return 0;
 }
 
-/**
- * @brief Computes Sum_j{0,k-1}[s_j * a_j].
- * 
- * @param module 
- * @param params 
- * @param res 
- * @param as 
- * @param sk_dft 
- * @return int 
- */
-// TODO
-int add_mult_ggsw(const MODULE* module, GLWECtParams* params,
-             PolyBiv* res, VecBiv* as, GGSWSecretKeyDFT* sk_dft
-){
-    uint64_t N = params->N;
-    uint64_t k = params->k;
-    uint64_t l = poly_biv_size(params);
-
-    // Computes Sum_j{0,k-1}[s_j * a_j]
-    for(int64_t j = 0 ; j < k ; j++)
-    {
-        // The j-ème component of the secret key sk_dft
-        PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
-        
-        // Computes DFT(s_j) * DFT(a_j)
-        PolyBivDFT* as_j_dft = calloc(poly_biv_coef_number_dft(params), 2*sizeof(double)); 
-        svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, as + j*N, l, (k+1)*N); 
-        
-        // Computes s_j * a_j
-        PolyBiv* as_j = calloc(poly_biv_coef_number(params), sizeof(int64_t)); 
-        vec_znx_idft_p(module, as_j, l, as_j_dft, l);
-
-        // And adds it to acc_j
-        for(int64_t p = 0 ; p < N*l ; p++){
-            res[p] += as_j[p];
-        }
-        free(as_j_dft); free(as_j);
-    }
-}
-
-// TODO false
 int glwe_secret_masking_ggsw_lib(const MODULE* module,
                         GLWECtParams* params, 
                         VecBiv* res_ct,
@@ -133,7 +89,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module,
     uint64_t n_limbs = params->n_limbs;
     uint64_t l = n_limbs / (k+1);
 
-    if (inplace_uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) > 0)
+    if (inplace_uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) < 0)
         return -1;
     
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
@@ -377,7 +333,7 @@ int add_mult_dft_ggsw(const MODULE* module, GLWECtParams* params,
     }
 }
 
-int glwe_secret_masking_dft(GLWECtParams* enc_params, 
+int glwe_secret_masking_ggsw_lib_dft(GLWECtParams* enc_params, 
                             const MODULE* module, 
                             VecBivDFT* res_dft,
                             GGSWSecretKeyDFT* sk_dft, 
@@ -551,7 +507,7 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* enc_params,
 
             #ifdef WITH_Y0 
             // Computes bivGLWE(-m * s_j / (2^kappa_tilde)^i)
-            if (glwe_secret_masking_dft(res_dft->params->params, module, ct_biv_dft,
+            if (glwe_secret_masking_ggsw_lib_dft(res_dft->params->params, module, ct_biv_dft,
                                   sk_dft, phase_dft) < 0)
             {
                 delete_module_info(module);

@@ -12,6 +12,7 @@ typedef struct tnx_element {
   double* coeffs;
 } TNXElement;
 
+//! GLWE PART (begin)
 /**
  * @brief Computes Sum_j{0,k-1}[s_j * a_j]
  * 
@@ -53,12 +54,11 @@ int glwe_secret_masking(GLWECiphertext* ct,
 int sub_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
 
 /**
- * @brief Decrypts the phase (message + noise) and puts it in phase.
+ * @brief Demasks the bivariate phase (message + noise) and puts it in res.
  * 
- * @param enc_params The GLWE parameters.
- * @param phase The phase in Rn[X]. 
+ * @param res The bivariate phase. 
  * @param sk_dft The secret key in DFT space.
- * @param ct The ciphertext.
+ * @param ct The bivGLWE ciphertext.
  * 
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
@@ -67,8 +67,6 @@ int glwe_secret_demasking(PolyBiv* res,
                           GLWESecretKeyDFT* sk_dft, 
                           GLWECiphertext* ct 
 );
-
-// add noise message
 
 // public key encrypt
 void glwe_public_masking(const Core* core,  // all params of the library: is fft or
@@ -88,6 +86,59 @@ void glwe_public_demasking(const Core* core,    // all params of the library: is
 
 // addition 2 glwe
 void glwe_addition(const Core* core, GLWECiphertext* ct_out,
+                   GLWECiphertext* ct_in1, GLWECiphertext* ct_in2);
+
+//! GLWE IN DFT PART (begin)
+
+
+/**
+ * @brief Masks the phase (message + noise) and puts it in res.
+ *  
+ * @param ct The result bivariate ciphertext. 
+ * @param sk_dft The secret key in DFT space.
+ * @param phase message + noise.
+ * 
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval `0` otherwise.
+ */
+int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,  
+							GLWESecretKeyDFT* sk_dft,   
+							PolyBivDFT* phase_dft   
+);
+
+/**
+ * @brief Demasks the bivariate phase (message + noise) and puts it in res.
+ * 
+ * @param res The bivariate phase. 
+ * @param sk_dft The secret key in DFT space.
+ * @param ct The bivGLWE ciphertext.
+ * 
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval `0` otherwise.
+ */
+int glwe_secret_demasking_dft(PolyBiv* res,  
+							  GLWESecretKeyDFT* sk_dft, 
+							  GLWECiphertextDFT* ct 
+);
+
+// public key encrypt
+void glwe_public_masking_dft(const Core* core,  // all params of the library: is fft or
+                                         // ntt, all N that are used
+						GLWECiphertext* ct,  // ciphertext
+						GLWEPublicKey* pk,   // public key
+						TNXElement* phase    // message + noise
+);
+
+// public key decrypt
+void glwe_public_demasking_dft(const Core* core,    // all params of the library: is fft or
+                                         // ntt, all N that are used
+                    GLWECiphertext* ct,  // ciphertext
+                    GLWESecretKeyDFT* sk_dft,   // secret key: vec of size k
+                    TNXElement* phase    // message + noise
+);
+
+// addition 2 glwe
+void glwe_addition_dft(const Core* core, GLWECiphertext* ct_out,
                    GLWECiphertext* ct_in1, GLWECiphertext* ct_in2);
 
 #endif  // GLWE_H

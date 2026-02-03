@@ -15,11 +15,11 @@ void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l){
     }
 }
 
-void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size, int64_t N, int64_t l){
+void printf_vec_poly_biv(VecBiv* pols, int64_t pols_nb, int64_t N, int64_t l){
     printf("\n");
-    for(int64_t j = 0 ; j < pols_size ; j++){
+    for(int64_t j = 0 ; j < pols_nb ; j++){
         printf("\n%ld-th component", j);
-        printf_poly_biv(pols + j*N, pols_size*N, N, l);
+        printf_poly_biv(pols + j*N, pols_nb*N, N, l);
         printf("\n");
     }
 }

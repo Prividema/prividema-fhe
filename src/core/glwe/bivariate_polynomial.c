@@ -77,7 +77,8 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
 }
 
 PolyBiv* new_uniform_random_biv_poly(MODULE* module, 
-                                     GLWECtParams*  params
+                                     GLWECtParams*  params,
+                                     int64_t precision
 ){
     PolyBiv* pol = calloc(poly_biv_coef_number(params), sizeof(int64_t));
     if(pol == NULL){
@@ -85,8 +86,9 @@ PolyBiv* new_uniform_random_biv_poly(MODULE* module,
         return NULL;
     }
 
-    for(int64_t p = 0 ; p < poly_biv_coef_number(params) ; p++)
-        rand_uniform(pol + p, params->kappa);
+    for(int64_t i = 0 ; i < precision + 1 ; i++)
+        for(int64_t p = 0 ; p < params->N ; p++)
+            rand_uniform(pol + i*params->N + p, params->kappa);
 
     return pol;
 }
@@ -141,9 +143,10 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module,
 }
 
 PolyBivDFT* new_uniform_random_biv_poly_dft(MODULE* module, 
-                                            GLWECtParams*  params
+                                            GLWECtParams*  params,
+                                            int64_t precision
 ){
-    PolyBiv* pol = new_uniform_random_biv_poly(module, params);
+    PolyBiv* pol = new_uniform_random_biv_poly(module, params, precision);
     if(pol == NULL) return NULL;
 
     PolyBivDFT* pol_dft = malloc(poly_biv_bytes(params));

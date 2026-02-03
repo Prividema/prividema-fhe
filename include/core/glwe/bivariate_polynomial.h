@@ -36,10 +36,12 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
  * 
  * @param module The module holding the degree N and FFT64.
  * @param params The GLWE parameters.
+ * @param precision The maximum degree in Y of the polynomial.
  * @return PolyBiv* 
  */
 PolyBiv* new_uniform_random_biv_poly(MODULE* module, 
-                                     GLWECtParams*  params
+                                     GLWECtParams*  params,
+                                     int64_t precision
 );
 
 /**
@@ -91,7 +93,8 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module,
  * @return PolyBiv* 
  */
 PolyBivDFT* new_uniform_random_biv_poly_dft(MODULE* module, 
-                                            GLWECtParams*  params
+                                            GLWECtParams*  params, 
+                                            int64_t precision
 );
 
 /**

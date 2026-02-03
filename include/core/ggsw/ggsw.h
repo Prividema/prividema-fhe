@@ -29,9 +29,9 @@ void add_error(GLWECtParams* enc_params,
  * @param ct The ciphertext.
  */
 int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
-                          double* phase,
-                          GGSWSecretKeyDFT* sk_dft,
-                          VecBiv* ct);
+                                   PolyBiv* phase,
+                                   GGSWSecretKeyDFT* sk_dft,
+                                   VecBiv* ct);
 
 /**
  * @brief Masks the phase (message + noise) and puts it in res.
@@ -46,10 +46,10 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* enc_params,
  * @retval `0` otherwise.
  */
 int glwe_secret_masking_ggsw_lib(const MODULE* module,
-                        GLWECtParams* params,
-                        VecBiv* res_ct,
-                        GGSWSecretKeyDFT* sk,
-                        PolyBiv* phase);
+                                 GLWECtParams* params,
+                                 VecBiv* res_ct,
+                                 GGSWSecretKeyDFT* sk,
+                                 PolyBiv* phase);
 
 
 /**
@@ -139,7 +139,7 @@ void add_error_dft(GLWECtParams* enc_params,
  * @retval `-1` if an error occurs.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking_dft(GLWECtParams* enc_params,
+int glwe_secret_masking_ggsw_lib_dft(GLWECtParams* enc_params,
                          const MODULE* module,
                          VecBivDFT* res_dft,
                          GGSWSecretKeyDFT* sk_dft,
