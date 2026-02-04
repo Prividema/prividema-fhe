@@ -22,7 +22,7 @@ typedef struct tnx_element {
  * @param sk_dft The Secret key in DFT space.
  * @return int 
  */
-int add_mult(GLWECtParams* enc_params, MODULE* module, 
+int add_mult(GLWECtParams* params, MODULE* module, 
              PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
 );
 
@@ -51,7 +51,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
  * @param sk_dft The Secret key in DFT space.
  * @return int 
  */
-int sub_mult(GLWECtParams* enc_params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
+int sub_mult(GLWECtParams* params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Demasks the bivariate phase (message + noise) and puts it in res.

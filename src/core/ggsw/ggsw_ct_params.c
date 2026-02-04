@@ -29,6 +29,6 @@ uint64_t nb_partials(GGSWCtParams* params){
     return params->n_limbs_tilde/(params->k_tilde + 1);
 }
 
-uint64_t nb_rows_per_partial(GGSWCtParams* params){
+uint64_t  nb_rows_per_partial(GGSWCtParams* params){
     return params->k_tilde + 1;
 }

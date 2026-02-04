@@ -4,7 +4,7 @@
 
 //! GLWE PART (begin)
 
-PolyUniv** new_secret_key_values(uint64_t N, uint64_t k
+PolyUniv** new_glwe_secret_key_values(uint64_t N, uint64_t k
 ){
     PolyUniv** values = malloc(k*sizeof(PolyUniv*));
 
@@ -14,23 +14,25 @@ PolyUniv** new_secret_key_values(uint64_t N, uint64_t k
     return values;
 }   
 
-PolyUniv** new_uniform_secret_key_values(uint64_t N, uint64_t k, uint64_t  nb_bits
+PolyUniv** new_uniform_glwe_secret_key_values(uint64_t N, uint64_t k, uint64_t  nb_bits
 ){
     PolyUniv** values = malloc(k*sizeof(PolyUniv*));
 
     // Uniform random generation of k Zn[X] polynomials.
     MODULE* module = new_module_info_p(N);
     for(int64_t j = 0 ; j < k ; j++){
-        values[j] = malloc(N * sizeof(double));
+        values[j] = calloc(N, sizeof(int64_t));
         inplace_uniform_random_vec(N, values[j], 1, N, nb_bits);
     }
     
+    delete_module_info_p(module);
+
     return values;
 }   
 
-void delete_secret_key_values(PolyUniv**values, uint64_t k){
-    for(int64_t j = 0 ; j < k ; j++)
-        free(values[j]);
+void delete_glwe_secret_key_values(PolyUniv**values, uint64_t k){
+    for(int64_t j = 0 ; j < k ; j++){
+        free(values[j]);}
     
     free(values);
 }
@@ -48,7 +50,7 @@ GLWESecretKey* new_glwe_secret_key(PolyUniv** values, uint64_t N, uint64_t k
 
     if(values == NULL)
     {
-        sk->values = new_secret_key_values(N, k);
+        sk->values = new_glwe_secret_key_values(N, k);
     }
     else
     {
@@ -67,14 +69,14 @@ GLWESecretKey* new_uniform_glwe_secret_key(uint64_t N, uint64_t k, uint64_t nb_b
 
     sk->N = N;
     sk->k = k;
-    sk->values = new_uniform_secret_key_values(N, k, nb_bits);
+    sk->values = new_uniform_glwe_secret_key_values(N, k, nb_bits);
 
     return sk;
 }
 
 void delete_glwe_secret_key(GLWESecretKey* sk
 ){
-    delete_secret_key_values(sk->values, sk->k);
+    delete_glwe_secret_key_values(sk->values, sk->k);
     free(sk);
 }
 
@@ -92,7 +94,7 @@ GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(GLWESecretKeyDFT* sk_dft
     return sk;
 }
 
-PolyUniv** transform_secret_key_values_dft_to_not_dft(PolyUnivDFT** values_dft, uint64_t N, uint64_t k
+PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(PolyUnivDFT** values_dft, uint64_t N, uint64_t k
 ){
     PolyUniv** values = malloc(k*sizeof(PolyUniv*));
     MODULE* module = new_module_info_p(N);
@@ -110,7 +112,7 @@ PolyUniv** transform_secret_key_values_dft_to_not_dft(PolyUnivDFT** values_dft, 
 
 //! GLWE PART in DFT space (begin)
 
-PolyUnivDFT** new_secret_key_values_dft(uint64_t N, uint64_t k
+PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k
 ){
     PolyUnivDFT** values = malloc(k*sizeof(PolyUnivDFT*));
 
@@ -121,7 +123,7 @@ PolyUnivDFT** new_secret_key_values_dft(uint64_t N, uint64_t k
     return values;
 }   
 
-PolyUnivDFT** new_uniform_secret_key_values_dft(uint64_t N, uint64_t k, uint64_t nb_bits
+PolyUnivDFT** new_uniform_glwe_secret_key_values_dft(uint64_t N, uint64_t k, uint64_t nb_bits
 ){
     PolyUnivDFT** values_dft = malloc(k*sizeof(PolyUnivDFT*));
 
@@ -141,7 +143,7 @@ PolyUnivDFT** new_uniform_secret_key_values_dft(uint64_t N, uint64_t k, uint64_t
     return values_dft;
 }   
 
-void delete_secret_key_values_dft(PolyUnivDFT**values, uint64_t k){
+void delete_glwe_secret_key_values_dft(PolyUnivDFT**values, uint64_t k){
     for(int64_t j = 0 ; j < k ; j++)
         free(values[j]);
     
@@ -161,7 +163,7 @@ GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint
 
     if(values == NULL)
     {
-        sk_dft->values = new_secret_key_values_dft(N, k);
+        sk_dft->values = new_glwe_secret_key_values_dft(N, k);
     }
     else
     {
@@ -181,14 +183,14 @@ GLWESecretKeyDFT* new_uniform_glwe_secret_key_dft(uint64_t N, uint64_t k, uint64
 
     sk_dft->N = N;
     sk_dft->k = k;
-    sk_dft->values = new_uniform_secret_key_values_dft(N, k, nb_bits);
+    sk_dft->values = new_uniform_glwe_secret_key_values_dft(N, k, nb_bits);
 
     return sk_dft;
 }
 
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft
 ){
-    delete_secret_key_values_dft(sk_dft->values, sk_dft->k);
+    delete_glwe_secret_key_values_dft(sk_dft->values, sk_dft->k);
     free(sk_dft);
 }
 
@@ -206,7 +208,7 @@ GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(GLWESecretKey* sk
     return sk_dft;
 }
 
-PolyUnivDFT** transform_secret_key_values_not_dft_to_dft(PolyUniv** values, uint64_t N, uint64_t k
+PolyUnivDFT** transform_glwe_secret_key_values_not_dft_to_dft(PolyUniv** values, uint64_t N, uint64_t k
 ){
     PolyUnivDFT** values_dft = malloc(k*sizeof(PolyUniv*));
     MODULE* module = new_module_info_p(N);

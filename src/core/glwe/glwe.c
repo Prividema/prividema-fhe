@@ -2,13 +2,13 @@
 #include "rng.h"
 
 //! GLWE PART (begin)
-int add_mult(GLWECtParams* enc_params, MODULE* module, 
+int add_mult(GLWECtParams* params, MODULE* module, 
              PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
 ){
     // GLWE parameters
-    uint64_t N = enc_params->N;
-    uint64_t k = enc_params->k;
-    uint64_t l = poly_biv_size(enc_params);
+    uint64_t N = params->N;
+    uint64_t k = params->k;
+    uint64_t l = poly_biv_size(params);
     
     // Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
@@ -18,11 +18,11 @@ int add_mult(GLWECtParams* enc_params, MODULE* module,
         PolyBiv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
-        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(enc_params)); 
+        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        PolyBiv* as_j = malloc(poly_biv_bytes(enc_params)); 
+        PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // Computes acc = acc - sk_j * a_j
@@ -81,13 +81,13 @@ int glwe_secret_masking(GLWECiphertext* ct,
     return 0;
 }
 
-int sub_mult(GLWECtParams* enc_params, MODULE* module, 
+int sub_mult(GLWECtParams* params, MODULE* module, 
              PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
 ){
     // GLWE parameters
-    uint64_t N = enc_params->N;
-    uint64_t k = enc_params->k;
-    uint64_t l = poly_biv_size(enc_params);
+    uint64_t N = params->N;
+    uint64_t k = params->k;
+    uint64_t l = poly_biv_size(params);
     
     // Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
@@ -97,11 +97,11 @@ int sub_mult(GLWECtParams* enc_params, MODULE* module,
         PolyBiv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
-        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(enc_params)); 
+        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        PolyBiv* as_j = malloc(poly_biv_bytes(enc_params)); 
+        PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // Computes acc = acc - sk_j * a_j
