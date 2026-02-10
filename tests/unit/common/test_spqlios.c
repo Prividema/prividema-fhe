@@ -66,7 +66,7 @@ Test(vmp_product, basic){
 
     for(int64_t i = 0 ; i < ncols ; i++){
         for(int64_t p = 0 ; p < NBASE ; p++)
-            cr_log_info("%ld X^%ld", res[i*NBASE + p], p);
+            cr_log_info("%ld X^%ld", res[(i-1)*NBASE + p], p);
     }
 
     free(a); free(mat); free(res_dft); free(res); free(pmat);

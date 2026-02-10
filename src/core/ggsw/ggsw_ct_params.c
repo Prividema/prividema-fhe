@@ -13,7 +13,7 @@ GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params_glwe,
         return NULL;
     }
     
-    params_ggsw->params = params_glwe;
+    params_ggsw->params_glwe = params_glwe;
     params_ggsw->k_tilde = k_tilde;
     params_ggsw->kappa_tilde = kappa_tilde;
     params_ggsw->n_limbs_tilde = n_limbs_tilde;

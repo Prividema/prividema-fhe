@@ -57,22 +57,22 @@ int glwe_secret_masking(GLWECiphertext* ct,
         return -1;
     }
 
-    // Computes Sum_j{0,k-1}[s_j * a_j]
+    // Computes Sum_j{0,k-1}[sk_j * a_j]
     if (add_mult(ct->params, module, acc, ct->vec, sk_dft) < 0){
         return -1;
     }
 
     // Add the phase to acc
-    for(int64_t i = 0 ; i < l ; i++){    
+    for(int64_t i = 1 ; i <= l ; i++){    
         for(int64_t p = 0 ; p < N ; p++){
-                acc[i*N + p] += phase[i*N + p];
+                acc[(i-1)*N + p] += phase[(i-1)*N + p];
         }
     }
     
     // The pointer to limb_0(b)
     PolyBiv* b_0 = ct->vec + k*N;
 
-    // For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[s_j * limb_i(a_j)]
+    // For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
     vec_znx_normalize_base2k_p(module, kappa, b_0, l, N*(k+1), acc, l, N);
     
     free(acc);
@@ -177,7 +177,7 @@ int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,
         return -1;
     }
 
-    // Computes Sum_j{0,k-1}[s_j * a_j]
+    // Computes Sum_j{0,k-1}[sk_j * a_j]
     if (add_mult(params, module, acc, ct, sk_dft) < 0){
         return -1;
     }
@@ -185,24 +185,20 @@ int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,
     // The pointer to limb_0(b)
     PolyBiv* b_0 = ct + k*N;
 
-    // For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[s_j * limb_i(a_j)]
+    // For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
     vec_znx_normalize_base2k_p(module, kappa, b_0, l, N*(k+1), acc, l, N);
     
     // Computes the GLWE ciphertext in DFT space
     vec_znx_dft_p(module, ct_dft->pvec, (k+1)*l, ct, (k+1)*l, N);
 
-    // The phase 
-    PolyBiv* phase = malloc(poly_biv_bytes(params));
-    vec_znx_idft_p(module, phase, l, phase_dft, l);
-
     // Add the phase to the result ciphertext's b
-    for(int64_t i = 0 ; i < l ; i++){    
+    for(int64_t i = 1 ; i <= l ; i++){    
         for(int64_t p = 0 ; p < N ; p++){
-            ct_dft->pvec[i*N*(k+1) + N*k + p] += phase_dft[i*N + p];
+            ct_dft->pvec[(i-1)*N*(k+1) + N*k + p] += phase_dft[(i-1)*N + p];
         }
     }
 
-    free(acc); free(ct); free(phase);
+    free(acc); free(ct);
     delete_module_info_p(module);
 
     return 0;
@@ -235,7 +231,7 @@ int glwe_secret_demasking_dft(PolyBiv* res,
         return -1;
     }
 
-    // Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
+    // Computes acc = phi_sk(a,b) = b - Sum_j{0,k-1}[sk_j * a_j]
     PolyBiv* b = ct + N*k;
     add_biv_poly(params, acc, N, b, N*(k+1), acc, N);
     

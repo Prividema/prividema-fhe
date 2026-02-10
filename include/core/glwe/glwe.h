@@ -14,7 +14,7 @@ typedef struct tnx_element {
 
 //! GLWE PART (begin)
 /**
- * @brief Computes Sum_j{0,k-1}[s_j * a_j]
+ * @brief Computes Sum_j{0,k-1}[sk_j * a_j]
  * 
  * @param module The module.
  * @param res The bivariate result.
@@ -43,7 +43,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
 );
 
 /**
- * @brief Computes -Sum_j{0,k-1}[s_j * a_j]
+ * @brief Computes -Sum_j{0,k-1}[sk_j * a_j]
  * 
  * @param module The module.
  * @param res The bivariate result.

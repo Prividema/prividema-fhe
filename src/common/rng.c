@@ -138,7 +138,7 @@ int inplace_uniform_random_vec(uint64_t limb_len,
 ){
     for(uint64_t i = 0; i < limb_nb; i++)
         for(uint64_t j = 0; j < limb_len ; j++)
-            if(rand_uniform(res + (i * res_sl) + j, nb_bits) < 0)
+            if(rand_uniform(res + i*res_sl + j, nb_bits) < 0)
                 return -1;
     return 0;
 }
@@ -167,7 +167,7 @@ int inplace_uniform_random_vec_znx_dft(MODULE* module,
     int64_t* tmp_space = malloc(N * res_size * sizeof(int64_t));
     for(int i = 0; i < res_size; i++) {
         for(int p = 0; p < N ; p++) {
-            if(rand_uniform(tmp_space + (i*N) + p, nb_bits) < 0) {
+            if(rand_uniform(tmp_space + i*N + p, nb_bits) < 0) {
                 free(tmp_space);
                 return -1;
             }
@@ -190,7 +190,7 @@ VecUnivDFT* new_uniform_random_vec_znx_dft(MODULE* module,
     // Draws the uniformly the vector
     for(int i = 0; i < vec_size; i++) {
         for(int p = 0; p < N ; p++) {
-            if(rand_uniform(tmp_space + (i*N) + p, nb_bits) < 0) {
+            if(rand_uniform(tmp_space + ((i-1)*N) + p, nb_bits) < 0) {
                 free(tmp_space);
                 return NULL;
             }

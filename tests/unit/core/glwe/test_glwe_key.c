@@ -197,3 +197,4 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic){
     delete_glwe_secret_key(sk);
     delete_glwe_secret_key_dft(sk_dft);
 }
+

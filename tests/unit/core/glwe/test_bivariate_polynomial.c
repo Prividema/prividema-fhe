@@ -90,14 +90,14 @@ Test(univ_to_biv, one_test){
     
     for(int64_t p = 0 ; p < NBASE ; p++){
         cr_log_info("A %e X^%ld", pol_univ[p], p);
-        for(int64_t i = 1 ; i < LBASE ; i++)
-            cr_log_info("A(XY) %ld Y^%ld", pol_biv[i*NBASE + p], i);
+        for(int64_t i = 1 ; i <= LBASE ; i++)
+            cr_log_info("A(XY) %ld Y^%ld", pol_biv[(i-1)*NBASE + p], i);
     }
 
     for(int64_t p = 0 ; p < NBASE ; p++){
         double acc = 0; 
-        for(int64_t i = 1 ; i < LBASE ; i++){
-            acc += ldexp((double)pol_biv[i * NBASE + p], -i * KAPPABASE);
+        for(int64_t i = 1 ; i <= LBASE ; i++){
+            acc += ldexp((double)pol_biv[(i-1)* NBASE + p], -i * KAPPABASE);
         }
         cr_log_info("acc %lf pol %lf p %ld", acc, pol_univ[p], p);
         cr_assert(epsilon_eq(dbl, acc - floor(acc) - pol_univ[p] + floor(pol_univ[p]), 0, ldexp(1.0,-(LBASE-1)*KAPPABASE))
@@ -121,9 +121,9 @@ Test(univ_to_biv, basic){
     int64_t mask = (1LL << KAPPABASE) - 1;
     for(int64_t p = 0 ; p < NBASE ; p++){
         cr_log_info("A %e X^%ld", pol_univ[p], p);
-        for(int64_t i = 1 ; i < LBASE ; i++){
-            // cr_log_info("A(XY) %e Y^%ld", ldexp(pol_univ[p], i*KAPPABASE), i) ;
-            // cr_log_info("A(XY) %ld Y^%ld", (int64_t) ldexp(pol_univ[p], i*KAPPABASE) & mask, i) ;
+        for(int64_t i = 1 ; i <= LBASE ; i++){
+            // cr_log_info("A(XY) %e Y^%ld", ldexp(pol_univ[p], i*kapPABASE), i) ;
+            // cr_log_info("A(XY) %ld Y^%ld", (int64_t) ldexp(pol_univ[p], i*kapPABASE) & mask, i) ;
             }
     }
 
@@ -132,14 +132,14 @@ Test(univ_to_biv, basic){
     
     for(int64_t p = 0 ; p < NBASE ; p++){
         cr_log_info("A %e X^%ld", pol_univ[p], p);
-        for(int64_t i = 1 ; i < LBASE ; i++)
-            cr_log_info("A(XY) %ld Y^%ld", pol_biv[i*NBASE + p], i);
+        for(int64_t i = 1 ; i <= LBASE ; i++)
+            cr_log_info("A(XY) %ld Y^%ld", pol_biv[(i-1)*NBASE + p], i);
     }
 
     for(int64_t p = 0 ; p < NBASE ; p++){
         double acc = 0; 
-        for(int64_t i = 1 ; i < LBASE ; i++){
-            acc += ldexp((double)pol_biv[i * NBASE + p], -i * KAPPABASE);
+        for(int64_t i = 1 ; i <= LBASE ; i++){
+            acc += ldexp((double)pol_biv[(i-1)* NBASE + p], -i * KAPPABASE);
         }
         cr_log_info("acc %lf pol %lf p %ld", acc, pol_univ[p], p);
         cr_assert(epsilon_eq(dbl, acc - floor(acc) - pol_univ[p] + floor(pol_univ[p]), 0, ldexp(1.0,-(LBASE-1)*KAPPABASE))
@@ -218,12 +218,12 @@ Test(new_normal_random_biv_poly, is_it_working){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     PolyBiv* a = new_normal_random_biv_poly(module, params);
 
-    for(int64_t i = 0 ; i < LBASE ; i++)
+    for(int64_t i = 1 ; i <= LBASE ; i++)
     {
         for(int64_t p = 0 ; p < params->N ; p++)
         {
-            cr_assert(le(i64, a[i*NBASE + p], (1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
-            cr_assert(ge(i64, a[i*NBASE + p], -(1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
+            cr_assert(le(i64, a[(i-1)*NBASE + p], (1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
+            cr_assert(ge(i64, a[(i-1)*NBASE + p], -(1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
         }
     }
     
@@ -245,11 +245,11 @@ Test(add_biv_poly, basic){
 
     add_biv_poly(params, res, params->N, a, params->N, b, params->N);
 
-    for(int64_t i = 0; i < LBASE; i++)
+    for(int64_t i = 1 ; i <= LBASE; i++)
     {
-        for(int64_t p = 0; p < NBASE; p++)
+        for(int64_t p = 0 ; p < NBASE; p++)
         {
-            int64_t idx = p + i * params->N;
+            int64_t idx = p + (i-1)* params->N;
             cr_assert(eq(dbl, res[idx], a[idx] + b[idx]),
                 "add_biv_poly mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64 ", got %" PRId64,
                 (long long)idx, a[idx], b[idx], a[idx] + b[idx], res[idx]);
@@ -279,11 +279,11 @@ Test(add_biv_poly_dft, basic){
     add_biv_poly_dft(params, res, params->N, a, params->N, b, params->N);
 
     
-    for(int64_t i = 0; i < LBASE; i++)
+    for(int64_t i = 1 ; i <= LBASE; i++)
     {
-        for(int64_t p = 0; p < NBASE; p++)
+        for(int64_t p = 0 ; p < NBASE; p++)
         {
-            int64_t idx = p + i * params->N;
+            int64_t idx = p + (i-1)* params->N;
             cr_assert(epsilon_eq(dbl, res[idx], a[idx] + b[idx], 1e-9),
                 "add_biv_poly_dft mismatch at index %" PRId64 ": %f + %f = %f, got %f",
                 (long long)idx, a[idx], b[idx], a[idx] + b[idx], res[idx]);
@@ -311,12 +311,12 @@ Test(new_normal_random_biv_poly_dft, is_it_working){
     vec_znx_idft_p(module, a, LBASE, a_dft, LBASE);
     vec_znx_normalize_base2k_p(module, KAPPABASE, a_normalized, LBASE, NBASE, a, LBASE, NBASE);
 
-    for(int64_t i = 0 ; i < LBASE ; i++)
+    for(int64_t i = 1 ; i <= LBASE ; i++)
     {
         for(int64_t p = 0 ; p < params->N ; p++)
         {
-            cr_assert(le(i64, a_normalized[i*NBASE + p], (1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
-            cr_assert(ge(i64, a_normalized[i*NBASE + p], -(1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
+            cr_assert(le(i64, a_normalized[(i-1)*NBASE + p], (1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
+            cr_assert(ge(i64, a_normalized[(i-1)*NBASE + p], -(1 << (KAPPABASE-1)), "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
         }
     }
     cr_assert(1);

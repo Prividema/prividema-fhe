@@ -52,15 +52,16 @@ GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct);
 void delete_ggsw(GGSWCiphertext* ct);
 
 /**
- * @brief Return the pointer to biGLWE(-m * sk_j / (2^kappa_tilde)^i).
+ * @brief Return the pointer to biGLWE(-m * sk_j / (2^kappa_tilde)^(i+1)).
  * 
- * @param ct A GGSW ciphertext.
- * @param i The degree in Y of the phase = -m * sk_j / (2^kappa_tilde)^i.
+ * @param params_ggsw The GGSW parameters.
+ * @param ct_mat The GGSW ciphertext's matrix.
  * @param j The j-th component of Sk.
+ * @param i The i in the phase = -m * sk_j / (2^kappa_tilde)^(i+1).
  * 
  * @return VecBiv*
  */
-VecBiv* ggsw_Sj_Yti(GGSWCiphertext* ct, int64_t i, int64_t j);
+VecBiv* ggsw_Sj_Yti(GGSWCtParams* params_ggsw, MatBiv* ct_mat, int64_t j, int64_t i);
 
 /**
  * @brief Normalize a GGSW ciphertext.
@@ -124,20 +125,33 @@ GGSWCiphertextDFT* new_ggsw_dft( GGSWCtParams* params, MatBivDFT* ct);
 void delete_ggsw_dft(GGSWCiphertextDFT* ct);
 
 /**
- * @brief Return the pointer to biGLWE(DFT(-m * sk_j) * Y^i) in DFT space.
+ * @brief Return the pointer to biGLWE(DFT(-m * sk_j / 2^kappa*(i+1))) in DFT space.
  * 
- * @param ct_dft A GGSW ciphertext in DFT space.
- * @param i The degree in Y of the phase = -m * sk_j * Y^i.
+ * @param params_ggsw The GGSW parameters.
+ * @param ct_mat The GGSW ciphertext's matrix.
  * @param j The j-th component of Sk.
+ * @param i The i in the phase = -m * sk_j / (2^kappa_tilde)^(i+1).
  * 
  * @return VecBivDFT*
  */
-VecBivDFT* ggsw_Sj_Yti_dft(GGSWCiphertextDFT* ct, int64_t i, int64_t j);
+VecBivDFT* ggsw_Sj_Yti_dft(GGSWCtParams* params_ggsw, MatBivDFT* ct_mat, int64_t j, int64_t i);
 
 /**
- * TODO : Implement it
+ * @brief Normalize a GGSW ciphertext in DFT space.
+ * 
+ * @param res_dft The result normalized GGSW ciphertext in DFT space.
+ * @param ct_dft The input GGSW ciphertext in DFT space.
  */
-void add_ggsw_dft(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
+void normalize_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft);
+
+/**
+ * @brief Adds two GGSW ciphertexts in DFT space with same params and put result in res.
+ * 
+ * @param res The result GGSW ciphertext in DFT space. 
+ * @param ct1 The left-hand side GGSW ciphertext in DFT space.
+ * @param ct2 The right-hand side GGSW ciphertext in DFT space.
+ */
+void add_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct1_dft, GGSWCiphertextDFT* ct2_dft);
 
 /**
  * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
@@ -146,7 +160,8 @@ void add_ggsw_dft(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2)
  * @param ct_dft The GGSW ciphertext.
  * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u);
+void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u, int do_normalization);
+
 
 //! COMMON PART (begin)
 

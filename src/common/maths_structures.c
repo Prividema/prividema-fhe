@@ -3,14 +3,14 @@
 
 void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l){
     printf("\n");
-    for(int64_t i = 0 ; i < l ; i++)
+    for(int64_t i = 1 ; i <= l ; i++)
     {
         printf("\nY^%ld : ", i);
         for(int64_t p = 0 ; p < N ; p++){
-            if(pol[i*pol_sl + p] < 0)
-                printf("%ld X^%ld ", pol[i*pol_sl + p], p);
+            if(pol[(i-1)*pol_sl + p] < 0)
+                printf("%ld X^%ld ", pol[(i-1)*pol_sl + p], p);
             else
-                printf(" %ld X^%ld ", pol[i*pol_sl + p], p);
+                printf(" %ld X^%ld ", pol[(i-1)*pol_sl + p], p);
         }
     }
 }

@@ -2,6 +2,7 @@
 #define GGSW_KEY_H
 
 #include "ggsw_ciphertext.h"
+#include "glwe_key.h"
 
 typedef struct ggsw_secret_key {
   uint64_t N;
@@ -91,6 +92,14 @@ GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(GGSWSecretKeyDFT* sk_dft
  */
 PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(PolyUnivDFT** values_dft, uint64_t N, uint64_t k);
 
+/**
+ * @brief Transforms a GGSW Secret key to a GLWE Secret key 
+ * 
+ * @param sk_ggsw The GGSW Secret key
+ * @return GLWESecretKey* 
+ */
+GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(GGSWSecretKey* sk_ggsw);
+
 
 //! GGSW IN DFT SPACE PART (begin)
 
@@ -163,6 +172,14 @@ GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(GGSWSecretKey* sk);
  * @return PolyUnivDFT** 
  */
 PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(PolyUniv** values, uint64_t N, uint64_t k);
+
+/**
+ * @brief Transforms a GGSW Secret key in DFT space to a GLWE Secret key in DFT space.
+ * 
+ * @param sk_ggsw_dft The GGSW Secret key in DFT space.
+ * @return GLWESecretKey* 
+ */
+GLWESecretKeyDFT* transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(GGSWSecretKeyDFT* sk_ggsw_dft);
 
 typedef struct ggsw_public_key {
   uint32_t size;       // number of ciphertexts in public key

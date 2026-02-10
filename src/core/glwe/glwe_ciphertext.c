@@ -33,6 +33,37 @@ void delete_glwe(GLWECiphertext* ct){
     free(ct);
 }
 
+void normalize_glwe(GLWECiphertext* res, GLWECiphertext* ct_glwe)
+{
+    // GLWE parameters 
+    uint64_t N = res->params->N;
+    uint64_t k = res->params->k;
+    uint64_t kappa = res->params->kappa;
+    uint64_t l = poly_biv_size(res->params);
+    MODULE* module = new_module_info(N, FFT64);
+
+    for(int64_t j = 0 ; j < k+1 ; j++)
+        vec_znx_normalize_base2k_p(module, kappa, res->vec + j*N, l, (k+1)*N, ct_glwe->vec + j*N, l, (k+1)*N);
+    
+    delete_module_info(module);
+}
+
+void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2)
+{
+    // GLWE parameters
+    uint64_t N = res->params->N;
+    uint64_t k = res->params->k;
+    uint64_t l = poly_biv_size(res->params);
+
+    for(int64_t i = 1 ; i <= l ; i++)
+        for(int64_t j = 0 ; j < k + 1 ; j++)
+            for(int64_t p = 0 ; p < N ; p++)
+            {
+                uint64_t idx = (i-1)*(k+1)*N + j*N + p;
+                res->vec[idx] = ct1->vec[idx] + ct2->vec[idx];
+            }
+
+}
 
 //! GLWE IN DFT PART (begin)
 
@@ -64,6 +95,23 @@ void delete_glwe_dft(GLWECiphertextDFT* ct){
 }
 
 
+void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECiphertextDFT* ct2_dft)
+{
+    // GLWE parameters
+    uint64_t k = res_dft->params->k;
+    uint64_t N = res_dft->params->N;
+    uint64_t l = poly_biv_size(res_dft->params);
+
+    for(int64_t i = 1 ; i <= l ; i++)
+        for(int64_t j = 0 ; j < k + 1 ; j++)
+            for(int64_t p = 0 ; p < N ; p++)
+            {
+                uint64_t idx = (i-1)*(k+1)*N + j*N + p;
+                res_dft->pvec[idx] = ct1_dft->pvec[idx] + ct2_dft->pvec[idx];
+            }
+
+}
+
 //! COMMON PART (begin)
 
 uint64_t glwe_size(GLWECtParams* params){
@@ -84,11 +132,11 @@ void mult_vec_znx_dft(const MODULE* module,
 ){
     uint64_t N = module->nn;
 
-    if (c_size <= d_size){
+    if(c_size <= d_size){
         int64_t smin = c_size < res_size ? c_size : res_size;
         
-        for (int i = 0 ; i < smin; i++){
-            for (int64_t j = 0 ; j < N/2 ; j++){ 
+        for(int i = 0 ; i < smin; i++){
+            for(int64_t j = 0 ; j < N/2 ; j++){ 
                 // i*N + j corresponds to the j-th coefficient's index of Re[DFT(c_i)] and Re[DFT(d_i)]
                 double c_re = c_dft[i*N + j];
                 double d_re = d_dft[i*N + j];

@@ -1,4 +1,5 @@
 #include "ggsw_key.h"
+#include "glwe_key.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 
@@ -108,6 +109,22 @@ PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(PolyUnivDFT** values_
     delete_module_info_p(module);
 
     return values;
+}
+
+GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(GGSWSecretKey* sk_ggsw){
+    GLWESecretKey* sk_glwe = new_glwe_secret_key(NULL, sk_ggsw->N, sk_ggsw->k);
+    if(sk_glwe == NULL){
+        perror("Malloc failed.");
+        return NULL;
+    }
+
+    for(int64_t j = 0 ; j < sk_ggsw->k ; j++){
+        for(int p = 0 ; p < sk_ggsw->N ; p++){
+            sk_glwe->values[j][p] = sk_ggsw->values[j][p];
+        }
+    }
+
+    return sk_glwe;
 }
 
 //! GGSW PART in DFT space (begin)
@@ -221,4 +238,20 @@ PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(PolyUniv** values,
     delete_module_info_p(module);
 
     return values_dft;
+}
+
+GLWESecretKeyDFT* transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(GGSWSecretKeyDFT* sk_ggsw_dft){
+    GLWESecretKeyDFT* sk_glwe_dft = new_glwe_secret_key_dft(NULL, sk_ggsw_dft->N, sk_ggsw_dft->k);
+    if(sk_glwe_dft == NULL){
+        perror("Malloc failed.");
+        return NULL;
+    }
+
+    for(int64_t j = 0 ; j < sk_ggsw_dft->k ; j++){
+        for(int p = 0 ; p < sk_ggsw_dft->N ; p++){
+            sk_glwe_dft->values[j][p] = sk_ggsw_dft->values[j][p];
+        }
+    }
+
+    return sk_glwe_dft;
 }

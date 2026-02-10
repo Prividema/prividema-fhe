@@ -29,9 +29,40 @@ uint64_t glwe_coef_number(GLWECtParams* params);
  * @return GLWECiphertext*
  */
 GLWECiphertext* new_glwe(GLWECtParams* params);
+
+/**
+ * @brief Deletes a GLWE ciphertext, but the GLWE parameters.
+ * 
+ * @param ct The GLWE ciphertext.
+ */
 void delete_glwe(GLWECiphertext* ct);
+
+/**
+ * @brief Normalizes a GLWE ciphertext.
+ * 
+ * @param res The result normalized GLWE ciphertext.
+ * @param ct_glwe The GLWE ciphertext.
+ */
+void normalize_glwe(GLWECiphertext* res, GLWECiphertext* ct_glwe);
+
+/**
+ * @brief Adds two GLWE ciphertexts.
+ * 
+ * @param res The result GLWE ciphertext.
+ * @param ct1 The left-hand side GLWE ciphertext.
+ * @param ct2 The right-hand side GLWE ciphertext.
+ */
 void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2);
-void const_mult_glwe(GLWECiphertext* res, PolyUniv* u, GLWECiphertext* ct);
+
+/**
+ * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial.
+ * 
+ * @param res The result GLWE ciphertext.
+ * @param u The Zn[X] polynomial.
+ * @param ct The GLWE ciphertext.
+ * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ */
+void const_mult_glwe(GLWECiphertext* res, PolyUniv* u, GLWECiphertext* ct, int do_normalization);
 
 
 //! GLWE IN DFT PART (begin)
@@ -51,10 +82,40 @@ typedef struct glwe_ciphertext_dft {
  * due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 uint64_t glwe_coef_number_dft(GLWECtParams* params);
+
+/**
+ * @brief Creates a new empty GLWE ciphertext.
+ * 
+ * @param params The GLWE parameters.
+ * @return GLWECiphertextDFT* 
+ */
 GLWECiphertextDFT* new_glwe_dft(GLWECtParams* params);
+
+/**
+ * @brief Deletes a GLWE ciphertext, but not the parameters.
+ * 
+ * @param ct The GLWE ciphertext.
+ */
 void delete_glwe_dft(GLWECiphertextDFT* ct);
-void add_glwe_dft(GLWECiphertextDFT* res, GLWECiphertextDFT* ct1, GLWECiphertextDFT* ct2);
-void const_mult_glwe_dft(GLWECiphertextDFT* res, PolyUniv* u, GLWECiphertextDFT* ct);
+
+/**
+ * @brief Adds two GLWE ciphertext.
+ * 
+ * @param res_dft The result GLWE ciphertext in DFT space.
+ * @param ct1_dft The left-hand side GLWE ciphertext in DFT space.
+ * @param ct2_dft The right-hand side GLWE ciphertext in DFT space.
+ */
+void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECiphertextDFT* ct2_dft);
+
+/**
+ * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial in DFT space.
+ * 
+ * @param res_dft The result GLWE ciphertext in DFT space.
+ * @param u The Zn[X] polynomial.
+ * @param ct_dft The GLWE ciphertext in DFT space.
+ * @param do_normalization the function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ */
+void const_mult_glwe_dft(GLWECiphertextDFT* res_dft, PolyUniv* u, GLWECiphertextDFT* ct_dft, int do_normalization);
 
 //! COMMON PART (begin)
 

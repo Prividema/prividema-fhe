@@ -75,14 +75,14 @@ Test(ggsw_Sj_Yti, basic){
 
     GGSWCiphertext* ct = new_ggsw(params, NULL);
 
-    VecBiv* vec = ggsw_Sj_Yti(ct, 0, 2);
+    VecBiv* vec = ggsw_Sj_Yti(params, ct->mat, 0, 2);
 
-    // Modify the two firsts coefficients of biGLWE(-m * sk_j / (2^kappa_tilde)^i).
+    // Modify the two firsts coefficients of biGLWE(-m * sk_0 / (2^kappa_tilde)^2).
     vec[0] = 1;
     vec[1] = 2;
     
-    cr_assert(eq(i64, ct->mat[2*(K_TILDEBASE + 1)*NLIMBSBASE*NBASE],1));
-    cr_assert(eq(i64, ct->mat[2*(K_TILDEBASE + 1)*NLIMBSBASE*NBASE + 1],2));
+    cr_assert(eq(i64, ct->mat[(K_TILDEBASE + 1)*NLIMBSBASE*NBASE],1));
+    cr_assert(eq(i64, ct->mat[(K_TILDEBASE + 1)*NLIMBSBASE*NBASE + 1],2));
     
     delete_ggsw(ct);
     delete_glwe_ct_params(params_glwe);
@@ -100,6 +100,7 @@ Test(normalize_ggsw, basic){
     normalize_ggsw(res, ct);
 
     delete_ggsw(ct);
+    delete_ggsw(res);
     delete_glwe_ct_params(params_glwe);
     delete_ggsw_ct_params(params);
 }

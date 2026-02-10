@@ -1,13 +1,32 @@
 #include <stdint.h>
 //! DEFINE STRUCTURE ALIAS, NOT DFT & DFT (begin)
 
-/** @brief type that represents a univariate polynomial.
+/**
+ * @brief type that represents a Rn[X] polynomial.
+ * @note `Length = N for a polynomial in Rn[X]`.
+ */
+typedef double PolyUnivRnX;
+
+/**
+ * @brief type that represents a Rn[X] polynomial vector.
+ * @note `Length = (k+1) * N for a TRLWE`.
+ * @note `Length = k * N for a TRLWE secret key`.
+ */
+typedef double VecUnivRnX;
+
+/** @brief type that represents a Rn[X] polynomial vector.
+ *  @note `Length = (k+1) * N for a GLWE`.
+ *  @note `Length = k * N for a GLWE`
+*/
+typedef int64_t VecUniv;
+
+/** @brief type that represents a Zn[X] polynomial.
  *  @note `Length = N for a polynomial in Zn[X]`.
 */
 typedef int64_t PolyUniv;
 
-/** @brief type that represents a univariate polynomial vector.
- *  @note `Length = k * N for a GLWE`.
+/** @brief type that represents a Zn[X] univariate polynomial vector.
+ *  @note `Length = k * N for a GLWE secret key`.
 */
 typedef int64_t VecUniv;
 
@@ -16,13 +35,14 @@ typedef int64_t VecUniv;
 */
 typedef int64_t MatUniv;
 
-/** @brief type that represents a univariate polynomial in DFT space.
+/** @brief type that represents a Zn[X] polynomial in DFT space.
  *  @note `Length = N for a polynomial in Zn[X]`.
 */
 typedef double PolyUnivDFT;
 
-/** @brief type that represents a univariate polynomial vector in DFT space.
+/** @brief type that represents a univariate Zn[X] polynomial vector in DFT space.
  *  @note `Length = (k+1) * N for a GLWE`
+ *  @note `Length = k * N for a GLWE secret key`
 */
 typedef double VecUnivDFT;
 

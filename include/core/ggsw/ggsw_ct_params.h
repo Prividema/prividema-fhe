@@ -15,9 +15,9 @@
  * @brief GGSW parameters.
  */
 typedef struct ggsw_ct_params {
-	GLWECtParams* params;    //!< GLWE parameters. */
-	uint64_t k_tilde ;        //!< k_tilde = 1 for RGSW (by default k=k_tilde=1). */ 
-	uint64_t kappa_tilde ;    
+	GLWECtParams* params_glwe;   
+	uint64_t k_tilde;        //!< k_tilde = 1 for RGSW (by default k=k_tilde=1). */ 
+	uint64_t kappa_tilde;    
 	uint64_t n_limbs_tilde;  //!< n_limbs_tilde = (k_tilde + 1)*l_tilde. */
 } GGSWCtParams;
 
