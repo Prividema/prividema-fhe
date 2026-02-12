@@ -25,8 +25,17 @@ void printf_vec_poly_biv(VecBiv* pols, int64_t pols_nb, int64_t N, int64_t l){
 }
 
 void printf_poly_univ_ZnX(PolyUniv* pol, int64_t N){
-    for(int64_t p = 0 ; p < N ; p++){
-        printf(" %ld X^%ld ", pol[p], p);
+    if(pol[0] < 0)
+        printf("%ld ", pol[0]);
+    else
+        printf(" %ld ", pol[0]);
+
+    for(int64_t p = 1 ; p < N ; p++)
+    {
+        if(pol[p] < 0)
+            printf("- %ld X^%ld ", -pol[p], p);
+        else
+            printf("+ %ld X^%ld ", pol[p], p);
     }
 }
 

@@ -73,7 +73,7 @@ int glwe_secret_masking(GLWECiphertext* ct,
     PolyBiv* b_0 = ct->vec + k*N;
 
     // For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
-    vec_znx_normalize_base2k_p(module, kappa, b_0, l, N*(k+1), acc, l, N);
+    vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k+1)*N, acc, l, N);
     
     free(acc);
     delete_module_info_p(module);
@@ -136,8 +136,8 @@ int glwe_secret_demasking(PolyBiv* res,
     }
 
     // Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
-    int64_t* b = ct->vec + N*k;
-    add_biv_poly(ct->params, acc, N, b, N*(k+1), acc, N);
+    int64_t* b = ct->vec + k*N;
+    add_biv_poly(ct->params, acc, N, b, (k+1)*N, acc, N);
     
     // The phase in Zn[X,Y]
     vec_znx_normalize_base2k_p(module, ct->params->kappa, res, l, N, acc, l, N);
@@ -186,7 +186,7 @@ int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,
     PolyBiv* b_0 = ct + k*N;
 
     // For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
-    vec_znx_normalize_base2k_p(module, kappa, b_0, l, N*(k+1), acc, l, N);
+    vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k+1)*N, acc, l, N);
     
     // Computes the GLWE ciphertext in DFT space
     vec_znx_dft_p(module, ct_dft->pvec, (k+1)*l, ct, (k+1)*l, N);
@@ -194,7 +194,7 @@ int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,
     // Add the phase to the result ciphertext's b
     for(int64_t i = 1 ; i <= l ; i++){    
         for(int64_t p = 0 ; p < N ; p++){
-            ct_dft->pvec[(i-1)*N*(k+1) + N*k + p] += phase_dft[(i-1)*N + p];
+            ct_dft->pvec[(i-1)*(k+1)*N + k*N + p] += phase_dft[(i-1)*N + p];
         }
     }
 
@@ -232,8 +232,8 @@ int glwe_secret_demasking_dft(PolyBiv* res,
     }
 
     // Computes acc = phi_sk(a,b) = b - Sum_j{0,k-1}[sk_j * a_j]
-    PolyBiv* b = ct + N*k;
-    add_biv_poly(params, acc, N, b, N*(k+1), acc, N);
+    PolyBiv* b = ct + k*N;
+    add_biv_poly(params, acc, N, b, (k+1)*N, acc, N);
     
     // The phase in Zn[X,Y]
     vec_znx_normalize_base2k_p(module, params->kappa, res, l, N, acc, l, N);

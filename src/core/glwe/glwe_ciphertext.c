@@ -65,6 +65,33 @@ void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2)
 
 }
 
+void const_mult_glwe(GLWECiphertext* res, PolyUnivDFT* u_dft, GLWECiphertext* ct, int do_normalization)
+{
+    // GLWE parameters
+    uint64_t N = res->params->N;
+    uint64_t k = res->params->k;
+    uint64_t l = poly_biv_size(res->params);
+
+    MODULE* module = new_module_info(N, FFT64);
+
+    // Pointer to DFT(u * ct)
+    VecBivDFT* u_ct_dft = malloc(glwe_bytes(res->params));
+
+    // Computes DFT(u * ct)
+    svp_apply_dft_p(module, res->vec, glwe_size(res->params), u_dft, ct->vec, glwe_size(res->params), N);
+
+    vec_znx_idft_p(module, res->vec, glwe_size(res->params), u_ct_dft, glwe_size(res->params));
+
+    free(u_ct_dft);
+    delete_module_info(module);
+
+    if(do_normalization)
+    {
+        for(int64_t j = 0 ; j < k + 1 ; j++)
+            vec_znx_normalize_base2k_p(module, res->params->kappa, res->vec + j*N, l, (k+1)*N, res->vec + j*N, l, (k+1)*N);
+    }
+}
+
 //! GLWE IN DFT PART (begin)
 
 uint64_t glwe_coef_number_dft(GLWECtParams* params){
@@ -109,8 +136,8 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECi
                 uint64_t idx = (i-1)*(k+1)*N + j*N + p;
                 res_dft->pvec[idx] = ct1_dft->pvec[idx] + ct2_dft->pvec[idx];
             }
-
 }
+
 
 //! COMMON PART (begin)
 

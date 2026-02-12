@@ -66,8 +66,8 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* params,
     }
 
     // Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
-    int64_t* b = ct + N*k;
-    add_biv_poly(params, acc, N, b, N*(k+1), acc, N);
+    int64_t* b = ct + k*N;
+    add_biv_poly(params, acc, N, b, (k+1)*N, acc, N);
     
     vec_znx_normalize_base2k_p(module, params->kappa, phase, l, N, acc, l, N);
     
@@ -131,7 +131,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module,
     PolyBiv* b_0 = res_ct + k*N;
 
     // For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
-    vec_znx_normalize_base2k_p(module, kappa, b_0, l, N*(k+1), acc, l, N);
+    vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k+1)*N, acc, l, N);
     
     free(acc);
 
@@ -310,7 +310,7 @@ void ggsw_external_product(GLWECiphertext* res,  // result
     // the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
     uint64_t nrows = ct_ggsw->params->n_limbs_tilde;
     uint64_t ncols = ct_ggsw->params->params_glwe->n_limbs;
-
+    
     // Computes the GGSW ciphertext in DFT space
     MatBivDFT* pmat = malloc(ggsw_coef_number(ct_ggsw->params) * sizeof(double));
     vec_znx_dft_p(module, pmat, nrows*ncols, ct_ggsw->mat, nrows*ncols, N);
@@ -456,7 +456,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module,
 
     // For each i in {0,l} limb_i(b) = acc_i = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
     // Then b is normalized
-    vec_znx_normalize_base2k_p(module, kappa, b_0_univ, l, N*(k+1), acc, l, N);
+    vec_znx_normalize_base2k_p(module, kappa, b_0_univ, l, (k+1)*N, acc, l, N);
     
     // Computes tmp_ct in DFT space
     vec_znx_dft_p(module, res_dft, l*(k+1), tmp_ct, l*(k+1), N);
@@ -467,7 +467,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module,
         for (int64_t p = 0 ; p < N ; p++)
         {
             // Adds DFT(limb_i(phase)) to DFT(limb_i(b))
-            res_dft[(i-1)*N*(k+1) + k*N + p] = res_dft[(i-1)*N*(k+1) + k*N + p] + phase_dft[(i-1)*N + p];
+            res_dft[(i-1)*(k+1)*N + k*N + p] = res_dft[(i-1)*(k+1)*N + k*N + p] + phase_dft[(i-1)*N + p];
         }
     }
     

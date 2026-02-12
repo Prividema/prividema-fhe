@@ -110,7 +110,6 @@ void add_biv_poly(GLWECtParams* params,
 
 //! BIV POLY IN DFT PART (begin) 
 
-
 uint64_t poly_biv_coef_number_dft(GLWECtParams* params){
     uint64_t N = params->N;
     return (poly_biv_size(params) * N)/2;

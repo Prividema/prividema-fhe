@@ -121,16 +121,6 @@ void add_biv_poly_dft(GLWECtParams* params,
 
 
 /**
- * @brief Returns the number of bytes needed to store a univariate polynomial.
- * 
- * @param params The GLWE parameters.
- * @return uint64_t 
- * 
- * @note The number of bytes needed to store a univariate polynomial is the same in and out of DFT space.
- */
-uint64_t poly_univ_bytes(GLWECtParams* params);
-
-/**
  * @brief Returns the number of bytes needed to store a bivariate polynomial.
  * 
  * @param params The GLWE parameters.
@@ -151,6 +141,16 @@ uint64_t poly_biv_bytes(GLWECtParams* params);
  * @note The size of a bivariate polynomial is the same in and out of DFT space.
  */
 uint64_t poly_biv_size(GLWECtParams* params);
+
+/**
+ * @brief Returns the number of bytes needed to store a univariate polynomial.
+ * 
+ * @param params The GLWE parameters.
+ * @return uint64_t 
+ * 
+ * @note The number of bytes needed to store an univariate polynomial is the same in and out of DFT space.
+ */
+uint64_t poly_univ_bytes(GLWECtParams* params);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
