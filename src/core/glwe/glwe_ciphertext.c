@@ -18,7 +18,7 @@ GLWECiphertext* new_glwe(GLWECtParams* params
 
     ct->params = params;
 
-    ct->vec = calloc(glwe_bytes(params), 1);
+    ct->vec = calloc(glwe_coef_number(params), sizeof(int64_t));
     if(ct->vec == NULL){
         free(ct);
         perror("Malloc failed.");
@@ -78,7 +78,7 @@ void const_mult_glwe(GLWECiphertext* res, PolyUnivDFT* u_dft, GLWECiphertext* ct
     VecBivDFT* u_ct_dft = malloc(glwe_bytes(res->params));
 
     // Computes DFT(u * ct)
-    svp_apply_dft_p(module, res->vec, glwe_size(res->params), u_dft, ct->vec, glwe_size(res->params), N);
+    svp_apply_dft_p(module, u_ct_dft, glwe_size(res->params), u_dft, ct->vec, glwe_size(res->params), N);
 
     vec_znx_idft_p(module, res->vec, glwe_size(res->params), u_ct_dft, glwe_size(res->params));
 

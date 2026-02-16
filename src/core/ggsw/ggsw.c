@@ -77,6 +77,12 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* params,
     return 0;
 }
 
+void printf_glwe(VecBiv* ct_glwe, GLWECtParams* params_glwe){
+    // GLWE parameters
+    uint64_t N = params_glwe->N;
+    printf_vec_poly_univ(ct_glwe, glwe_size(params_glwe), N);
+}
+
 int glwe_secret_masking_ggsw_lib(const MODULE* module,
                                  GLWECtParams* params,
                                  VecBiv* res_ct,
@@ -91,7 +97,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module,
 
     if (inplace_uniform_random_vec(k * N, res_ct, l, (k + 1) * N, kappa) < 0)
         return -1;
-    
+
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
     PolyBiv* acc = calloc(N*l,sizeof(double)); 
     if (!acc){
@@ -312,17 +318,26 @@ void ggsw_external_product(GLWECiphertext* res,  // result
     uint64_t ncols = ct_ggsw->params->params_glwe->n_limbs;
     
     // Computes the GGSW ciphertext in DFT space
-    MatBivDFT* pmat = malloc(ggsw_coef_number(ct_ggsw->params) * sizeof(double));
-    vec_znx_dft_p(module, pmat, nrows*ncols, ct_ggsw->mat, nrows*ncols, N);
+    MatBivDFT* mat_dft = malloc(ggsw_coef_number(ct_ggsw->params) * sizeof(double));
+    vec_znx_dft_p(module, mat_dft, nrows*ncols, ct_ggsw->mat, nrows*ncols, N);
+
+    // Computes the column-major version of the GGSW ciphertext matrix because Spqlios uses column-major matrix
+    MatBivDFT* mat_column_major_dft = malloc(ggsw_coef_number(ct_ggsw->params) * sizeof(double));
+    for(int i = 0 ; i < nrows ; i++){
+        for(int j = 0 ; j < ncols ; j++){
+            for(int p = 0 ; p < N ; p++)
+                mat_column_major_dft[(j*nrows + i)*N + p] = mat_dft[(i*ncols + j)*N + p]; 
+        }
+    }
 
     // The pointer to ExternalProduct(ct_glwe, ct_ggsw)
     VecBivDFT* result = malloc(glwe_coef_number(ct_ggsw->params->params_glwe)*sizeof(double));
 
     // Computes ExternalProduct(ct_glwe, ct_ggsw)
-    vmp_apply_dft_p(module, result, ncols, ct_glwe->vec, nrows, N, pmat, nrows, ncols);
+    vmp_apply_dft_p(module, result, ncols, ct_glwe->vec, nrows, N, mat_column_major_dft, nrows, ncols);
     vec_znx_idft_p(module, res->vec, ncols, result, ncols);
 
-    free(pmat); free(result);                        
+    free(mat_dft); free(mat_column_major_dft); free(result);                        
     delete_module_info_p(module);
 }
 
@@ -351,7 +366,6 @@ void add_error_dft(GLWECtParams* params,
  * @param sk_dft 
  * @return int 
  */
-// TODO
 int add_mult_dft_ggsw(const MODULE* module, GLWECtParams* params,
                  PolyBiv* res, VecBiv* as, GGSWSecretKeyDFT* sk_dft
 ){
@@ -662,8 +676,20 @@ void ggsw_external_product_dft(GLWECiphertextDFT* res_dft,  // result
     uint64_t nrows = ct_ggsw_dft->params->n_limbs_tilde;
     uint64_t ncols = ct_ggsw_dft->params->params_glwe->n_limbs;
 
+    // Computes the column-major version of the GGSW ciphertext matrix because Spqlios uses column-major matrix
+    MatBivDFT* mat_column_major_dft = malloc(ggsw_coef_number(ct_ggsw_dft->params) * sizeof(double));
+    for(int i = 0 ; i < nrows ; i++){
+        for(int j = 0 ; j < ncols ; j++){
+            for(int p = 0 ; p < N ; p++)
+                mat_column_major_dft[(j*nrows + i)*N + p] = ct_ggsw_dft->pmat[(i*ncols + j)*N + p]; 
+        }
+    }
+    
     // Computes ExternalProduct(ct_glwe, ct_ggsw)
     vmp_apply_dft_to_dft_p(module, res_dft->pvec, ncols, 
                                    ct_glwe_dft->pvec, nrows, 
-                                   ct_ggsw_dft->pmat, nrows, ncols);
+                                   mat_column_major_dft, nrows, ncols);
+
+    free(mat_column_major_dft);
+    delete_module_info(module);
 }
