@@ -1,8 +1,9 @@
 #include "glwe.h"
 #include "rng.h"
+#include "logger.h"
 
 //! GLWE PART (begin)
-int add_mult(GLWECtParams* params, MODULE* module, 
+int add_mult(MODULE* module, GLWECtParams* params,
              PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
 ){
     // GLWE parameters
@@ -18,11 +19,18 @@ int add_mult(GLWECtParams* params, MODULE* module,
         PolyBiv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
-        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
+        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params));
+        if(log_is_null(as_j_dft, "as_j_dft's malloc failed in add_mult") < 0)
+            return -1; 
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
         PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
+        if(log_is_null(as_j, "as_j's malloc failed in add_mult") < 0)
+        {
+            free(as_j_dft);
+            return -1;
+        }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // Computes acc = acc - sk_j * a_j
@@ -34,7 +42,8 @@ int add_mult(GLWECtParams* params, MODULE* module,
     }
 }
 
-int glwe_secret_masking(GLWECiphertext* ct, 
+int glwe_secret_masking(MODULE* module,
+                        GLWECiphertext* ct, 
                         GLWESecretKeyDFT* sk_dft,  
                         PolyBiv* phase  
 ){
@@ -43,22 +52,16 @@ int glwe_secret_masking(GLWECiphertext* ct,
     uint64_t kappa = ct->params->kappa;
     uint64_t l = poly_biv_size(ct->params);
 
-    MODULE* module = new_module_info(N, FFT64);
-    if (inplace_uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) < 0) {
-        delete_module_info_p(module);
-        return -1;
-    }
+    if (inplace_uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) < 0) 
+        return log_perror("inplace_uniform_random_vec failed in glwe_secret_masking");
     
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
     PolyBiv* acc = calloc(N*l,sizeof(double)); 
-    if (!acc){
-        perror("calloc failed");
-        delete_module_info_p(module);
+    if(log_is_null(acc, "acc's calloc failed in glwe_secret_masking.") < 0)
         return -1;
-    }
 
     // Computes Sum_j{0,k-1}[sk_j * a_j]
-    if (add_mult(ct->params, module, acc, ct->vec, sk_dft) < 0){
+    if(add_mult(module, ct->params, acc, ct->vec, sk_dft) < 0){
         return -1;
     }
 
@@ -76,12 +79,11 @@ int glwe_secret_masking(GLWECiphertext* ct,
     vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k+1)*N, acc, l, N);
     
     free(acc);
-    delete_module_info_p(module);
 
     return 0;
 }
 
-int sub_mult(GLWECtParams* params, MODULE* module, 
+int sub_mult(MODULE* module, GLWECtParams* params, 
              PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
 ){
     // GLWE parameters
@@ -98,10 +100,17 @@ int sub_mult(GLWECtParams* params, MODULE* module,
         
         // Computes DFT(sk_j * a_j)
         PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
+        if(log_is_null(as_j_dft, "as_j_dft's malloc failed in sub_mult.") < 0)
+            return -1;
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
         PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
+        if(log_is_null(as_j, "as_j's malloc failed in sub_mult.") < 0)
+        {
+            free(as_j_dft);
+            return -1;
+        }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // Computes acc = acc - sk_j * a_j
@@ -113,7 +122,8 @@ int sub_mult(GLWECtParams* params, MODULE* module,
     }
 }
 
-int glwe_secret_demasking(PolyBiv* res,  
+int glwe_secret_demasking(MODULE* module,
+                          PolyBiv* res,  
                           GLWESecretKeyDFT* sk_dft, 
                           GLWECiphertext* ct 
 ){
@@ -122,16 +132,14 @@ int glwe_secret_demasking(PolyBiv* res,
     uint64_t k = ct->params->k;
     uint64_t l = poly_biv_size(ct->params);
 
-    MODULE* module = new_module_info(N, FFT64);
-
     PolyBiv* acc = calloc(N*l, sizeof(int64_t)); 
-    if (acc == NULL){
-        perror("calloc failed");
-        delete_module_info_p(module);
+    if (log_is_null(acc, "acc's calloc failed in glwe_secret_demasking.") < 0)
         return -1;
-    }
 
-    if (sub_mult(ct->params, module, acc, ct->vec, sk_dft) < 0){
+    if (sub_mult(module, ct->params, acc, ct->vec, sk_dft) < 0)
+    {
+        free(acc);
+        log_perror("sub_mult failed in glwe_secret_demasking.");
         return -1;
     }
 
@@ -143,14 +151,14 @@ int glwe_secret_demasking(PolyBiv* res,
     vec_znx_normalize_base2k_p(module, ct->params->kappa, res, l, N, acc, l, N);
 
     free(acc);
-    delete_module_info_p(module);
     
     return 0;
 }
 
 //! GLWE IN DFT SPACE PART (begin)
 
-int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,  
+int glwe_secret_masking_dft(MODULE* module,
+                            GLWECiphertextDFT* ct_dft,  
                             GLWESecretKeyDFT* sk_dft,   
                             PolyBivDFT* phase_dft   
 ){
@@ -161,24 +169,29 @@ int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,
     uint64_t kappa = params->kappa;
     uint64_t l = poly_biv_size(params);
 
-    MODULE* module = new_module_info(N, FFT64);
     VecBiv* ct = calloc(glwe_coef_number(params), sizeof(int64_t));
+    if(log_is_null(ct, "ct's calloc failed in glwe_secret_masking_dft") < 0)
+        return -1;
 
-    if (inplace_uniform_random_vec(k * N, ct, l, (k + 1) * N, kappa) < 0) {
-        delete_module_info_p(module);
+    if(inplace_uniform_random_vec(k * N, ct, l, (k + 1) * N, kappa) < 0)
+    {
+        free(ct);
         return -1;
     }
 
     // acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
     PolyBiv* acc = calloc(N*l,sizeof(double)); 
-    if (!acc){
-        perror("calloc failed");
-        delete_module_info_p(module);
+    if(log_is_null(acc, "acc's calloc failed in glwe_secret_masking_dft.") < 0)
+    {
+        free(ct);
         return -1;
     }
 
     // Computes Sum_j{0,k-1}[sk_j * a_j]
-    if (add_mult(params, module, acc, ct, sk_dft) < 0){
+    if (add_mult(module, params, acc, ct, sk_dft) < 0)
+    {
+        log_perror("add_mult failed in glwe_secret_masking_dft.");
+        free(ct); free(acc);
         return -1;
     }
 
@@ -199,12 +212,12 @@ int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,
     }
 
     free(acc); free(ct);
-    delete_module_info_p(module);
 
     return 0;
 }
 
-int glwe_secret_demasking_dft(PolyBiv* res,  
+int glwe_secret_demasking_dft(MODULE* module,
+                              PolyBiv* res,  
                               GLWESecretKeyDFT* sk_dft, 
                               GLWECiphertextDFT* ct_dft 
 ){
@@ -213,21 +226,23 @@ int glwe_secret_demasking_dft(PolyBiv* res,
     uint64_t N = params->N;
     uint64_t k = params->k;
     uint64_t l = poly_biv_size(params);
-
-    MODULE* module = new_module_info(N, FFT64);
     
     // Computes the input ciphertext out of DFT space
     VecBiv* ct = calloc(glwe_coef_number(params), sizeof(int64_t));
+    if(log_is_null(ct, "ct's calloc failed in glwe_secret_demasking_dft") < 0)
+        return -1;
     vec_znx_idft_p(module, ct, glwe_size(params), ct_dft->pvec, glwe_size(params));
 
     PolyBiv* acc = calloc(N*l, sizeof(int64_t)); 
-    if (acc == NULL){
-        perror("calloc failed");
-        delete_module_info_p(module);
+    if(log_is_null(acc, "acc's calloc failed in glwe_secret_demasking_dft.") < 0)
+    {
+        free(ct);
         return -1;
     }
 
-    if (sub_mult(params, module, acc, ct, sk_dft) < 0){
+    if (sub_mult(module, params, acc, ct, sk_dft) < 0)
+    {
+        free(ct); free(acc);
         return -1;
     }
 
@@ -239,7 +254,6 @@ int glwe_secret_demasking_dft(PolyBiv* res,
     vec_znx_normalize_base2k_p(module, params->kappa, res, l, N, acc, l, N);
 
     free(acc); free(ct);
-    delete_module_info_p(module);
     
     return 0;
 }

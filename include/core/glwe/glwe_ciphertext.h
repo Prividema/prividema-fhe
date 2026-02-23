@@ -40,10 +40,11 @@ void delete_glwe(GLWECiphertext* ct);
 /**
  * @brief Normalizes a GLWE ciphertext.
  * 
+ * @param module
  * @param res The result normalized GLWE ciphertext.
  * @param ct_glwe The GLWE ciphertext.
  */
-void normalize_glwe(GLWECiphertext* res, GLWECiphertext* ct_glwe);
+void normalize_glwe(MODULE* module, GLWECiphertext* res, GLWECiphertext* ct_glwe);
 
 /**
  * @brief Adds two GLWE ciphertexts.
@@ -57,12 +58,13 @@ void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2);
 /**
  * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial.
  * 
+ * @param module
  * @param res The result GLWE ciphertext.
  * @param u The Zn[X] polynomial.
  * @param ct The GLWE ciphertext.
  * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
-void const_mult_glwe(GLWECiphertext* res, PolyUnivDFT* u, GLWECiphertext* ct, int do_normalization);
+void const_mult_glwe(MODULE* module, GLWECiphertext* res, PolyUnivDFT* u, GLWECiphertext* ct, int do_normalization);
 
 
 //! GLWE IN DFT PART (begin)
@@ -110,12 +112,13 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECi
 /**
  * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial in DFT space.
  * 
+ * @param module
  * @param res_dft The result GLWE ciphertext in DFT space.
  * @param u The Zn[X] polynomial.
  * @param ct_dft The GLWE ciphertext in DFT space.
  * @param do_normalization the function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
-void const_mult_glwe_dft(GLWECiphertextDFT* res_dft, PolyUnivDFT* u, GLWECiphertextDFT* ct_dft, int do_normalization);
+void const_mult_glwe_dft(MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u, GLWECiphertextDFT* ct_dft, int do_normalization);
 
 //! COMMON PART (begin)
 

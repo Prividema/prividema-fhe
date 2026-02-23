@@ -30,10 +30,17 @@ void set_log_level(LogLevel level);
 int log_msg(LogLevel level, const char* fmt, ...);
 
 /**
- * @brief Log a syscall error like perror but with LOG_ERROR
- * @param header The perror message haeder
+ * @brief Log a syscall error like perror but with LOG_ERROR.
+ * @param header The perror message header.
  * @return always -1 as a syscall error is often fatal.
  */
 int log_perror(const char *header);
 
+/**
+ * @brief Log a syscall error like log_perror, if and only if ptr is NULL.
+ * @param ptr The pointer to test.
+ * @param header The perror message header.
+ * @return -1 if and only if test is NULL.
+ */
+int log_is_null(void* ptr, const char *header);
 #endif // LOGGER_H

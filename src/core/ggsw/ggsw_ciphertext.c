@@ -3,6 +3,22 @@
 #include "spqlios_alias.h"
 #include "glwe_ciphertext.h"
 
+void printf_glwe(VecBiv* ct_glwe, GLWECtParams* params_glwe){
+    printf("\n");
+    // GLWE parameters
+    uint64_t N = params_glwe->N;
+    uint64_t k = params_glwe->k;
+    uint64_t l = params_glwe->n_limbs / (params_glwe->k + 1);
+    for(int64_t j = 0 ; j < params_glwe->k ; j++){
+        printf("\na_%ld", j);
+        printf_poly_biv(ct_glwe + j*N, (k+1)*N, N, l);
+        printf("\n");
+    }
+    printf("\nb");
+    printf_poly_biv(ct_glwe + k*N, (k+1)*N, N, l);
+    printf("\n");
+}
+
 //! GGSW Part (begin)
 
 uint64_t ggsw_coef_number(GGSWCtParams* params){
@@ -12,7 +28,8 @@ uint64_t ggsw_coef_number(GGSWCtParams* params){
 GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* mat)
 {
     GGSWCiphertext* ggsw_ct = malloc(sizeof(GGSWCiphertext));
-    if(ggsw_ct == NULL){
+    if(ggsw_ct == NULL)
+    {
         perror("Malloc failed.");
         return NULL;
     }
@@ -22,8 +39,9 @@ GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* mat)
     if(mat == NULL)
     {
         ggsw_ct->mat = calloc(ggsw_coef_number(params), sizeof(int64_t));
-        if(ggsw_ct->mat == NULL){
-            perror("Malloc failed.");
+        if(ggsw_ct->mat == NULL)
+        {
+            perror("Calloc failed.");
             return NULL;
         }
     }
@@ -53,7 +71,7 @@ VecBiv* ggsw_Sj_Yti(GGSWCtParams* params_ggsw, MatBiv* ct_mat, int64_t j, int64_
     return ct_mat + (i-1)*(k_tilde + 1)*n_limbs*N + j*n_limbs*N;
 }
 
-void normalize_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct)
+void normalize_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct)
 {
     // GLWE parameters
     uint64_t N = res->params->params_glwe->N;
@@ -68,10 +86,7 @@ void normalize_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct)
     uint64_t nb_partial = n_limbs_tilde/(k_tilde + 1);
     uint64_t nb_rows_per_partial = k_tilde + 1;
 
-    MODULE* module = new_module_info(N,FFT64);
-
     for(int64_t i = 1 ; i <= nb_partial ; i++)
-    {
         for(int64_t j = 0 ; j < nb_rows_per_partial ; j++)
         {
             // The pointer to biGLWE(-m * sk_j * Y^i)
@@ -81,8 +96,6 @@ void normalize_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct)
             // Normalize ct
             vec_znx_normalize_base2k_p(module, ct->params->params_glwe->kappa, res_glwe, n_limbs, N, ct_glwe, n_limbs, N);
         }
-    }
-    delete_module_info(module);
 }
 
 void add_ggsw(GGSWCiphertext* res,  // result
@@ -99,9 +112,10 @@ void add_ggsw(GGSWCiphertext* res,  // result
                 res->mat[i*N*nb_cols + j*N + k] = ct1->mat[i*N*nb_cols + j*N + k] + ct2->mat[i*N*nb_cols + j*N + k];
 }
 
-void const_mult_ggsw(GGSWCiphertext* res,  
+void const_mult_ggsw(MODULE* module, 
+                     GGSWCiphertext* res,  
                      GGSWCiphertext* ct, 
-                     PolyUniv* u,
+                     PolyUnivDFT* u_dft,
                      int do_normalization)
 {
     // GGSW & GLWE params
@@ -110,17 +124,12 @@ void const_mult_ggsw(GGSWCiphertext* res,
 
     uint64_t N = res->params->params_glwe->N;
     int64_t mat_size = ggsw_size(params_ggsw);
-    MODULE* module = new_module_info(N, FFT64);
-    
-    // The polynomial in DFT space
-    PolyUnivDFT* u_prep = new_svp_ppol_p(module);
-    svp_prepare_p(module, u_prep, u);
 
     // The ciphertext in DFT space
     MatBivDFT* ct_dft = new_vec_znx_dft_p(module, mat_size);
     vec_znx_dft_p(module, ct_dft, mat_size, ct->mat, mat_size, N);
 
-    svp_apply_dft_p(module, ct_dft, mat_size, u_prep, ct->mat, mat_size, N);
+    svp_apply_dft_p(module, ct_dft, mat_size, u_dft, ct->mat, mat_size, N);
 
     // Go back to Zn[X,Y]
     vec_znx_idft_p(module, res->mat, mat_size, ct_dft, mat_size);
@@ -141,6 +150,8 @@ void const_mult_ggsw(GGSWCiphertext* res,
             }
         }
     }
+
+    free(ct_dft);
 }
 
 
@@ -194,7 +205,7 @@ VecBivDFT* ggsw_Sj_Yti_dft(GGSWCtParams* params_ggsw, MatBivDFT* ct_dft, int64_t
     return ct_dft + (i-1)*(k_tilde + 1)*n_limbs*N + j*n_limbs*N;
 }
 
-void normalize_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft){
+void normalize_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft){
     // GGSW parameters
     GGSWCtParams* params_ggsw = res_dft->params;
     uint64_t k_tilde  = params_ggsw->k_tilde;
@@ -209,8 +220,6 @@ void normalize_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft){
     // Matrix parameters
     uint64_t nb_partial = n_limbs_tilde/(k_tilde + 1);
     uint64_t nb_rows_per_partial = k_tilde + 1;
-
-    MODULE* module = new_module_info(N,FFT64);
 
     // The GGSW ciphertext's matrix out of DFT space
     MatBiv* ct_mat = malloc(ggsw_bytes(params_ggsw));
@@ -232,7 +241,6 @@ void normalize_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft){
     vec_znx_dft_p(module, res_dft->pmat, ggsw_size(params_ggsw), ct_mat, ggsw_size(params_ggsw), N);
 
     free(ct_mat);
-    delete_module_info(module);
 }
 
 void add_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct1_dft, GGSWCiphertextDFT* ct2_dft){
@@ -247,9 +255,10 @@ void add_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct1_dft, GGSWCi
 }
 
 
-void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,  
+void const_mult_ggsw_dft(MODULE* module, 
+                         GGSWCiphertextDFT* res_dft,  
                          GGSWCiphertextDFT* ct_dft, 
-                         PolyUniv* u,
+                         PolyUnivDFT* u_dft,
                          int do_normalization)
 {
     // GGSW & GLWE params
@@ -258,11 +267,6 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,
 
     uint64_t N = res_dft->params->params_glwe->N;
     int64_t mat_size = ggsw_size(params_ggsw);
-    MODULE* module = new_module_info(N, FFT64);
-    
-    // Does u_dft = DFT(u)
-    PolyUnivDFT* u_dft = new_svp_ppol_p(module);
-    svp_prepare_p(module, u_dft, u);
 
     // Temporary GGSW ciphertext
     MatBiv* tmp_ggsw_mat = malloc(ggsw_bytes(params_ggsw));
@@ -296,7 +300,6 @@ void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft,
     vec_znx_dft_p(module, res_dft->pmat, mat_size, tmp_ggsw_mat, mat_size, N);
 
     free(tmp_ggsw_mat);
-    delete_module_info(module);
 }
 
 

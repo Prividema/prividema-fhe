@@ -33,19 +33,16 @@ void delete_glwe(GLWECiphertext* ct){
     free(ct);
 }
 
-void normalize_glwe(GLWECiphertext* res, GLWECiphertext* ct_glwe)
+void normalize_glwe(MODULE* module, GLWECiphertext* res, GLWECiphertext* ct_glwe)
 {
     // GLWE parameters 
     uint64_t N = res->params->N;
     uint64_t k = res->params->k;
     uint64_t kappa = res->params->kappa;
     uint64_t l = poly_biv_size(res->params);
-    MODULE* module = new_module_info(N, FFT64);
 
     for(int64_t j = 0 ; j < k+1 ; j++)
         vec_znx_normalize_base2k_p(module, kappa, res->vec + j*N, l, (k+1)*N, ct_glwe->vec + j*N, l, (k+1)*N);
-    
-    delete_module_info(module);
 }
 
 void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2)
@@ -65,14 +62,12 @@ void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2)
 
 }
 
-void const_mult_glwe(GLWECiphertext* res, PolyUnivDFT* u_dft, GLWECiphertext* ct, int do_normalization)
+void const_mult_glwe(MODULE* module, GLWECiphertext* res, PolyUnivDFT* u_dft, GLWECiphertext* ct, int do_normalization)
 {
     // GLWE parameters
     uint64_t N = res->params->N;
     uint64_t k = res->params->k;
     uint64_t l = poly_biv_size(res->params);
-
-    MODULE* module = new_module_info(N, FFT64);
 
     // Pointer to DFT(u * ct)
     VecBivDFT* u_ct_dft = malloc(glwe_bytes(res->params));
@@ -82,14 +77,11 @@ void const_mult_glwe(GLWECiphertext* res, PolyUnivDFT* u_dft, GLWECiphertext* ct
 
     vec_znx_idft_p(module, res->vec, glwe_size(res->params), u_ct_dft, glwe_size(res->params));
 
-    free(u_ct_dft);
-    delete_module_info(module);
-
     if(do_normalization)
-    {
         for(int64_t j = 0 ; j < k + 1 ; j++)
             vec_znx_normalize_base2k_p(module, res->params->kappa, res->vec + j*N, l, (k+1)*N, res->vec + j*N, l, (k+1)*N);
-    }
+
+    free(u_ct_dft);
 }
 
 //! GLWE IN DFT PART (begin)
@@ -137,6 +129,44 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECi
                 res_dft->pvec[idx] = ct1_dft->pvec[idx] + ct2_dft->pvec[idx];
             }
 }
+
+void const_mult_glwe_dft(MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u_dft, GLWECiphertextDFT* ct_dft, int do_normalization)
+{
+    // GLWE parameters
+    GLWECtParams* params = res_dft->params;
+    uint64_t N = res_dft->params->N;
+    uint64_t k = res_dft->params->k;
+    uint64_t l = poly_biv_size(params);
+
+    // Pointer to DFT(u * ct)
+    VecBivDFT* u_ct_dft = malloc(glwe_bytes(params));
+
+    // Computes the GLWE ciphertext out of DFT space
+    VecBiv* ct_vec = malloc(glwe_bytes(params));
+    vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->pvec, glwe_size(params));
+
+    // Computes DFT(u * ct)
+    svp_apply_dft_p(module, res_dft->pvec, glwe_size(params), u_dft, ct_vec, glwe_size(params), N);
+
+    if(do_normalization)
+    {
+        // Computes the GLWE ciphertext out of DFT space to normalize it
+        VecBiv* res_vec_normalized = malloc(glwe_bytes(params));
+        vec_znx_idft_p(module, res_vec_normalized, glwe_size(params), res_dft->pvec, glwe_size(params));
+
+        // Normalizes each of the k+1 bivariate polynomials
+        for(int64_t j = 0 ; j < k + 1 ; j++)
+            vec_znx_normalize_base2k_p(module, params->kappa, res_vec_normalized + j*N, l, (k+1)*N, res_vec_normalized + j*N, l, (k+1)*N);
+        
+        // Computes the GLWE ciphertext in DFT space
+        vec_znx_dft_p(module, res_dft->pvec, glwe_size(params), res_vec_normalized, glwe_size(params), N);
+
+        free(res_vec_normalized);
+    }
+    
+    free(u_ct_dft); free(ct_vec);
+}
+
 
 
 //! COMMON PART (begin)

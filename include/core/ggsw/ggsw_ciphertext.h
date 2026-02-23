@@ -69,7 +69,7 @@ VecBiv* ggsw_Sj_Yti(GGSWCtParams* params_ggsw, MatBiv* ct_mat, int64_t j, int64_
  * @param res The result normalized GGSW ciphertext.
  * @param ct The input GGSW ciphertext.
  */
-void normalize_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct);
+void normalize_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct);
 
 /**
  * @brief Adds two GGSW ciphertexts with same params and put result in res
@@ -85,9 +85,9 @@ void add_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
  * 
  * @param res The result GGSW ciphertext.
  * @param ct The GGSW ciphertext.
- * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
+ * @param u_dft The Zn[X] polynomial in DFT space.
  */
-void const_mult_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct, PolyUniv* u, int do_normalization);
+void const_mult_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct, PolyUnivDFT* u, int do_normalization);
 
 
 //! GGSW IN DFT PART
@@ -115,7 +115,7 @@ uint64_t ggsw_coef_number_dft(GGSWCtParams* params);
  * @param params The GGSW parameters.
  * @param mat_dft The GGSW matrix in DFT space.
  */
-GGSWCiphertextDFT* new_ggsw_dft( GGSWCtParams* params, MatBivDFT* ct);
+GGSWCiphertextDFT* new_ggsw_dft(GGSWCtParams* params, MatBivDFT* ct);
 
 /**
  * @brief Delete a bivGGSW in DFT space.
@@ -142,7 +142,7 @@ VecBivDFT* ggsw_Sj_Yti_dft(GGSWCtParams* params_ggsw, MatBivDFT* ct_mat, int64_t
  * @param res_dft The result normalized GGSW ciphertext in DFT space.
  * @param ct_dft The input GGSW ciphertext in DFT space.
  */
-void normalize_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft);
+void normalize_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft);
 
 /**
  * @brief Adds two GGSW ciphertexts in DFT space with same params and put result in res.
@@ -158,9 +158,9 @@ void add_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct1_dft, GGSWCi
  * 
  * @param res_dft The result GGSW ciphertext.
  * @param ct_dft The GGSW ciphertext.
- * @param u The polynomial in Zn[X], with coefficient in [-2^(kappa-1), 2^(kappa-1)]
+ * @param u_dft The Zn[X] polynomial in DFT space, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void const_mult_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUniv* u, int do_normalization);
+void const_mult_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUnivDFT* u_dft, int do_normalization);
 
 
 //! COMMON PART (begin)

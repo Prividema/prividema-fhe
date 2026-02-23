@@ -25,22 +25,21 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module,
 
     // Draws a random univariate polynomial P(X) in Rn[X]
     double* rd_pol_univ = malloc(poly_univ_bytes(params));
-    if(rd_pol_univ == NULL){
-        perror("Malloc failed.");
+    if(log_is_null(rd_pol_univ, "rd_pol_univ's malloc failed.") < 0)
         return NULL;
-    }
     
-    for(int64_t p = 0 ; p < N ; p++){
-        if(rand_normal(rd_pol_univ + p, 0.0, params->sigma) < 0) {
+    for(int64_t p = 0 ; p < N ; p++)
+        if(rand_normal(rd_pol_univ + p, 0.0, params->sigma) < 0) 
+        {
+            log_perror("rand_normal failed in new_normal_random_biv_poly.");
             free(rd_pol_univ);
             return NULL;
         }
-    }
-
+    
     // Stores the base-2kappa normalized bivariate form Pbiv(X,Y) of P(X)
     PolyBiv* rd_pol = malloc(poly_biv_bytes(params));
-    if(rd_pol == NULL){
-        perror("Malloc failed.");
+    if(log_is_null(rd_pol, "rd_pol's malloc failed in new_normal_random_biv_poly.") < 0)
+    {
         free(rd_pol_univ);
         return NULL;
     }
@@ -81,14 +80,19 @@ PolyBiv* new_uniform_random_biv_poly(MODULE* module,
                                      int64_t precision
 ){
     PolyBiv* pol = calloc(poly_biv_coef_number(params), sizeof(int64_t));
-    if(pol == NULL){
-        log_perror("Malloc failed.");
+    if(log_is_null(pol, "pol's malloc failed in new_uniform_random_biv_poly.") < 0)
         return NULL;
-    }
 
     for(int64_t i = 1 ; i < precision + 1 ; i++)
         for(int64_t p = 0 ; p < params->N ; p++)
-            rand_uniform(pol + (i-1)*params->N + p, params->kappa);
+        {
+            if(rand_uniform(pol + (i-1)*params->N + p, params->kappa) < 0)
+            {
+                log_perror("rand_uniform failed in new_uniform_random_biv_poly.");
+                free(pol);
+                return NULL;
+            }
+        }
 
     return pol;
 }
@@ -120,19 +124,17 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module,
 ){
     // Base-2Kappa normalized bivariate polynomial in DFt space
     PolyBivDFT* rd_pol_dft = malloc(poly_biv_bytes(params));
-    if(rd_pol_dft == NULL){
-        perror("Malloc failed.");
+    if(log_is_null(rd_pol_dft, "rd_pol_dft failed in new_normal_random_biv_poly_dft.") < 0)
         return NULL;
-    }
 
     // Base-2Kappa normalized bivariate polynomial
     PolyBiv* rd_pol = new_normal_random_biv_poly(module, params);
-    if(rd_pol == NULL){
-        perror("Malloc failed.");
+    if(log_is_null(rd_pol, "new_normal_random_biv_poly failed in new_normal_biv_poly_dft.") < 0)
+    {
         free(rd_pol_dft);
         return NULL;
     }
-    
+
     // Then compute in DFT space
     vec_znx_dft_p(module, rd_pol_dft, poly_biv_size(params), rd_pol, poly_biv_size(params), params->N);
 
@@ -146,9 +148,16 @@ PolyBivDFT* new_uniform_random_biv_poly_dft(MODULE* module,
                                             int64_t precision
 ){
     PolyBiv* pol = new_uniform_random_biv_poly(module, params, precision);
-    if(pol == NULL) return NULL;
+    if(log_is_null(pol, "pol's malloc failed in new_uniform_random_biv_poly_dft.") < 0)
+        return NULL;
 
     PolyBivDFT* pol_dft = malloc(poly_biv_bytes(params));
+    if(log_is_null(pol_dft, "pol_dft's malloc failed in new_uniform_random_biv_poly_dft.") < 0)
+    {
+        free(pol);
+        return NULL;
+    }
+
     vec_znx_dft_p(module, pol_dft, poly_biv_size(params), pol, poly_biv_size(params), params->N);
 
     free(pol);
@@ -212,10 +221,8 @@ int univ_to_biv(GLWECtParams* params, PolyBiv* res, double* pol_univ
     int64_t mask = (1LL << kappa) - 1;
 
     double* tmp_pol_univ = calloc(poly_biv_bytes(params),1);
-    if (tmp_pol_univ == NULL){
-        log_perror("Calloc failed.");
+    if(log_is_null(tmp_pol_univ, "Calloc failed.") < 0)
         return -1;
-    }
 
     for(int64_t p = 0 ; p < N ; p++)
     {

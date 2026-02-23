@@ -22,7 +22,7 @@ typedef struct tnx_element {
  * @param sk_dft The Secret key in DFT space.
  * @return int 
  */
-int add_mult(GLWECtParams* params, MODULE* module, 
+int add_mult(MODULE* module, GLWECtParams* params,
              PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft
 );
 
@@ -37,7 +37,8 @@ int add_mult(GLWECtParams* params, MODULE* module,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking(GLWECiphertext* ct,  
+int glwe_secret_masking(MODULE* module,
+                        GLWECiphertext* ct,  
                         GLWESecretKeyDFT* sk_dft,   
                         PolyBiv* phase   
 );
@@ -51,11 +52,12 @@ int glwe_secret_masking(GLWECiphertext* ct,
  * @param sk_dft The Secret key in DFT space.
  * @return int 
  */
-int sub_mult(GLWECtParams* params, MODULE* module, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
+int sub_mult(MODULE* module, GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Demasks the bivariate phase (message + noise) and puts it in res.
  * 
+ * @param module
  * @param res The bivariate phase. 
  * @param sk_dft The secret key in DFT space.
  * @param ct The bivGLWE ciphertext.
@@ -63,7 +65,8 @@ int sub_mult(GLWECtParams* params, MODULE* module, PolyBiv* res, VecBiv* ct, GLW
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_demasking(PolyBiv* res,  
+int glwe_secret_demasking(MODULE* module,
+                          PolyBiv* res,  
                           GLWESecretKeyDFT* sk_dft, 
                           GLWECiphertext* ct 
 );
@@ -101,7 +104,8 @@ void glwe_addition(const Core* core, GLWECiphertext* ct_out,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,  
+int glwe_secret_masking_dft(MODULE* module,
+                         	GLWECiphertextDFT* ct_dft,  
 							GLWESecretKeyDFT* sk_dft,   
 							PolyBivDFT* phase_dft   
 );
@@ -116,7 +120,8 @@ int glwe_secret_masking_dft(GLWECiphertextDFT* ct_dft,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int glwe_secret_demasking_dft(PolyBiv* res,  
+int glwe_secret_demasking_dft(MODULE* module,
+                        	  PolyBiv* res,  
 							  GLWESecretKeyDFT* sk_dft, 
 							  GLWECiphertextDFT* ct 
 );

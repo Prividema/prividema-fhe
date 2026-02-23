@@ -65,7 +65,7 @@ uint64_t nb_rows_per_partial(GGSWCtParams* params);
  * 
  */
 typedef struct partialggsw_ct_params {
-	GLWECtParams* params;	//!< GLWE parameters. */
+	GLWECtParams* params_glwe;	//!< GLWE parameters. */
 	uint64_t kappa_tilde ;   //!< (2^kappa) = 2^-kappa_tilde. */
 	uint64_t l_tilde; 		//!< The precision. */
 } PartialGGSWCtParams;

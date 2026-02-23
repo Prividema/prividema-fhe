@@ -56,7 +56,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-    glwe_secret_demasking_ggsw_lib(params_glwe, phase_computed, sk_dft, ct_glwe);
+    glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, ct_glwe);
 
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));
@@ -117,7 +117,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-    glwe_secret_demasking_ggsw_lib(params_glwe, phase_computed, sk_dft, ct_glwe);
+    glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, ct_glwe);
 
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));
@@ -184,7 +184,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-    glwe_secret_demasking_ggsw_lib_dft(params_glwe, phase_computed, sk_dft, ct_glwe_dft);
+    glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, ct_glwe_dft);
 
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));
@@ -249,7 +249,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-    glwe_secret_demasking_ggsw_lib_dft(params_glwe, phase_computed, sk_dft, ct_glwe_dft);
+    glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, ct_glwe_dft);
 
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));

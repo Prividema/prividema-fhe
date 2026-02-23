@@ -33,7 +33,7 @@ Test(ggsw_external_product, without_error)
     GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
     GLWECtParams* params_glwe_tilde = new_glwe_ct_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
     GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-    MODULE* module = new_module_info_p(NBASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
 
     GGSWCiphertext* ct_ggsw = new_ggsw(params_ggsw, NULL);
     GLWECiphertext* ct_glwe_tilde = new_glwe(params_glwe_tilde);
@@ -43,7 +43,7 @@ Test(ggsw_external_product, without_error)
     GGSWSecretKey* sk_ggsw = new_ggsw_secret_key(NULL, NBASE, KBASE);
     sk_ggsw->values[0][0] = 1;
     sk_ggsw->values[0][1] = 0;
-    GGSWSecretKeyDFT* sk_ggsw_dft = transform_ggsw_secret_key_not_dft_to_dft(sk_ggsw);
+    GGSWSecretKeyDFT* sk_ggsw_dft = transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw);
     GLWESecretKeyDFT* sk_glwe_dft = transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_ggsw_dft);
     
     // Draws uniformly both messages
@@ -52,19 +52,19 @@ Test(ggsw_external_product, without_error)
     
     //! Computation with function
     // Computes ct_glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
-    glwe_secret_masking(ct_glwe_tilde, sk_glwe_dft, m);
+    glwe_secret_masking(module, ct_glwe_tilde, sk_glwe_dft, m);
 
     // Computes ct_ggsw, a bivGGSW(u) using the base-2Kappa
-    ggsw_secret_encrypt(params_ggsw, ct_ggsw, sk_ggsw_dft, u_univ); 
+    ggsw_secret_encrypt(module, params_ggsw, ct_ggsw, sk_ggsw_dft, u_univ); 
     
     // Computes the external product of ct_glwe_tilde and ct_ggsw
     // It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-    ggsw_external_product(res, ct_glwe_tilde, ct_ggsw);
-    normalize_glwe(res, res);
+    ggsw_external_product(module, res, ct_glwe_tilde, ct_ggsw);
+    normalize_glwe(module, res, res);
 
     // Computes the result phase = u*m + err
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-    glwe_secret_demasking(phase_computed, sk_glwe_dft, res);
+    glwe_secret_demasking(module, phase_computed, sk_glwe_dft, res);
 
     // The computed phase = u*m + err in Rn[X]
     PolyUnivRnX* um_univ_computed = calloc(NBASE, sizeof(double));
@@ -138,7 +138,7 @@ Test(ggsw_external_product_dft, without_error)
     GGSWSecretKey* sk_ggsw = new_ggsw_secret_key(NULL, NBASE, KBASE);
     sk_ggsw->values[0][0] = 1;
     sk_ggsw->values[0][1] = 0;
-    GGSWSecretKeyDFT* sk_ggsw_dft = transform_ggsw_secret_key_not_dft_to_dft(sk_ggsw);
+    GGSWSecretKeyDFT* sk_ggsw_dft = transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw);
     GLWESecretKeyDFT* sk_glwe_dft = transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_ggsw_dft);
     
     // Draws uniformly both messages
@@ -149,22 +149,22 @@ Test(ggsw_external_product_dft, without_error)
 
     //! Computation with function
     // Computes ct_glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
-    glwe_secret_masking_dft(ct_glwe_tilde_dft, sk_glwe_dft, m_dft);
+    glwe_secret_masking_dft(module, ct_glwe_tilde_dft, sk_glwe_dft, m_dft);
 
     // Computes ct_ggsw, a bivGGSW(u) using the base-2Kappa
-    ggsw_secret_encrypt_dft(params_ggsw, ct_ggsw_dft, sk_ggsw_dft, u_univ); 
+    ggsw_secret_encrypt_dft(module, params_ggsw, ct_ggsw_dft, sk_ggsw_dft, u_univ); 
     
     // Computes the external product of ct_glwe_tilde and ct_ggsw
     // It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-    ggsw_external_product_dft(res_dft, ct_glwe_tilde_dft, ct_ggsw_dft);
+    ggsw_external_product_dft(module, res_dft, ct_glwe_tilde_dft, ct_ggsw_dft);
 
     // res out of DFT space
     vec_znx_idft_p(module, res->vec, glwe_size(params_glwe), res_dft->pvec, glwe_size(params_glwe));
-    normalize_glwe(res, res);
+    normalize_glwe(module, res, res);
 
     // Computes the result phase = u*m + err
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-    glwe_secret_demasking_dft(phase_computed, sk_glwe_dft, res_dft);
+    glwe_secret_demasking_dft(module, phase_computed, sk_glwe_dft, res_dft);
 
     // The computed phase = u*m + err in Rn[X]
     PolyUnivRnX* um_univ_computed = calloc(NBASE, sizeof(double));

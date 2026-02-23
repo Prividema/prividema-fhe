@@ -133,10 +133,10 @@ int rand_normal(double* result, double mu, double sigma) {
 
 
 int inplace_uniform_random_vec(uint64_t limb_len, 
-                               int64_t* res, int64_t limb_nb, int64_t res_sl, 
+                               int64_t* res, int64_t nb_limbs, int64_t res_sl, 
                                uint64_t nb_bits
 ){
-    for(uint64_t i = 0; i < limb_nb; i++)
+    for(uint64_t i = 0; i < nb_limbs; i++)
         for(uint64_t j = 0; j < limb_len ; j++)
             if(rand_uniform(res + i*res_sl + j, nb_bits) < 0)
                 return -1;
@@ -147,7 +147,7 @@ VecUniv* new_uniform_random_vec(uint64_t vec_size, uint64_t nb_bits)
 {
     VecUniv* res = malloc(vec_size * sizeof(int64_t));
     if(res == NULL){
-        perror("Malloc failed.");
+        log_perror("In Malloc failed.");
         return NULL;
     }
 

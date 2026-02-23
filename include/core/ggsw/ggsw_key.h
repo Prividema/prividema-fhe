@@ -37,7 +37,7 @@ PolyUniv** new_ggsw_secret_key_values(uint64_t N, uint64_t k);
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUniv** 
  */
-PolyUniv** new_uniform_ggsw_secret_key_values(uint64_t N, uint64_t k, uint64_t  nb_bits);
+PolyUniv** new_uniform_ggsw_secret_key_values(MODULE* module, uint64_t k, uint64_t  nb_bits);
 
 /**
  * @brief Delete a secret key values component.
@@ -65,7 +65,7 @@ GGSWSecretKey* new_ggsw_secret_key(PolyUniv** values, uint64_t N, uint64_t k);
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return GGSWSecretKeyDFT* 
  */
-GGSWSecretKey* new_uniform_ggsw_secret_key(uint64_t N, uint64_t k, uint64_t  nb_bits);
+GGSWSecretKey* new_uniform_ggsw_secret_key(MODULE* module, uint64_t k, uint64_t  nb_bits);
 
 /**
  * @brief Delete the secret key.
@@ -80,7 +80,7 @@ void delete_ggsw_secret_key(GGSWSecretKey* sk);
  * @param sk_dft The secret key in DFT space.
  * @return GGSWSecretKey* 
  */
-GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(GGSWSecretKeyDFT* sk_dft);
+GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(MODULE* module, GGSWSecretKeyDFT* sk_dft);
 
 /**
  * @brief Computes the values of the secret key out of DFT space.
@@ -90,7 +90,7 @@ GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(GGSWSecretKeyDFT* sk_dft
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUniv** 
  */
-PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(PolyUnivDFT** values_dft, uint64_t N, uint64_t k);
+PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(MODULE* module, PolyUnivDFT** values_dft, uint64_t k);
 
 /**
  * @brief Transforms a GGSW Secret key to a GLWE Secret key 
@@ -120,7 +120,7 @@ PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k);
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUnivDFT** 
  */
-PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(uint64_t N, uint64_t k, uint64_t  nb_bits);
+PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(MODULE* module, uint64_t k, uint64_t  nb_bits);
 
 /**
  * @brief Delete the values of a secret key in DFT space.
@@ -146,7 +146,7 @@ GGSWSecretKeyDFT* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GGSWSecretKeyDFT* 
  */
-GGSWSecretKeyDFT* new_uniform_ggsw_secret_key_dft(uint64_t N, uint64_t k, uint64_t nb_bits);
+GGSWSecretKeyDFT* new_uniform_ggsw_secret_key_dft(MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
  * @brief Delete the secret key that is in DFT space.
@@ -161,7 +161,7 @@ void delete_ggsw_secret_key_dft(GGSWSecretKeyDFT* sk_dft);
  * @param sk The secret key out of DFT space.
  * @return GGSWSecretKey* 
  */
-GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(GGSWSecretKey* sk);
+GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(MODULE* module, GGSWSecretKey* sk);
 
 /**
  * @brief Computes the values of the secret key in DFT space.
@@ -171,7 +171,7 @@ GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(GGSWSecretKey* sk);
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUnivDFT** 
  */
-PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(PolyUniv** values, uint64_t N, uint64_t k);
+PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(MODULE* module, PolyUniv** values, uint64_t k);
 
 /**
  * @brief Transforms a GGSW Secret key in DFT space to a GLWE Secret key in DFT space.

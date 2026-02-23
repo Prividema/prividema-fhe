@@ -49,7 +49,7 @@ int rand_normal(double *result, double mu, double sigma);
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int inplace_uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t limb_nb, int64_t res_sl, uint64_t nb_bits);
+int inplace_uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits);
 
 /**
  * @brief Generates a random vector - with coef_nb int coefficients - following a uniform distribution U([-2^nb_bits, 2^nb_bits)).

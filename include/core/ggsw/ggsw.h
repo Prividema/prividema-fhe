@@ -16,7 +16,8 @@
  * @param res The result bivariate phase.
  * @param phase The input phase.
  */
-void add_error(GLWECtParams* params,
+void add_error(MODULE* module, 
+               GLWECtParams* params,
                PolyBiv* res,
                PolyBiv* phase);
 
@@ -28,7 +29,8 @@ void add_error(GLWECtParams* params,
  * @param sk_dft The secret key in DFT space.
  * @param ct The ciphertext.
  */
-int glwe_secret_demasking_ggsw_lib(GLWECtParams* params,
+int glwe_secret_demasking_ggsw_lib(MODULE* module, 
+                                   GLWECtParams* params,
                                    PolyBiv* phase,
                                    GGSWSecretKeyDFT* sk_dft,
                                    VecBiv* ct);
@@ -45,7 +47,7 @@ int glwe_secret_demasking_ggsw_lib(GLWECtParams* params,
  * @retval `-1` if an error occurs.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking_ggsw_lib(const MODULE* module,
+int glwe_secret_masking_ggsw_lib(MODULE* module,
                                  GLWECtParams* params,
                                  VecBiv* res_ct,
                                  GGSWSecretKeyDFT* sk,
@@ -56,8 +58,8 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module,
  * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde*(i+1)} + err, if j < k
                                                                         m / 2^{kappa_tilde*(i+1)} + err, if j = k
  * 
- * @param module 
- * @param params_ggsw 
+ * @param module The module stocking the degree N.
+ * @param params_ggsw The GGSW parameters.
  * @param params_glwe 
  * @param ct_ggsw 
  * @param sk_dft 
@@ -87,7 +89,8 @@ int compute_phase_ij(MODULE* module, GGSWCtParams* params,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int ggsw_secret_encrypt(GGSWCtParams* params,
+int ggsw_secret_encrypt(MODULE* module, 
+                        GGSWCtParams* params,
                         GGSWCiphertext* ct_ggsw,           
                         GGSWSecretKeyDFT* sk_dft,             
                         PolyUniv* msg_univ);
@@ -99,7 +102,8 @@ int ggsw_secret_encrypt(GGSWCtParams* params,
  * @param ct_glwe The bivariate GLWE input ciphertext.
  * @param ct_ggsw The bivariate GGSW input ciphertext. 
  */
-void ggsw_external_product(GLWECiphertext* res,  // result
+int ggsw_external_product(MODULE* module, 
+                           GLWECiphertext* res,  // result
                            GLWECiphertext* ct_glwe,  // GLWE ciphertext
                            GGSWCiphertext* ct_ggsw   // GGSW ciphertext
 );
@@ -148,9 +152,24 @@ void halfggsw_decrypt(int64_t* res,       // result
  * @param res_dft The result bivariate phase in DFT space.
  * @param phase_dft The input phase.
  */
-void add_error_dft(GLWECtParams* params,
-                  PolyBivDFT* res_dft,
-                  PolyBivDFT* phase_dft);
+void add_error_dft(MODULE* module, 
+                   GLWECtParams* params,
+                   PolyBivDFT* res_dft,
+                   PolyBivDFT* phase_dft);
+
+/**
+ * @brief Computes Sum_j{0,k-1}[sk_j * a_j].
+ * 
+ * @param module 
+ * @param params 
+ * @param res 
+ * @param as 
+ * @param sk_dft 
+ * @return int 
+ */
+int add_mult_dft_ggsw(MODULE* module, GLWECtParams* params,
+                      PolyBiv* res, VecBiv* as, GGSWSecretKeyDFT* sk_dft
+);
 
 /**
  * @brief Demasks the phase (message + noise) in DFT space and computes it out of DFT space.
@@ -160,7 +179,8 @@ void add_error_dft(GLWECtParams* params,
  * @param sk_dft The secret key in DFT space.
  * @param ct The ciphertext.
  */
-int glwe_secret_demasking_ggsw_lib_dft(GLWECtParams* params,
+int glwe_secret_demasking_ggsw_lib_dft(MODULE* module,
+                                       GLWECtParams* params,
                                        PolyBiv* phase,
                                        GGSWSecretKeyDFT* sk_dft,
                                        VecBivDFT* ct_dft);
@@ -177,7 +197,7 @@ int glwe_secret_demasking_ggsw_lib_dft(GLWECtParams* params,
  * @retval `-1` if an error occurs.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking_ggsw_lib_dft(const MODULE* module,
+int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
                                      GLWECtParams* params,
                                      VecBivDFT* res_dft,
                                      GGSWSecretKeyDFT* sk_dft,
@@ -219,7 +239,8 @@ int compute_phase_ij_dft(MODULE* module, GGSWCtParams* params_ggsw,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval `0` otherwise.
  */
-int ggsw_secret_encrypt_dft(GGSWCtParams* params,
+int ggsw_secret_encrypt_dft(MODULE* module,
+                            GGSWCtParams* params,
                             GGSWCiphertextDFT* ct_ggsw_dft,
                             GGSWSecretKeyDFT* sk_dft,
                             PolyUniv* msg_univ);
@@ -231,7 +252,8 @@ int ggsw_secret_encrypt_dft(GGSWCtParams* params,
  * @param ct_glwe_dft The bivariate GLWE input ciphertext in DFT space.
  * @param ct_ggsw_dft The bivariate GGSW input ciphertext in DFT space.
  */
-void ggsw_external_product_dft(GLWECiphertextDFT* res_dft,  
+int ggsw_external_product_dft(MODULE* module,
+                               GLWECiphertextDFT* res_dft,  
                                GLWECiphertextDFT* ct_glwe_dft, 
                                GGSWCiphertextDFT* ct_ggsw_dft  
 );

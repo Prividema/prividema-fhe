@@ -29,7 +29,7 @@ Test(glwe_secret_masking, small_error)
     MODULE* module = new_module_info_p(NBASE);
 
     GLWECiphertext* ct = new_glwe(params);
-    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
+    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(module, KBASE, 3);
 
     // The input message uniformly drawn in Zn[X,Y]
     PolyBiv* msg = new_uniform_random_biv_poly(module, params, LBASE/2);
@@ -45,11 +45,11 @@ Test(glwe_secret_masking, small_error)
     add_biv_poly(params, phase, NBASE, msg, NBASE, err, NBASE);
 
     // Computes the bivGLWE ciphertext
-    glwe_secret_masking(ct, sk_dft, phase);
+    glwe_secret_masking(module, ct, sk_dft, phase);
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params), sizeof(int64_t));
-    glwe_secret_demasking(phase_computed, sk_dft, ct);
+    glwe_secret_demasking(module, phase_computed, sk_dft, ct);
 
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));
@@ -86,7 +86,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
     MODULE* module = new_module_info_p(NBASE);
 
     GLWECiphertext* ct = new_glwe(params);
-    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
+    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(module, KBASE, 3);
 
     // The input message uniformly drawn in Rn[X]
     double* msg_univ = malloc(poly_univ_bytes(params));
@@ -104,11 +104,11 @@ Test(glwe_secret_masking, uniform_RnX_message)
     add_biv_poly(params, phase, NBASE, msg, NBASE, err, NBASE);
 
     // Computes the bivGLWE ciphertext
-    glwe_secret_masking(ct, sk_dft, phase);
+    glwe_secret_masking(module, ct, sk_dft, phase);
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params), sizeof(int64_t));
-    glwe_secret_demasking(phase_computed, sk_dft, ct);
+    glwe_secret_demasking(module, phase_computed, sk_dft, ct);
 
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));
@@ -148,7 +148,7 @@ Test(glwe_secret_masking_dft, small_error)
     MODULE* module = new_module_info_p(NBASE);
 
     GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
-    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
+    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(module, KBASE, 3);
 
     // The input message uniformly drawn in Zn[X,Y]
     PolyBiv* msg = new_uniform_random_biv_poly(module, params, LBASE/2);
@@ -168,11 +168,11 @@ Test(glwe_secret_masking_dft, small_error)
     vec_znx_dft_p(module, phase_dft, LBASE, phase, LBASE, NBASE);
     
     // Computes the bivGLWE ciphertext
-    glwe_secret_masking_dft(ct_dft, sk_dft, phase_dft);
+    glwe_secret_masking_dft(module, ct_dft, sk_dft, phase_dft);
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params), sizeof(int64_t));
-    glwe_secret_demasking_dft(phase_computed, sk_dft, ct_dft);
+    glwe_secret_demasking_dft(module, phase_computed, sk_dft, ct_dft);
     
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));
@@ -209,7 +209,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
     MODULE* module = new_module_info_p(NBASE);
 
     GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
-    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
+    GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(module, KBASE, 3);
 
     // The input message uniformly drawn in Rn[X]
     double* msg_univ = malloc(poly_univ_bytes(params));
@@ -231,11 +231,11 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
     vec_znx_dft_p(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
     // Computes the bivGLWE ciphertext
-    glwe_secret_masking_dft(ct_dft, sk_dft, phase_dft);
+    glwe_secret_masking_dft(module, ct_dft, sk_dft, phase_dft);
 
     // The computed phase in Rn[X]
     PolyBiv* phase_computed = calloc(poly_biv_coef_number(params), sizeof(int64_t));
-    glwe_secret_demasking_dft(phase_computed, sk_dft, ct_dft);
+    glwe_secret_demasking_dft(module, phase_computed, sk_dft, ct_dft);
 
     // The computed phase in Rn[X]
     double* phase_computed_univ = calloc(NBASE, sizeof(double));

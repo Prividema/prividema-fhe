@@ -5,16 +5,16 @@
 #include <criterion/new/assert.h>
 #include <stdio.h>
 
-#define NBASE 128
+#define NBASE 32
 #define KBASE 1
 #define KAPPABASE 4
-#define NLIMBSBASE (KBASE + 1)*5
+#define NLIMBSBASE (KBASE + 1)*1
 #define LBASE NLIMBSBASE/(KBASE+1)
 #define SIGMABASE -(LBASE/2 + 1)*KAPPABASE 
 
 #define K_TILDEBASE 1
 #define KAPPA_TILDEBASE 4
-#define NLIMBS_TILDEBASE (K_TILDEBASE + 1)*2
+#define NLIMBS_TILDEBASE (K_TILDEBASE + 1)*1
 #define L_TILDEBASE NLIMBS_TILDEBASE/(K_TILDEBASE+1)
 #define SIGMA_TILDEBASE -3
 
@@ -56,6 +56,109 @@ void printf_ggsw(MatBiv* ct_ggsw, GGSWCtParams* params_ggsw){
     }
 }
 
+Test(smp_prepare, basic){
+    GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    PolyBiv* pol = new_uniform_random_vec(NBASE, 3);
+
+    SVP_PPOL* ppol = malloc(NBASE*sizeof(double));
+    svp_prepare_p(module, (double*)ppol, pol);
+
+    PolyBivDFT* pol_dft = malloc(NBASE*sizeof(double));
+    vec_znx_dft_p(module, pol_dft, 1, pol, 1, NBASE);
+
+    printf("ppol\n");
+    printf_poly_univ_RnX((double*)ppol, NBASE);
+    printf("\n");
+
+    printf("pol_dft\n");
+    printf_poly_univ_RnX(pol_dft, NBASE);
+    printf("\n");
+
+    PolyBiv* ppol_out = malloc(NBASE * sizeof(double));
+    vec_znx_idft_p(module, ppol_out, 1, (double*)ppol, 1);
+
+    PolyBiv* pol_dft_out = malloc(NBASE * sizeof(double));
+    vec_znx_idft_p(module, pol_dft_out, 1, pol_dft, 1);
+
+    printf("ppol_out\n");
+    printf_poly_univ_ZnX(ppol_out, NBASE);
+    printf("\n");
+
+    printf("pol_dft_out\n");
+    printf_poly_univ_ZnX(pol_dft_out, NBASE);
+    printf("\n");
+
+    delete_module_info(module);
+    delete_glwe_ct_params(params_glwe);
+    delete_ggsw_ct_params(params);
+}
+
+Test(vmp_prepare, basic){
+    GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    GGSWCtParams* params = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    uint64_t nrows = params->n_limbs_tilde;
+    uint64_t ncols = params->params_glwe->n_limbs;
+
+    MatBiv* mat = new_uniform_random_vec(ggsw_coef_number(params), 3);
+
+    VMP_PMAT* pmat = malloc(ggsw_bytes(params));
+    vmp_prepare_contiguous_p(module, (double*)pmat, mat, nrows, ncols);
+
+    MatBivDFT* mat_dft = malloc(ggsw_bytes(params));
+    vec_znx_dft_p(module, mat_dft, ggsw_size(params), mat, ggsw_size(params), NBASE);
+
+    // printf("pmat\n");
+    // for(int64_t i = 0 ; i < ncols ; i++){
+    //     for(int64_t j = 0 ; j < nrows ; j++){
+    //         printf("\n i = %ld j = %ld \n", i, j);
+    //         printf_poly_univ_RnX((double*)pmat + i*nrows*NBASE + j*NBASE, NBASE);
+    //         printf("\n");
+    //     }
+    // }
+
+    // printf("mat_dft\n");
+    // for(int64_t i = 0 ; i < nrows ; i++){
+    //     for(int64_t j = 0 ; j < ncols ; j++){
+    //         printf("\n i = %ld j = %ld \n", i, j);
+    //         printf_poly_univ_RnX(mat_dft + i*ncols*NBASE + j*NBASE, NBASE);
+    //         printf("\n");
+    //     }
+    // }
+
+    MatBiv* pmat_out = malloc(ggsw_bytes(params));
+    vec_znx_idft_p(module, pmat_out, ggsw_size(params), (double*)pmat, ggsw_size(params));
+
+    MatBiv* mat_dft_out = malloc(ggsw_bytes(params));
+    vec_znx_idft_p(module, mat_dft_out, ggsw_size(params), mat_dft, ggsw_size(params));
+
+    // printf("pmat_out\n");
+    // for(int64_t i = 0 ; i < nrows ; i++){
+    //     for(int64_t j = 0 ; j < ncols ; j++){
+    //         printf("\n i = %ld j = %ld \n", i, j);
+    //         printf_poly_univ_ZnX(pmat_out + i*ncols*NBASE + j*NBASE, NBASE);
+    //         printf("\n");
+    //     }
+    // }
+
+    // printf("mat_dft_out\n");
+    // for(int64_t i = 0 ; i < ncols ; i++){
+    //     for(int64_t j = 0 ; j < nrows ; j++){
+    //         printf("\n i = %ld j = %ld \n", i, j);
+    //         printf_poly_univ_ZnX(mat_dft_out + i*nrows*NBASE + j*NBASE, NBASE);
+    //         printf("\n");
+    //     }
+    // }
+
+    delete_module_info(module);
+    delete_glwe_ct_params(params_glwe);
+    delete_ggsw_ct_params(params);
+}
+
 /**
  * @brief Tests ggsw_secret_encrpyt
  * 
@@ -74,7 +177,7 @@ Test(ggsw_secret_encrypt, works)
     MODULE* module = new_module_info_p(NBASE);
     
     GGSWCiphertext* ct_ggsw = new_ggsw(params_ggsw, NULL);
-    GGSWSecretKeyDFT* sk_dft = new_uniform_ggsw_secret_key_dft(NBASE, KBASE, 3);
+    GGSWSecretKeyDFT* sk_dft = new_uniform_ggsw_secret_key_dft(module, KBASE, 3);
 
     // Message uniformly drawn
     PolyUniv* msg_univ = new_uniform_random_vec(NBASE, KAPPABASE*LBASE);
@@ -82,7 +185,7 @@ Test(ggsw_secret_encrypt, works)
     vec_znx_dft_p(module, msg_univ_dft, 1, msg_univ, 1, NBASE);
 
     // Computes a bivGGSW(msg)
-    ggsw_secret_encrypt(params_ggsw, ct_ggsw, sk_dft, msg_univ);
+    ggsw_secret_encrypt(module, params_ggsw, ct_ggsw, sk_dft, msg_univ);
 
     for(int64_t i = 1 ; i <= L_TILDEBASE ; i++){
         for(int64_t j = 0 ; j < K_TILDEBASE ; j++){
@@ -92,7 +195,7 @@ Test(ggsw_secret_encrypt, works)
 
             // Computes the phase = -m * sk_j / (2^kappa_tilde)^(i+1)) + err
             PolyBiv* phase = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
-            glwe_secret_demasking_ggsw_lib(params_glwe_for_ggsw, phase, sk_dft, ct_glwe);
+            glwe_secret_demasking_ggsw_lib(module, params_glwe_for_ggsw, phase, sk_dft, ct_glwe);
 
             // Computes the phase = -m * sk_j / (2^kappa_tilde)^(i+1) + err in RnX
             PolyUnivRnX* phase_univ_RnX_computed = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
@@ -141,7 +244,7 @@ Test(ggsw_secret_encrypt, works)
         
         // Computes the phase = m/2^kappa_tilde + err
         PolyBiv* phase = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
-        glwe_secret_demasking_ggsw_lib(params_glwe_for_ggsw, phase, sk_dft, ct_glwe);
+        glwe_secret_demasking_ggsw_lib(module, params_glwe_for_ggsw, phase, sk_dft, ct_glwe);
     
         // Computes the phase in Rn[X]
         PolyUnivRnX* phase_univ_RnX_computed = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
@@ -192,7 +295,7 @@ Test(ggsw_secret_encrypt_dft, works)
     MODULE* module = new_module_info_p(NBASE);
     
     GGSWCiphertextDFT* ct_ggsw_dft = new_ggsw_dft(params_ggsw, NULL);
-    GGSWSecretKeyDFT* sk_dft = new_uniform_ggsw_secret_key_dft(NBASE, KBASE, 3);
+    GGSWSecretKeyDFT* sk_dft = new_uniform_ggsw_secret_key_dft(module, KBASE, 3);
 
     // Message uniformly drawn
     PolyUniv* msg_univ = new_uniform_random_vec(NBASE, KAPPABASE*LBASE);
@@ -200,7 +303,7 @@ Test(ggsw_secret_encrypt_dft, works)
     vec_znx_dft_p(module, msg_univ_dft, 1, msg_univ, 1, NBASE);
 
     // Computes a bivGGSW(msg)
-    ggsw_secret_encrypt_dft(params_ggsw, ct_ggsw_dft, sk_dft, msg_univ);
+    ggsw_secret_encrypt_dft(module, params_ggsw, ct_ggsw_dft, sk_dft, msg_univ);
 
     for(int64_t i = 1 ; i <= L_TILDEBASE ; i++){
         for(int64_t j = 0 ; j < K_TILDEBASE ; j++){
@@ -210,7 +313,7 @@ Test(ggsw_secret_encrypt_dft, works)
 
             // Computes the phase = -m * sk_j / (2^kappa_tilde)^(i+1)) + err
             PolyBiv* phase = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
-            glwe_secret_demasking_ggsw_lib_dft(params_glwe_for_ggsw, phase, sk_dft, ct_glwe_dft);
+            glwe_secret_demasking_ggsw_lib_dft(module, params_glwe_for_ggsw, phase, sk_dft, ct_glwe_dft);
 
             // Computes the phase = -m * sk_j / (2^kappa_tilde)^(i+1) + err in RnX
             PolyUnivRnX* phase_univ_RnX_computed = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
@@ -259,7 +362,7 @@ Test(ggsw_secret_encrypt_dft, works)
         
         // Computes the phase = m/2^kappa_tilde + err
         PolyBiv* phase = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
-        glwe_secret_demasking_ggsw_lib_dft(params_glwe_for_ggsw, phase, sk_dft, ct_glwe_dft);
+        glwe_secret_demasking_ggsw_lib_dft(module, params_glwe_for_ggsw, phase, sk_dft, ct_glwe_dft);
     
         // Computes the phase in Rn[X]
         PolyUnivRnX* phase_univ_RnX_computed = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));

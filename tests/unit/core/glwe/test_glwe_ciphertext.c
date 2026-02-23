@@ -9,9 +9,9 @@
 #include "utils.h"
 
 #define NBASE 4
-#define KBASE 8
+#define KBASE 1
 #define KAPPABASE 4
-#define NLIMBSBASE 45
+#define NLIMBSBASE (KBASE + 1)*2
 #define LBASE NLIMBSBASE/(KBASE+1)
 #define SIGMABASE 1e-7
 
@@ -109,11 +109,9 @@ Test(mult_vec_znx_dft, random_size){
 
     int64_t* res = calloc(poly_univ_bytes(params)*size,1);
     
-    // def a = 1 + X
     int64_t* a = calloc(poly_univ_bytes(params)*size, 1);
     inplace_uniform_random_vec(NBASE, a, size, NBASE, 14);
 
-    //def b = 1 + X
     int64_t* b = calloc(poly_univ_bytes(params)*size, 1);
     inplace_uniform_random_vec(NBASE, b, size, NBASE, 14);
 
@@ -180,6 +178,135 @@ Test(new_glwe, basic){
     delete_glwe_ct_params(params);
 }
 
+/**
+ * @brief Tests whether add_glwe adds two GLWE ciphertexts.
+ */
+Test(add_glwe, basic)
+{
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    
+    GLWECiphertext* ct_l = new_glwe(params);
+    GLWECiphertext* ct_r = new_glwe(params);
+    GLWECiphertext* res = new_glwe(params);
+
+    inplace_uniform_random_vec(NBASE, ct_l->vec, params->n_limbs, NBASE, KAPPABASE-1);
+    inplace_uniform_random_vec(NBASE, ct_r->vec, params->n_limbs, NBASE, KAPPABASE-1);
+
+    add_glwe(res, ct_l, ct_r);
+
+    for(int64_t i = 1 ; i < LBASE ; i++)
+        for(int64_t j = 0 ; j < KBASE + 1 ; j++)
+            for(int64_t p = 0 ; p < NBASE ; p++)
+                cr_assert(eq(res->vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p], ct_l->vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p] + ct_r->vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p]));
+    
+
+    delete_glwe(ct_l);
+    delete_glwe(ct_r);
+    delete_glwe(res);
+    delete_glwe_ct_params(params);
+}
+
+/**
+ * @brief Tests whether const_mult_glwe multiply a GLWE ciphertext by a ZnX polynomial.
+ */
+Test(const_mult_glwe, without_normalization)
+{
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    GLWECiphertext* res = new_glwe(params);
+    
+    // Draws uniformly the GLWE ciphertext and the ZnX polynomial
+    GLWECiphertext* ct = new_glwe(params);
+    inplace_uniform_random_vec(NBASE, ct->vec, params->n_limbs, NBASE, KAPPABASE - 1);
+    
+    PolyUniv* u = new_uniform_random_vec(NBASE, KAPPABASE-1);
+    PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
+    vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+
+    const_mult_glwe(module, res, u_dft, ct, 0);
+
+    
+    for(int64_t i = 1 ; i <= LBASE ; i++)
+        for(int64_t j = 0 ; j < KBASE + 1 ; j++)
+        {
+            PolyUniv* ct_ij = ct->vec + (i-1)*(KBASE+1)*NBASE + j*NBASE;
+            for(int64_t p = 0 ; p < NBASE ; p++)
+            {
+                int64_t acc = 0;
+                for(uint64_t k = 0 ; k <= p; k++)
+                {
+                    acc += u[k] * ct_ij[p-k];
+                } 
+                for(uint64_t k = p + 1; k < NBASE; k++)
+                {
+                    acc += -u[k] * ct_ij[NBASE + p-k];
+                }  
+                cr_assert(eq(i64, res->vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p], acc));
+            }
+        }
+    
+    free(u); free(u_dft);
+    delete_module_info(module);
+    delete_glwe(ct);
+    delete_glwe(res);
+    delete_glwe_ct_params(params);
+}
+
+/**
+ * @brief Tests whether const_mult_glwe multiply a GLWE ciphertext by a ZnX polynomial.
+ */
+Test(const_mult_glwe, with_normalization)
+{
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    GLWECiphertext* res = new_glwe(params);
+    
+    // Draws uniformly the GLWE ciphertext and the ZnX polynomial
+    GLWECiphertext* ct = new_glwe(params);
+    inplace_uniform_random_vec(NBASE, ct->vec, params->n_limbs, NBASE, KAPPABASE - 1);
+    
+    PolyUniv* u = new_uniform_random_vec(NBASE, KAPPABASE-1);
+    PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
+    vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+
+    const_mult_glwe(module, res, u_dft, ct, 1);
+    
+    for(int64_t j = 0 ; j < KBASE + 1 ; j++)
+        for(int64_t p = 0 ; p < NBASE ; p++)for(int64_t i = 1 ; i <= LBASE ; i++)
+        {
+            int64_t remainder = 0;
+            for(int64_t i = LBASE ; i >= 1 ; i--)
+            {
+                PolyUniv* ct_ij = ct->vec + (i-1)*(KBASE+1)*NBASE + j*NBASE;
+
+                int64_t acc = 0;
+                for(uint64_t k = 0 ; k <= p; k++)
+                {
+                    acc += u[k] * ct_ij[p-k];
+                } 
+                for(uint64_t k = p + 1; k < NBASE; k++)
+                {
+                    acc += -u[k] * ct_ij[NBASE + p-k];
+                }  
+
+                cr_assert(eq(i64, (res->vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p] - (acc + remainder)) % KAPPABASE, 0),
+                          "Equality failed at j = %ld p = %ld i = %ld with acc = %ld reminder = %ld and res = %ld", 
+                          j, p, i, acc, remainder, res->vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p]);
+                
+                remainder = acc >= 0 ? (acc + (1 << KAPPABASE-1)) / (1 << KAPPABASE) : (acc - (1 << KAPPABASE-1) + 1) / (1 << KAPPABASE);
+            }
+        }
+    
+    free(u); free(u_dft);
+    delete_module_info(module);
+    delete_glwe(ct);
+    delete_glwe(res);
+    delete_glwe_ct_params(params);
+}
+
+
 //! GLWE IN DFT PART (begin)
 
 /**
@@ -206,4 +333,145 @@ Test(new_glwe_dft, basic){
     delete_glwe_ct_params(params);
 }
 
+Test(add_glwe_dft, basic)
+{
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
 
+    GLWECiphertextDFT* ct_l_dft = new_glwe_dft(params);
+    GLWECiphertextDFT* ct_r_dft = new_glwe_dft(params);
+    GLWECiphertextDFT* ct_sum_dft = new_glwe_dft(params);
+
+    inplace_uniform_random_vec_znx_dft(module, ct_l_dft->pvec, params->n_limbs, KAPPABASE-1);
+    inplace_uniform_random_vec_znx_dft(module, ct_r_dft->pvec, params->n_limbs, KAPPABASE-1);
+
+    add_glwe_dft(ct_sum_dft, ct_l_dft, ct_r_dft);
+
+    for(int64_t i = 1 ; i < LBASE ; i++)
+        for(int64_t j = 0 ; j < KBASE + 1 ; j++)
+            for(int64_t p = 0 ; p < NBASE ; p++)
+                cr_assert(eq(ct_sum_dft->pvec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p], ct_l_dft->pvec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p] + ct_r_dft->pvec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p]));
+    
+
+    delete_module_info(module);
+    delete_glwe_dft(ct_l_dft);
+    delete_glwe_dft(ct_r_dft);
+    delete_glwe_dft(ct_sum_dft);
+    delete_glwe_ct_params(params);
+}
+
+
+/**
+ * @brief Tests whether const_mult_glwe_dft multiply a GLWE ciphertext by a ZnX polynomial.
+ */
+Test(const_mult_glwe_dft, without_normalization)
+{
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    GLWECiphertextDFT* res_dft = new_glwe_dft(params);
+    VecBiv* res_vec = malloc(glwe_bytes(params));
+
+    // Draws uniformly the GLWE ciphertext and computes it out of DFT space
+    GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
+    inplace_uniform_random_vec_znx_dft(module, ct_dft->pvec, params->n_limbs, KAPPABASE - 1);
+    
+    VecBiv* ct_vec = malloc(glwe_bytes(params));
+    vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->pvec, glwe_size(params));
+
+    // Draws uniformly the ZnX polynomial and computes it ouf of DFT space
+    PolyUniv* u = new_uniform_random_vec(NBASE, KAPPABASE-1);
+    PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
+    vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+
+    const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 0);
+    
+    // Computes res out of DFT space
+    vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->pvec, glwe_size(params));
+    
+    for(int64_t i = 1 ; i <= LBASE ; i++)
+        for(int64_t j = 0 ; j < KBASE + 1 ; j++)
+        {
+            PolyUniv* ct_ij = ct_vec + (i-1)*(KBASE+1)*NBASE + j*NBASE;
+            for(int64_t p = 0 ; p < NBASE ; p++)
+            {
+                int64_t acc = 0;
+                for(uint64_t k = 0 ; k <= p; k++)
+                {
+                    acc += u[k] * ct_ij[p-k];
+                } 
+                for(uint64_t k = p + 1; k < NBASE; k++)
+                {
+                    acc += -u[k] * ct_ij[NBASE + p-k];
+                }  
+                cr_assert(eq(i64, res_vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p], acc));
+            }
+        }
+
+    free(u); free(u_dft); free(ct_vec); free(res_vec);
+    delete_module_info(module);
+    delete_glwe_dft(ct_dft);
+    delete_glwe_dft(res_dft);
+    delete_glwe_ct_params(params);
+}
+
+/**
+ * @brief Tests whether const_mult_glwe_dft multiply a GLWE ciphertext by a ZnX polynomial.
+ */
+Test(const_mult_glwe_dft, with_normalization)
+{
+    GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+    MODULE* module = new_module_info(NBASE, FFT64);
+
+    GLWECiphertextDFT* res_dft = new_glwe_dft(params);
+    VecBiv* res_vec = malloc(glwe_bytes(params));
+
+    // Draws uniformly the GLWE ciphertext and computes it out of DFT space
+    GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
+    inplace_uniform_random_vec_znx_dft(module, ct_dft->pvec, params->n_limbs, KAPPABASE - 1);
+    
+    VecBiv* ct_vec = malloc(glwe_bytes(params));
+    vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->pvec, glwe_size(params));
+
+    // Draws uniformly the ZnX polynomial and computes it ouf of DFT space
+    PolyUniv* u = new_uniform_random_vec(NBASE, KAPPABASE-1);
+    PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
+    vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+
+    const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 1);
+    
+    // Computes res out of DFT space
+    vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->pvec, glwe_size(params));
+    
+    for(int64_t j = 0 ; j < KBASE + 1 ; j++)
+        for(int64_t p = 0 ; p < NBASE ; p++)for(int64_t i = 1 ; i <= LBASE ; i++)
+        {
+            int64_t remainder = 0;
+            for(int64_t i = LBASE ; i >= 1 ; i--)
+            {
+                PolyUniv* ct_ij = ct_vec + (i-1)*(KBASE+1)*NBASE + j*NBASE;
+
+                int64_t acc = 0;
+                for(uint64_t k = 0 ; k <= p; k++)
+                {
+                    acc += u[k] * ct_ij[p-k];
+                } 
+                for(uint64_t k = p + 1; k < NBASE; k++)
+                {
+                    acc += -u[k] * ct_ij[NBASE + p-k];
+                }  
+
+                cr_assert(eq(i64, (res_vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p] - (acc + remainder)) % KAPPABASE, 0),
+                          "Equality failed at j = %ld p = %ld i = %ld with acc = %ld reminder = %ld and res = %ld", 
+                          j, p, i, acc, remainder, res_vec[(i-1)*(KBASE+1)*NBASE + j*NBASE + p]);
+                
+                remainder = acc >= 0 ? (acc + (1 << KAPPABASE-1)) / (1 << KAPPABASE) : (acc - (1 << KAPPABASE-1) + 1) / (1 << KAPPABASE);
+            }
+        }
+
+    free(u); free(u_dft); free(ct_vec); free(res_vec);
+    delete_module_info(module);
+    delete_glwe_dft(ct_dft);
+    delete_glwe_dft(res_dft);
+    delete_glwe_ct_params(params);
+}
