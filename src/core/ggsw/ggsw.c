@@ -601,7 +601,7 @@ int ggsw_secret_encrypt_dft(MODULE* module,
 
             // The pointer in DFT space to : bivGLWE(-m * sk_j / 2^{kappa_tilde*i}), if j < k
             //                               bivGLWE( m / 2^{kappa_tilde*i}), if j = k
-            VecBivDFT* ct_glwe = ggsw_Sj_Yti_dft(params_ggsw, ct_ggsw_dft->pmat, j, i);
+            VecBivDFT* ct_glwe = ggsw_Sj_Yti_dft(params_ggsw, ct_ggsw_dft->mat, j, i);
 
             // Computes in DFT space: bivGLWE(-m * sk_j / 2^{kappa_tilde*i}), if j < k
             //                        bivGLWE( m / 2^{kappa_tilde*i}), if j = k

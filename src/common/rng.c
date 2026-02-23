@@ -190,7 +190,7 @@ VecUnivDFT* new_uniform_random_vec_znx_dft(MODULE* module,
     // Draws the uniformly the vector
     for(int i = 0; i < vec_size; i++) {
         for(int p = 0; p < N ; p++) {
-            if(rand_uniform(tmp_space + ((i-1)*N) + p, nb_bits) < 0) {
+            if(rand_uniform(tmp_space + i*N + p, nb_bits) < 0) {
                 free(tmp_space);
                 return NULL;
             }

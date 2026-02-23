@@ -40,6 +40,8 @@ int add_mult(MODULE* module, GLWECtParams* params,
         free(as_j_dft);
         free(as_j);
     }
+
+    return 0;
 }
 
 int glwe_secret_masking(MODULE* module,

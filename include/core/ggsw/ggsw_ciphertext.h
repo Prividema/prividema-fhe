@@ -95,7 +95,7 @@ void const_mult_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct, Po
 
 typedef struct ggsw_ciphertext_dft {
     GGSWCtParams* params;  // GGSW parameters
-    MatBivDFT* pmat;       // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
+    MatBivDFT* mat;       // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
 } GGSWCiphertextDFT;
 
 /**

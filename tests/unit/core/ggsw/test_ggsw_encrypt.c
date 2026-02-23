@@ -309,7 +309,7 @@ Test(ggsw_secret_encrypt_dft, works)
         for(int64_t j = 0 ; j < K_TILDEBASE ; j++){
             // The pointer to DFT(bivGLWE(-m * sk_j / (2^kappa_tilde)^(i+1)))
             VecBivDFT* ct_glwe_dft = calloc(glwe_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
-            memcpy(ct_glwe_dft, ct_ggsw_dft->pmat + ((i-1)*(K_TILDEBASE+1) + j)*glwe_coef_number(params_glwe_for_ggsw), glwe_bytes(params_glwe_for_ggsw));
+            memcpy(ct_glwe_dft, ct_ggsw_dft->mat + ((i-1)*(K_TILDEBASE+1) + j)*glwe_coef_number(params_glwe_for_ggsw), glwe_bytes(params_glwe_for_ggsw));
 
             // Computes the phase = -m * sk_j / (2^kappa_tilde)^(i+1)) + err
             PolyBiv* phase = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
@@ -358,7 +358,7 @@ Test(ggsw_secret_encrypt_dft, works)
         }
         // The pointer to bivGLWE(msg / (2^kappa_tilde)^(i+1))  
         VecBivDFT* ct_glwe_dft = calloc(glwe_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
-        memcpy(ct_glwe_dft, ct_ggsw_dft->pmat + ((i-1)*(K_TILDEBASE+1) + K_TILDEBASE)*glwe_coef_number(params_glwe_for_ggsw), glwe_bytes(params_glwe_for_ggsw));
+        memcpy(ct_glwe_dft, ct_ggsw_dft->mat + ((i-1)*(K_TILDEBASE+1) + K_TILDEBASE)*glwe_coef_number(params_glwe_for_ggsw), glwe_bytes(params_glwe_for_ggsw));
         
         // Computes the phase = m/2^kappa_tilde + err
         PolyBiv* phase = calloc(poly_biv_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
