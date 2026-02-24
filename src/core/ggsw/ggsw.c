@@ -374,8 +374,13 @@ int glwe_secret_demasking_ggsw_lib_dft(MODULE* module,
         return -1;
     vec_znx_idft_p(module, ct, glwe_size(params), ct_dft, glwe_size(params));
 
+    if(glwe_secret_demasking_ggsw_lib(module, params, phase, sk_dft, ct) < 0){
+        free(ct);
+        return log_perror("glwe_secret_demasking_ggsw_lib failed glwe_secret_demasking_ggsw_lib_dft.");
+    }
+
     free(ct);
-    return glwe_secret_demasking_ggsw_lib(module, params, phase, sk_dft, ct);
+    return 0;
 }
 
 int glwe_secret_masking_ggsw_lib_dft(MODULE* module, 
