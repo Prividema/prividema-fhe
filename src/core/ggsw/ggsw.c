@@ -415,6 +415,8 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
         // Computes resVec_j_dft = (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
         if(log_is_null(as_j_dft, "as_j_dft's malloc failed in glwe_secret_masking_ggsw_lib_dft.") < 0)
         {
+            free(as_j);
+            free(as_j_dft);
             free(tmp_ct);
             return -1;
         }
@@ -423,7 +425,9 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
         // Computes resVec_j in Zn[X,Y] space
         if(log_is_null(as_j, "as_j's malloc failed in glwe_secret_masking_ggsw_lib_dft") < 0)
         {
-            free(tmp_ct); free(as_j_dft); 
+            free(as_j);
+            free(as_j_dft);
+            free(tmp_ct); 
             return -1;
         }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
@@ -433,9 +437,9 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
         {
             acc[p] += as_j[p];
         }
-        free(as_j);
-        free(as_j_dft);
     }
+    free(as_j);
+    free(as_j_dft);
     
     // The pointer to limb_0(b) in Zn[X,Y]
     PolyUniv* b_0_univ = tmp_ct + k*N;
