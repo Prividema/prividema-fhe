@@ -11,6 +11,12 @@ int add_mult(MODULE* module, GLWECtParams* params,
     uint64_t k = params->k;
     uint64_t l = poly_biv_size(params);
     
+    // Will point to DFT(sk_j * a_j)
+    PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params));
+
+    // Will point to sk_j * a_j
+    PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
+    
     // Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
     {
@@ -19,16 +25,19 @@ int add_mult(MODULE* module, GLWECtParams* params,
         PolyBiv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
-        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params));
         if(log_is_null(as_j_dft, "as_j_dft's malloc failed in add_mult") < 0)
+        {
+            free(as_j_dft);
+            free(as_j);
             return -1; 
+        }
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
         if(log_is_null(as_j, "as_j's malloc failed in add_mult") < 0)
         {
             free(as_j_dft);
+            free(as_j);
             return -1;
         }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
@@ -37,9 +46,9 @@ int add_mult(MODULE* module, GLWECtParams* params,
         for(int64_t p = 0 ; p < N*l ; p++){
             res[p] += as_j[p];
         }
-        free(as_j_dft);
-        free(as_j);
     }
+    free(as_j_dft);
+    free(as_j);
 
     return 0;
 }
@@ -92,7 +101,13 @@ int sub_mult(MODULE* module, GLWECtParams* params,
     uint64_t N = params->N;
     uint64_t k = params->k;
     uint64_t l = poly_biv_size(params);
-    
+
+    // Will point to DFT(sk_j * a_j)
+    PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params));
+
+    // Will point to sk_j * a_j
+    PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
+
     // Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
     {
@@ -100,17 +115,20 @@ int sub_mult(MODULE* module, GLWECtParams* params,
         PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
         PolyBiv* a_j = ct + j*N;
         
-        // Computes DFT(sk_j * a_j)
-        PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
+         
         if(log_is_null(as_j_dft, "as_j_dft's malloc failed in sub_mult.") < 0)
+        {
+            free(as_j_dft);
+            free(as_j);
             return -1;
+        }
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
         if(log_is_null(as_j, "as_j's malloc failed in sub_mult.") < 0)
         {
             free(as_j_dft);
+            free(as_j);
             return -1;
         }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
@@ -119,9 +137,9 @@ int sub_mult(MODULE* module, GLWECtParams* params,
         for(int64_t p = 0 ; p < N*l ; p++){
             res[p] -= as_j[p];
         }
-        free(as_j_dft);
-        free(as_j);
     }
+    free(as_j_dft);
+    free(as_j);
 }
 
 int glwe_secret_demasking(MODULE* module,

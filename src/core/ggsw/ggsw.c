@@ -37,6 +37,12 @@ int glwe_secret_demasking_ggsw_lib(MODULE* module,
     if(log_is_null(acc, "acc's calloc failed in glwe_secret_demasking_ggsw_lib.") < 0)
         return -1;
 
+    // Will point to DFT(sk_j * a_j)
+    PolyBivDFT* as_j_dft = calloc(2*poly_biv_coef_number_dft(params), sizeof(double)); 
+
+    // Will point to sk_j * a_j
+    PolyBiv* as_j = calloc(poly_biv_coef_number(params), sizeof(int64_t)); 
+
     // Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
     {
@@ -45,24 +51,30 @@ int glwe_secret_demasking_ggsw_lib(MODULE* module,
         PolyUniv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
-        PolyBivDFT* as_j_dft = calloc(2*poly_biv_coef_number_dft(params), sizeof(double)); 
         if(log_is_null(as_j_dft, "as_j_dft's calloc failed in glwe_secret_demasking_ggsw_lib.") < 0)
+        {
+            free(as_j_dft);
+            free(as_j);
             return -1;
+        }
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        PolyBiv* as_j = calloc(poly_biv_coef_number(params), sizeof(int64_t)); 
         if(log_is_null(as_j, "as_j's calloc failed in glwe_secret_demasking_ggsw_lib.") < 0)
+        {
+            free(as_j_dft);
+            free(as_j);
             return -1;
+        }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // And subs it to acc
         for(int64_t p = 0 ; p < N*l ; p++){
             acc[p] -= as_j[p];
         }
-        free(as_j_dft);
-        free(as_j);
     }
+    free(as_j_dft);
+    free(as_j);
 
     // Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
     int64_t* b = ct + k*N;
@@ -95,6 +107,12 @@ int glwe_secret_masking_ggsw_lib(MODULE* module,
     if (log_is_null(acc, "acc's calloc failed in glwe_secret_masking_ggsw_lib.") < 0)
         return -1;
 
+    // Will point to DFT(sk_j) * DFT(a_j)
+    PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
+
+    // Will point to sk_j * a_j
+    PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
+
     // Computes Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
     {
@@ -102,23 +120,30 @@ int glwe_secret_masking_ggsw_lib(MODULE* module,
         PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
         
         // Computes DFT(sk_j) * DFT(a_j)
-        PolyBivDFT* as_j_dft = calloc(poly_biv_coef_number_dft(params), 2*sizeof(double)); 
         if(log_is_null(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking_ggsw_lib.") < 0)
+        {
+            free(as_j_dft); 
+            free(as_j);
             return -1;
+        }
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, res_ct + j*N, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        PolyBiv* as_j = calloc(poly_biv_coef_number(params), sizeof(int64_t)); 
         if(log_is_null(as_j, "as_j's calloc failed in glwe_secret_masking_ggsw_lib") < 0)
+        {
+            free(as_j_dft); 
+            free(as_j);
             return -1;
+        }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // And adds it to acc_j
         for(int64_t p = 0 ; p < N*l ; p++){
             acc[p] += as_j[p];
         }
-        free(as_j_dft); free(as_j);
     }
+    free(as_j_dft); 
+    free(as_j);
 
     // Add the phase to acc
     for(int64_t i = 1 ; i <= l ; i++){    
@@ -328,40 +353,6 @@ void add_error_dft(MODULE* module,
     add_biv_poly_dft(params, phase_dft, params->N, phase_dft, params->N, err_dft, params->N);
 }
 
-
-int add_mult_ggsw_dft(MODULE* module, GLWECtParams* params,
-                      PolyBiv* res, VecBiv* as, GGSWSecretKeyDFT* sk_dft
-){
-    uint64_t N = params->N;
-    uint64_t k = params->k;
-    uint64_t l = poly_biv_size(params);
-
-    // Computes Sum_j{0,k-1}[sk_j * a_j]
-    for(int64_t j = 0 ; j < k ; j++)
-    {
-        // The j-ème component of the secret key sk_dft
-        PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
-        
-        // Computes DFT(sk_j) * DFT(a_j)
-        PolyBivDFT* as_j_dft = calloc(2*poly_biv_coef_number_dft(params), sizeof(double)); 
-        if(log_is_null(as_j_dft, "as_j_dft calloc failed in add_mult_ggsw_dft.") < 0)
-            return -1;
-        svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, as + j*N, l, (k+1)*N); 
-        
-        // Computes sk_j * a_j
-        PolyBiv* as_j = calloc(poly_biv_coef_number(params), sizeof(int64_t));
-        if(log_is_null(as_j, "as_j calloc failed in add_mult_ggsw_dft.") < 0)
-            return -1;
-        vec_znx_idft_p(module, as_j, l, as_j_dft, l);
-
-        // And adds it to acc_j
-        for(int64_t p = 0 ; p < N*l ; p++){
-            res[p] += as_j[p];
-        }
-        free(as_j_dft); free(as_j);
-    }
-}
-
 int glwe_secret_demasking_ggsw_lib_dft(MODULE* module,
                                        GLWECtParams* params,
                                        PolyBiv* phase,
@@ -409,6 +400,12 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
     // acc_(j+1) = acc_j + (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
     PolyBiv* acc = calloc(N*l,sizeof(double)); 
     
+    // Will point to resVec_j_dft = (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
+    PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
+
+    // Will point to resVec_j in Zn[X,Y] space
+    PolyBiv* as_j =  malloc(poly_biv_bytes(params)); 
+    
     // Computes Sum_j{0,k-1}[resVec_j]
     for(int64_t j = 0 ; j < k ; j++)
     {
@@ -416,7 +413,6 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
         PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
         
         // Computes resVec_j_dft = (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
-        PolyBivDFT* as_j_dft = calloc(2*poly_biv_coef_number_dft(params), sizeof(double)); 
         if(log_is_null(as_j_dft, "as_j_dft's malloc failed in glwe_secret_masking_ggsw_lib_dft.") < 0)
         {
             free(tmp_ct);
@@ -425,7 +421,6 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, tmp_ct + j*N, l, (k+1)*N); 
         
         // Computes resVec_j in Zn[X,Y] space
-        PolyBiv* as_j = calloc(poly_biv_coef_number(params), sizeof(int64_t)); 
         if(log_is_null(as_j, "as_j's malloc failed in glwe_secret_masking_ggsw_lib_dft") < 0)
         {
             free(tmp_ct); free(as_j_dft); 
