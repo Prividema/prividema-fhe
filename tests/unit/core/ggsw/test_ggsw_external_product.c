@@ -7,7 +7,7 @@
 #include "core/glwe/glwe_ciphertext.h"
 #include "rng.h"
 
-#define NBASE            2
+#define NBASE            1024
 #define KBASE            1
 #define KAPPABASE        4
 #define NLIMBSBASE       (KBASE + 1) * 2
@@ -93,6 +93,8 @@ Test(ggsw_external_product, without_error)
 		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
 		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
 		          um_univ[p]);
+
+        cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
 	}
 
 	free(m);
@@ -165,7 +167,7 @@ Test(ggsw_external_product_dft, without_error)
 	ggsw_external_product_dft(module, res_dft, ct_glwe_tilde_dft, ct_ggsw_dft);
 
 	// res out of DFT space
-	vec_znx_idft_p(module, res->vec, glwe_size(params_glwe), res_dft->pvec, glwe_size(params_glwe));
+	vec_znx_idft_p(module, res->vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 	normalize_glwe(module, res, res);
 
 	// Computes the result phase = u*m + err
@@ -202,6 +204,7 @@ Test(ggsw_external_product_dft, without_error)
 		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
 		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
 		          um_univ[p]);
+        cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
 	}
 
 	free(m);

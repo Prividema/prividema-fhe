@@ -303,24 +303,26 @@ int ggsw_external_product(MODULE* module,
 	uint64_t ncols = ct_ggsw->params->params_glwe->n_limbs;
 
 	// Prepares the GGSW ciphertext in DFT space
-	MatBivDFT* mat_dft = malloc(ggsw_bytes(ct_ggsw->params));
-	if (log_is_null(mat_dft, "mat_dft's malloc failed in ggsw_external_product.") < 0) return -1;
+	MatBivDFT* pmat = malloc(ggsw_bytes(ct_ggsw->params));
+	if (log_is_null(pmat, "mat_dft's malloc failed in ggsw_external_product.") < 0) return -1;
 
-	vmp_prepare_contiguous_p(module, mat_dft, ct_ggsw->mat, nrows, ncols);
+	vmp_prepare_contiguous_p(module, pmat, ct_ggsw->mat, nrows, ncols);
 
 	// The pointer to ExternalProduct(ct_glwe, ct_ggsw)
 	VecBivDFT* result = malloc(glwe_bytes(ct_ggsw->params->params_glwe));
 	if (log_is_null(result, "result's malloc failed in ggsw_external_product.") < 0) {
-		free(mat_dft);
+		free(pmat);
 		return -1;
 	}
 
 	// Computes ExternalProduct(ct_glwe, ct_ggsw)
-	vmp_apply_dft_p(module, result, ncols, ct_glwe->vec, nrows, N, mat_dft, nrows, ncols);
+	vmp_apply_dft_p(module, result, ncols, ct_glwe->vec, nrows, N, pmat, nrows, ncols);
 	vec_znx_idft_p(module, res->vec, ncols, result, ncols);
 
-	free(mat_dft);
+	free(pmat);
 	free(result);
+
+	return 0;
 }
 
 //! GGSW IN DFT PART (begin)
@@ -622,8 +624,10 @@ int ggsw_external_product_dft(MODULE* module,
 	vmp_prepare_contiguous_p(module, pmat, mat, nrows, ncols);
 
 	// Computes ExternalProduct(ct_glwe, ct_ggsw)
-	vmp_apply_dft_to_dft_p(module, res_dft->pvec, ncols, ct_glwe_dft->pvec, nrows, pmat, nrows, ncols);
+	vmp_apply_dft_to_dft_p(module, res_dft->vec, ncols, ct_glwe_dft->vec, nrows, pmat, nrows, ncols);
 
 	free(mat);
 	free(pmat);
+
+	return 0;
 }

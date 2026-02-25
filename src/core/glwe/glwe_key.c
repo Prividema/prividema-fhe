@@ -26,8 +26,10 @@ PolyUniv** new_glwe_secret_key_values(uint64_t N, uint64_t k)
 
 PolyUniv** new_uniform_glwe_secret_key_values(MODULE* module, uint64_t k, uint64_t nb_bits)
 {
-	uint64_t N        = module->nn;
+	// The
+	uint64_t N = module->nn;
 
+	// The Secret key values
 	PolyUniv** values = malloc(k * sizeof(PolyUniv*));
 	if (log_is_null(values, "values' malloc failed in new_uniform_glwe_secret_key_values.") < 0) return NULL;
 
@@ -56,9 +58,7 @@ PolyUniv** new_uniform_glwe_secret_key_values(MODULE* module, uint64_t k, uint64
 
 void delete_glwe_secret_key_values(PolyUniv** values, uint64_t k)
 {
-	for (int64_t j = 0; j < k; j++) {
-		free(values[j]);
-	}
+	for (int64_t j = 0; j < k; j++) free(values[j]);
 	free(values);
 }
 

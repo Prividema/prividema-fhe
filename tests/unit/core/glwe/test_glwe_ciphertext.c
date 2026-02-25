@@ -7,7 +7,7 @@
 #include "utils.h"
 #include "vec_znx_arithmetic_private.h"
 
-#define NBASE      4
+#define NBASE      1024
 #define KBASE      1
 #define KAPPABASE  4
 #define NLIMBSBASE (KBASE + 1) * 2
@@ -337,7 +337,7 @@ Test(new_glwe_dft, basic)
 	GLWECtParams* params  = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GLWECiphertextDFT* ct = new_glwe_dft(params);
 
-	cr_assert(eq(int, (ct != NULL) && (ct->pvec != NULL), 1));
+	cr_assert(eq(int, (ct != NULL) && (ct->vec != NULL), 1));
 
 	delete_glwe_dft(ct);
 	delete_glwe_ct_params(params);
@@ -352,17 +352,17 @@ Test(add_glwe_dft, basic)
 	GLWECiphertextDFT* ct_r_dft   = new_glwe_dft(params);
 	GLWECiphertextDFT* ct_sum_dft = new_glwe_dft(params);
 
-	inplace_uniform_random_vec_znx_dft(module, ct_l_dft->pvec, params->n_limbs, KAPPABASE - 1);
-	inplace_uniform_random_vec_znx_dft(module, ct_r_dft->pvec, params->n_limbs, KAPPABASE - 1);
+	inplace_uniform_random_vec_znx_dft(module, ct_l_dft->vec, params->n_limbs, KAPPABASE - 1);
+	inplace_uniform_random_vec_znx_dft(module, ct_r_dft->vec, params->n_limbs, KAPPABASE - 1);
 
 	add_glwe_dft(ct_sum_dft, ct_l_dft, ct_r_dft);
 
 	for (int64_t i = 1; i < LBASE; i++)
 		for (int64_t j = 0; j < KBASE + 1; j++)
 			for (int64_t p = 0; p < NBASE; p++)
-				cr_assert(eq(ct_sum_dft->pvec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p],
-				             ct_l_dft->pvec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] +
-				                 ct_r_dft->pvec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]));
+				cr_assert(eq(ct_sum_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p],
+				             ct_l_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] +
+				                 ct_r_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]));
 
 	delete_module_info(module);
 	delete_glwe_dft(ct_l_dft);
@@ -384,10 +384,10 @@ Test(const_mult_glwe_dft, without_normalization)
 
 	// Draws uniformly the GLWE ciphertext and computes it out of DFT space
 	GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->pvec, params->n_limbs, KAPPABASE - 1);
+	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params->n_limbs, KAPPABASE - 1);
 
 	VecBiv* ct_vec = malloc(glwe_bytes(params));
-	vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->pvec, glwe_size(params));
+	vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->vec, glwe_size(params));
 
 	// Draws uniformly the ZnX polynomial and computes it ouf of DFT space
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
@@ -397,7 +397,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 0);
 
 	// Computes res out of DFT space
-	vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->pvec, glwe_size(params));
+	vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->vec, glwe_size(params));
 
 	for (int64_t i = 1; i <= LBASE; i++)
 		for (int64_t j = 0; j < KBASE + 1; j++) {
@@ -437,10 +437,10 @@ Test(const_mult_glwe_dft, with_normalization)
 
 	// Draws uniformly the GLWE ciphertext and computes it out of DFT space
 	GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->pvec, params->n_limbs, KAPPABASE - 1);
+	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params->n_limbs, KAPPABASE - 1);
 
 	VecBiv* ct_vec = malloc(glwe_bytes(params));
-	vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->pvec, glwe_size(params));
+	vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->vec, glwe_size(params));
 
 	// Draws uniformly the ZnX polynomial and computes it ouf of DFT space
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
@@ -450,7 +450,7 @@ Test(const_mult_glwe_dft, with_normalization)
 	const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 1);
 
 	// Computes res out of DFT space
-	vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->pvec, glwe_size(params));
+	vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->vec, glwe_size(params));
 
 	for (int64_t j = 0; j < KBASE + 1; j++)
 		for (int64_t p = 0; p < NBASE; p++)

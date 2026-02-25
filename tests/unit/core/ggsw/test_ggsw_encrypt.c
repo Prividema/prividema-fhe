@@ -5,7 +5,7 @@
 #include "core/ggsw/ggsw.h"
 #include "rng.h"
 
-#define NBASE            32
+#define NBASE            1024
 #define KBASE            1
 #define KAPPABASE        4
 #define NLIMBSBASE       (KBASE + 1) * 1

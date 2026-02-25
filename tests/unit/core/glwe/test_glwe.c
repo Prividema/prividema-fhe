@@ -6,7 +6,7 @@
 #include "core/glwe/glwe.h"
 #include "rng.h"
 
-#define NBASE      4
+#define NBASE      1024
 #define KBASE      1
 #define KAPPABASE  4
 #define NLIMBSBASE (KBASE + 1) * 8

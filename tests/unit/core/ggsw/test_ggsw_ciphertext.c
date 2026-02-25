@@ -4,7 +4,7 @@
 #include "ggsw_ciphertext.h"
 #include "rng.h"
 
-#define NBASE            2
+#define NBASE            1024
 #define KBASE            1
 #define KAPPABASE        4
 #define NLIMBSBASE       (KBASE + 1) * 2

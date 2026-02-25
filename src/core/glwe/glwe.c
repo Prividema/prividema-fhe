@@ -119,6 +119,8 @@ int sub_mult(MODULE* module, GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLW
 	}
 	free(as_j_dft);
 	free(as_j);
+
+	return 0;
 }
 
 int glwe_secret_demasking(MODULE* module, PolyBiv* res, GLWESecretKeyDFT* sk_dft, GLWECiphertext* ct)
@@ -190,12 +192,12 @@ int glwe_secret_masking_dft(MODULE* module, GLWECiphertextDFT* ct_dft, GLWESecre
 	vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k + 1) * N, acc, l, N);
 
 	// Computes the GLWE ciphertext in DFT space
-	vec_znx_dft_p(module, ct_dft->pvec, (k + 1) * l, ct, (k + 1) * l, N);
+	vec_znx_dft_p(module, ct_dft->vec, (k + 1) * l, ct, (k + 1) * l, N);
 
 	// Add the phase to the result ciphertext's b
 	for (int64_t i = 1; i <= l; i++) {
 		for (int64_t p = 0; p < N; p++) {
-			ct_dft->pvec[(i - 1) * (k + 1) * N + k * N + p] += phase_dft[(i - 1) * N + p];
+			ct_dft->vec[(i - 1) * (k + 1) * N + k * N + p] += phase_dft[(i - 1) * N + p];
 		}
 	}
 
@@ -216,7 +218,7 @@ int glwe_secret_demasking_dft(MODULE* module, PolyBiv* res, GLWESecretKeyDFT* sk
 	// Computes the input ciphertext out of DFT space
 	VecBiv* ct = calloc(glwe_coef_number(params), sizeof(int64_t));
 	if (log_is_null(ct, "ct's calloc failed in glwe_secret_demasking_dft") < 0) return -1;
-	vec_znx_idft_p(module, ct, glwe_size(params), ct_dft->pvec, glwe_size(params));
+	vec_znx_idft_p(module, ct, glwe_size(params), ct_dft->vec, glwe_size(params));
 
 	PolyBiv* acc = calloc(N * l, sizeof(int64_t));
 	if (log_is_null(acc, "acc's calloc failed in glwe_secret_demasking_dft.") < 0) {
