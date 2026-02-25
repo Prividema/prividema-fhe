@@ -77,7 +77,7 @@ int64_t* new_uniform_random_vec(uint64_t coef_nb, uint64_t nb_bits);
  * 
  * @note For each call to this function, we'll generate a new seed.
  */
-int inplace_uniform_random_vec_znx_dft(MODULE* module, PolyUnivDFT* res_dft, int64_t res_size, uint64_t nb_bits);
+int inplace_uniform_random_vec_znx_dft(MODULE* module, VecUnivDFT* res_dft, int64_t res_size, uint64_t nb_bits);
 
 /**
  * @brief Generates a random Zn[X] vector, following a uniform distribution and returns it in DFT space .

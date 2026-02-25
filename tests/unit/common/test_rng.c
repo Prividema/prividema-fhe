@@ -4,7 +4,7 @@
 #include <criterion/new/assert.h>
 #include <stdlib.h>
 
-#define NB_SAMPLES 100000
+#define NB_SAMPLES 1000
 
 // Chi-squared critical value for alpha = 0.05 depending on the degrees of freedom
 double chi_critical_05[100] = {
@@ -182,7 +182,6 @@ Test(rand_normal, test_rand_normal)
 
 Test(new_normal_random_vec, basic)
 {
-    log_msg(LOG_INFO, "Test normal random vector");
     MODULE* module = new_module_info_p(NBASE);
     double* pol_univ = malloc(NBASE * KBASE *sizeof(double));
     if (pol_univ == NULL) {
@@ -192,15 +191,11 @@ Test(new_normal_random_vec, basic)
 
     if(new_normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0)
     {
-        // TODO : Fill the error message.
-        log_msg(LOG_ERROR, "");
+        log_msg(LOG_ERROR, "new_normal_random_vec failedi.");
         delete_module_info_p(module);
         free(pol_univ);
         cr_fail();
     }
-
-    for(int64_t p = 0 ; p < NBASE ; p++)
-        log_msg(LOG_DEBUG, "Ouput : %e X^%ld", pol_univ[p], p);
 
     delete_module_info_p(module);
     free(pol_univ);

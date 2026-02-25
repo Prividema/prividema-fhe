@@ -39,10 +39,21 @@ int glwe_secret_demasking_ggsw_lib(MODULE* module,
 
     // Will point to DFT(sk_j * a_j)
     PolyBivDFT* as_j_dft = calloc(2*poly_biv_coef_number_dft(params), sizeof(double)); 
-
+    if(log_is_null(as_j_dft, "as_j_dft's calloc failed in glwe_secret_demasking_ggsw_lib.") < 0)
+    {
+        free(acc);
+        return -1;
+    }
+        
     // Will point to sk_j * a_j
     PolyBiv* as_j = calloc(poly_biv_coef_number(params), sizeof(int64_t)); 
-
+    if(log_is_null(as_j, "as_j's calloc failed in glwe_secret_demasking_ggsw_lib.") < 0)
+    {
+        free(acc);
+        free(as_j_dft);
+        return -1;
+    }
+        
     // Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
     {
@@ -51,21 +62,9 @@ int glwe_secret_demasking_ggsw_lib(MODULE* module,
         PolyUniv* a_j = ct + j*N;
         
         // Computes DFT(sk_j * a_j)
-        if(log_is_null(as_j_dft, "as_j_dft's calloc failed in glwe_secret_demasking_ggsw_lib.") < 0)
-        {
-            free(as_j_dft);
-            free(as_j);
-            return -1;
-        }
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        if(log_is_null(as_j, "as_j's calloc failed in glwe_secret_demasking_ggsw_lib.") < 0)
-        {
-            free(as_j_dft);
-            free(as_j);
-            return -1;
-        }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // And subs it to acc
@@ -109,9 +108,20 @@ int glwe_secret_masking_ggsw_lib(MODULE* module,
 
     // Will point to DFT(sk_j) * DFT(a_j)
     PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
-
+    if(log_is_null(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking_ggsw_lib.") < 0)
+    {
+        free(acc); 
+        return -1;
+    }
+        
     // Will point to sk_j * a_j
     PolyBiv* as_j = malloc(poly_biv_bytes(params)); 
+    if(log_is_null(as_j, "as_j's calloc failed in glwe_secret_masking_ggsw_lib") < 0)
+    {
+        free(acc); 
+        free(as_j_dft);
+        return -1;
+    }
 
     // Computes Sum_j{0,k-1}[sk_j * a_j]
     for(int64_t j = 0 ; j < k ; j++)
@@ -120,21 +130,9 @@ int glwe_secret_masking_ggsw_lib(MODULE* module,
         PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
         
         // Computes DFT(sk_j) * DFT(a_j)
-        if(log_is_null(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking_ggsw_lib.") < 0)
-        {
-            free(as_j_dft); 
-            free(as_j);
-            return -1;
-        }
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, res_ct + j*N, l, (k+1)*N); 
         
         // Computes sk_j * a_j
-        if(log_is_null(as_j, "as_j's calloc failed in glwe_secret_masking_ggsw_lib") < 0)
-        {
-            free(as_j_dft); 
-            free(as_j);
-            return -1;
-        }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // And adds it to acc_j
@@ -399,13 +397,26 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
     
     // acc_(j+1) = acc_j + (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
     PolyBiv* acc = calloc(N*l,sizeof(double)); 
-    
+    if(log_is_null(acc,"acc's calloc failed in glwe_secret_masking_ggsw_lib_dft.") < 0)
+        return -1;
+
     // Will point to resVec_j_dft = (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
     PolyBivDFT* as_j_dft = malloc(poly_biv_bytes(params)); 
-
+    if(log_is_null(as_j_dft, "as_j_dft's malloc failed in glwe_secret_masking_ggsw_lib_dft.") < 0)
+    {
+        free(acc);
+        return -1;
+    }
+        
     // Will point to resVec_j in Zn[X,Y] space
     PolyBiv* as_j =  malloc(poly_biv_bytes(params)); 
-    
+    if(log_is_null(as_j, "as_j's malloc failed in glwe_secret_masking_ggsw_lib_dft") < 0)
+    {
+        free(acc);
+        free(as_j_dft);
+        return -1;
+    }
+        
     // Computes Sum_j{0,k-1}[resVec_j]
     for(int64_t j = 0 ; j < k ; j++)
     {
@@ -413,23 +424,9 @@ int glwe_secret_masking_ggsw_lib_dft(MODULE* module,
         PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j]; 
         
         // Computes resVec_j_dft = (DFT(sk_j) * limb_1(a_j) , ... , DFT(sk_j) * limb_l(a_j))
-        if(log_is_null(as_j_dft, "as_j_dft's malloc failed in glwe_secret_masking_ggsw_lib_dft.") < 0)
-        {
-            free(as_j);
-            free(as_j_dft);
-            free(tmp_ct);
-            return -1;
-        }
         svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, tmp_ct + j*N, l, (k+1)*N); 
         
         // Computes resVec_j in Zn[X,Y] space
-        if(log_is_null(as_j, "as_j's malloc failed in glwe_secret_masking_ggsw_lib_dft") < 0)
-        {
-            free(as_j);
-            free(as_j_dft);
-            free(tmp_ct); 
-            return -1;
-        }
         vec_znx_idft_p(module, as_j, l, as_j_dft, l);
 
         // And adds it to acc_j : acc_(j+1) = acc_j + resVec_j
@@ -638,15 +635,26 @@ int ggsw_external_product_dft(MODULE* module,
     uint64_t nrows = ct_ggsw_dft->params->n_limbs_tilde;
     uint64_t ncols = ct_ggsw_dft->params->params_glwe->n_limbs;
 
+    // Computes the GGSW ciphertext out of DFT space
+    MatBiv* mat = malloc(ggsw_bytes(ct_ggsw_dft->params));
+    if(log_is_null(mat, "mat's malloc failed in ggsw_external_product_dft.") < 0)
+        return -1;
+    vec_znx_idft_p(module, mat, nrows*ncols, ct_ggsw_dft->mat, nrows*ncols);
+
     // Prepares the GGSW ciphertext in DFT space
-    MatBivDFT* mat_dft = malloc(ggsw_bytes(ct_ggsw_dft->params));
-    if (mat_dft == NULL)
-        return log_perror("mat_column_major_dft's malloc failed in ggsw_external_product_dft.");
+    MatBivDFT* pmat = malloc(ggsw_bytes(ct_ggsw_dft->params));
+    if(log_is_null(pmat, "pmat's malloc failed in ggsw_external_product_dft.") < 0)
+    {
+        free(mat);
+        return -1;
+    }
+    vmp_prepare_contiguous_p(module, pmat, mat, nrows, ncols);
     
     // Computes ExternalProduct(ct_glwe, ct_ggsw)
     vmp_apply_dft_to_dft_p(module, res_dft->pvec, ncols, 
                                    ct_glwe_dft->pvec, nrows, 
-                                   mat_dft, nrows, ncols);
+                                   pmat, nrows, ncols);
 
-    free(mat_dft);
+    free(mat);
+    free(pmat);
 }
