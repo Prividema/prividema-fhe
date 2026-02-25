@@ -5,19 +5,14 @@
  *  @brief Enum that defines the different log levels :
  * `LOG_DEBUG`, `LOG_INFO`, `LOG_WARN`, `LOG_ERROR`
  */
-typedef enum {
-    LOG_DEBUG,
-    LOG_INFO,
-    LOG_WARN,
-    LOG_ERROR
-} LogLevel;
+typedef enum { LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR } LogLevel;
 
 extern LogLevel LOG_THRESHOLD;
 
 /**
  * @brief Set the program's log level.
  * @param level The log level. Should be an element of the enum.
- */ 
+ */
 void set_log_level(LogLevel level);
 
 /**
@@ -34,7 +29,7 @@ int log_msg(LogLevel level, const char* fmt, ...);
  * @param header The perror message header.
  * @return always -1 as a syscall error is often fatal.
  */
-int log_perror(const char *header);
+int log_perror(const char* header);
 
 /**
  * @brief Log a syscall error like log_perror, if and only if ptr is NULL.
@@ -42,5 +37,5 @@ int log_perror(const char *header);
  * @param header The perror message header.
  * @return -1 if and only if test is NULL.
  */
-int log_is_null(void* ptr, const char *header);
-#endif // LOGGER_H
+int log_is_null(void* ptr, const char* header);
+#endif  // LOGGER_H
