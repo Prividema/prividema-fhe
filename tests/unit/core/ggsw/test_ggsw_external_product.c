@@ -94,7 +94,7 @@ Test(ggsw_external_product, without_error)
 		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
 		          um_univ[p]);
 
-        cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
+		cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
 	}
 
 	free(m);
@@ -204,7 +204,7 @@ Test(ggsw_external_product_dft, without_error)
 		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
 		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
 		          um_univ[p]);
-        cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
+		cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
 	}
 
 	free(m);

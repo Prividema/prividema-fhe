@@ -145,14 +145,10 @@ int inplace_uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs
 VecUniv* new_uniform_random_vec(uint64_t vec_size, uint64_t nb_bits)
 {
 	VecUniv* res = malloc(vec_size * sizeof(int64_t));
-	if (res == NULL) {
-		log_perror("In Malloc failed.");
-		return NULL;
-	}
+	if (log_is_null(res, "malloc in new_uniform_random_vec") < 0) return NULL;
 
-	for (int64_t i = 0; i < vec_size; i++) {
+	for (int64_t i = 0; i < vec_size; i++)
 		if (rand_uniform(res + i, nb_bits) < 0) return NULL;
-	}
 
 	return res;
 }
@@ -161,6 +157,8 @@ int inplace_uniform_random_vec_znx_dft(MODULE* module, VecUnivDFT* res_dft, int6
 {
 	uint64_t N         = module->nn;
 	int64_t* tmp_space = malloc(N * res_size * sizeof(int64_t));
+	if (log_is_null(tmp_space, "malloc in inplace_uniform_random_vec_znx_dft") < 0) return -1;
+
 	for (int i = 0; i < res_size; i++) {
 		for (int p = 0; p < N; p++) {
 			if (rand_uniform(tmp_space + i * N + p, nb_bits) < 0) {
@@ -180,7 +178,7 @@ VecUnivDFT* new_uniform_random_vec_znx_dft(MODULE* module, uint64_t vec_size, ui
 {
 	uint64_t N         = module->nn;
 	int64_t* tmp_space = malloc(N * vec_size * sizeof(int64_t));
-
+	if (log_is_null(tmp_space, "malloc in new_uniform_random_vec_znx_dft") < 0) return NULL;
 	// Draws the uniformly the vector
 	for (int i = 0; i < vec_size; i++) {
 		for (int p = 0; p < N; p++) {
@@ -193,10 +191,13 @@ VecUnivDFT* new_uniform_random_vec_znx_dft(MODULE* module, uint64_t vec_size, ui
 
 	// Computes the vector in DFT space
 	VecUnivDFT* res_dft = malloc(vec_size * N * sizeof(double));
+	if (log_is_null(tmp_space, "malloc in new_uniform_random_vec_znx_dft") < 0) {
+		free(tmp_space);
+		return NULL;
+	}
+
 	vec_znx_dft_p(module, res_dft, vec_size, tmp_space, vec_size, N);
-
 	free(tmp_space);
-
 	return res_dft;
 }
 

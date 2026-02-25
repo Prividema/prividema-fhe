@@ -73,7 +73,7 @@ int const_mult_glwe(MODULE* module, GLWECiphertext* res, PolyUnivDFT* u, GLWECip
 typedef struct glwe_ciphertext_dft
 {
 	GLWECtParams* params;  // GLWE parameters
-	VecBivDFT* vec;       // Prepared vector
+	VecBivDFT* vec;        // Prepared vector
 } GLWECiphertextDFT;
 
 /**
@@ -121,7 +121,7 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECi
  * @param do_normalization the function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
 int const_mult_glwe_dft(MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u, GLWECiphertextDFT* ct_dft,
-                         int do_normalization);
+                        int do_normalization);
 
 //! COMMON PART (begin)
 

@@ -15,7 +15,7 @@
 #define NBASE      1024
 #define KBASE      1
 #define KAPPABASE  4
-#define NLIMBSBASE (KBASE+1)*4
+#define NLIMBSBASE (KBASE + 1) * 4
 #define LBASE      NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE  -7
 

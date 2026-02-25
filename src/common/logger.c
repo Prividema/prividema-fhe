@@ -61,10 +61,4 @@ int log_msg(LogLevel level, const char* fmt, ...)
 // Perror with logger
 int log_perror(const char* header) { return log_msg(LOG_ERROR, "%s : %s", header, strerror(errno)); }
 
-int log_is_null(void* ptr, const char* header)
-{
-	if (ptr == NULL) {
-		return log_perror(header);
-	} else
-		return 0;
-}
+int log_is_null(void* ptr, const char* header) { return (ptr == NULL) ? log_perror(header) : 0; }

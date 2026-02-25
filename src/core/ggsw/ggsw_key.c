@@ -10,11 +10,11 @@
 PolyUniv** new_ggsw_secret_key_values(uint64_t N, uint64_t k)
 {
 	PolyUniv** values = malloc(k * sizeof(PolyUniv*));
-	if (log_is_null(values, "values's malloc failed in new_ggsw_secret_key_values.") < 0) return NULL;
+	if (log_is_null(values, "values's malloc in new_ggsw_secret_key_values") < 0) return NULL;
 
 	for (int64_t j = 0; j < k; j++) {
 		values[j] = calloc(N, sizeof(int64_t));
-		if (log_is_null(values[j], "values elements' calloc failed in new_ggsw_secret_key_values.") < 0) {
+		if (log_is_null(values[j], "values elements' calloc failed in new_ggsw_secret_key_values") < 0) {
 			for (int64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
@@ -29,12 +29,12 @@ PolyUniv** new_uniform_ggsw_secret_key_values(MODULE* module, uint64_t k, uint64
 {
 	uint64_t N        = module->nn;
 	PolyUniv** values = malloc(k * sizeof(PolyUniv*));
-	if (log_is_null(values, "values's malloc failed in new_uniform_ggsw_secret_key_values.") < 0) return NULL;
+	if (log_is_null(values, "values's malloc failed in new_uniform_ggsw_secret_key_values") < 0) return NULL;
 
 	// Uniform random generation of k Zn[X] polynomials.
 	for (int64_t j = 0; j < k; j++) {
 		values[j] = malloc(N * sizeof(double));
-		if (log_is_null(values[j], "values elements' calloc failed in new_uniform_ggsw_secret_key_values.") < 0) {
+		if (log_is_null(values[j], "values elements' calloc failed in new_uniform_ggsw_secret_key_values") < 0) {
 			for (int64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
@@ -42,7 +42,7 @@ PolyUniv** new_uniform_ggsw_secret_key_values(MODULE* module, uint64_t k, uint64
 		}
 
 		if (inplace_uniform_random_vec(N, values[j], 1, N, nb_bits) < 0) {
-			log_perror("inplace_uniform_random_vec failed in new_uniform_ggsw_secret_key_values.");
+			log_perror("inplace_uniform_random_vec failed in new_uniform_ggsw_secret_key_values");
 			for (int64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
@@ -56,23 +56,17 @@ PolyUniv** new_uniform_ggsw_secret_key_values(MODULE* module, uint64_t k, uint64
 void delete_ggsw_secret_key_values(PolyUniv** values, uint64_t k)
 {
 	for (int64_t j = 0; j < k; j++) free(values[j]);
-
 	free(values);
 }
 
 GGSWSecretKey* new_ggsw_secret_key(PolyUniv** values, uint64_t N, uint64_t k)
 {
 	GGSWSecretKey* sk = malloc(sizeof(GGSWSecretKey));
-	if (log_is_null(sk, "sk's malloc failed in new_ggsw_secret_key.") < 0) return NULL;
+	if (log_is_null(sk, "sk's malloc failed in new_ggsw_secret_key") < 0) return NULL;
 
-	sk->N = N;
-	sk->k = k;
-
-	if (values == NULL) {
-		sk->values = new_ggsw_secret_key_values(N, k);
-	} else {
-		sk->values = values;
-	}
+	sk->N      = N;
+	sk->k      = k;
+	sk->values = (values == NULL) ? new_ggsw_secret_key_values(N, k) : values;
 
 	return sk;
 }
@@ -80,9 +74,8 @@ GGSWSecretKey* new_ggsw_secret_key(PolyUniv** values, uint64_t N, uint64_t k)
 GGSWSecretKey* new_uniform_ggsw_secret_key(MODULE* module, uint64_t k, uint64_t nb_bits)
 {
 	uint64_t N        = module->nn;
-
 	GGSWSecretKey* sk = malloc(sizeof(GGSWSecretKey));
-	if (log_is_null(sk, "sk's malloc failed in new_uniform_ggsw_secret_key.") < 0) return NULL;
+	if (log_is_null(sk, "sk's malloc failed in new_uniform_ggsw_secret_key") < 0) return NULL;
 
 	sk->N      = N;
 	sk->k      = k;
@@ -101,9 +94,7 @@ GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(MODULE* module, GGSWSecr
 {
 	GGSWSecretKey* sk = new_ggsw_secret_key(NULL, sk_dft->N, sk_dft->k);
 
-	for (int64_t j = 0; j < sk->k; j++) {
-		vec_znx_idft_p(module, sk->values[j], 1, sk_dft->values[j], 1);
-	}
+	for (int64_t j = 0; j < sk->k; j++) vec_znx_idft_p(module, sk->values[j], 1, sk_dft->values[j], 1);
 
 	return sk;
 }
@@ -113,13 +104,13 @@ PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(MODULE* module, PolyU
 	uint64_t N        = module->nn;
 
 	PolyUniv** values = malloc(k * sizeof(PolyUniv*));
-	if (log_is_null(values, "values's calloc failed in transform_ggsw_secret_key_values_dft_to_not_dft.") < 0)
+	if (log_is_null(values, "values's calloc failed in transform_ggsw_secret_key_values_dft_to_not_dft") < 0)
 		return NULL;
 
 	for (int64_t j = 0; j < k; j++) {
 		values[j] = calloc(N, sizeof(int64_t));
 		if (log_is_null(values[j],
-		                "values elements' calloc failed in transform_ggsw_secret_key_values_dft_to_not_dft.") < 0) {
+		                "values elements' calloc failed in transform_ggsw_secret_key_values_dft_to_not_dft") < 0) {
 			for (int64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
@@ -134,14 +125,11 @@ PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(MODULE* module, PolyU
 GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(GGSWSecretKey* sk_ggsw)
 {
 	GLWESecretKey* sk_glwe = new_glwe_secret_key(NULL, sk_ggsw->N, sk_ggsw->k);
-	if (log_is_null(sk_glwe, "sk_glwe's malloc failed in transform_ggsw_secret_key_to_glwe_secret_key.") < 0)
+	if (log_is_null(sk_glwe, "sk_glwe's malloc failed in transform_ggsw_secret_key_to_glwe_secret_key") < 0)
 		return NULL;
 
-	for (int64_t j = 0; j < sk_ggsw->k; j++) {
-		for (int p = 0; p < sk_ggsw->N; p++) {
-			sk_glwe->values[j][p] = sk_ggsw->values[j][p];
-		}
-	}
+	for (int64_t j = 0; j < sk_ggsw->k; j++)
+		for (int p = 0; p < sk_ggsw->N; p++) sk_glwe->values[j][p] = sk_ggsw->values[j][p];
 
 	return sk_glwe;
 }
@@ -151,11 +139,11 @@ GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(GGSWSecretKey* sk_gg
 PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k)
 {
 	PolyUnivDFT** values_dft = malloc(k * sizeof(PolyUnivDFT*));
-	if (log_is_null(values_dft, "values_dft's malloc failed in new_ggsw_secret_key_values_dft.") < 0) return NULL;
+	if (log_is_null(values_dft, "values_dft's malloc failed in new_ggsw_secret_key_values_dft") < 0) return NULL;
 
 	for (int64_t j = 0; j < k; j++) {
 		values_dft[j] = calloc(N, sizeof(double));
-		if (log_is_null(values_dft[j], "values_dft elements' calloc failed in new_ggsw_secret_key_values_dft.") < 0) {
+		if (log_is_null(values_dft[j], "values_dft elements' calloc failed in new_ggsw_secret_key_values_dft") < 0) {
 			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
 
@@ -170,14 +158,14 @@ PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(MODULE* module, uint64_t k,
 {
 	uint64_t N               = module->nn;
 	PolyUnivDFT** values_dft = malloc(k * sizeof(PolyUnivDFT*));
-	if (log_is_null(values_dft, "values_dft's malloc failed in new_uniform_ggsw_secret_key_values_dft.") < 0)
+	if (log_is_null(values_dft, "values_dft's malloc failed in new_uniform_ggsw_secret_key_values_dft") < 0)
 		return NULL;
 
 	// Uniform random generation of k Zn[X] polynomials.
 	for (int64_t j = 0; j < k; j++) {
 		values_dft[j] = malloc(N * sizeof(double));
-		if (log_is_null(values_dft[j],
-		                "values_dft elements' calloc failed in new_uniform_ggsw_secret_key_values_dft.") < 0) {
+		if (log_is_null(values_dft[j], "values_dft elements' calloc failed in new_uniform_ggsw_secret_key_values_dft") <
+		    0) {
 			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
 
@@ -185,7 +173,7 @@ PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(MODULE* module, uint64_t k,
 		}
 
 		if (inplace_uniform_random_vec_znx_dft(module, values_dft[j], 1, nb_bits) < 0) {
-			log_perror("inplace_uniform_random_vec_znx_dft failed in new_uniform_ggsw_secret_key_values_dft.");
+			log_perror("inplace_uniform_random_vec_znx_dft failed in new_uniform_ggsw_secret_key_values_dft");
 
 			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
@@ -206,16 +194,11 @@ void delete_ggsw_secret_key_values_dft(PolyUnivDFT** values, uint64_t k)
 GGSWSecretKeyDFT* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k)
 {
 	GGSWSecretKeyDFT* sk_dft = malloc(sizeof(GGSWSecretKeyDFT));
-	if (log_is_null(sk_dft, "sk_dft's malloc failed in new_ggsw_secret_key_dft.") < 0) return NULL;
+	if (log_is_null(sk_dft, "sk_dft's malloc failed in new_ggsw_secret_key_dft") < 0) return NULL;
 
-	sk_dft->N = N;
-	sk_dft->k = k;
-
-	if (values == NULL) {
-		sk_dft->values = new_ggsw_secret_key_values_dft(N, k);
-	} else {
-		sk_dft->values = values;
-	}
+	sk_dft->N      = N;
+	sk_dft->k      = k;
+	sk_dft->values = (values == NULL) ? new_ggsw_secret_key_values_dft(N, k) : values;
 
 	return sk_dft;
 }
@@ -223,10 +206,9 @@ GGSWSecretKeyDFT* new_ggsw_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint
 GGSWSecretKeyDFT* new_uniform_ggsw_secret_key_dft(MODULE* module, uint64_t k, uint64_t nb_bits)
 {
 	uint64_t N               = module->nn;
-
 	GGSWSecretKeyDFT* sk_dft = malloc(sizeof(GGSWSecretKeyDFT));
-	if (log_is_null(sk_dft, "sk_dft's malloc failed in new_uniform_ggsw_secret_key_dft.") < 0) return NULL;
 
+	if (log_is_null(sk_dft, "sk_dft's malloc failed in new_uniform_ggsw_secret_key_dft") < 0) return NULL;
 	sk_dft->N      = N;
 	sk_dft->k      = k;
 	sk_dft->values = new_uniform_ggsw_secret_key_values_dft(module, k, nb_bits);
@@ -244,9 +226,7 @@ GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(MODULE* module, GGSWS
 {
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NULL, sk->N, sk->k);
 
-	for (int64_t j = 0; j < sk_dft->k; j++) {
-		vec_znx_dft_p(module, sk_dft->values[j], 1, sk->values[j], 1, sk->N);
-	}
+	for (int64_t j = 0; j < sk_dft->k; j++) vec_znx_dft_p(module, sk_dft->values[j], 1, sk->values[j], 1, sk->N);
 
 	return sk_dft;
 }
@@ -256,13 +236,13 @@ PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(MODULE* module, Po
 	uint64_t N               = module->nn;
 
 	PolyUnivDFT** values_dft = malloc(k * sizeof(PolyUniv*));
-	if (log_is_null(values_dft, "values_dft's malloc failed in transform_ggsw_secret_key_values_not_dft_to_dft.") < 0)
+	if (log_is_null(values_dft, "values_dft's malloc failed in transform_ggsw_secret_key_values_not_dft_to_dft") < 0)
 		return NULL;
 
 	for (int64_t j = 0; j < k; j++) {
 		values_dft[j] = calloc(N, sizeof(double));
 		if (log_is_null(values_dft[j],
-		                "values_dft elements' calloc failed in transform_ggsw_secret_key_values_not_dft_to_dft.") < 0) {
+		                "values_dft elements' calloc failed in transform_ggsw_secret_key_values_not_dft_to_dft") < 0) {
 			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
 
@@ -279,7 +259,7 @@ GLWESecretKeyDFT* transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(GGSWSecre
 {
 	GLWESecretKeyDFT* sk_glwe_dft = new_glwe_secret_key_dft(NULL, sk_ggsw_dft->N, sk_ggsw_dft->k);
 	if (log_is_null(sk_glwe_dft,
-	                "sk_glwe_dft's malloc failed in transform_ggsw_secret_key_dft_to_glwe_secret_key_dft.") < 0)
+	                "sk_glwe_dft's malloc failed in transform_ggsw_secret_key_dft_to_glwe_secret_key_dft") < 0)
 		return NULL;
 
 	for (int64_t j = 0; j < sk_ggsw_dft->k; j++)
