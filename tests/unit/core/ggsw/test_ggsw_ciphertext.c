@@ -197,36 +197,6 @@ Test(const_mult_ggsw, without_normalization)
 	delete_glwe_ct_params(params_glwe);
 }
 
-void printf_glwe(VecBiv* ct_glwe, GLWECtParams* params_glwe)
-{
-	// GLWE parameters
-	uint64_t N = params_glwe->N;
-	uint64_t k = params_glwe->k;
-	uint64_t l = params_glwe->n_limbs / (params_glwe->k + 1);
-	for (int64_t j = 0; j < params_glwe->k + 1; j++) {
-		printf_poly_biv(ct_glwe + j * N, (k + 1) * N, N, l);
-	}
-}
-
-void printf_ggsw(MatBiv* ct_ggsw, GGSWCtParams* params_ggsw)
-{
-	// GGSW parameters
-	uint64_t k_tilde = params_ggsw->k_tilde;
-	uint64_t l_tilde = params_ggsw->n_limbs_tilde / (params_ggsw->k_tilde + 1);
-
-	// GLWE parameters
-	uint64_t N = params_ggsw->params_glwe->N;
-	uint64_t k = params_ggsw->params_glwe->k;
-	uint64_t l = params_ggsw->params_glwe->n_limbs / (params_ggsw->params_glwe->k + 1);
-
-	for (int64_t i = 1; i <= l_tilde; i++) {
-		for (int64_t j = 0; j < k_tilde + 1; j++) {
-			printf_glwe(ct_ggsw + (i - 1) * (k_tilde + 1) * (k + 1) * N * l + j * (k + 1) * N * l,
-			            params_ggsw->params_glwe);
-		}
-	}
-}
-
 Test(const_mult_ggsw, with_normalization)
 {
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);

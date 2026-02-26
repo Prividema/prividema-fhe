@@ -18,46 +18,6 @@
 #define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
 #define SIGMA_TILDEBASE  -3
 
-void printf_glwe(VecBiv* ct_glwe, GLWECtParams* params_glwe)
-{
-	printf("\n");
-	// GLWE parameters
-	uint64_t N = params_glwe->N;
-	uint64_t k = params_glwe->k;
-	uint64_t l = params_glwe->n_limbs / (params_glwe->k + 1);
-	for (int64_t j = 0; j < params_glwe->k; j++) {
-		printf("\na_%ld", j);
-		printf_poly_biv(ct_glwe + j * N, (k + 1) * N, N, l);
-		printf("\n");
-	}
-	printf("\nb");
-	printf_poly_biv(ct_glwe + k * N, (k + 1) * N, N, l);
-	printf("\n");
-}
-
-void printf_ggsw(MatBiv* ct_ggsw, GGSWCtParams* params_ggsw)
-{
-	printf("\n");
-	// GGSW parameters
-	uint64_t k_tilde = params_ggsw->k_tilde;
-	uint64_t l_tilde = params_ggsw->n_limbs_tilde / (params_ggsw->k_tilde + 1);
-
-	// GLWE parameters
-	uint64_t N = params_ggsw->params_glwe->N;
-	uint64_t k = params_ggsw->params_glwe->k;
-	uint64_t l = params_ggsw->params_glwe->n_limbs / (params_ggsw->params_glwe->k + 1);
-
-	for (int64_t i = 1; i <= l_tilde; i++) {
-		for (int64_t j = 0; j < k_tilde; j++) {
-			printf("\nBivGLWE(-m * sk_%ld / 2^(kappa_tilde*%ld))", j, i + 1);
-			printf_glwe(ct_ggsw + (i - 1) * (k_tilde + 1) * (k + 1) * N * l + j * (k + 1) * N * l,
-			            params_ggsw->params_glwe);
-		}
-		printf("\nBivGLWE(m / 2^(kappa_tilde*%ld))", i);
-		printf_glwe(ct_ggsw + (i - 1) * (k_tilde + 1) * (k + 1) * N * l + k_tilde * (k + 1) * N * l,
-		            params_ggsw->params_glwe);
-	}
-}
 
 /**
  * @brief Tests ggsw_secret_encrpyt
