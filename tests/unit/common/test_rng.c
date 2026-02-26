@@ -203,15 +203,14 @@ Test(inplace_uniform_random_vec_dft, basic)
 	}
 
 	if (inplace_uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0) {
-		// TODO : Fill the error message.
-		log_msg(LOG_ERROR, "");
+		log_msg(LOG_ERROR, "inplace_uniform_random_vec_znx_dft failed.");
 		delete_module_info_p(module);
 		free(res_dft);
 		cr_fail();
 	}
 
 	PolyUniv* res = malloc(NBASE * KBASE * sizeof(int64_t));
-	if (res_dft == NULL) {
+	if (res == NULL) {
 		log_perror("malloc");
 		delete_module_info_p(module);
 		free(res_dft);
