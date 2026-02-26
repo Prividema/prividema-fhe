@@ -165,9 +165,8 @@ void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* pol_biv)
 	uint64_t l     = poly_biv_size(params);
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
-	for (int64_t i = 1; i <= l; i++) 
-		for (int64_t p = 0; p < N; p++) 
-			res_univ[p] += ldexp((double)pol_biv[(i - 1) * N + p], -i * kappa);
+	for (int64_t i = 1; i <= l; i++)
+		for (int64_t p = 0; p < N; p++) res_univ[p] += ldexp((double)pol_biv[(i - 1) * N + p], -i * kappa);
 }
 
 int univ_to_biv(GLWECtParams* params, PolyBiv* res, double* pol_univ)

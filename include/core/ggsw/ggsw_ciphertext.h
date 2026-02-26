@@ -87,7 +87,7 @@ void add_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
  * @param ct The GGSW ciphertext.
  * @param u_dft The Zn[X] polynomial in DFT space.
  */
-void const_mult_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct, PolyUnivDFT* u, int do_normalization);
+int const_mult_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct, PolyUnivDFT* u, int do_normalization);
 
 //! GGSW IN DFT PART
 // The same functions but the operation are done in DFT space. The parameters are the same but the ciphertext are in DFT
@@ -143,7 +143,7 @@ VecBivDFT* ggsw_Sj_Yti_dft(GGSWCtParams* params_ggsw, MatBivDFT* ct_mat, int64_t
  * @param res_dft The result normalized GGSW ciphertext in DFT space.
  * @param ct_dft The input GGSW ciphertext in DFT space.
  */
-void normalize_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft);
+int normalize_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft);
 
 /**
  * @brief Adds two GGSW ciphertexts in DFT space with same params and put result in res.
@@ -161,8 +161,8 @@ void add_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct1_dft, GGSWCi
  * @param ct_dft The GGSW ciphertext.
  * @param u_dft The Zn[X] polynomial in DFT space, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-void const_mult_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUnivDFT* u_dft,
-                         int do_normalization);
+int const_mult_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUnivDFT* u_dft,
+                        int do_normalization);
 
 //! COMMON PART (begin)
 
