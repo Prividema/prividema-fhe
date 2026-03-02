@@ -40,8 +40,8 @@ uint64_t ggsw_coef_number(GGSWCtParams* params);
  * @param params The GGSW parameters.
  * @param ct The GGSW matrix.
  *
- * @retval NULL if malloc failed inside the function.
- * @retval Allocated GGSW ciphertext, filled with 0 or ct, if ct is non-null. 
+ * @retval - `NULL` if malloc failed inside the function.
+ * @retval - Allocated GGSW ciphertext, filled with 0 or ct, if ct is non-null. 
  * 
  */
 GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct);

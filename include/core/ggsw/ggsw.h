@@ -41,8 +41,8 @@ int glwe_secret_demasking_ggsw_lib(MODULE* module, GLWECtParams* params, PolyBiv
  * @retval `-1` if an error occurs.
  * @retval `0` otherwise.
  */
-int glwe_secret_masking_ggsw_lib(MODULE* module, GLWECtParams* params, VecBiv* res_ct, GGSWSecretKeyDFT* sk,
-                                 const PolyBiv* phase);
+int glwe_secret_masking_ggsw_lib(MODULE* module, GLWECtParams* params, VecBiv* res_ct, GGSWSecretKeyDFT* sk_dft,
+                                 PolyBiv* phase);
 
 /**
  * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde*(i+1)} + err, if j < k
@@ -89,8 +89,8 @@ int ggsw_secret_encrypt(MODULE* module, GGSWCtParams* params, GGSWCiphertext* ct
  */
 int ggsw_external_product(MODULE* module,
                           GLWECiphertext* res,      // result
-                          const GLWECiphertext* ct_glwe,  // GLWE ciphertext
-                          const GGSWCiphertext* ct_ggsw   // GGSW ciphertext
+                          GLWECiphertext* ct_glwe,  // GLWE ciphertext
+                          GGSWCiphertext* ct_ggsw   // GGSW ciphertext
 );
 // TODO : the 8 functions below are not implemented
 
@@ -218,8 +218,8 @@ int ggsw_secret_encrypt_dft(MODULE* module, GGSWCtParams* params, GGSWCiphertext
  * @param ct_glwe_dft The bivariate GLWE input ciphertext in DFT space.
  * @param ct_ggsw_dft The bivariate GGSW input ciphertext in DFT space.
  */
-int ggsw_external_product_dft(MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* ct_glwe_dft,
-                              const GGSWCiphertextDFT* ct_ggsw_dft);
+int ggsw_external_product_dft(MODULE* module, GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct_glwe_dft,
+                              GGSWCiphertextDFT* ct_ggsw_dft);
 
 //! COMMON PART (begin)
 

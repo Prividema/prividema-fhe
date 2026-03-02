@@ -23,8 +23,10 @@
 Test(normalize_ggsw, basic)
 {
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+
+	cr_assert(params_ggsw != NULL);
 
 	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params);
+	delete_ggsw_ct_params(params_ggsw);
 }

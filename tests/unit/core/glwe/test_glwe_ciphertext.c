@@ -21,11 +21,11 @@
  */
 Test(glwe_size, basic)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	cr_assert(eq(i64, glwe_size(params), NLIMBSBASE));
+	cr_assert(eq(i64, glwe_size(params_glwe), NLIMBSBASE));
 
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -33,11 +33,11 @@ Test(glwe_size, basic)
  */
 Test(glwe_bytes, basic)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	cr_assert(eq(i64, glwe_bytes(params), NLIMBSBASE * NBASE * 8));
+	cr_assert(eq(i64, glwe_bytes(params_glwe), NLIMBSBASE * NBASE * 8));
 
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -45,22 +45,22 @@ Test(glwe_bytes, basic)
  */
 Test(mult_vec_znx_dft, size_equal_one)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module       = new_module_info(NBASE, FFT64);
 
-	int64_t* res         = calloc(poly_univ_bytes(params), 1);
+	int64_t* res         = calloc(poly_univ_bytes(params_glwe), 1);
 
 	// def a = 1 + X
-	int64_t* a = calloc(poly_univ_bytes(params), 1);
+	int64_t* a = calloc(poly_univ_bytes(params_glwe), 1);
 	inplace_uniform_random_vec(NBASE, a, 1, NBASE, 14);
 
 	// def b = 1 + X
-	int64_t* b = calloc(poly_univ_bytes(params), 1);
+	int64_t* b = calloc(poly_univ_bytes(params_glwe), 1);
 	inplace_uniform_random_vec(NBASE, b, 1, NBASE, 14);
 
-	double* res_dft = calloc(poly_univ_bytes(params), 1);
-	double* a_dft   = calloc(poly_univ_bytes(params), 1);
-	double* b_dft   = calloc(poly_univ_bytes(params), 1);
+	double* res_dft = calloc(poly_univ_bytes(params_glwe), 1);
+	double* a_dft   = calloc(poly_univ_bytes(params_glwe), 1);
+	double* b_dft   = calloc(poly_univ_bytes(params_glwe), 1);
 
 	vec_znx_dft_p(module, res_dft, 1, res, 1, NBASE);
 	vec_znx_dft_p(module, a_dft, 1, a, 1, NBASE);
@@ -93,7 +93,7 @@ Test(mult_vec_znx_dft, size_equal_one)
 	free(b);
 	free(b_dft);
 	delete_module_info(module);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -103,7 +103,7 @@ Test(mult_vec_znx_dft, size_equal_one)
  */
 Test(mult_vec_znx_dft, random_size)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module       = new_module_info(NBASE, FFT64);
 
 	int64_t size         = 0;
@@ -112,17 +112,17 @@ Test(mult_vec_znx_dft, random_size)
 		rand_uniform(&size, 8);
 	}
 
-	int64_t* res = calloc(poly_univ_bytes(params) * size, 1);
+	int64_t* res = calloc(poly_univ_bytes(params_glwe) * size, 1);
 
-	int64_t* a   = calloc(poly_univ_bytes(params) * size, 1);
+	int64_t* a   = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	inplace_uniform_random_vec(NBASE, a, size, NBASE, 14);
 
-	int64_t* b = calloc(poly_univ_bytes(params) * size, 1);
+	int64_t* b = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	inplace_uniform_random_vec(NBASE, b, size, NBASE, 14);
 
-	double* res_dft = calloc(poly_univ_bytes(params) * size, 1);
-	double* a_dft   = calloc(poly_univ_bytes(params) * size, 1);
-	double* b_dft   = calloc(poly_univ_bytes(params) * size, 1);
+	double* res_dft = calloc(poly_univ_bytes(params_glwe) * size, 1);
+	double* a_dft   = calloc(poly_univ_bytes(params_glwe) * size, 1);
+	double* b_dft   = calloc(poly_univ_bytes(params_glwe) * size, 1);
 
 	vec_znx_dft_p(module, res_dft, size, res, size, NBASE);
 	vec_znx_dft_p(module, a_dft, size, a, size, NBASE);
@@ -157,7 +157,7 @@ Test(mult_vec_znx_dft, random_size)
 	free(b);
 	free(b_dft);
 	delete_module_info(module);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 //! GLWE PART (begin)
@@ -167,11 +167,11 @@ Test(mult_vec_znx_dft, random_size)
  */
 Test(glwe_coef_number, basic)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	cr_assert(eq(i64, glwe_coef_number(params), NLIMBSBASE * NBASE));
+	cr_assert(eq(i64, glwe_coef_number(params_glwe), NLIMBSBASE * NBASE));
 
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -179,13 +179,13 @@ Test(glwe_coef_number, basic)
  */
 Test(new_glwe, basic)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GLWECiphertext* ct   = new_glwe(params);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECiphertext* ct   = new_glwe(params_glwe);
 
 	cr_assert(eq(int, (ct != NULL) && (ct->vec != NULL), 1));
 
 	delete_glwe(ct);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -193,14 +193,14 @@ Test(new_glwe, basic)
  */
 Test(add_glwe, basic)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	GLWECiphertext* ct_l = new_glwe(params);
-	GLWECiphertext* ct_r = new_glwe(params);
-	GLWECiphertext* res  = new_glwe(params);
+	GLWECiphertext* ct_l = new_glwe(params_glwe);
+	GLWECiphertext* ct_r = new_glwe(params_glwe);
+	GLWECiphertext* res  = new_glwe(params_glwe);
 
-	inplace_uniform_random_vec(NBASE, ct_l->vec, params->n_limbs, NBASE, KAPPABASE - 1);
-	inplace_uniform_random_vec(NBASE, ct_r->vec, params->n_limbs, NBASE, KAPPABASE - 1);
+	inplace_uniform_random_vec(NBASE, ct_l->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
+	inplace_uniform_random_vec(NBASE, ct_r->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	add_glwe(res, ct_l, ct_r);
 
@@ -214,7 +214,7 @@ Test(add_glwe, basic)
 	delete_glwe(ct_l);
 	delete_glwe(ct_r);
 	delete_glwe(res);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -222,14 +222,14 @@ Test(add_glwe, basic)
  */
 Test(const_mult_glwe, without_normalization)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module       = new_module_info(NBASE, FFT64);
 
-	GLWECiphertext* res  = new_glwe(params);
+	GLWECiphertext* res  = new_glwe(params_glwe);
 
 	// Draws uniformly the GLWE ciphertext and the ZnX polynomial
-	GLWECiphertext* ct = new_glwe(params);
-	inplace_uniform_random_vec(NBASE, ct->vec, params->n_limbs, NBASE, KAPPABASE - 1);
+	GLWECiphertext* ct = new_glwe(params_glwe);
+	inplace_uniform_random_vec(NBASE, ct->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
 	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
@@ -257,7 +257,7 @@ Test(const_mult_glwe, without_normalization)
 	delete_module_info(module);
 	delete_glwe(ct);
 	delete_glwe(res);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -265,14 +265,14 @@ Test(const_mult_glwe, without_normalization)
  */
 Test(const_mult_glwe, with_normalization)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module       = new_module_info(NBASE, FFT64);
 
-	GLWECiphertext* res  = new_glwe(params);
+	GLWECiphertext* res  = new_glwe(params_glwe);
 
 	// Draws uniformly the GLWE ciphertext and the ZnX polynomial
-	GLWECiphertext* ct = new_glwe(params);
-	inplace_uniform_random_vec(NBASE, ct->vec, params->n_limbs, NBASE, KAPPABASE - 1);
+	GLWECiphertext* ct = new_glwe(params_glwe);
+	inplace_uniform_random_vec(NBASE, ct->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
 	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
@@ -312,7 +312,7 @@ Test(const_mult_glwe, with_normalization)
 	delete_module_info(module);
 	delete_glwe(ct);
 	delete_glwe(res);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 //! GLWE IN DFT PART (begin)
@@ -322,11 +322,11 @@ Test(const_mult_glwe, with_normalization)
  */
 Test(glwe_coef_number_dft, basic)
 {
-	GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	cr_assert(eq(i64, glwe_coef_number_dft(params), NLIMBSBASE * NBASE / 2));
+	cr_assert(eq(i64, glwe_coef_number_dft(params_glwe), NLIMBSBASE * NBASE / 2));
 
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -334,26 +334,26 @@ Test(glwe_coef_number_dft, basic)
  */
 Test(new_glwe_dft, basic)
 {
-	GLWECtParams* params  = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GLWECiphertextDFT* ct = new_glwe_dft(params);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECiphertextDFT* ct = new_glwe_dft(params_glwe);
 
 	cr_assert(eq(int, (ct != NULL) && (ct->vec != NULL), 1));
 
 	delete_glwe_dft(ct);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 Test(add_glwe_dft, basic)
 {
-	GLWECtParams* params          = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe         = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module                = new_module_info(NBASE, FFT64);
 
-	GLWECiphertextDFT* ct_l_dft   = new_glwe_dft(params);
-	GLWECiphertextDFT* ct_r_dft   = new_glwe_dft(params);
-	GLWECiphertextDFT* ct_sum_dft = new_glwe_dft(params);
+	GLWECiphertextDFT* ct_l_dft   = new_glwe_dft(params_glwe);
+	GLWECiphertextDFT* ct_r_dft   = new_glwe_dft(params_glwe);
+	GLWECiphertextDFT* ct_sum_dft = new_glwe_dft(params_glwe);
 
-	inplace_uniform_random_vec_znx_dft(module, ct_l_dft->vec, params->n_limbs, KAPPABASE - 1);
-	inplace_uniform_random_vec_znx_dft(module, ct_r_dft->vec, params->n_limbs, KAPPABASE - 1);
+	inplace_uniform_random_vec_znx_dft(module, ct_l_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
+	inplace_uniform_random_vec_znx_dft(module, ct_r_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	add_glwe_dft(ct_sum_dft, ct_l_dft, ct_r_dft);
 
@@ -368,7 +368,7 @@ Test(add_glwe_dft, basic)
 	delete_glwe_dft(ct_l_dft);
 	delete_glwe_dft(ct_r_dft);
 	delete_glwe_dft(ct_sum_dft);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -376,18 +376,18 @@ Test(add_glwe_dft, basic)
  */
 Test(const_mult_glwe_dft, without_normalization)
 {
-	GLWECtParams* params       = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe      = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module             = new_module_info(NBASE, FFT64);
 
-	GLWECiphertextDFT* res_dft = new_glwe_dft(params);
-	VecBiv* res_vec            = malloc(glwe_bytes(params));
+	GLWECiphertextDFT* res_dft = new_glwe_dft(params_glwe);
+	VecBiv* res_vec            = malloc(glwe_bytes(params_glwe));
 
 	// Draws uniformly the GLWE ciphertext and computes it out of DFT space
-	GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params->n_limbs, KAPPABASE - 1);
+	GLWECiphertextDFT* ct_dft = new_glwe_dft(params_glwe);
+	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
-	VecBiv* ct_vec = malloc(glwe_bytes(params));
-	vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->vec, glwe_size(params));
+	VecBiv* ct_vec = malloc(glwe_bytes(params_glwe));
+	vec_znx_idft_p(module, ct_vec, glwe_size(params_glwe), ct_dft->vec, glwe_size(params_glwe));
 
 	// Draws uniformly the ZnX polynomial and computes it ouf of DFT space
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
@@ -397,7 +397,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 0);
 
 	// Computes res out of DFT space
-	vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->vec, glwe_size(params));
+	vec_znx_idft_p(module, res_vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 
 	for (int64_t i = 1; i <= LBASE; i++)
 		for (int64_t j = 0; j < KBASE + 1; j++) {
@@ -421,7 +421,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	delete_module_info(module);
 	delete_glwe_dft(ct_dft);
 	delete_glwe_dft(res_dft);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
 
 /**
@@ -429,18 +429,18 @@ Test(const_mult_glwe_dft, without_normalization)
  */
 Test(const_mult_glwe_dft, with_normalization)
 {
-	GLWECtParams* params       = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe      = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module             = new_module_info(NBASE, FFT64);
 
-	GLWECiphertextDFT* res_dft = new_glwe_dft(params);
-	VecBiv* res_vec            = malloc(glwe_bytes(params));
+	GLWECiphertextDFT* res_dft = new_glwe_dft(params_glwe);
+	VecBiv* res_vec            = malloc(glwe_bytes(params_glwe));
 
 	// Draws uniformly the GLWE ciphertext and computes it out of DFT space
-	GLWECiphertextDFT* ct_dft = new_glwe_dft(params);
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params->n_limbs, KAPPABASE - 1);
+	GLWECiphertextDFT* ct_dft = new_glwe_dft(params_glwe);
+	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
-	VecBiv* ct_vec = malloc(glwe_bytes(params));
-	vec_znx_idft_p(module, ct_vec, glwe_size(params), ct_dft->vec, glwe_size(params));
+	VecBiv* ct_vec = malloc(glwe_bytes(params_glwe));
+	vec_znx_idft_p(module, ct_vec, glwe_size(params_glwe), ct_dft->vec, glwe_size(params_glwe));
 
 	// Draws uniformly the ZnX polynomial and computes it ouf of DFT space
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
@@ -450,7 +450,7 @@ Test(const_mult_glwe_dft, with_normalization)
 	const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 1);
 
 	// Computes res out of DFT space
-	vec_znx_idft_p(module, res_vec, glwe_size(params), res_dft->vec, glwe_size(params));
+	vec_znx_idft_p(module, res_vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 
 	for (int64_t j = 0; j < KBASE + 1; j++)
 		for (int64_t p = 0; p < NBASE; p++)
@@ -485,5 +485,5 @@ Test(const_mult_glwe_dft, with_normalization)
 	delete_module_info(module);
 	delete_glwe_dft(ct_dft);
 	delete_glwe_dft(res_dft);
-	delete_glwe_ct_params(params);
+	delete_glwe_ct_params(params_glwe);
 }
