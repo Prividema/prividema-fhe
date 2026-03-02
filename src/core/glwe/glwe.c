@@ -4,7 +4,7 @@
 #include "rng.h"
 
 //! GLWE PART (begin)
-int add_mult(MODULE* module, GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft)
+int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft)
 {
 	// GLWE parameters
 	uint64_t N = params->N;
@@ -45,7 +45,7 @@ int add_mult(MODULE* module, GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLW
 	return 0;
 }
 
-int glwe_secret_masking(MODULE* module, GLWECiphertext* ct, GLWESecretKeyDFT* sk_dft, PolyBiv* phase)
+int glwe_secret_masking(const MODULE* module, GLWECiphertext* ct, GLWESecretKeyDFT* sk_dft, PolyBiv* phase)
 {
 	uint64_t N     = ct->params->N;
 	uint64_t k     = ct->params->k;
@@ -82,7 +82,7 @@ int glwe_secret_masking(MODULE* module, GLWECiphertext* ct, GLWESecretKeyDFT* sk
 	return 0;
 }
 
-int sub_mult(MODULE* module, GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft)
+int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft)
 {
 	// GLWE parameters
 	uint64_t N = params->N;
@@ -123,7 +123,7 @@ int sub_mult(MODULE* module, GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLW
 	return 0;
 }
 
-int glwe_secret_demasking(MODULE* module, PolyBiv* res, GLWESecretKeyDFT* sk_dft, GLWECiphertext* ct)
+int glwe_secret_demasking(const MODULE* module, PolyBiv* res, GLWESecretKeyDFT* sk_dft, GLWECiphertext* ct)
 {
 	// GLWE parameters
 	uint64_t N   = ct->params->N;
@@ -153,7 +153,7 @@ int glwe_secret_demasking(MODULE* module, PolyBiv* res, GLWESecretKeyDFT* sk_dft
 
 //! GLWE IN DFT SPACE PART (begin)
 
-int glwe_secret_masking_dft(MODULE* module, GLWECiphertextDFT* ct_dft, GLWESecretKeyDFT* sk_dft, PolyBivDFT* phase_dft)
+int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* ct_dft, GLWESecretKeyDFT* sk_dft, PolyBivDFT* phase_dft)
 {
 	// GLWE parameters
 	GLWECtParams* params = ct_dft->params;
@@ -207,7 +207,7 @@ int glwe_secret_masking_dft(MODULE* module, GLWECiphertextDFT* ct_dft, GLWESecre
 	return 0;
 }
 
-int glwe_secret_demasking_dft(MODULE* module, PolyBiv* res, GLWESecretKeyDFT* sk_dft, GLWECiphertextDFT* ct_dft)
+int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, GLWESecretKeyDFT* sk_dft, GLWECiphertextDFT* ct_dft)
 {
 	// GLWE parameters
 	GLWECtParams* params = ct_dft->params;

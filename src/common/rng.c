@@ -153,7 +153,7 @@ VecUniv* new_uniform_random_vec(uint64_t vec_size, uint64_t nb_bits)
 	return res;
 }
 
-int inplace_uniform_random_vec_znx_dft(MODULE* module, VecUnivDFT* res_dft, int64_t res_size, uint64_t nb_bits)
+int inplace_uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* res_dft, int64_t res_size, uint64_t nb_bits)
 {
 	uint64_t N         = module->nn;
 	int64_t* tmp_space = malloc(N * res_size * sizeof(int64_t));
@@ -174,7 +174,7 @@ int inplace_uniform_random_vec_znx_dft(MODULE* module, VecUnivDFT* res_dft, int6
 	return 0;
 }
 
-VecUnivDFT* new_uniform_random_vec_znx_dft(MODULE* module, uint64_t vec_size, uint64_t nb_bits)
+VecUnivDFT* new_uniform_random_vec_znx_dft(const MODULE* module, uint64_t vec_size, uint64_t nb_bits)
 {
 	uint64_t N         = module->nn;
 	int64_t* tmp_space = malloc(N * vec_size * sizeof(int64_t));

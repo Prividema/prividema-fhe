@@ -31,7 +31,7 @@ void delete_glwe(GLWECiphertext* ct)
 	free(ct);
 }
 
-void normalize_glwe(MODULE* module, GLWECiphertext* res, GLWECiphertext* ct_glwe)
+void normalize_glwe(const MODULE* module, GLWECiphertext* res, GLWECiphertext* ct_glwe)
 {
 	// GLWE parameters
 	uint64_t N     = res->params->N;
@@ -59,7 +59,7 @@ void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2)
 			}
 }
 
-int const_mult_glwe(MODULE* module, GLWECiphertext* res, PolyUnivDFT* u_dft, GLWECiphertext* ct, int do_normalization)
+int const_mult_glwe(const MODULE* module, GLWECiphertext* res, PolyUnivDFT* u_dft, GLWECiphertext* ct, int do_normalization)
 {
 	// GLWE parameters
 	uint64_t N = res->params->N;
@@ -130,7 +130,7 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECi
 			}
 }
 
-int const_mult_glwe_dft(MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u_dft, GLWECiphertextDFT* ct_dft,
+int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u_dft, GLWECiphertextDFT* ct_dft,
                         int do_normalization)
 {
 	// GLWE parameters

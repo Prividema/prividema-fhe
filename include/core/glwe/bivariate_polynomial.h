@@ -17,7 +17,7 @@
  *
  * @note The number of coefficient is the same in and out DFT space.
  */
-uint64_t poly_biv_coef_number(GLWECtParams* params);
+uint64_t poly_biv_coef_number(const GLWECtParams* params);
 
 /**
  * @brief Computes a random normal bivariate polynomial.
@@ -26,7 +26,7 @@ uint64_t poly_biv_coef_number(GLWECtParams* params);
  * @param params The GLWE parameters.
  * @return PolyBiv*
  */
-PolyBiv* new_normal_random_biv_poly(MODULE* module, GLWECtParams* params);
+PolyBiv* new_normal_random_biv_poly(const MODULE* module, const GLWECtParams* params);
 
 /**
  * @brief Computes a random uniform bivariate polynomial.
@@ -36,7 +36,7 @@ PolyBiv* new_normal_random_biv_poly(MODULE* module, GLWECtParams* params);
  * @param precision The maximum degree in Y of the polynomial.
  * @return PolyBiv*
  */
-PolyBiv* new_uniform_random_biv_poly(MODULE* module, GLWECtParams* params, int64_t precision);
+PolyBiv* new_uniform_random_biv_poly(const MODULE* module, const GLWECtParams* params, int64_t precision);
 
 /**
  * @brief Adds two bivariate polynomial and puts it in res.
@@ -49,7 +49,7 @@ PolyBiv* new_uniform_random_biv_poly(MODULE* module, GLWECtParams* params, int64
  * @param b The right-hand side bivariate polynomial.
  * @param b_sl The stride between each Zn[X] polynomial in b.
  */
-void add_biv_poly(GLWECtParams* params, PolyBiv* res, int64_t res_sl, PolyBiv* a, int64_t a_sl, PolyBiv* b,
+void add_biv_poly(const GLWECtParams* params, PolyBiv* res, int64_t res_sl, const PolyBiv* a, int64_t a_sl, const PolyBiv* b,
                   int64_t b_sl);
 
 //! BIV POLY IN DFT PART (begin)
@@ -63,7 +63,7 @@ void add_biv_poly(GLWECtParams* params, PolyBiv* res, int64_t res_sl, PolyBiv* a
  * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in
  * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t poly_biv_coef_number_dft(GLWECtParams* params);
+uint64_t poly_biv_coef_number_dft(const GLWECtParams* params);
 
 /**
  * @brief Computes a random normal bivariate polynomial in DFT space.
@@ -72,7 +72,7 @@ uint64_t poly_biv_coef_number_dft(GLWECtParams* params);
  * @param params The GLWE parameters.
  * @return PolyBivDFT*
  */
-PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module, GLWECtParams* params);
+PolyBivDFT* new_normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params);
 
 /**
  * @brief Computes a random uniform bivariate polynomial.
@@ -81,7 +81,7 @@ PolyBivDFT* new_normal_random_biv_poly_dft(MODULE* module, GLWECtParams* params)
  * @param params The GLWE parameters.
  * @return PolyBiv*
  */
-PolyBivDFT* new_uniform_random_biv_poly_dft(MODULE* module, GLWECtParams* params, int64_t precision);
+PolyBivDFT* new_uniform_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params, int64_t precision);
 
 /**
  * @brief Adds two bivariate polynomial and puts it in res in DFT space.
@@ -94,8 +94,8 @@ PolyBivDFT* new_uniform_random_biv_poly_dft(MODULE* module, GLWECtParams* params
  * @param b_dft The right-hand side bivariate polynomial in DFT space.
  * @param b_sl The stride between each Zn[X] polynomial in b_dft.
  */
-void add_biv_poly_dft(GLWECtParams* params, PolyBivDFT* res_dft, int64_t res_sl, PolyBivDFT* a_dft, int64_t a_sl,
-                      PolyBivDFT* b_dft, int64_t b_sl);
+void add_biv_poly_dft(const GLWECtParams* params, PolyBivDFT* res_dft, int64_t res_sl, const PolyBivDFT* a_dft, int64_t a_sl,
+                      const PolyBivDFT* b_dft, int64_t b_sl);
 
 //! COMMON PART (begin)
 
@@ -107,7 +107,7 @@ void add_biv_poly_dft(GLWECtParams* params, PolyBivDFT* res_dft, int64_t res_sl,
  *
  * @note The number of bytes needed to store a bivariate polynomial is the same in and out of DFT space.
  */
-uint64_t poly_biv_bytes(GLWECtParams* params);
+uint64_t poly_biv_bytes(const GLWECtParams* params);
 
 // TODO modifie size partout
 /**
@@ -119,7 +119,7 @@ uint64_t poly_biv_bytes(GLWECtParams* params);
  *
  * @note The size of a bivariate polynomial is the same in and out of DFT space.
  */
-uint64_t poly_biv_size(GLWECtParams* params);
+uint64_t poly_biv_size(const GLWECtParams* params);
 
 /**
  * @brief Returns the number of bytes needed to store a univariate polynomial.
@@ -129,7 +129,7 @@ uint64_t poly_biv_size(GLWECtParams* params);
  *
  * @note The number of bytes needed to store an univariate polynomial is the same in and out of DFT space.
  */
-uint64_t poly_univ_bytes(GLWECtParams* params);
+uint64_t poly_univ_bytes(const GLWECtParams* params);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
@@ -138,7 +138,7 @@ uint64_t poly_univ_bytes(GLWECtParams* params);
  * @param pol_univ The result univariate polynomial in Rn[X].
  * @param pol_biv The input bivariate polynomial.
  */
-void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* pol);
+void biv_to_univ(const GLWECtParams* params, double* res_univ, const PolyBiv* pol);
 
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Rn[X].
@@ -148,6 +148,6 @@ void biv_to_univ(GLWECtParams* params, double* res_univ, PolyBiv* pol);
  * @param pol_univ The univariate polynomial.
  * @return int
  */
-int univ_to_biv(GLWECtParams* params, PolyBiv* res, double* pol_univ);
+int univ_to_biv(const GLWECtParams* params, PolyBiv* res, const double* pol_univ);
 
 #endif  // BIVARIATE_POLYNOMIAL_H

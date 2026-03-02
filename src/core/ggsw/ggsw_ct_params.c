@@ -4,7 +4,7 @@
 
 #include "logger.h"
 
-GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,
+GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,
                                  uint64_t n_limbs_tilde)
 {
 	GGSWCtParams* params_ggsw = malloc(sizeof(GGSWCtParams));
@@ -20,6 +20,6 @@ GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params_glwe, uint64_t k_tilde, ui
 
 void delete_ggsw_ct_params(GGSWCtParams* params) { free(params); }
 
-uint64_t nb_partials(GGSWCtParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
+uint64_t nb_partials(const GGSWCtParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
 
-uint64_t nb_rows_per_partial(GGSWCtParams* params) { return params->k_tilde + 1; }
+uint64_t nb_rows_per_partial(const GGSWCtParams* params) { return params->k_tilde + 1; }

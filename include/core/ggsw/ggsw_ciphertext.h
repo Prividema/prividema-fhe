@@ -32,19 +32,18 @@ typedef struct ggsw_ciphertext
  * @param params The GGSW parameters.
  * @return int64_t
  */
-uint64_t ggsw_coef_number(GGSWCtParams* params);
+uint64_t ggsw_coef_number(const GGSWCtParams* params);
 
 /**
- * @brief Creates a bivGGSW, if ct = NULL it is filled with 0, otherwise the bivGGSW ciphertext is a copy a ct.
+ * @brief Creates a bivGGSW, it is filled with 0.
  *
  * @param params The GGSW parameters.
- * @param ct The GGSW matrix.
  *
  * @retval - `NULL` if malloc failed inside the function.
- * @retval - Allocated GGSW ciphertext, filled with 0 or ct, if ct is non-null. 
+ * @retval - Allocated GGSW ciphertext, filled with 0. 
  * 
  */
-GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct);
+GGSWCiphertext* new_ggsw(const GGSWCtParams* params);
 
 /**
  * @brief Delete a bivGGSW ciphertext.
@@ -63,7 +62,7 @@ void delete_ggsw(GGSWCiphertext* ct);
  *
  * @return VecBiv*
  */
-VecBiv* ggsw_Sj_Yti(GGSWCtParams* params_ggsw, MatBiv* ct_mat, int64_t j, int64_t i);
+VecBiv* ggsw_Sj_Yti(const GGSWCtParams* params_ggsw, MatBiv* ct_mat, int64_t j, int64_t i);
 
 /**
  * @brief Normalize a GGSW ciphertext.
@@ -71,7 +70,7 @@ VecBiv* ggsw_Sj_Yti(GGSWCtParams* params_ggsw, MatBiv* ct_mat, int64_t j, int64_
  * @param res The result normalized GGSW ciphertext.
  * @param ct The input GGSW ciphertext.
  */
-void normalize_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct);
+void normalize_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ct);
 
 /**
  * @brief Adds two GGSW ciphertexts with same params and put result in res
@@ -80,7 +79,7 @@ void normalize_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct);
  * @param ct1 The left-hand side GGSW ciphertext.
  * @param ct2 The right-hand side GGSW ciphertext.
  */
-void add_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
+void add_ggsw(GGSWCiphertext* res, const GGSWCiphertext* ct1, const GGSWCiphertext* ct2);
 
 /**
  * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
@@ -89,7 +88,7 @@ void add_ggsw(GGSWCiphertext* res, GGSWCiphertext* ct1, GGSWCiphertext* ct2);
  * @param ct The GGSW ciphertext.
  * @param u_dft The Zn[X] polynomial in DFT space.
  */
-int const_mult_ggsw(MODULE* module, GGSWCiphertext* res, GGSWCiphertext* ct, PolyUnivDFT* u, int do_normalization);
+int const_mult_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ct, const PolyUnivDFT* u, int do_normalization);
 
 //! GGSW IN DFT PART
 // The same functions but the operation are done in DFT space. The parameters are the same but the ciphertext are in DFT
@@ -110,22 +109,21 @@ typedef struct ggsw_ciphertext_dft
  * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in
  * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t ggsw_coef_number_dft(GGSWCtParams* params);
+uint64_t ggsw_coef_number_dft(const GGSWCtParams* params);
 
 /**
  * @brief Creates a bivGGSW in DFT space, filled with 0.
  *
  * @param params The GGSW parameters.
- * @param mat_dft The GGSW matrix in DFT space.
  */
-GGSWCiphertextDFT* new_ggsw_dft(GGSWCtParams* params, MatBivDFT* ct);
+GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params);
 
 /**
  * @brief Delete a bivGGSW in DFT space.
  *
  * @param ct The bivGGSW in DFT space.
  */
-void delete_ggsw_dft(GGSWCiphertextDFT* ct);
+void delete_ggsw_dft(const GGSWCiphertextDFT* ct);
 
 /**
  * @brief Return the pointer to biGLWE(DFT(-m * sk_j / 2^kappa*(i+1))) in DFT space.
@@ -137,7 +135,7 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ct);
  *
  * @return VecBivDFT*
  */
-VecBivDFT* ggsw_Sj_Yti_dft(GGSWCtParams* params_ggsw, MatBivDFT* ct_mat, int64_t j, int64_t i);
+VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ct_mat, int64_t j, int64_t i);
 
 /**
  * @brief Normalize a GGSW ciphertext in DFT space.
@@ -145,7 +143,7 @@ VecBivDFT* ggsw_Sj_Yti_dft(GGSWCtParams* params_ggsw, MatBivDFT* ct_mat, int64_t
  * @param res_dft The result normalized GGSW ciphertext in DFT space.
  * @param ct_dft The input GGSW ciphertext in DFT space.
  */
-int normalize_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft);
+int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* res_dft, const GGSWCiphertextDFT* ct_dft);
 
 /**
  * @brief Adds two GGSW ciphertexts in DFT space with same params and put result in res.
@@ -154,7 +152,7 @@ int normalize_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertex
  * @param ct1 The left-hand side GGSW ciphertext in DFT space.
  * @param ct2 The right-hand side GGSW ciphertext in DFT space.
  */
-void add_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct1_dft, GGSWCiphertextDFT* ct2_dft);
+void add_ggsw_dft(GGSWCiphertextDFT* res_dft, const GGSWCiphertextDFT* ct1_dft, const GGSWCiphertextDFT* ct2_dft);
 
 /**
  * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
@@ -163,7 +161,7 @@ void add_ggsw_dft(GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct1_dft, GGSWCi
  * @param ct_dft The GGSW ciphertext.
  * @param u_dft The Zn[X] polynomial in DFT space, with coefficient in [-2^(kappa-1), 2^(kappa-1)]
  */
-int const_mult_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCiphertextDFT* ct_dft, PolyUnivDFT* u_dft,
+int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* res_dft, const GGSWCiphertextDFT* ct_dft, const PolyUnivDFT* u_dft,
                         int do_normalization);
 
 //! COMMON PART (begin)
@@ -176,7 +174,7 @@ int const_mult_ggsw_dft(MODULE* module, GGSWCiphertextDFT* res_dft, GGSWCipherte
  *
  * @note The size of a bivGGSW ciphertext is the same in and out of DFT space.
  */
-uint64_t ggsw_size(GGSWCtParams* params);
+uint64_t ggsw_size(const GGSWCtParams* params);
 
 /**
  * @brief The number of bytes needed to store a bivGGSW ciphertext.
@@ -186,6 +184,6 @@ uint64_t ggsw_size(GGSWCtParams* params);
  *
  * @note The number of bytes needed to store a bivGGSW ciphertext, is the same in and out of DFT space.
  */
-uint64_t ggsw_bytes(GGSWCtParams* params);
+uint64_t ggsw_bytes(const GGSWCtParams* params);
 
 #endif  // GGSW_CIPHERTEXT_H

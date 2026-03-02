@@ -1,5 +1,4 @@
 #include "glwe_key.h"
-
 #include "logger.h"
 #include "rng.h"
 #include "spqlios_alias.h"
@@ -26,7 +25,7 @@ PolyUniv** new_glwe_secret_key_values(uint64_t N, uint64_t k)
 	return values;
 }
 
-PolyUniv** new_uniform_glwe_secret_key_values(MODULE* module, uint64_t k, uint64_t nb_bits)
+PolyUniv** new_uniform_glwe_secret_key_values(const MODULE* module, uint64_t k, uint64_t nb_bits)
 {
 	// The
 	uint64_t N = module->nn;
@@ -90,7 +89,7 @@ GLWESecretKey* new_glwe_secret_key(PolyUniv** values, uint64_t N, uint64_t k)
 	return sk;
 }
 
-GLWESecretKey* new_uniform_glwe_secret_key(MODULE* module, uint64_t k, uint64_t nb_bits)
+GLWESecretKey* new_uniform_glwe_secret_key(const MODULE* module, uint64_t k, uint64_t nb_bits)
 {
 	uint64_t N = module->nn;
 
@@ -116,7 +115,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 	free(sk);
 }
 
-GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(MODULE* module, GLWESecretKeyDFT* sk_dft)
+GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(const MODULE* module, const GLWESecretKeyDFT* sk_dft)
 {
 	GLWESecretKey* sk = new_glwe_secret_key(NULL, sk_dft->N, sk_dft->k);
 	if (log_is_null(sk, "new_glwe_secret_key failed in transform_glwe_secret_key_dft_to_not_dft") < 0) return NULL;
@@ -126,7 +125,7 @@ GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(MODULE* module, GLWESecr
 	return sk;
 }
 
-PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(MODULE* module, PolyUnivDFT** values_dft, uint64_t k)
+PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(const MODULE* module, const PolyUnivDFT** values_dft, uint64_t k)
 {
 	uint64_t N = module->nn;
 
@@ -173,7 +172,7 @@ PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k)
 	return values_dft;
 }
 
-PolyUnivDFT** new_uniform_glwe_secret_key_values_dft(MODULE* module, uint64_t k, uint64_t nb_bits)
+PolyUnivDFT** new_uniform_glwe_secret_key_values_dft(const MODULE* module, uint64_t k, uint64_t nb_bits)
 {
 	uint64_t N = module->nn;
 
@@ -214,15 +213,15 @@ void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k)
 	free(values);
 }
 
-GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k)
+GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values_dft, uint64_t N, uint64_t k)
 {
 	GLWESecretKeyDFT* sk_dft = malloc(sizeof(GLWESecretKeyDFT));
-	if (log_is_null("sk_dft's malloc failed in new_glwe_secret_key_dft.", sk_dft) < 0) return NULL;
+	if (log_is_null(sk_dft, "sk_dft's malloc failed in new_glwe_secret_key_dft.") < 0) return NULL;
 
 	sk_dft->N = N;
 	sk_dft->k = k;
 
-	if (values == NULL)
+	if (values_dft == NULL)
 	{
 		sk_dft->values = new_glwe_secret_key_values_dft(N, k);
 		if (log_is_null(sk_dft->values, "new_glwe_secret_key_values_dft failed in new_glwe_secret_key_dft") < 0)
@@ -233,13 +232,13 @@ GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint
 	}
 	else
 	{
-		sk_dft->values = values;
+		sk_dft->values = values_dft;
 	}
 
 	return sk_dft;
 }
 
-GLWESecretKeyDFT* new_uniform_glwe_secret_key_dft(MODULE* module, uint64_t k, uint64_t nb_bits)
+GLWESecretKeyDFT* new_uniform_glwe_secret_key_dft(const MODULE* module, uint64_t k, uint64_t nb_bits)
 {
 	uint64_t N = module->nn;
 
@@ -264,7 +263,7 @@ void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft)
 	free(sk_dft);
 }
 
-GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(MODULE* module, GLWESecretKey* sk)
+GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, const GLWESecretKey* sk)
 {
 	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NULL, sk->N, sk->k);
 	if (log_is_null(sk_dft, "new_glwe_secret_key_dft failed in transform_glwe_secret_key_not_dft_to_dft") < 0)
@@ -275,11 +274,11 @@ GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(MODULE* module, GLWES
 	return sk_dft;
 }
 
-PolyUnivDFT** transform_glwe_secret_key_values_not_dft_to_dft(MODULE* module, PolyUniv** values, uint64_t k)
+PolyUnivDFT** transform_glwe_secret_key_values_not_dft_to_dft(const MODULE* module, const PolyUniv** values, uint64_t k)
 {
 	uint64_t N = module->nn;
 
-	PolyUnivDFT** values_dft = malloc(k * sizeof(PolyUniv*));
+	PolyUnivDFT** values_dft = malloc(k * sizeof(PolyUnivDFT*));
 	if (log_is_null(values_dft, "values_dft malloc failed in transform_glwe_secret_key_values_not_dft_to_dft.") < 0)
 		return NULL;
 

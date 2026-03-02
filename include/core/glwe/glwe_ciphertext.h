@@ -46,7 +46,7 @@ void delete_glwe(GLWECiphertext* ct);
  * @param res The result normalized GLWE ciphertext.
  * @param ct_glwe The GLWE ciphertext.
  */
-void normalize_glwe(MODULE* module, GLWECiphertext* res, GLWECiphertext* ct_glwe);
+void normalize_glwe(const MODULE* module, GLWECiphertext* res, GLWECiphertext* ct_glwe);
 
 /**
  * @brief Adds two GLWE ciphertexts.
@@ -66,7 +66,7 @@ void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2);
  * @param ct The GLWE ciphertext.
  * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
-int const_mult_glwe(MODULE* module, GLWECiphertext* res, PolyUnivDFT* u, GLWECiphertext* ct, int do_normalization);
+int const_mult_glwe(const MODULE* module, GLWECiphertext* res, PolyUnivDFT* u, GLWECiphertext* ct, int do_normalization);
 
 //! GLWE IN DFT PART (begin)
 
@@ -120,7 +120,7 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECi
  * @param ct_dft The GLWE ciphertext in DFT space.
  * @param do_normalization the function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
-int const_mult_glwe_dft(MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u, GLWECiphertextDFT* ct_dft,
+int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u, GLWECiphertextDFT* ct_dft,
                         int do_normalization);
 
 //! COMMON PART (begin)

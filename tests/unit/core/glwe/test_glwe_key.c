@@ -48,7 +48,7 @@ Test(transform_glwe_secret_key_values_dft_to_not_dft, basic)
 {
 	MODULE* module           = new_module_info(NBASE, FFT64);
 	PolyUnivDFT** values_dft = new_uniform_glwe_secret_key_values_dft(module, KBASE, 3);
-	PolyUniv** values        = transform_glwe_secret_key_values_dft_to_not_dft(module, values_dft, KBASE);
+	PolyUniv** values        = transform_glwe_secret_key_values_dft_to_not_dft(module, (const PolyUnivDFT**)values_dft, KBASE);
 
 	for (int64_t j = 0; j < KBASE; j++)
 		for (int64_t p = 0; p < NBASE; p++) cr_log_info("%" PRId64 " X^%" PRId64, values[j][p], p);
@@ -148,9 +148,9 @@ Test(new_uniform_glwe_secret_key_values_dft, basic)
  */
 Test(transform_glwe_secret_key_values_not_dft_to_dft, basic)
 {
-	MODULE* module           = new_module_info(NBASE, FFT64);
+	MODULE* module     = new_module_info(NBASE, FFT64);
 	PolyUniv** values        = new_uniform_glwe_secret_key_values(module, KBASE, 3);
-	PolyUnivDFT** values_dft = transform_glwe_secret_key_values_not_dft_to_dft(module, values, KBASE);
+	PolyUnivDFT** values_dft = transform_glwe_secret_key_values_not_dft_to_dft(module, (const PolyUniv**)values, KBASE);
 
 	for (int64_t j = 0; j < KBASE; j++)
 		for (int64_t p = 0; p < NBASE; p++) cr_log_info("%lf X^%" PRId64, values_dft[j][p], p);

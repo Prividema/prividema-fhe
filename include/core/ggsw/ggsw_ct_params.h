@@ -32,7 +32,7 @@ typedef struct ggsw_ct_params
  *
  * @return GGSWCtParams*
  */
-GGSWCtParams* new_ggsw_ct_params(GLWECtParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t n_limbs_tilde);
+GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t n_limbs_tilde);
 
 /**
  * @brief Delete a GGSW parameters
@@ -47,7 +47,7 @@ void delete_ggsw_ct_params(GGSWCtParams* params);
  * @param params The GGSW parameters.
  * @return int64_t
  */
-uint64_t nb_partials(GGSWCtParams* params);
+uint64_t nb_partials(const GGSWCtParams* params);
 
 /**
  * @brief Return the number of rows in a partialGGSW.
@@ -55,7 +55,7 @@ uint64_t nb_partials(GGSWCtParams* params);
  * @param params The GGSW parameters.
  * @return int64_t
  */
-uint64_t nb_rows_per_partial(GGSWCtParams* params);
+uint64_t nb_rows_per_partial(const GGSWCtParams* params);
 
 /**
  * @struct PartialGGSWCtParams

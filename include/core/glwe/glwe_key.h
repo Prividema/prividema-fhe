@@ -15,6 +15,11 @@ typedef struct core
 } Core;
 
 //! GLWE SECRET KEY STRUCTURES
+/**
+ * @brief Structure that represents a GLWE secret key
+ * 
+ * @param N Le degré du 2N-ème polynome cyclotomic
+ */
 typedef struct glwe_secret_key
 {
 	uint64_t N;
@@ -27,7 +32,7 @@ typedef struct glwe_prep_secret_key
 {
 	uint64_t N;
 	uint64_t k;
-	PolyUnivDFT** values;  // vec of size k, each element is prepared vec
+	PolyUnivDFT** values; 
 	void* data;
 } GLWESecretKeyDFT;
 
@@ -50,7 +55,7 @@ PolyUniv** new_glwe_secret_key_values(uint64_t N, uint64_t k);
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUniv**
  */
-PolyUniv** new_uniform_glwe_secret_key_values(MODULE* module, uint64_t k, uint64_t nb_bits);
+PolyUniv** new_uniform_glwe_secret_key_values(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
  * @brief Delete a secret key values component.
@@ -78,7 +83,7 @@ GLWESecretKey* new_glwe_secret_key(PolyUniv** values, uint64_t N, uint64_t k);
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKey* new_uniform_glwe_secret_key(MODULE* module, uint64_t k, uint64_t nb_bits);
+GLWESecretKey* new_uniform_glwe_secret_key(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
  * @brief Delete the secret key.
@@ -93,7 +98,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  * @param sk_dft The secret key in DFT space.
  * @return GLWESecretKey*
  */
-GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(MODULE* module, GLWESecretKeyDFT* sk_dft);
+GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(const MODULE* module, const GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Computes the values of the secret key out of DFT space.
@@ -103,7 +108,7 @@ GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(MODULE* module, GLWESecr
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUniv**
  */
-PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(MODULE* module, PolyUnivDFT** values_dft, uint64_t k);
+PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(const MODULE* module, const PolyUnivDFT** values_dft, uint64_t k);
 
 //! GLWE IN DFT SPACE PART (begin)
 
@@ -124,7 +129,7 @@ PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUnivDFT**
  */
-PolyUnivDFT** new_uniform_glwe_secret_key_values_dft(MODULE* module, uint64_t k, uint64_t nb_bits);
+PolyUnivDFT** new_uniform_glwe_secret_key_values_dft(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
  * @brief Delete the values of a secret key in DFT space.
@@ -141,7 +146,7 @@ void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint64_t k);
+GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values_dft, uint64_t N, uint64_t k);
 
 /**
  * @brief Draws a secret key uniformly in DFT space.
@@ -150,7 +155,7 @@ GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values, uint64_t N, uint
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKeyDFT* new_uniform_glwe_secret_key_dft(MODULE* module, uint64_t k, uint64_t nb_bits);
+GLWESecretKeyDFT* new_uniform_glwe_secret_key_dft(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
  * @brief Delete the secret key that is in DFT space.
@@ -165,7 +170,7 @@ void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
  * @param sk The secret key out of DFT space.
  * @return GLWESecretKey*
  */
-GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(MODULE* module, GLWESecretKey* sk);
+GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, const GLWESecretKey* sk);
 
 /**
  * @brief Computes the values of the secret key in DFT space.
@@ -175,7 +180,7 @@ GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(MODULE* module, GLWES
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUnivDFT**
  */
-PolyUnivDFT** transform_glwe_secret_key_values_not_dft_to_dft(MODULE* module, PolyUniv** values, uint64_t k);
+PolyUnivDFT** transform_glwe_secret_key_values_not_dft_to_dft(const MODULE* module, const PolyUniv** values, uint64_t k);
 
 typedef struct glwe_public_key
 {
