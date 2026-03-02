@@ -35,12 +35,14 @@ typedef struct ggsw_ciphertext
 uint64_t ggsw_coef_number(GGSWCtParams* params);
 
 /**
- * @brief Creates a bivGGSW, filled with 0.
+ * @brief Creates a bivGGSW, if ct = NULL it is filled with 0, otherwise the bivGGSW ciphertext is a copy a ct.
  *
  * @param params The GGSW parameters.
- * @param mat The GGSW matrix.
+ * @param ct The GGSW matrix.
  *
- * @return GGSWCiphertext*
+ * @retval NULL if malloc failed inside the function.
+ * @retval Allocated GGSW ciphertext, filled with 0 or ct, if ct is non-null. 
+ * 
  */
 GGSWCiphertext* new_ggsw(GGSWCtParams* params, MatBiv* ct);
 

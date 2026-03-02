@@ -30,7 +30,7 @@ int glwe_secret_demasking_ggsw_lib(MODULE* module, GLWECtParams* params, PolyBiv
                                    VecBiv* ct);
 
 /**
- * @brief Masks the phase (message + noise) and puts it in res.
+ * @brief Masks the phase (message + noise) and puts it in res_ct.
  *
  * @param module The module stocking the degree N.
  * @param params The GLWE parameters.
@@ -42,7 +42,7 @@ int glwe_secret_demasking_ggsw_lib(MODULE* module, GLWECtParams* params, PolyBiv
  * @retval `0` otherwise.
  */
 int glwe_secret_masking_ggsw_lib(MODULE* module, GLWECtParams* params, VecBiv* res_ct, GGSWSecretKeyDFT* sk,
-                                 PolyBiv* phase);
+                                 const PolyBiv* phase);
 
 /**
  * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde*(i+1)} + err, if j < k
@@ -89,8 +89,8 @@ int ggsw_secret_encrypt(MODULE* module, GGSWCtParams* params, GGSWCiphertext* ct
  */
 int ggsw_external_product(MODULE* module,
                           GLWECiphertext* res,      // result
-                          GLWECiphertext* ct_glwe,  // GLWE ciphertext
-                          GGSWCiphertext* ct_ggsw   // GGSW ciphertext
+                          const GLWECiphertext* ct_glwe,  // GLWE ciphertext
+                          const GGSWCiphertext* ct_ggsw   // GGSW ciphertext
 );
 // TODO : the 8 functions below are not implemented
 
@@ -98,24 +98,24 @@ int ggsw_external_product(MODULE* module,
 // key.
 /* Encrypts message m into GGSW ciphertext res with parameters params */
 void ggsw_public_encrypt(GGSWCiphertext* res,  // result
-                         GGSWPublicKey* pk,    // secret key
-                         int64_t* m,           // message
-                         GGSWCtParams* params  // parameters
+                         const GGSWPublicKey* pk,    // secret key
+                         const int64_t* m,           // message
+                         const GGSWCtParams* params  // parameters
 );
 
 // PartialGGSWCiphertext is a struct encapsulating ciphertext values and params.
 /* Encrypts message m into halfGGSW ciphertext res with parameters params */
 void halfggsw_secret_encrypt(PartialGGSWCiphertext* res,  // result
-                             GGSWSecretKey* sk,           // secret key
-                             int64_t* m,                  // message
-                             GGSWCtParams* params         // parameters
+                             const GGSWSecretKey* sk,           // secret key
+                             const int64_t* m,                  // message
+                             const GGSWCtParams* params         // parameters
 );
 
 /* Encrypts message m into halfGGSW ciphertext res with parameters params */
 void halfggsw_public_encrypt(PartialGGSWCiphertext* res,  // result
-                             GGSWPublicKey* pk,           // public key
-                             int64_t* m,                  // message
-                             GGSWCtParams* params         // parameters
+                             const GGSWPublicKey* pk,           // public key
+                             const int64_t* m,                  // message
+                             const GGSWCtParams* params         // parameters
 );
 
 /* Decrypts message res from GGSW ciphertext ct */
@@ -218,8 +218,8 @@ int ggsw_secret_encrypt_dft(MODULE* module, GGSWCtParams* params, GGSWCiphertext
  * @param ct_glwe_dft The bivariate GLWE input ciphertext in DFT space.
  * @param ct_ggsw_dft The bivariate GGSW input ciphertext in DFT space.
  */
-int ggsw_external_product_dft(MODULE* module, GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct_glwe_dft,
-                              GGSWCiphertextDFT* ct_ggsw_dft);
+int ggsw_external_product_dft(MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* ct_glwe_dft,
+                              const GGSWCiphertextDFT* ct_ggsw_dft);
 
 //! COMMON PART (begin)
 

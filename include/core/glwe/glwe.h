@@ -18,7 +18,7 @@ typedef struct tnx_element
  * @brief Computes Sum_j{0,k-1}[sk_j * a_j]
  *
  * @param module The module.
- * @param res The bivariate result.
+ * @param res The bivariate polynomial result.
  * @param ct The GLWE ciphertext
  * @param sk_dft The Secret key in DFT space.
  * @return int

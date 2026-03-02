@@ -69,23 +69,23 @@ void delete_svp_ppol_p(double* res);
 
 double* new_vmp_pmat_p(const MODULE* module, uint64_t nrows, uint64_t ncols);
 
-void vmp_prepare_contiguous_p(const MODULE* module,                               // N
+int vmp_prepare_contiguous_p(const MODULE* module,                               // N
                               double* pmat,                                       // output
                               const int64_t* mat, uint64_t nrows, uint64_t ncols  // a
 );
 
-void vmp_apply_dft_p(const MODULE* module,                                  // N
+int vmp_apply_dft_p(const MODULE* module,                                  // N
                      double* res, int64_t res_size,                         // res
                      const int64_t* a, int64_t a_size, int64_t a_sl,        // a
                      const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols  // prep matrix
 );
 
-void vmp_apply_dft_to_dft_p(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
+int vmp_apply_dft_to_dft_p(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
                             uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols);
 
 void delete_vmp_pmat_p(double* pmat);
 
-void vec_znx_normalize_base2k_p(const MODULE* module,                            // N
+int vec_znx_normalize_base2k_p(const MODULE* module,                            // N
                                 uint64_t log2_base2k,                            // output base 2^K
                                 int64_t* res, int64_t res_size, int64_t res_sl,  // res
                                 const int64_t* a, int64_t a_size, int64_t a_sl   // a
