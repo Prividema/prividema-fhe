@@ -1,7 +1,7 @@
 #include "maths_structures.h"
 #include "vec_znx_arithmetic_private.h"
 
-//! DEFINE SPQLIOS ALIAS (begin) 
+//! DEFINE SPQLIOS ALIAS (begin)
 
 typedef enum module_type_t MODULE_TYPE;
 /** @brief opaque structure that describe the modules (Zn[X],TnX) and the hardware */
@@ -22,48 +22,46 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
 //! The p in "*_p" stands for PRIVIDEMA (begin)
 
 /**
- * @brief Creates a new module holding N referring to Z_N[X] and we suppose that we use the FFT64 Discrete Fourier Transform method.
- * 
- * @param N 
- * @return MODULE* 
+ * @brief Creates a new module holding N referring to Z_N[X] and we suppose that we use the FFT64 Discrete Fourier
+ * Transform method.
+ *
+ * @param N
+ * @return MODULE*
  */
-MODULE* new_module_info_p(uint64_t N
-);
+MODULE* new_module_info_p(uint64_t N);
 
-void delete_module_info_p(MODULE* module);
+void delete_module_info_p(const MODULE* module);
 
 double* new_vec_znx_dft_p(const MODULE* module,  // N
-                          int64_t size
-);
+                          int64_t size);
 
-void vec_znx_dft_p(const MODULE* module,                             // N
-                   double* res, int64_t res_size,                   // res
+void vec_znx_dft_p(const MODULE* module,                           // N
+                   double* res, int64_t res_size,                  // res
                    const int64_t* a, int64_t a_size, int64_t a_sl  // a
 );
 
 void delete_vec_znx_dft_p(double* res);
 
 int64_t* new_vec_znx_big_p(const MODULE* module,  // N
-                           int64_t size
-);
+                           int64_t size);
 
-void vec_znx_idft_p(const MODULE* module,                  // N
-                    int64_t* res, int64_t res_size,       // res
-                    const double* a_dft, int64_t a_size   // a
+void vec_znx_idft_p(const MODULE* module,                // N
+                    int64_t* res, int64_t res_size,      // res
+                    const double* a_dft, int64_t a_size  // a
 );
 
 void delete_vec_znx_big_p(int64_t* res);
 
-double* new_svp_ppol_p(MODULE* module);
+double* new_svp_ppol_p(const MODULE* module);
 
 void svp_prepare_p(const MODULE* module,  // N
                    PolyUnivDFT* ppol,     // output
                    const int64_t* pol     // a
 );
 
-void svp_apply_dft_p(const MODULE* module,                             // N
-                     const double* res, int64_t res_size,             // output
-                     const PolyUnivDFT* ppol,                          // prepared pol
+void svp_apply_dft_p(const MODULE* module,                           // N
+                     const double* res, int64_t res_size,            // output
+                     const PolyUnivDFT* ppol,                        // prepared pol
                      const int64_t* a, int64_t a_size, int64_t a_sl  // a
 );
 
@@ -71,27 +69,24 @@ void delete_svp_ppol_p(double* res);
 
 double* new_vmp_pmat_p(const MODULE* module, uint64_t nrows, uint64_t ncols);
 
-void vmp_prepare_contiguous_p(const MODULE* module,                               // N
+int vmp_prepare_contiguous_p(const MODULE* module,                               // N
                               double* pmat,                                       // output
                               const int64_t* mat, uint64_t nrows, uint64_t ncols  // a
 );
 
-void vmp_apply_dft_p(const MODULE* module,                                   // N
+int vmp_apply_dft_p(const MODULE* module,                                  // N
                      double* res, int64_t res_size,                         // res
-                     const int64_t* a, int64_t a_size, int64_t a_sl,       // a
-                     const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols   // prep matrix
+                     const int64_t* a, int64_t a_size, int64_t a_sl,        // a
+                     const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols  // prep matrix
 );
 
-void vmp_apply_dft_to_dft_p(const MODULE* module, 
-                            VecBivDFT* res, const uint64_t res_size, 
-                            const VecBivDFT* a_dft, uint64_t a_size, 
-                            const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols
-);
+int vmp_apply_dft_to_dft_p(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
+                            uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols);
 
 void delete_vmp_pmat_p(double* pmat);
 
-void vec_znx_normalize_base2k_p(const MODULE* module,                              // N
-                                uint64_t log2_base2k,                              // output base 2^K
+int vec_znx_normalize_base2k_p(const MODULE* module,                            // N
+                                uint64_t log2_base2k,                            // output base 2^K
                                 int64_t* res, int64_t res_size, int64_t res_sl,  // res
-                                const int64_t* a, int64_t a_size, int64_t a_sl   //a
+                                const int64_t* a, int64_t a_size, int64_t a_sl   // a
 );

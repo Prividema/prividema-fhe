@@ -5,6 +5,7 @@
 # Source files for COMMON
 set(COMMON_SRCS
     logger.c
+    maths_structures.c
     spqlios_alias.c
     rng.c
 )

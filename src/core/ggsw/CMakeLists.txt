@@ -22,7 +22,7 @@ target_link_libraries(GGSW PRIVATE GLWE libspqlios COMMON)
 # Include directories
 target_include_directories(GGSW
     PUBLIC
-        ${PROJECT_SOURCE_DIR}/include/core/ggsw    # Public headers for consumers
+        ${PROJECT_SOURCE_DIR}/include/core/ggsw    
         ${PROJECT_SOURCE_DIR}/include/common/
     PRIVATE
         ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/  # Internal headers only
