@@ -12,10 +12,10 @@ PolyUniv** new_ggsw_secret_key_values(uint64_t N, uint64_t k)
 	PolyUniv** values = malloc(k * sizeof(PolyUniv*));
 	if (log_is_null(values, "values's malloc in new_ggsw_secret_key_values") < 0) return NULL;
 
-	for (int64_t j = 0; j < k; j++) {
+	for (uint64_t j = 0; j < k; j++) {
 		values[j] = calloc(N, sizeof(int64_t));
 		if (log_is_null(values[j], "values elements' calloc failed in new_ggsw_secret_key_values") < 0) {
-			for (int64_t t = 0; t < j; t++) free(values[t]);
+			for (uint64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
 			return NULL;
@@ -32,10 +32,10 @@ PolyUniv** new_uniform_ggsw_secret_key_values(const MODULE* module, uint64_t k, 
 	if (log_is_null(values, "values's malloc failed in new_uniform_ggsw_secret_key_values") < 0) return NULL;
 
 	// Uniform random generation of k Zn[X] polynomials.
-	for (int64_t j = 0; j < k; j++) {
+	for (uint64_t j = 0; j < k; j++) {
 		values[j] = malloc(N * sizeof(double));
 		if (log_is_null(values[j], "values elements' calloc failed in new_uniform_ggsw_secret_key_values") < 0) {
-			for (int64_t t = 0; t < j; t++) free(values[t]);
+			for (uint64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
 			return NULL;
@@ -43,7 +43,7 @@ PolyUniv** new_uniform_ggsw_secret_key_values(const MODULE* module, uint64_t k, 
 
 		if (inplace_uniform_random_vec(N, values[j], 1, N, nb_bits) < 0) {
 			log_perror("inplace_uniform_random_vec failed in new_uniform_ggsw_secret_key_values");
-			for (int64_t t = 0; t < j; t++) free(values[t]);
+			for (uint64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
 			return NULL;
@@ -55,7 +55,7 @@ PolyUniv** new_uniform_ggsw_secret_key_values(const MODULE* module, uint64_t k, 
 
 void delete_ggsw_secret_key_values(PolyUniv** values, uint64_t k)
 {
-	for (int64_t j = 0; j < k; j++) free(values[j]);
+	for (uint64_t j = 0; j < k; j++) free(values[j]);
 	free(values);
 }
 
@@ -96,8 +96,23 @@ void delete_ggsw_secret_key(GGSWSecretKey* sk)
 GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(const MODULE* module, const GGSWSecretKeyDFT* sk_dft)
 {
 	GGSWSecretKey* sk = new_ggsw_secret_key(sk_dft->N, sk_dft->k);
+	if (sk == NULL)
+	{
+		log_perror("new_ggsw_secret_key failed in transform_ggsw_secret_key_dft_to_not_dft");
+		return NULL;
+	}
 
-	for (int64_t j = 0; j < sk->k; j++) vec_znx_idft_p(module, sk->values[j], 1, sk_dft->values[j], 1);
+	for (uint64_t j = 0; j < sk->k; j++)
+		if (vec_znx_idft_p(module, sk->values[j], 1, sk_dft->values[j], 1) < 0)
+		{
+			log_perror("vec_znx_idft_p failed in transform_ggsw_secret_key_dft_to_not_dft");
+
+			for (uint64_t t = 0; t < j; t++) free(sk->values[j]);
+			free(sk->values);
+			free(sk);
+
+			return NULL;
+		}
 
 	return sk;
 }
@@ -110,16 +125,24 @@ PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(const MODULE* module,
 	if (log_is_null(values, "values's calloc failed in transform_ggsw_secret_key_values_dft_to_not_dft") < 0)
 		return NULL;
 
-	for (int64_t j = 0; j < k; j++) {
+	for (uint64_t j = 0; j < k; j++) {
 		values[j] = calloc(N, sizeof(int64_t));
 		if (log_is_null(values[j],
 		                "values elements' calloc failed in transform_ggsw_secret_key_values_dft_to_not_dft") < 0) {
-			for (int64_t t = 0; t < j; t++) free(values[t]);
+			for (uint64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
 
 			return NULL;
 		}
-		vec_znx_idft_p(module, values[j], 1, values_dft[j], 1);
+		if (vec_znx_idft_p(module, values[j], 1, values_dft[j], 1) < 0)
+		{
+			log_perror("vec_znx_idft_p failed in transform_ggsw_secret_key_values_dft_to_not_dft");
+
+			for (uint64_t t = 0; t < j; t++) free(values[t]);
+			free(values);
+
+			return NULL;
+		}
 	}
 
 	return values;
@@ -127,11 +150,11 @@ PolyUniv** transform_ggsw_secret_key_values_dft_to_not_dft(const MODULE* module,
 
 GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(const GGSWSecretKey* sk_ggsw)
 {
-	GLWESecretKey* sk_glwe = new_glwe_secret_key(NULL, sk_ggsw->N, sk_ggsw->k);
+	GLWESecretKey* sk_glwe = new_glwe_secret_key(sk_ggsw->N, sk_ggsw->k);
 	if (log_is_null(sk_glwe, "sk_glwe's malloc failed in transform_ggsw_secret_key_to_glwe_secret_key") < 0)
 		return NULL;
 
-	for (int64_t j = 0; j < sk_ggsw->k; j++)
+	for (uint64_t j = 0; j < sk_ggsw->k; j++)
 		for (int p = 0; p < sk_ggsw->N; p++) 
 			sk_glwe->values[j][p] = sk_ggsw->values[j][p];
 
@@ -145,10 +168,10 @@ PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k)
 	PolyUnivDFT** values_dft = malloc(k * sizeof(PolyUnivDFT*));
 	if (log_is_null(values_dft, "values_dft's malloc failed in new_ggsw_secret_key_values_dft") < 0) return NULL;
 
-	for (int64_t j = 0; j < k; j++) {
+	for (uint64_t j = 0; j < k; j++) {
 		values_dft[j] = calloc(N, sizeof(double));
 		if (log_is_null(values_dft[j], "values_dft elements' calloc failed in new_ggsw_secret_key_values_dft") < 0) {
-			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
+			for (uint64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
 
 			return NULL;
@@ -166,11 +189,11 @@ PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(const MODULE* module, uint6
 		return NULL;
 
 	// Uniform random generation of k Zn[X] polynomials.
-	for (int64_t j = 0; j < k; j++) {
+	for (uint64_t j = 0; j < k; j++) {
 		values_dft[j] = malloc(N * sizeof(double));
 		if (log_is_null(values_dft[j], "values_dft elements' calloc failed in new_uniform_ggsw_secret_key_values_dft") <
 		    0) {
-			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
+			for (uint64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
 
 			return NULL;
@@ -179,7 +202,7 @@ PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(const MODULE* module, uint6
 		if (inplace_uniform_random_vec_znx_dft(module, values_dft[j], 1, nb_bits) < 0) {
 			log_perror("inplace_uniform_random_vec_znx_dft failed in new_uniform_ggsw_secret_key_values_dft");
 
-			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
+			for (uint64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
 
 			return NULL;
@@ -191,7 +214,7 @@ PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(const MODULE* module, uint6
 
 void delete_ggsw_secret_key_values_dft(PolyUnivDFT** values, uint64_t k)
 {
-	for (int64_t j = 0; j < k; j++) free(values[j]);
+	for (uint64_t j = 0; j < k; j++) free(values[j]);
 	free(values);
 }
 
@@ -230,7 +253,7 @@ GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(const MODULE* module,
 {
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(sk->N, sk->k);
 
-	for (int64_t j = 0; j < sk_dft->k; j++) vec_znx_dft_p(module, sk_dft->values[j], 1, sk->values[j], 1, sk->N);
+	for (uint64_t j = 0; j < sk_dft->k; j++) vec_znx_dft_p(module, sk_dft->values[j], 1, sk->values[j], 1, sk->N);
 
 	return sk_dft;
 }
@@ -243,11 +266,11 @@ PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(const MODULE* modu
 	if (log_is_null(values_dft, "values_dft's malloc failed in transform_ggsw_secret_key_values_not_dft_to_dft") < 0)
 		return NULL;
 
-	for (int64_t j = 0; j < k; j++) {
+	for (uint64_t j = 0; j < k; j++) {
 		values_dft[j] = calloc(N, sizeof(double));
 		if (log_is_null(values_dft[j],
 		                "values_dft elements' calloc failed in transform_ggsw_secret_key_values_not_dft_to_dft") < 0) {
-			for (int64_t t = 0; t < j; t++) free(values_dft[t]);
+			for (uint64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);
 
 			return NULL;
@@ -261,12 +284,12 @@ PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(const MODULE* modu
 
 GLWESecretKeyDFT* transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(const GGSWSecretKeyDFT* sk_ggsw_dft)
 {
-	GLWESecretKeyDFT* sk_glwe_dft = new_glwe_secret_key_dft(NULL, sk_ggsw_dft->N, sk_ggsw_dft->k);
+	GLWESecretKeyDFT* sk_glwe_dft = new_glwe_secret_key_dft(sk_ggsw_dft->N, sk_ggsw_dft->k);
 	if (log_is_null(sk_glwe_dft,
 	                "sk_glwe_dft's malloc failed in transform_ggsw_secret_key_dft_to_glwe_secret_key_dft") < 0)
 		return NULL;
 
-	for (int64_t j = 0; j < sk_ggsw_dft->k; j++)
+	for (uint64_t j = 0; j < sk_ggsw_dft->k; j++)
 		for (int p = 0; p < sk_ggsw_dft->N; p++) sk_glwe_dft->values[j][p] = sk_ggsw_dft->values[j][p];
 
 	return sk_glwe_dft;

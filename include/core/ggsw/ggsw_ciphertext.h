@@ -22,7 +22,7 @@
 
 typedef struct ggsw_ciphertext
 {
-	GGSWCtParams* params;  // GGSW parameters
+	const GGSWCtParams* params;  // GGSW parameters
 	MatBiv* mat;           // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
 } GGSWCiphertext;
 
@@ -96,7 +96,7 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphert
 
 typedef struct ggsw_ciphertext_dft
 {
-	GGSWCtParams* params;  // GGSW parameters
+	const GGSWCtParams* params;  // GGSW parameters
 	MatBivDFT* mat;        // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
 } GGSWCiphertextDFT;
 
@@ -123,7 +123,7 @@ GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params);
  *
  * @param ct The bivGGSW in DFT space.
  */
-void delete_ggsw_dft(const GGSWCiphertextDFT* ct);
+void delete_ggsw_dft(GGSWCiphertextDFT* ct);
 
 /**
  * @brief Return the pointer to biGLWE(DFT(-m * sk_j / 2^kappa*(i+1))) in DFT space.

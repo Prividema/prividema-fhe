@@ -73,7 +73,7 @@ void delete_glwe_secret_key_values(PolyUniv** values, uint64_t k);
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKey* new_glwe_secret_key(PolyUniv** values, uint64_t N, uint64_t k);
+GLWESecretKey* new_glwe_secret_key(uint64_t N, uint64_t k);
 
 /**
  * @brief Draws a secret key uniformly.
@@ -146,7 +146,7 @@ void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKeyDFT* new_glwe_secret_key_dft(PolyUnivDFT** values_dft, uint64_t N, uint64_t k);
+GLWESecretKeyDFT* new_glwe_secret_key_dft(uint64_t N, uint64_t k);
 
 /**
  * @brief Draws a secret key uniformly in DFT space.

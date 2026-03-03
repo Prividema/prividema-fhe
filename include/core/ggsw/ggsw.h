@@ -62,8 +62,8 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
  * @return int
  */
 int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, const GGSWSecretKeyDFT* sk_dft, const PolyUniv* msg_univ,
-                     const PolyUnivDFT* msg_univ_dft, const PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, PolyBiv* result,
-                     PolyUnivRnX* phase_univ_RnX, int64_t i, int64_t j);
+                     const PolyUnivDFT* msg_univ_dft, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, 
+                     PolyBiv* result, PolyUnivRnX* phase_univ_RnX, int64_t i, int64_t j);
 
 /**
  * @brief Encrypts the message m into GGSW ciphertext res with parameters params.
@@ -167,7 +167,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
  */
 int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, const GGSWSecretKeyDFT* sk_dft, const PolyUniv* msg_univ,
                          const PolyUnivDFT* msg_univ_dft, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft,
-                         const PolyBivDFT* phase_dft, PolyBiv* result, PolyUnivRnX* phase_univ_RnX, int64_t i, int64_t j);
+                         PolyBivDFT* phase_dft, PolyBiv* result, PolyUnivRnX* phase_univ_RnX, int64_t i, int64_t j);
 
 /**
  * @brief Encrypts the message m into GGSW ciphertext res with parameters params in DFT space.

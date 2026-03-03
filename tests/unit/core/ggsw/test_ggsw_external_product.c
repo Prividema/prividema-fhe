@@ -35,7 +35,7 @@ Test(ggsw_external_product, without_error)
 	GGSWCtParams* params_ggsw     = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module                = new_module_info(NBASE, FFT64);
 
-	GGSWCiphertext* ct_ggsw       = new_ggsw(params_ggsw, NULL);
+	GGSWCiphertext* ct_ggsw       = new_ggsw(params_ggsw);
 	GLWECiphertext* ct_glwe_tilde = new_glwe(params_glwe_tilde);
 	GLWECiphertext* res           = new_glwe(params_glwe);
 
@@ -89,7 +89,7 @@ Test(ggsw_external_product, without_error)
 	biv_to_univ(params_glwe, um_univ, um);
 
 	//! Tests equality
-	for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++) {
 		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
 		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
 		          um_univ[p]);
@@ -200,7 +200,7 @@ Test(ggsw_external_product_dft, without_error)
 	biv_to_univ(params_glwe, m_univ, m);
 
 	//! Tests equality
-	for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++) {
 		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
 		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
 		          um_univ[p]);

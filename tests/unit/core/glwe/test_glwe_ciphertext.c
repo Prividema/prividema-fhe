@@ -74,7 +74,7 @@ Test(mult_vec_znx_dft, size_equal_one)
 
 	// Compare the real coefficient res_p for each p in [0, NBASE -1] with the res_p mult_vec_znx_dft computed
 	// coefficient.
-	for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++) {
 		int64_t acc = 0;
 		for (uint64_t k = 0; k <= p; k++) {
 			acc += a[k] * b[p - k];
@@ -136,8 +136,8 @@ Test(mult_vec_znx_dft, random_size)
 
 	// Compare the real coefficient res_p for each p in [0, NBASE -1] with the res_p mult_vec_znx_dft computed
 	// coefficient.
-	for (int64_t i = 0; i < size; i++) {
-		for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t i = 0; i < size; i++) {
+		for (uint64_t p = 0; p < NBASE; p++) {
 			int64_t acc = 0;
 			for (uint64_t k = 0; k <= p; k++) {
 				acc += a[i * NBASE + k] * b[i * NBASE + p - k];
@@ -204,9 +204,9 @@ Test(add_glwe, basic)
 
 	add_glwe(res, ct_l, ct_r);
 
-	for (int64_t i = 1; i < LBASE; i++)
-		for (int64_t j = 0; j < KBASE + 1; j++)
-			for (int64_t p = 0; p < NBASE; p++)
+	for (uint64_t i = 1; i < LBASE; i++)
+		for (uint64_t j = 0; j < KBASE + 1; j++)
+			for (uint64_t p = 0; p < NBASE; p++)
 				cr_assert(eq(res->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p],
 				             ct_l->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] +
 				                 ct_r->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]));
@@ -237,10 +237,10 @@ Test(const_mult_glwe, without_normalization)
 
 	const_mult_glwe(module, res, u_dft, ct, 0);
 
-	for (int64_t i = 1; i <= LBASE; i++)
-		for (int64_t j = 0; j < KBASE + 1; j++) {
+	for (uint64_t i = 1; i <= LBASE; i++)
+		for (uint64_t j = 0; j < KBASE + 1; j++) {
 			PolyUniv* ct_ij = ct->vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				int64_t acc = 0;
 				for (uint64_t k = 0; k <= p; k++) {
 					acc += u[k] * ct_ij[p - k];
@@ -280,11 +280,11 @@ Test(const_mult_glwe, with_normalization)
 
 	const_mult_glwe(module, res, u_dft, ct, 1);
 
-	for (int64_t j = 0; j < KBASE + 1; j++)
-		for (int64_t p = 0; p < NBASE; p++)
-			for (int64_t i = 1; i <= LBASE; i++) {
+	for (uint64_t j = 0; j < KBASE + 1; j++)
+		for (uint64_t p = 0; p < NBASE; p++)
+			for (uint64_t i = 1; i <= LBASE; i++) {
 				int64_t remainder = 0;
-				for (int64_t i = LBASE; i >= 1; i--) {
+				for (uint64_t i = LBASE; i >= 1; i--) {
 					PolyUniv* ct_ij = ct->vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
 
 					int64_t acc     = 0;
@@ -357,9 +357,9 @@ Test(add_glwe_dft, basic)
 
 	add_glwe_dft(ct_sum_dft, ct_l_dft, ct_r_dft);
 
-	for (int64_t i = 1; i < LBASE; i++)
-		for (int64_t j = 0; j < KBASE + 1; j++)
-			for (int64_t p = 0; p < NBASE; p++)
+	for (uint64_t i = 1; i < LBASE; i++)
+		for (uint64_t j = 0; j < KBASE + 1; j++)
+			for (uint64_t p = 0; p < NBASE; p++)
 				cr_assert(eq(ct_sum_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p],
 				             ct_l_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] +
 				                 ct_r_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]));
@@ -399,10 +399,10 @@ Test(const_mult_glwe_dft, without_normalization)
 	// Computes res out of DFT space
 	vec_znx_idft_p(module, res_vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 
-	for (int64_t i = 1; i <= LBASE; i++)
-		for (int64_t j = 0; j < KBASE + 1; j++) {
+	for (uint64_t i = 1; i <= LBASE; i++)
+		for (uint64_t j = 0; j < KBASE + 1; j++) {
 			PolyUniv* ct_ij = ct_vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				int64_t acc = 0;
 				for (uint64_t k = 0; k <= p; k++) {
 					acc += u[k] * ct_ij[p - k];
@@ -452,11 +452,11 @@ Test(const_mult_glwe_dft, with_normalization)
 	// Computes res out of DFT space
 	vec_znx_idft_p(module, res_vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 
-	for (int64_t j = 0; j < KBASE + 1; j++)
-		for (int64_t p = 0; p < NBASE; p++)
-			for (int64_t i = 1; i <= LBASE; i++) {
+	for (uint64_t j = 0; j < KBASE + 1; j++)
+		for (uint64_t p = 0; p < NBASE; p++)
+			for (uint64_t i = 1; i <= LBASE; i++) {
 				int64_t remainder = 0;
-				for (int64_t i = LBASE; i >= 1; i--) {
+				for (uint64_t i = LBASE; i >= 1; i--) {
 					PolyUniv* ct_ij = ct_vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
 
 					int64_t acc     = 0;
