@@ -12,6 +12,8 @@ typedef enum {
     LOG_ERROR
 } LogLevel;
 
+extern LogLevel LOG_THRESHOLD;
+
 /**
  * @brief Set the program's log level.
  * @param level The log level. Should be an element of the enum.

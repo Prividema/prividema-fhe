@@ -19,9 +19,8 @@ Test(new_secret_key_values, basic){
     PolyUniv** values = new_secret_key_values(NBASE, KBASE);
 
     cr_assert(eq(int, values != NULL, 1));
-    for(int64_t j = 0 ; j < KBASE ; j++){
+    for(int64_t j = 0 ; j < KBASE ; j++)
         cr_assert(eq(int, values[j] != NULL, 1));
-    }
 
     delete_secret_key_values(values, KBASE);
 }
@@ -33,9 +32,8 @@ Test(new_uniform_secret_key_values, basic){
     PolyUniv** values = new_uniform_secret_key_values(NBASE, KBASE, 3);
 
     cr_assert(eq(int, values != NULL, 1));
-    for(int64_t j = 0 ; j < KBASE ; j++){
+    for(int64_t j = 0 ; j < KBASE ; j++)
         cr_assert(eq(int, values[j] != NULL, 1));
-    }
 
     delete_secret_key_values(values, KBASE);
 }
@@ -47,11 +45,9 @@ Test(transform_secret_key_values_dft_to_not_dft, basic){
     PolyUnivDFT** values_dft = new_uniform_secret_key_values_dft(NBASE, KBASE, 3);
     PolyUniv** values = transform_secret_key_values_dft_to_not_dft(values_dft, NBASE, KBASE);
 
-    for(int64_t j = 0 ; j < KBASE ; j++){
-        for(int64_t p = 0 ; p < NBASE ; p++){
-            cr_log_info("%lld X^%lld ", values[j][p], p);
-        }
-    }
+    for(int64_t j = 0 ; j < KBASE ; j++)
+        for(int64_t p = 0 ; p < NBASE ; p++)
+            cr_log_info("%" PRId64 " X^%" PRId64, values[j][p], p);
 
     delete_secret_key_values_dft(values_dft, KBASE);
     delete_secret_key_values(values, KBASE);
@@ -67,9 +63,8 @@ Test(new_glwe_secret_key, values_not_null){
     cr_assert(eq(int, sk != NULL, 1));
     cr_assert(eq(int, sk->values != NULL, 1));
 
-    for(int64_t j = 0 ; j < KBASE ; j++){
+    for(int64_t j = 0 ; j < KBASE ; j++)
         cr_assert(eq(int, sk->values[j] != NULL, 1));
-    }
 
     delete_glwe_secret_key(sk);
 } 
@@ -83,9 +78,8 @@ Test(new_uniform_glwe_secret_key, values_not_null){
     cr_assert(eq(int, sk != NULL, 1));
     cr_assert(eq(int, sk->values != NULL, 1));
 
-    for(int64_t j = 0 ; j < KBASE ; j++){
+    for(int64_t j = 0 ; j < KBASE ; j++)
         cr_assert(eq(int, sk->values[j] != NULL, 1));
-    }
 
     delete_glwe_secret_key(sk);
 } 
@@ -97,11 +91,9 @@ Test(transform_glwe_secret_key_dft_to_not_dft, basic){
     GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
     GLWESecretKey* sk = transform_glwe_secret_key_dft_to_not_dft(sk_dft);
 
-    for(int64_t j = 0 ; j < KBASE ; j++){
-        for(int64_t p = 0 ; p < NBASE ; p++){
-            cr_log_info("%lld X^%lld ", sk->values[j][p], p);
-        }
-    }
+    for(int64_t j = 0 ; j < KBASE ; j++)
+        for(int64_t p = 0 ; p < NBASE ; p++)
+            cr_log_info("%" PRId64 " X^%" PRId64, sk->values[j][p], p);
 
     delete_glwe_secret_key_dft(sk_dft);
     delete_glwe_secret_key(sk);
@@ -148,7 +140,7 @@ Test(transform_secret_key_values_not_dft_to_dft, basic){
 
     for(int64_t j = 0 ; j < KBASE ; j++){
         for(int64_t p = 0 ; p < NBASE ; p++){
-            cr_log_info("%lf X^%lld ", values_dft[j][p], p);
+            cr_log_info("%lf X^%" PRId64, values_dft[j][p], p);
         }
     }
 
@@ -196,11 +188,9 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic){
     GLWESecretKey* sk = new_uniform_glwe_secret_key(NBASE, KBASE, 3);
     GLWESecretKeyDFT* sk_dft = transform_glwe_secret_key_not_dft_to_dft(sk);
 
-    for(int64_t j = 0 ; j < KBASE ; j++){
-        for(int64_t p = 0 ; p < NBASE ; p++){
-            cr_log_info("%lf X^%lld ", sk_dft->values[j][p], p);
-        }
-    }
+    for(int64_t j = 0 ; j < KBASE ; j++)
+        for(int64_t p = 0 ; p < NBASE ; p++)
+            cr_log_info("%lf X^%" PRId64, sk_dft->values[j][p], p);
 
     delete_glwe_secret_key(sk);
     delete_glwe_secret_key_dft(sk_dft);

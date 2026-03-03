@@ -6,49 +6,47 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 
-#define NBASE 8
-#define KBASE 8
+#define NBASE 2
+#define KBASE 1
 #define KAPPABASE 4
-#define NLIMBSBASE 45
+#define NLIMBSBASE 4
 #define LBASE NLIMBSBASE/(KBASE+1)
 #define SIGMABASE -12
 
-printf_poly_biv(PolyBiv* pol){
-    printf("\n %s in Zn[X,Y]: ");
+void printf_poly_biv(PolyBiv* pol, int64_t pol_sl){
+    printf("\nPol in Zn[X,Y]: ");
     for(int64_t i = 0 ; i < LBASE ; i++)
     {
-        printf("\nY^%ld  ", i);
+        printf("\nY^%ld : ", i);
         for(int64_t p = 0 ; p < NBASE ; p++){
-            printf(" %ld X^%ld ", pol[i*NBASE + p], p);
+            if(pol[i*pol_sl + p] < 0)
+                printf("%ld X^%ld ", pol[i*pol_sl + p], p);
+            else
+                printf(" %ld X^%ld ", pol[i*pol_sl + p], p);
         }
     }
 }
 
-printf_vec_poly_biv(VecBiv* pol, int64_t pol_size){
-    printf("\n %s in Zn[X,Y]: ");
-    for(int64_t i = 0 ; i < pol_size ; i++){
-        printf("\n\n %ld-ème component\n", i);
-        for(int64_t i = 0 ; i < LBASE ; i++)
-        {
-            printf("\nY^%ld  ", i);
-            for(int64_t p = 0 ; p < NBASE ; p++){
-                printf(" %ld X^%ld ", pol[i*NBASE + p], p);
-            }
-        }
+void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size){
+    printf("\n\nVec in Zn[X,Y]: ");
+    for(int64_t j = 0 ; j < pols_size ; j++){
+        printf("\n%ld-th component", j);
+        printf_poly_biv(pols + j*NBASE, pols_size);
+        printf("\n");
     }
 }
 
-printf_vec_poly_univ(VecBiv* pol, int64_t pol_size){
-    printf("\n %s in Zn[X,Y]: ");
-    for(int64_t i = 0 ; i < pol_size ; i++){
-        printf("\n\n %ld-ème component\n", i);
-        for(int64_t i = 0 ; i < LBASE ; i++)
-        {
-            printf("\nY^%ld  ", i);
-            for(int64_t p = 0 ; p < NBASE ; p++){
-                printf(" %ld X^%ld ", pol[i*NBASE + p], p);
-            }
-        }
+void printf_poly_univ(PolyUniv* pol){
+    for(int64_t p = 0 ; p < NBASE ; p++){
+        printf(" %ld X^%ld ", pol[p], p);
+    }
+}
+
+void printf_secret_key(PolyUniv** sk_values){
+    printf("\n\nSecret key: ");
+    for(int64_t j = 0 ; j < KBASE ; j++){
+        printf("\n%ld-th component\n", j);
+        printf_poly_univ(sk_values[j]);
     }
 }
 
@@ -56,14 +54,21 @@ Test(add_mult, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
     MODULE* module = new_module_info_p(NBASE);
 
-    // The a_i's, b and the secret drawn uniformly
+    // The a_i's, b drawn uniformly
     VecBiv* ct = new_uniform_random_vec((KBASE + 1) * poly_biv_coef_number(params), 3);
+    printf_vec_poly_biv(ct, KBASE + 1);
+
+    // The secret key drawn uniformly
     GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(NBASE, KBASE, 3);
+    PolyUniv** sk_values = transform_secret_key_values_dft_to_not_dft(sk_dft->values, NBASE, KBASE);
+    printf_secret_key(sk_values);
 
     PolyBiv* res = calloc(NBASE * LBASE , sizeof(int64_t));
     add_mult(params, module, res, ct, sk_dft);
 
-    printf_biv(res);
+    printf("\n\nResult pol :");
+    printf_poly_biv(res, NBASE);
+    printf("\n\n");
 
     free(ct); free(res);
     delete_module_info_p(module);

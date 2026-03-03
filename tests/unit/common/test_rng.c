@@ -182,6 +182,7 @@ Test(rand_normal, test_rand_normal)
 
 Test(new_normal_random_vec, basic)
 {
+    log_msg(LOG_INFO, "Test normal random vector");
     MODULE* module = new_module_info_p(NBASE);
     double* pol_univ = malloc(NBASE * KBASE *sizeof(double));
     if (pol_univ == NULL) {
@@ -199,7 +200,7 @@ Test(new_normal_random_vec, basic)
     }
 
     for(int64_t p = 0 ; p < NBASE ; p++)
-        log_msg(LOG_INFO, "Ouput : %e X^%ld", pol_univ[p], p);
+        log_msg(LOG_DEBUG, "Ouput : %e X^%ld", pol_univ[p], p);
 
     delete_module_info_p(module);
     free(pol_univ);

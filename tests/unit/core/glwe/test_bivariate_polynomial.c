@@ -11,6 +11,7 @@
 #include <signal.h>
 #include <time.h>
 #include <math.h>
+#include <inttypes.h>
 
 #define NBASE 8
 #define KBASE 8
@@ -28,7 +29,7 @@ Test(poly_biv_size, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_biv_size(params), LBASE, 
-                "poly_biv_size failed: got %lld, expected %lld", poly_biv_size(params), LBASE));
+                "poly_biv_size failed: got %" PRId64 ", expected %" PRId64, poly_biv_size(params), LBASE));
     
     delete_glwe_ct_params(params);
 }
@@ -40,7 +41,7 @@ Test(poly_univ_bytes, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_univ_bytes(params), NBASE*sizeof(int64_t), 
-                "poly_univ_bytes failed: got %lld, expected %lld", poly_univ_bytes(params), NBASE*sizeof(int64_t)));
+                "poly_univ_bytes failed: got %" PRId64 ", expected %" PRId64, poly_univ_bytes(params), NBASE*sizeof(int64_t)));
     
     delete_glwe_ct_params(params);
 }
@@ -52,7 +53,7 @@ Test(poly_biv_bytes, basic){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t), 
-                "poly_biv_bytes failed: got %lld, expected %lld", poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t)));
+                "poly_biv_bytes failed: got %" PRId64 ", expected %" PRId64, poly_biv_bytes(params), NBASE*LBASE*sizeof(int64_t)));
     
     delete_glwe_ct_params(params);
 }
@@ -187,7 +188,7 @@ Test(poly_biv_coef_number, classic_params){
     GLWECtParams* params = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
     cr_assert(eq(i64, poly_biv_coef_number(params), NBASE * LBASE, 
-                "poly_biv_coef_number failed: got %lld, expected %lld", poly_biv_coef_number(params), NBASE * LBASE));
+                "poly_biv_coef_number failed: got %" PRId64 ", expected %" PRId64, poly_biv_coef_number(params), NBASE * LBASE));
 
     delete_glwe_ct_params(params);
 }
@@ -250,7 +251,7 @@ Test(add_biv_poly, basic){
         {
             int64_t idx = p + i * params->N;
             cr_assert(eq(dbl, res[idx], a[idx] + b[idx]),
-                "add_biv_poly mismatch at index %lld: %lld + %lld = %lld, got %lld",
+                "add_biv_poly mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64 ", got %" PRId64,
                 (long long)idx, a[idx], b[idx], a[idx] + b[idx], res[idx]);
         }
     }
@@ -284,7 +285,7 @@ Test(add_biv_poly_dft, basic){
         {
             int64_t idx = p + i * params->N;
             cr_assert(epsilon_eq(dbl, res[idx], a[idx] + b[idx], 1e-9),
-                "add_biv_poly_dft mismatch at index %lld: %f + %f = %f, got %f",
+                "add_biv_poly_dft mismatch at index %" PRId64 ": %f + %f = %f, got %f",
                 (long long)idx, a[idx], b[idx], a[idx] + b[idx], res[idx]);
         }
     }
