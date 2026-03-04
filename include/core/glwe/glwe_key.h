@@ -95,7 +95,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
 /**
  * @brief Computes the secret key out of DFT space.
  *
- * @param sk_dft The secret key in DFT space.
+ * @param sk_dft The secret key in the DFT domain.
  * @return GLWESecretKey*
  */
 GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(const MODULE* module, const GLWESecretKeyDFT* sk_dft);
@@ -103,7 +103,7 @@ GLWESecretKey* transform_glwe_secret_key_dft_to_not_dft(const MODULE* module, co
 /**
  * @brief Computes the values of the secret key out of DFT space.
  *
- * @param values_dft The values of the secret key in DFT space.
+ * @param values_dft The values of the secret key in the DFT domain.
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUniv**
@@ -113,7 +113,7 @@ PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(const MODULE* module,
 //! GLWE IN DFT SPACE PART (begin)
 
 /**
- * @brief Creates a new secret key values component in DFT space.
+ * @brief Creates a new secret key values component in the DFT domain.
  *
  * @param N The dimension of the module Zn[X].
  * @param k The number of Zn[X] polynomials in a secret key.
@@ -122,7 +122,7 @@ PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(const MODULE* module,
 PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
 
 /**
- * @brief Creates a new secret key values component in DFT space, where each Zn[X] poly is uniformly drawn.
+ * @brief Creates a new secret key values component in the DFT domain, where each Zn[X] poly is uniformly drawn.
  *
  * @param k The number of Zn[X] polynomials in a secret key.
  * @param N The dimension of the module Zn[X].
@@ -132,16 +132,16 @@ PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
 PolyUnivDFT** new_uniform_glwe_secret_key_values_dft(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
- * @brief Delete the values of a secret key in DFT space.
+ * @brief Delete the values of a secret key in the DFT domain.
  *
- * @param values The values of the secret key in DFT space.
+ * @param values The values of the secret key in the DFT domain.
  */
 void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 
 /**
- * @brief Creates a GLWE Secret key in DFT space.
+ * @brief Creates a GLWE Secret key in the DFT domain.
  *
- * @param values The values of the secret key in DFT space.
+ * @param values The values of the secret key in the DFT domain.
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
@@ -149,7 +149,7 @@ void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 GLWESecretKeyDFT* new_glwe_secret_key_dft(uint64_t N, uint64_t k);
 
 /**
- * @brief Draws a secret key uniformly in DFT space.
+ * @brief Draws a secret key uniformly in the DFT domain.
  *
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
@@ -158,14 +158,14 @@ GLWESecretKeyDFT* new_glwe_secret_key_dft(uint64_t N, uint64_t k);
 GLWESecretKeyDFT* new_uniform_glwe_secret_key_dft(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
- * @brief Delete the secret key that is in DFT space.
+ * @brief Delete the secret key that is in the DFT domain.
  *
- * @param sk_dft The secret key in DFT space.
+ * @param sk_dft The secret key in the DFT domain.
  */
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
 /**
- * @brief Computes the secret key in DFT space.
+ * @brief Computes the secret key in the DFT domain.
  *
  * @param sk The secret key out of DFT space.
  * @return GLWESecretKey*
@@ -173,7 +173,7 @@ void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 GLWESecretKeyDFT* transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, const GLWESecretKey* sk);
 
 /**
- * @brief Computes the values of the secret key in DFT space.
+ * @brief Computes the values of the secret key in the DFT domain.
  *
  * @param values The values of the secret key out of DFT space.
  * @param N The polynomials' maximum degree in X.

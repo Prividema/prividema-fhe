@@ -380,7 +380,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
 	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
 
-	// Draws uniformly the GGSW ciphertext in DFT space
+	// Draws uniformly the GGSW ciphertext in the DFT domain
 	inplace_uniform_random_vec_znx_dft(module, ct_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u)*GGSW
@@ -436,7 +436,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
 	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
 
-	// Draws uniformly the GGSW ciphertext in DFT space
+	// Draws uniformly the GGSW ciphertext in the DFT domain
 	inplace_uniform_random_vec_znx_dft(module, ct_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u)*GGSW

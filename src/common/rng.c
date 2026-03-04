@@ -189,7 +189,7 @@ VecUnivDFT* new_uniform_random_vec_znx_dft(const MODULE* module, uint64_t vec_si
 		}
 	}
 
-	// Computes the vector in DFT space
+	// Computes the vector in the DFT domain
 	VecUnivDFT* res_dft = malloc(vec_size * N * sizeof(double));
 	if (log_is_null(tmp_space, "malloc in new_uniform_random_vec_znx_dft") < 0) {
 		free(tmp_space);

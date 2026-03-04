@@ -210,7 +210,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* ct_dft, GLW
 	if (vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k + 1) * N, acc, l, N) < 0)
 		return log_perror("vec_znx_normalize_base2k_p failed in glwe_secret_masking_dft");
 
-	// Computes the GLWE ciphertext in DFT space
+	// Computes the GLWE ciphertext in the DFT domain
 	vec_znx_dft_p(module, ct_dft->vec, (k + 1) * l, ct, (k + 1) * l, N);
 
 	// Add the phase to the result ciphertext's b

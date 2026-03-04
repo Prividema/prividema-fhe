@@ -66,10 +66,10 @@ int inplace_uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs
 int64_t* new_uniform_random_vec(uint64_t coef_nb, uint64_t nb_bits);
 
 /**
- * @brief Generates a random vector following a uniform distribution and return it in DFT space.
+ * @brief Generates a random vector following a uniform distribution and return it in the DFT domain.
  *
  * @param module   The module holding the degree N in X.
- * @param res_dft  The result in DFT space.
+ * @param res_dft  The result in the DFT domain.
  * @param res_size The number of limbs.
  * @param nb_bits  The exponent of the range = [-2^nb_bits, 2^nb_bits).
  *
@@ -81,7 +81,7 @@ int64_t* new_uniform_random_vec(uint64_t coef_nb, uint64_t nb_bits);
 int inplace_uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* res_dft, int64_t res_size, uint64_t nb_bits);
 
 /**
- * @brief Generates a random Zn[X] vector, following a uniform distribution and returns it in DFT space .
+ * @brief Generates a random Zn[X] vector, following a uniform distribution and returns it in the DFT domain .
  *
  * @param module
  * @param vec_size

@@ -94,7 +94,7 @@ Test(new_uniform_ggsw_secret_key, values_not_null)
 }
 
 /**
- * @brief Tests wether transform_ggsw_secret_key_dft_to_not_dft transforms the secret key in DFT space, out of DFT
+ * @brief Tests wether transform_ggsw_secret_key_dft_to_not_dft transforms the secret key in the DFT domain, out of DFT
  * space.
  */
 Test(transform_ggsw_secret_key_dft_to_not_dft, basic)
@@ -147,7 +147,7 @@ Test(new_uniform_ggsw_secret_key_values_dft, basic)
 
 /**
  * @brief Tests wether transform_secret_key_values_not_dft_to_dft actually transforms the values of the secret key out
- * of DFT space, in DFT space.
+ * of DFT space, in the DFT domain.
  */
 Test(transform_ggsw_secret_key_values_not_dft_to_dft, basic)
 {

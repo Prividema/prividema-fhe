@@ -161,7 +161,7 @@ GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(const GGSWSecretKey*
 	return sk_glwe;
 }
 
-//! GGSW PART in DFT space (begin)
+//! GGSW PART in the DFT domain (begin)
 
 PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k)
 {

@@ -20,7 +20,7 @@ typedef struct tnx_element
  * @param module The module.
  * @param res The bivariate polynomial result.
  * @param ct The GLWE ciphertext
- * @param sk_dft The Secret key in DFT space.
+ * @param sk_dft The Secret key in the DFT domain.
  * @return int
  */
 int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
@@ -29,7 +29,7 @@ int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, Vec
  * @brief Masks the phase (message + noise) and puts it in res.
  *
  * @param ct The result bivariate ciphertext.
- * @param sk_dft The secret key in DFT space.
+ * @param sk_dft The secret key in the DFT domain.
  * @param phase message + noise.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
@@ -43,7 +43,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* ct, GLWESecretKeyD
  * @param module The module.
  * @param res The bivariate result.
  * @param ct The GLWE ciphertext
- * @param sk_dft The Secret key in DFT space.
+ * @param sk_dft The Secret key in the DFT domain.
  * @return int
  */
 int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft);
@@ -53,7 +53,7 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, Vec
  *
  * @param module
  * @param res The bivariate phase.
- * @param sk_dft The secret key in DFT space.
+ * @param sk_dft The secret key in the DFT domain.
  * @param ct The bivGLWE ciphertext.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
@@ -86,7 +86,7 @@ void glwe_addition(const Core* core, GLWECiphertext* ct_out, GLWECiphertext* ct_
  * @brief Masks the phase (message + noise) and puts it in res.
  *
  * @param ct The result bivariate ciphertext.
- * @param sk_dft The secret key in DFT space.
+ * @param sk_dft The secret key in the DFT domain.
  * @param phase message + noise.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
@@ -98,7 +98,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* ct_dft, GLW
  * @brief Demasks the bivariate phase (message + noise) and puts it in res.
  *
  * @param res The bivariate phase.
- * @param sk_dft The secret key in DFT space.
+ * @param sk_dft The secret key in the DFT domain.
  * @param ct The bivGLWE ciphertext.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.

@@ -87,14 +87,14 @@ uint64_t glwe_coef_number_dft(const GLWECtParams* params) { return glwe_size(par
 
 GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params)
 {
-	// The GLWE ciphertext in DFT space
+	// The GLWE ciphertext in the DFT domain
 	GLWECiphertextDFT* ct_dft = malloc(sizeof(GLWECiphertextDFT));
 	if (log_is_null(ct_dft, "ct_dft's malloc failed in new_glwe_dft.") < 0) return NULL;
 
 	// The GLWE parameters
 	ct_dft->params = params;
 
-	// The GLWE ciphertext's vector in DFT space
+	// The GLWE ciphertext's vector in the DFT domain
 	ct_dft->vec = calloc(glwe_coef_number_dft(params), 2 * sizeof(double));
 	if (log_is_null(ct_dft->vec, "ct_dft's calloc failed in new_glwe_dft.") < 0) {
 		free(ct_dft);
@@ -173,7 +173,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const 
             }
         }
 
-		// Computes the GLWE ciphertext in DFT space
+		// Computes the GLWE ciphertext in the DFT domain
 		vec_znx_dft_p(module, res_dft->vec, glwe_size(params), res_vec_normalized, glwe_size(params), N);
 
 		free(res_vec_normalized);

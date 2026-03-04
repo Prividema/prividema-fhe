@@ -188,7 +188,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	PolyBiv* phase = calloc(NBASE * LBASE, sizeof(int64_t));
 	add_biv_poly(params_glwe, phase, NBASE, msg, NBASE, err, NBASE);
 
-	// Computes the phase in DFT space
+	// Computes the phase in the DFT domain
 	PolyBivDFT* phase_dft = malloc(poly_biv_bytes(params_glwe));
 	vec_znx_dft_p(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
@@ -261,7 +261,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	PolyBiv* phase = calloc(NBASE * LBASE, sizeof(int64_t));
 	add_biv_poly(params_glwe, phase, NBASE, msg, NBASE, err, NBASE);
 
-	// Computes the phase in DFT space
+	// Computes the phase in the DFT domain
 	PolyBivDFT* phase_dft = malloc(poly_biv_bytes(params_glwe));
 	vec_znx_dft_p(module, phase_dft, LBASE, phase, LBASE, NBASE);
 

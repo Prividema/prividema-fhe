@@ -35,18 +35,18 @@ typedef int64_t VecUniv;
  */
 typedef int64_t MatUniv;
 
-/** @brief type that represents a Zn[X] polynomial in DFT space.
+/** @brief type that represents a Zn[X] polynomial in the DFT domain.
  *  @note `Length = N for a polynomial in Zn[X]`.
  */
 typedef double PolyUnivDFT;
 
-/** @brief type that represents a univariate Zn[X] polynomial vector in DFT space.
+/** @brief type that represents a univariate Zn[X] polynomial vector in the DFT domain.
  *  @note `Length = (k+1) * N for a GLWE`
  *  @note `Length = k * N for a GLWE secret key`
  */
 typedef double VecUnivDFT;
 
-/** @brief type that represents a univariate GGSW in DFT space.
+/** @brief type that represents a univariate GGSW in the DFT domain.
  *  @note `Length = n_limbs_tilde * (k+1) * N for a GGSW`
  */
 typedef double MatUnivDFT;
@@ -68,17 +68,17 @@ typedef int64_t VecBiv;
  */
 typedef int64_t MatBiv;
 
-/** @brief type that represents a bivariate polynomial in DFT space.
+/** @brief type that represents a bivariate polynomial in the DFT domain.
  *  @note `Length = l*N`.
  */
 typedef double PolyBivDFT;
 
-/** @brief type that represents a bivariate polynomial vector in DFT space.
+/** @brief type that represents a bivariate polynomial vector in the DFT domain.
  *  @note `Length = l * (k+1) * N` for a bivGLWE.
  */
 typedef double VecBivDFT;
 
-/** @brief type that represents a bivariate polynomial matrix in DFT space.
+/** @brief type that represents a bivariate polynomial matrix in the DFT domain.
  *  @note `Length = n_limbs_tilde * l * (k+1) * N` for a bivGGSW.
  */
 typedef double MatBivDFT;

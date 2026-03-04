@@ -13,11 +13,11 @@
 
 int add_error(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const PolyBiv* phase)
 {
-	// Compute a random error in DFT space
+	// Compute a random error in the DFT domain
 	PolyBiv* err = new_normal_random_biv_poly(module, params);
 	if (log_is_null(err, "new_normal_random_biv_poly failed in add_error") < 0) return -1;
 
-	// Add the error in DFT space
+	// Add the error in the DFT domain
 	add_biv_poly(params, result, params->N, phase, params->N, err, params->N);
 
 	free(err);
@@ -312,11 +312,11 @@ int ggsw_external_product(const MODULE* module,
 	MatBivDFT* ggsw_pmat = NULL;
 	VecBivDFT* result_dft = NULL;
 
-	// Point to the GGSW ciphertext prepared in DFT space
+	// Point to the GGSW ciphertext prepared in the DFT domain
 	ggsw_pmat = malloc(ggsw_bytes(ggsw->params));
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
 
-	// Prepares GGSW ciphertext prepared in DFT space 
+	// Prepares GGSW ciphertext prepared in the DFT domain 
 	CHECK_CALL(vmp_prepare_contiguous_p(module, ggsw_pmat, ggsw->mat, nrows, ncols), 
 		"vmp_prepare_contiguous_p failed in ggsw_external_product");
 
@@ -434,7 +434,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
 	CHECK_CALL(vec_znx_normalize_base2k_p(module, kappa, b_0_univ, l, (k + 1) * N, acc, l, N),
 		"vec_normalize_base2k_p failed in glwe_secret_masking_ggsw_lib_dft");
 
-	// Computes tmp_ct in DFT space
+	// Computes tmp_ct in the DFT domain
 	vec_znx_dft_p(module, result_dft, l * (k + 1), tmp_ct, l * (k + 1), N);
 
 	// Adds the phase (message with error) to bivGLWE(0), the result is a ct of bivGLWE(m + e)
@@ -490,7 +490,7 @@ int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, 
 		// Computes the phase Dec_Kappa(-m * sk_j / 2^{kappa_tilde*i}) + err
 		CHECK_CALL(add_error(module, params_glwe, result, result), "add_error failed in compute_phase_ij_dft");
 
-		// Computes the phase in DFT space
+		// Computes the phase in the DFT domain
 		vec_znx_dft_p(module, phase_dft, poly_biv_size(params_glwe), result, poly_biv_size(params_glwe), N);
 	}
 	else
@@ -579,11 +579,11 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
 			                                phase_dft, phase, phase_univ_RnX, i, j), 
 					  "compute_phase_ij_dft failed in ggsw_secret_encrypt_dft");
 
-			// The pointer in DFT space to : bivGLWE(-m * sk_j / 2^{kappa_tilde*i}), if j < k
+			// The pointer in the DFT domain to : bivGLWE(-m * sk_j / 2^{kappa_tilde*i}), if j < k
 			//                               bivGLWE( m / 2^{kappa_tilde*i}), if j = k
 			VecBivDFT* glwe_vec_dft = ggsw_Sj_Yti_dft(params_ggsw, result_dft->mat, j, i);
 
-			// Computes in DFT space: bivGLWE(-m * sk_j / 2^{kappa_tilde*i}), if j < k
+			// Computes in the DFT domain: bivGLWE(-m * sk_j / 2^{kappa_tilde*i}), if j < k
 			//                        bivGLWE( m / 2^{kappa_tilde*i}), if j = k
 			CHECK_CALL(glwe_secret_masking_ggsw_lib_dft(module, params_glwe, glwe_vec_dft, sk_dft, phase_dft),
 					  "glwe_secret_masking_ggsw_lib_dft failed in ggsw_secret_encrypt_dft");
@@ -632,11 +632,11 @@ int ggsw_external_product_dft(const MODULE* module,
 	// Computes the GGSW ciphertext out of DFT space
 	CHECK_CALL(vec_znx_idft_p(module, ggsw_mat, nrows * ncols, ggsw_dft->mat, nrows * ncols),"vec_znx_idft_p failed in ggsw_external_product_dft");
 
-	// Point to the GGSW ciphertext in DFT space
+	// Point to the GGSW ciphertext in the DFT domain
 	ggsw_pmat = malloc(ggsw_bytes(ggsw_dft->params));
 	CHECK_ALLOC(ggsw_pmat, "pmat's malloc failed in ggsw_external_product_dft");
 
-	// Prepares the GGSW ciphertext in DFT space
+	// Prepares the GGSW ciphertext in the DFT domain
 	CHECK_CALL(vmp_prepare_contiguous_p(module, ggsw_pmat, ggsw_mat, nrows, ncols), "vmp_prepare_contiguous_p failed in ggsw_external_product_dft");
 
 	// Computes ExternalProduct(ct_glwe, ct_ggsw)

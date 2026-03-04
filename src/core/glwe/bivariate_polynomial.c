@@ -104,14 +104,14 @@ PolyBivDFT* new_normal_random_biv_poly_dft(const MODULE* module, const GLWECtPar
 	PolyBiv* rd_pol = new_normal_random_biv_poly(module, params);
 	if (log_is_null(rd_pol, "new_normal_random_biv_poly failed in new_normal_biv_poly_dft.") < 0) return NULL;
 
-	// Base-2Kappa normalized bivariate polynomial in DFT space
+	// Base-2Kappa normalized bivariate polynomial in the DFT domain
 	PolyBivDFT* rd_pol_dft = malloc(poly_biv_bytes(params));
 	if (log_is_null(rd_pol_dft, "rd_pol_dft's malloc failed in new_normal_random_biv_poly_dft.") < 0) {
 		free(rd_pol);
 		return NULL;
 	}
 
-	// Then compute in DFT space
+	// Then compute in the DFT domain
 	vec_znx_dft_p(module, rd_pol_dft, poly_biv_size(params), rd_pol, poly_biv_size(params), params->N);
 
 	free(rd_pol);

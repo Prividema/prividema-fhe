@@ -12,6 +12,7 @@
 /**
  * @brief Adds a bivariate error to the bivariate phase.
  *
+ * @param module TODO
  * @param params The GLWE parameters.
  * @param res The result bivariate phase.
  * @param phase The input phase.
@@ -21,10 +22,11 @@ int add_error(const MODULE* module, const GLWECtParams* params, PolyBiv* result,
 /**
  * @brief Demasks the phase (message + noise).
  *
+ * @param module TODO
  * @param params The GLWE parameters.
- * @param phase The result phase in Zn[X,Y].
- * @param sk_dft The secret key in DFT space.
- * @param ct The ciphertext.
+ * @param result The result phase in Zn[X,Y].
+ * @param sk_dft The secret key in the DFT domain.
+ * @param glwe_vec The ciphertext.
  */
 int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const GGSWSecretKeyDFT* sk_dft, const VecBiv* glwe_vec);
 
@@ -33,8 +35,8 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
  *
  * @param module The module stocking the degree N.
  * @param params The GLWE parameters.
- * @param res_ct The result bivariate ciphertext.
- * @param sk_dft The secret key in DFT space.
+ * @param result The result bivariate ciphertext.
+ * @param sk_dft The secret key in the DFT domain.
  * @param phase message + noise.
  *
  * @retval `-1` if an error occurs.
@@ -68,8 +70,9 @@ int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, cons
 /**
  * @brief Encrypts the message m into GGSW ciphertext res with parameters params.
  *
- * @param params The encryption params
- * @param res The encrypted message
+ * @param module TODO
+ * @param params_ggsw The encryption params
+ * @param result The encrypted message
  * @param sk_dft The secret key
  * @param msg_univ The message
  *
@@ -82,16 +85,18 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 /**
  * @brief Computes the external product between a bivGLWE and a bivGGSW.
  *
- * @param res The bivariate GLWE result ciphertext.
- * @param ct_glwe The bivariate GLWE input ciphertext.
- * @param ct_ggsw The bivariate GGSW input ciphertext.
+ * @param module TODO
+ * @param result The bivariate GLWE result ciphertext.
+ * @param glwe The bivariate GLWE input ciphertext.
+ * @param ggsw The bivariate GGSW input ciphertext.
  */
 int ggsw_external_product(const MODULE* module,
                           GLWECiphertext* result,      // result
                           const GLWECiphertext* glwe,  // GLWE ciphertext
                           const GGSWCiphertext* ggsw   // GGSW ciphertext
 );
-// TODO : the 8 functions below are not implemented
+
+// The three functions below are not implemented
 
 // GGSWPublicKey is a struct encapsulating everything regarding the public
 // key.
@@ -121,23 +126,24 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
 //! GGSW IN DFT PART (begin)
 
 /**
- * @brief Demasks the phase (message + noise) in DFT space and computes it out of DFT space.
+ * @brief Demasks the phase (message + noise) in the DFT domain and computes it out of DFT space.
  *
+ * @param module TODO
  * @param params The GLWE parameters.
- * @param phase The result phase in Zn[X,Y].
- * @param sk_dft The secret key in DFT space.
- * @param ct The ciphertext.
+ * @param result result phase in Zn[X,Y].
+ * @param sk_dft The secret key in the DFT domain.
+ * @param glwe_vec_dft The ciphertext.
  */
 int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const GGSWSecretKeyDFT* sk_dft,
-                                       const VecBivDFT* ct_glwe_dft);
+                                       const VecBivDFT* glwe_vec_dft);
 
 /**
- * @brief Masks the phase (message + noise) in DFT space and puts it in res_ct.
+ * @brief Masks the phase (message + noise) in the DFT domain and puts it in res_ct.
  *
- * @param params The GLWE parameters.
  * @param module The module stocking the degree N.
- * @param res_dft The result ciphertext in DFT space.
- * @param sk_dft The secret key in DFT space.
+ * @param params The GLWE parameters.
+ * @param result_dft The result ciphertext in the DFT domain.
+ * @param sk_dft The secret key in the DFT domain.
  * @param phase_dft message + error.
  *
  * @retval `-1` if an error occurs.
@@ -170,8 +176,9 @@ int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, 
                          PolyBivDFT* phase_dft, PolyBiv* result, PolyUnivRnX* phase_univ_RnX, int64_t i, int64_t j);
 
 /**
- * @brief Encrypts the message m into GGSW ciphertext res with parameters params in DFT space.
+ * @brief Encrypts the message m into GGSW ciphertext res with parameters params in the DFT domain.
  *
+ * @param module TODO
  * @param params The encryption params
  * @param res_dft The encrypted message
  * @param sk_dft The secret key
@@ -186,9 +193,10 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
 /**
  * @brief Computes the external product between a bivGLWE and a biv GGSW.
  *
- * @param res_dft The bivariate GLWE result ciphertext in DFT space.
- * @param ct_glwe_dft The bivariate GLWE input ciphertext in DFT space.
- * @param ct_ggsw_dft The bivariate GGSW input ciphertext in DFT space.
+ * @param module TODO
+ * @param res_dft The bivariate GLWE result ciphertext in the DFT domain.
+ * @param ct_glwe_dft The bivariate GLWE input ciphertext in the DFT domain.
+ * @param ct_ggsw_dft The bivariate GGSW input ciphertext in the DFT domain.
  */
 int ggsw_external_product_dft(const MODULE* module,
                               GLWECiphertextDFT* result_dft,     

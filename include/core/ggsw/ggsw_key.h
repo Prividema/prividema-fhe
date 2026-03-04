@@ -24,7 +24,7 @@ typedef struct ggsw_prep_secret_key
 /**
  * @brief Creates a new secret key values component.
  *
- * @param N The dimension of the module Zn[X].
+ * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomials in a secret key.
  * @return PolyUniv**
  */
@@ -33,8 +33,8 @@ PolyUniv** new_ggsw_secret_key_values(uint64_t N, uint64_t k);
 /**
  * @brief Creates a new secret key values component, where each Zn[X] poly is uniformly drawn.
  *
+ * @param module TODO
  * @param k The number of Zn[X] polynomials in a secret key.
- * @param N The dimension of the module Zn[X].
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUniv**
  */
@@ -51,8 +51,7 @@ void delete_ggsw_secret_key_values(PolyUniv** values, uint64_t k);
 /**
  * @brief Creates a GGSW Secret key.
  *
- * @param values The values of the secret key.
- * @param N The polynomials' maximum degree in X.
+ * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GGSWSecretKeyDFT*
  */
@@ -61,7 +60,7 @@ GGSWSecretKey* new_ggsw_secret_key(uint64_t N, uint64_t k);
 /**
  * @brief Draws a secret key uniformly.
  *
- * @param N The polynomials' maximum degree in X.
+ * @param module TODO
  * @param k The number of Zn[X] polynomial in the secret key.
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return GGSWSecretKeyDFT*
@@ -78,7 +77,8 @@ void delete_ggsw_secret_key(GGSWSecretKey* sk);
 /**
  * @brief Computes the secret key out of DFT space.
  *
- * @param sk_dft The secret key in DFT space.
+ * @param module TODO
+ * @param sk_dft The secret key in the DFT domain.
  * @return GGSWSecretKey*
  */
 GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(const MODULE* module, const GGSWSecretKeyDFT* sk_dft);
@@ -86,8 +86,8 @@ GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(const MODULE* module, co
 /**
  * @brief Computes the values of the secret key out of DFT space.
  *
- * @param values_dft The values of the secret key in DFT space.
- * @param N The polynomials' maximum degree in X.
+ * @param module TODO
+ * @param values_dft The values of the secret key in the DFT domain.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUniv**
  */
@@ -104,7 +104,7 @@ GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(const GGSWSecretKey*
 //! GGSW IN DFT SPACE PART (begin)
 
 /**
- * @brief Creates a new secret key values component in DFT space.
+ * @brief Creates a new secret key values component in the DFT domain.
  *
  * @param N The dimension of the module Zn[X].
  * @param k The number of Zn[X] polynomials in a secret key.
@@ -113,26 +113,26 @@ GLWESecretKey* transform_ggsw_secret_key_to_glwe_secret_key(const GGSWSecretKey*
 PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k);
 
 /**
- * @brief Creates a new secret key values component in DFT space, where each Zn[X] poly is uniformly drawn.
+ * @brief Creates a new secret key values component in the DFT domain, where each Zn[X] poly is uniformly drawn.
  *
+ * @param module TODO
  * @param k The number of Zn[X] polynomials in a secret key.
- * @param N The dimension of the module Zn[X].
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUnivDFT**
  */
 PolyUnivDFT** new_uniform_ggsw_secret_key_values_dft(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
- * @brief Delete the values of a secret key in DFT space.
+ * @brief Delete the values of a secret key in the DFT domain.
  *
- * @param values The values of the secret key in DFT space.
+ * @param values The values of the secret key in the DFT domain.
+ * @param k The number of Zn[X] polynomials in a secret key.
  */
 void delete_ggsw_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 
 /**
- * @brief Creates a GGSW Secret key in DFT space.
+ * @brief Creates a GGSW Secret key in the DFT domain.
  *
- * @param values The values of the secret key in DFT space.
  * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GGSWSecretKeyDFT*
@@ -140,43 +140,47 @@ void delete_ggsw_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 GGSWSecretKeyDFT* new_ggsw_secret_key_dft(uint64_t N, uint64_t k);
 
 /**
- * @brief Draws a secret key uniformly in DFT space.
+ * @brief Draws a secret key uniformly in the DFT domain.
  *
- * @param N The polynomials' maximum degree in X.
- * @param k The number of Zn[X] polynomial in the secret key.
- * @return GGSWSecretKeyDFT*
+ * @param module   TODO
+ * @param k        Number of polynomials in the secret key (dimension of the key).
+ * @param nb_bits  Bit-size of coefficients: coefficients are sampled uniformly
+ *                 in the range [-2^nb_bits, 2^nb_bits).
+ *
+ * @return Pointer to a newly allocated GGSWSecretKeyDFT, or NULL on failure.
  */
 GGSWSecretKeyDFT* new_uniform_ggsw_secret_key_dft(const MODULE* module, uint64_t k, uint64_t nb_bits);
 
 /**
- * @brief Delete the secret key that is in DFT space.
+ * @brief Delete the secret key that is in the DFT domain.
  *
- * @param sk_dft The secret key in DFT space.
+ * @param sk_dft The secret key in the DFT domain.
  */
 void delete_ggsw_secret_key_dft(GGSWSecretKeyDFT* sk_dft);
 
 /**
- * @brief Computes the secret key in DFT space.
+ * @brief Computes the secret key in the DFT domain.
  *
+ * @param module TODO
  * @param sk The secret key out of DFT space.
  * @return GGSWSecretKey*
  */
 GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(const MODULE* module, const GGSWSecretKey* sk);
 
 /**
- * @brief Computes the values of the secret key in DFT space.
+ * @brief Computes the values of the secret key in the DFT domain.
  *
+ * @param module TODO
  * @param values The values of the secret key out of DFT space.
- * @param N The polynomials' maximum degree in X.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUnivDFT**
  */
 PolyUnivDFT** transform_ggsw_secret_key_values_not_dft_to_dft(const MODULE* module, const PolyUniv** values, uint64_t k);
 
 /**
- * @brief Transforms a GGSW Secret key in DFT space to a GLWE Secret key in DFT space.
+ * @brief Transforms a GGSW Secret key in the DFT domain to a GLWE Secret key in the DFT domain.
  *
- * @param sk_ggsw_dft The GGSW Secret key in DFT space.
+ * @param sk_ggsw_dft The GGSW Secret key in the DFT domain.
  * @return GLWESecretKey*
  */
 GLWESecretKeyDFT* transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(const GGSWSecretKeyDFT* sk_ggsw_dft);

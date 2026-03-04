@@ -165,7 +165,7 @@ PolyUniv** transform_glwe_secret_key_values_dft_to_not_dft(const MODULE* module,
 	return values;
 }
 
-//! GLWE PART in DFT space (begin)
+//! GLWE PART in the DFT domain (begin)
 
 PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k)
 {

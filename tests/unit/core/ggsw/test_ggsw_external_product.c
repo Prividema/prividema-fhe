@@ -39,7 +39,7 @@ Test(ggsw_external_product, without_error)
 	GLWECiphertext* ct_glwe_tilde = new_glwe(params_glwe_tilde);
 	GLWECiphertext* res           = new_glwe(params_glwe);
 
-	// Draws respectively uniformly the secret key in DFT space, a Zn[X] polynomial and a Zn[X,Y] polynomial
+	// Draws respectively uniformly the secret key in the DFT domain, a Zn[X] polynomial and a Zn[X,Y] polynomial
 	GGSWSecretKey* sk_ggsw        = new_ggsw_secret_key(NBASE, KBASE);
 	sk_ggsw->values[0][0]         = 1;
 	sk_ggsw->values[0][1]         = 0;
@@ -120,7 +120,7 @@ Test(ggsw_external_product, without_error)
 	delete_module_info_p(module);
 }
 
-//! GGSW PART in DFT space (begin)
+//! GGSW PART in the DFT domain (begin)
 
 /** The test is done without error, it is a proof of concept*/
 Test(ggsw_external_product_dft, without_error)
@@ -142,7 +142,7 @@ Test(ggsw_external_product_dft, without_error)
 	// Computes each ciphertext out of DFT space
 	GLWECiphertext* res = new_glwe(params_glwe);
 
-	// Draws respectively uniformly the secret key in DFT space, a Zn[X] polynomial and a Zn[X,Y] polynomial
+	// Draws respectively uniformly the secret key in the DFT domain, a Zn[X] polynomial and a Zn[X,Y] polynomial
 	GGSWSecretKey* sk_ggsw        = new_ggsw_secret_key(NBASE, KBASE);
 	sk_ggsw->values[0][0]         = 1;
 	sk_ggsw->values[0][1]         = 0;

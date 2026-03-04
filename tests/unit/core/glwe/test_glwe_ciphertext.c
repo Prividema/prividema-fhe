@@ -318,7 +318,7 @@ Test(const_mult_glwe, with_normalization)
 //! GLWE IN DFT PART (begin)
 
 /**
- * @brief Tests whether glwe_coef_number_dft computes the right number of coefficient in a GLWE ciphertext in DFT space.
+ * @brief Tests whether glwe_coef_number_dft computes the right number of coefficient in a GLWE ciphertext in the DFT domain.
  */
 Test(glwe_coef_number_dft, basic)
 {
