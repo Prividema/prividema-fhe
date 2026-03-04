@@ -30,7 +30,7 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
  */
 MODULE* new_module_info_p(uint64_t N);
 
-void delete_module_info_p(const MODULE* module);
+void delete_module_info_p(MODULE* module);
 
 double* new_vec_znx_dft_p(const MODULE* module,  // N
                           int64_t size);
@@ -45,7 +45,7 @@ void delete_vec_znx_dft_p(double* res);
 int64_t* new_vec_znx_big_p(const MODULE* module,  // N
                            int64_t size);
 
-void vec_znx_idft_p(const MODULE* module,                // N
+int vec_znx_idft_p(const MODULE* module,                // N
                     int64_t* res, int64_t res_size,      // res
                     const double* a_dft, int64_t a_size  // a
 );

@@ -3,7 +3,7 @@
 
 MODULE* new_module_info_p(uint64_t N) { return new_module_info(N, FFT64); }
 
-void delete_module_info_p(const MODULE* module) { delete_module_info(module); }
+void delete_module_info_p(MODULE* module) { delete_module_info(module); }
 
 double* new_vec_znx_dft_p(const MODULE* module, int64_t size) { return (double*)new_vec_znx_dft(module, size); }
 
@@ -16,10 +16,22 @@ void delete_vec_znx_dft_p(double* res) { delete_vec_znx_dft((VEC_ZNX_DFT*)res); 
 
 int64_t* new_vec_znx_big_p(const MODULE* module, int64_t size) { return (int64_t*)new_vec_znx_big(module, size); }
 
-void vec_znx_idft_p(const MODULE* module, int64_t* res, int64_t res_size, const double* a_dft, int64_t a_size)
+int vec_znx_idft_p(const MODULE* module, int64_t* res, int64_t res_size, const double* a_dft, int64_t a_size)
 {
 	uint8_t* tmp = NULL;
+	if (module->module_type == NTT120)
+	{
+		tmp = malloc(ntt120_vec_znx_idft_tmp_bytes_avx(module));	
+		if(log_is_null(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p") < 0)
+			return -1;
+	}
+
 	vec_znx_idft(module, (VEC_ZNX_BIG*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size, tmp);
+
+	if (module->module_type == NTT120)
+		free(tmp);
+
+	return 0;
 }
 
 void delete_vec_znx_big_p(int64_t* res) { delete_vec_znx_big((VEC_ZNX_BIG*)res); }

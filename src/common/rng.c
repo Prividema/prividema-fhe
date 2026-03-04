@@ -147,7 +147,7 @@ VecUniv* new_uniform_random_vec(uint64_t vec_size, uint64_t nb_bits)
 	VecUniv* res = malloc(vec_size * sizeof(int64_t));
 	if (log_is_null(res, "malloc in new_uniform_random_vec") < 0) return NULL;
 
-	for (int64_t i = 0; i < vec_size; i++)
+	for (uint64_t i = 0; i < vec_size; i++)
 		if (rand_uniform(res + i, nb_bits) < 0) return NULL;
 
 	return res;

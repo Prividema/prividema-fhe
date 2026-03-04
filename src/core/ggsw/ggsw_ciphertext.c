@@ -55,12 +55,12 @@ VecBiv* ggsw_Sj_Yti(const GGSWCtParams* params_ggsw, MatBiv* ct_mat, int64_t j, 
 void normalize_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ct)
 {
 	// GGSW parameters
-	GGSWCtParams* params_ggsw = res->params;
+	const GGSWCtParams* params_ggsw = res->params;
 	uint64_t k_tilde          = params_ggsw->k_tilde;
 	uint64_t n_limbs_tilde    = params_ggsw->n_limbs_tilde;
 
 	// GLWE parameters
-	GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 	uint64_t N                = params_glwe->N;
 	uint64_t k                = params_glwe->k;
 	uint64_t n_limbs          = params_glwe->n_limbs;
@@ -71,15 +71,15 @@ void normalize_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphert
 	uint64_t nb_partial          = n_limbs_tilde / (k_tilde + 1);
 	uint64_t nb_rows_per_partial = k_tilde + 1;
 
-	for (int64_t i = 1; i <= nb_partial; i++)
-		for (int64_t j = 0; j < nb_rows_per_partial; j++) {
+	for (uint64_t i = 1; i <= nb_partial; i++)
+		for (uint64_t j = 0; j < nb_rows_per_partial; j++) {
 			// The pointer to biGLWE(-m * sk_j * Y^i)
 			// VecBiv* res_glwe = ggsw_Sj_Yti(params_ggsw, res->mat, j, i);
 			VecBiv* res_glwe = res->mat + (i - 1) * (k_tilde + 1) * n_limbs * N + j * n_limbs * N;
 			const VecBiv* ct_glwe  = ggsw_Sj_Yti(params_ggsw, ct->mat, j, i);
 
 			// Normalize ct
-			for (int64_t t = 0; t < k + 1; t++)
+			for (uint64_t t = 0; t < k + 1; t++)
 				vec_znx_normalize_base2k_p(module, kappa, res_glwe + t * N, l, (k + 1) * N, ct_glwe + t * N, l,
 				                           (k + 1) * N);
 		}
@@ -93,8 +93,8 @@ void add_ggsw(GGSWCiphertext* res,  // result
 	uint64_t nb_cols = res->params->params_glwe->n_limbs;
 	uint64_t N       = res->params->params_glwe->N;
 
-	for (int64_t i = 0; i < nb_rows; i++)
-		for (int64_t j = 0; j < nb_cols; j++)
+	for (uint64_t i = 0; i < nb_rows; i++)
+		for (uint64_t j = 0; j < nb_cols; j++)
 			for (uint64_t k = 0; k < N; k++)
 				res->mat[i * N * nb_cols + j * N + k] =
 				    ct1->mat[i * N * nb_cols + j * N + k] + ct2->mat[i * N * nb_cols + j * N + k];
@@ -103,8 +103,8 @@ void add_ggsw(GGSWCiphertext* res,  // result
 int const_mult_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ct, const PolyUnivDFT* u_dft, int do_normalization)
 {
 	// GGSW & GLWE params
-	GGSWCtParams* params_ggsw = res->params;
-	GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWCtParams* params_ggsw = res->params;
+	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
 	uint64_t N                = params_glwe->N;
 	uint64_t k                = params_glwe->k;
@@ -120,15 +120,16 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphert
 	svp_apply_dft_p(module, ct_dft, mat_size, u_dft, ct->mat, mat_size, N);
 
 	// Go back to Zn[X,Y]
-	vec_znx_idft_p(module, res->mat, mat_size, ct_dft, mat_size);
+	if (vec_znx_idft_p(module, res->mat, mat_size, ct_dft, mat_size) < 0)
+		return log_perror("vec_znx_idft_p failed in const_mult_ggsw");
 
 	// Normalization
 	if (do_normalization)
-		for (int64_t i = 1; i <= nb_partials(params_ggsw); i++)
-			for (int64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++) {
+		for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
+			for (uint64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++) {
 				// The pointer to biGLWE(-m * sk_j / (2^{kappa_tilde}^i))
 				VecBiv* ct_biv = ggsw_Sj_Yti(res->params, res->mat, j, i);
-				for (int64_t t = 0; t < k + 1; t++) {
+				for (uint64_t t = 0; t < k + 1; t++) {
 					vec_znx_normalize_base2k_p(module, params_glwe->kappa, ct_biv + t * N, l, N * (k + 1),
 					                           ct_biv + t * N, l, N * (k + 1));
 				}
@@ -185,12 +186,12 @@ VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ct_dft, i
 int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* res_dft, const GGSWCiphertextDFT* ct_dft)
 {
 	// GGSW parameters
-	GGSWCtParams* params_ggsw = res_dft->params;
+	const GGSWCtParams* params_ggsw = res_dft->params;
 	uint64_t k_tilde          = params_ggsw->k_tilde;
 	uint64_t n_limbs_tilde    = params_ggsw->n_limbs_tilde;
 
 	// GLWE parameters
-	GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 	uint64_t N                = params_glwe->N;
 	uint64_t k                = params_glwe->k;
 	uint64_t l                = poly_biv_size(params_glwe);
@@ -204,16 +205,17 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* res_dft, const G
 	// The GGSW ciphertext's matrix out of DFT space
 	MatBiv* ct_mat = malloc(ggsw_bytes(params_ggsw));
 	if (log_is_null(ct_mat, "malloc in normalize_ggsw_dft") < 0) return -1;
-	vec_znx_idft_p(module, ct_mat, ggsw_size(params_ggsw), ct_dft->mat, ggsw_size(params_ggsw));
+	if (vec_znx_idft_p(module, ct_mat, ggsw_size(params_ggsw), ct_dft->mat, ggsw_size(params_ggsw)) < 0)
+		return log_perror("vec_znx_idft_p failed in noramlize_ggsw_dft");
 
-	for (int64_t i = 1; i <= nb_partial; i++) 
-		for (int64_t j = 0; j < nb_rows_per_partial; j++) {
+	for (uint64_t i = 1; i <= nb_partial; i++) 
+		for (uint64_t j = 0; j < nb_rows_per_partial; j++) {
 			// The pointer to biGLWE(-m * sk_j * Y^i)
 			VecBiv* ct_glwe = ggsw_Sj_Yti(params_ggsw, ct_mat, j, i);
 
 			// Normalize ct
 			// Normalize ct
-			for (int64_t t = 0; t < k + 1; t++)
+			for (uint64_t t = 0; t < k + 1; t++)
 				vec_znx_normalize_base2k_p(module, kappa, ct_glwe + t * N, l, (k + 1) * N, ct_glwe + t * N, l,
 				                           (k + 1) * N);
 		}
@@ -232,8 +234,8 @@ void add_ggsw_dft(GGSWCiphertextDFT* res_dft, const GGSWCiphertextDFT* ct1_dft, 
 	uint64_t nb_cols = res_dft->params->params_glwe->n_limbs;
 	uint64_t N       = res_dft->params->params_glwe->N;
 
-	for (int64_t i = 0; i < nb_rows; i++)
-		for (int64_t j = 0; j < nb_cols; j++)
+	for (uint64_t i = 0; i < nb_rows; i++)
+		for (uint64_t j = 0; j < nb_cols; j++)
 			for (uint64_t k = 0; k < N; k++)
 				res_dft->mat[i * N * nb_cols + j * N + k] =
 				    ct1_dft->mat[i * N * nb_cols + j * N + k] + ct2_dft->mat[i * N * nb_cols + j * N + k];
@@ -243,8 +245,8 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* res_dft, const 
                         int do_normalization)
 {
 	// GGSW & GLWE params
-	GGSWCtParams* params_ggsw = res_dft->params;
-	GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWCtParams* params_ggsw = res_dft->params;
+	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
 	uint64_t N                = params_glwe->N;
 	uint64_t k                = params_glwe->k;
@@ -257,19 +259,21 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* res_dft, const 
 
 	// Computes tmp_ggsw = iDFT(ct_in_dft). Then computes :
 	// ct_dft = DFT(u) * DFT(iDFT(ct_in_dft))) = DFT(u) * ct_in_dft
-	vec_znx_idft_p(module, tmp_ggsw_mat, mat_size, ct_dft->mat, mat_size);
+	if (vec_znx_idft_p(module, tmp_ggsw_mat, mat_size, ct_dft->mat, mat_size) < 0)
+		return log_perror("vec_znx_idft_p failed in const_mult_ggsw_dft");
 	svp_apply_dft_p(module, res_dft->mat, mat_size, u_dft, tmp_ggsw_mat, mat_size, N);
 
 	// Normalization tmp_ggsw = u * iDFT(ct_dft_in)
 	if (do_normalization) {
 		// Computes res_dft out of DFT space
-		vec_znx_idft_p(module, tmp_ggsw_mat, mat_size, res_dft->mat, mat_size);
+		if (vec_znx_idft_p(module, tmp_ggsw_mat, mat_size, res_dft->mat, mat_size) < 0)
+			return log_perror("vec_znx_idft_p failed in const_mult_ggsw_dft");
 
-		for (int64_t i = 1; i <= nb_partials(params_ggsw); i++)
-			for (int64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++) {
+		for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
+			for (uint64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++) {
 				// The pointer to biGLWE(-m * sk_j * Y^i)
 				VecBiv* ct_biv = ggsw_Sj_Yti(params_ggsw, tmp_ggsw_mat, j, i);
-				for (int64_t t = 0; t < k + 1; t++)
+				for (uint64_t t = 0; t < k + 1; t++)
 					vec_znx_normalize_base2k_p(module, params_glwe->kappa, ct_biv + t * N, l, N * (k + 1),
 					                           ct_biv + t * N, l, N * (k + 1));
 			}

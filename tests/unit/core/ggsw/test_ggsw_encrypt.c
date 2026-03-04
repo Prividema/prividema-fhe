@@ -38,7 +38,7 @@ Test(ggsw_secret_encrypt, works)
 	    new_ggsw_ct_params(params_glwe_for_ggsw, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module           = new_module_info_p(NBASE);
 
-	GGSWCiphertext* ct_ggsw  = new_ggsw(params_ggsw, NULL);
+	GGSWCiphertext* ct_ggsw  = new_ggsw(params_ggsw);
 	GGSWSecretKeyDFT* sk_dft = new_uniform_ggsw_secret_key_dft(module, KBASE, 3);
 
 	// Message uniformly drawn
@@ -49,8 +49,8 @@ Test(ggsw_secret_encrypt, works)
 	// Computes a bivGGSW(msg)
 	ggsw_secret_encrypt(module, params_ggsw, ct_ggsw, sk_dft, msg_univ);
 
-	for (int64_t i = 1; i <= L_TILDEBASE; i++) {
-		for (int64_t j = 0; j < K_TILDEBASE; j++) {
+	for (uint64_t i = 1; i <= L_TILDEBASE; i++) {
+		for (uint64_t j = 0; j < K_TILDEBASE; j++) {
 			// The pointer to bivGLWE(-m * sk_j / (2^kappa_tilde)^(i+1))
 			VecBiv* ct_glwe = calloc(glwe_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
 			memcpy(ct_glwe, ct_ggsw->mat + ((i - 1) * (K_TILDEBASE + 1) + j) * glwe_coef_number(params_glwe_for_ggsw),
@@ -73,19 +73,19 @@ Test(ggsw_secret_encrypt, works)
 			mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, msg_univ_dft, 1);
 
 			// Computes -msg * sk_j
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 			}
 			vec_znx_idft_p(module, m_skj_univ, 1, m_skj_univ_dft, 1);
 
 			// Computes -msg * sk_j / (2^kappa_tilde)^(i+1)
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * (i + 1)));
 			}
 
 			// Assures that the difference between the phase = msg / (2^kappa_tilde)^(i+1) and the computed phase,
 			// are only different by an error of approximation and a gaussian error
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
 				double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
 				                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
@@ -132,7 +132,7 @@ Test(ggsw_secret_encrypt, works)
 
 		// Assures that the difference between the phase = msg / (2^kappa_tilde)^(i+1) and the computed phase,
 		// are only different by an error of approximation and a gaussian error
-		for (int64_t p = 0; p < NBASE; p++) {
+		for (uint64_t p = 0; p < NBASE; p++) {
 			double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
 			double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
 			                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
@@ -195,8 +195,8 @@ Test(ggsw_secret_encrypt_dft, works)
 	// Computes a bivGGSW(msg)
 	ggsw_secret_encrypt_dft(module, params_ggsw, ct_ggsw_dft, sk_dft, msg_univ);
 
-	for (int64_t i = 1; i <= L_TILDEBASE; i++) {
-		for (int64_t j = 0; j < K_TILDEBASE; j++) {
+	for (uint64_t i = 1; i <= L_TILDEBASE; i++) {
+		for (uint64_t j = 0; j < K_TILDEBASE; j++) {
 			// The pointer to DFT(bivGLWE(-m * sk_j / (2^kappa_tilde)^(i+1)))
 			VecBivDFT* ct_glwe_dft = calloc(glwe_coef_number(params_glwe_for_ggsw), sizeof(int64_t));
 			memcpy(ct_glwe_dft,
@@ -220,19 +220,19 @@ Test(ggsw_secret_encrypt_dft, works)
 			mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, msg_univ_dft, 1);
 
 			// Computes -msg * sk_j
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 			}
 			vec_znx_idft_p(module, m_skj_univ, 1, m_skj_univ_dft, 1);
 
 			// Computes -msg * sk_j / (2^kappa_tilde)^(i+1)
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * (i + 1)));
 			}
 
 			// Assures that the difference between the phase = msg / (2^kappa_tilde)^(i+1) and the computed phase,
 			// are only different by an error of approximation and a gaussian error
-			for (int64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) {
 				double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
 				double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
 				                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
@@ -279,7 +279,7 @@ Test(ggsw_secret_encrypt_dft, works)
 
 		// Assures that the difference between the phase = msg / (2^kappa_tilde)^(i+1) and the computed phase,
 		// are only different by an error of approximation and a gaussian error
-		for (int64_t p = 0; p < NBASE; p++) {
+		for (uint64_t p = 0; p < NBASE; p++) {
 			double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
 			double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
 			                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);

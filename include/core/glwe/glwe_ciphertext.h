@@ -12,7 +12,7 @@
 
 typedef struct glwe_ciphertext
 {
-	GLWECtParams* params;  // GLWE parameters
+	const GLWECtParams* params;  // GLWE parameters
 	VecBiv* vec;           // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
@@ -22,7 +22,7 @@ typedef struct glwe_ciphertext
  * @param params The GLWE parameters.
  * @return int64_t
  */
-uint64_t glwe_coef_number(GLWECtParams* params);
+uint64_t glwe_coef_number(const GLWECtParams* params);
 
 /**
  * @brief Creates a bivGLWE, filled with 0.
@@ -30,7 +30,7 @@ uint64_t glwe_coef_number(GLWECtParams* params);
  * @param params The GLWE parameters.
  * @return GLWECiphertext*
  */
-GLWECiphertext* new_glwe(GLWECtParams* params);
+GLWECiphertext* new_glwe(const GLWECtParams* params);
 
 /**
  * @brief Deletes a GLWE ciphertext, but the GLWE parameters.
@@ -46,7 +46,7 @@ void delete_glwe(GLWECiphertext* ct);
  * @param res The result normalized GLWE ciphertext.
  * @param ct_glwe The GLWE ciphertext.
  */
-void normalize_glwe(const MODULE* module, GLWECiphertext* res, GLWECiphertext* ct_glwe);
+void normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* ct_glwe);
 
 /**
  * @brief Adds two GLWE ciphertexts.
@@ -55,7 +55,7 @@ void normalize_glwe(const MODULE* module, GLWECiphertext* res, GLWECiphertext* c
  * @param ct1 The left-hand side GLWE ciphertext.
  * @param ct2 The right-hand side GLWE ciphertext.
  */
-void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2);
+void add_glwe(GLWECiphertext* res, const GLWECiphertext* ct1, const GLWECiphertext* ct2);
 
 /**
  * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial.
@@ -65,14 +65,17 @@ void add_glwe(GLWECiphertext* res, GLWECiphertext* ct1, GLWECiphertext* ct2);
  * @param u The Zn[X] polynomial.
  * @param ct The GLWE ciphertext.
  * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ * 
+ * @retval -1 if a malloc fails.
+ * @retval 0 if everything works.
  */
-int const_mult_glwe(const MODULE* module, GLWECiphertext* res, PolyUnivDFT* u, GLWECiphertext* ct, int do_normalization);
+int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* ct, int do_normalization);
 
 //! GLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft
 {
-	GLWECtParams* params;  // GLWE parameters
+	const GLWECtParams* params;  // GLWE parameters
 	VecBivDFT* vec;        // Prepared vector
 } GLWECiphertextDFT;
 
@@ -85,7 +88,7 @@ typedef struct glwe_ciphertext_dft
  * @note The number of independent coefficients of a polynomial in DFT space is half the number of coefficients in
  * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t glwe_coef_number_dft(GLWECtParams* params);
+uint64_t glwe_coef_number_dft(const GLWECtParams* params);
 
 /**
  * @brief Creates a new empty GLWE ciphertext.
@@ -93,7 +96,7 @@ uint64_t glwe_coef_number_dft(GLWECtParams* params);
  * @param params The GLWE parameters.
  * @return GLWECiphertextDFT*
  */
-GLWECiphertextDFT* new_glwe_dft(GLWECtParams* params);
+GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params);
 
 /**
  * @brief Deletes a GLWE ciphertext, but not the parameters.
@@ -109,7 +112,7 @@ void delete_glwe_dft(GLWECiphertextDFT* ct);
  * @param ct1_dft The left-hand side GLWE ciphertext in DFT space.
  * @param ct2_dft The right-hand side GLWE ciphertext in DFT space.
  */
-void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECiphertextDFT* ct2_dft);
+void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* ct1_dft, const GLWECiphertextDFT* ct2_dft);
 
 /**
  * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial in DFT space.
@@ -120,7 +123,7 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, GLWECiphertextDFT* ct1_dft, GLWECi
  * @param ct_dft The GLWE ciphertext in DFT space.
  * @param do_normalization the function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
-int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, PolyUnivDFT* u, GLWECiphertextDFT* ct_dft,
+int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u, const GLWECiphertextDFT* ct_dft,
                         int do_normalization);
 
 //! COMMON PART (begin)
@@ -133,7 +136,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, PolyUn
  *
  * @note The size of a bivGLWE ciphertext is the same in and out of DFT space.
  */
-uint64_t glwe_size(GLWECtParams* params);
+uint64_t glwe_size(const GLWECtParams* params);
 
 /**
  * @brief The number of bytes needed to store a bivGLWE ciphertext.
@@ -143,7 +146,7 @@ uint64_t glwe_size(GLWECtParams* params);
  *
  * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of DFT space.
  */
-uint64_t glwe_bytes(GLWECtParams* params);
+uint64_t glwe_bytes(const GLWECtParams* params);
 
 /**
  * @brief Compute the polynomial product of c and d, component-wise in DFT space.
@@ -159,7 +162,7 @@ uint64_t glwe_bytes(GLWECtParams* params);
  * @note `res_dft = ( DFT(c_0) * DFT(d_0) , ... , DFT(c_smin) * DFT(d_smin) , 0's)`. There are enough 0's to match the
  * size of res_dft.
  */
-void mult_vec_znx_dft(const MODULE* module, double* res_dft, int64_t res_size, double* c_dft, int64_t c_size,
-                      double* d_dft, int64_t d_size);
+void mult_vec_znx_dft(const MODULE* module, double* res_dft, int64_t res_size, const double* c_dft, int64_t c_size,
+                      const double* d_dft, int64_t d_size);
 
 #endif  // GLWE_CIPHERTEXT_H

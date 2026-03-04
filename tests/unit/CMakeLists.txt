@@ -1,4 +1,13 @@
 # ------------------------------------------------------------
+# Criterion (portable, pkg-config only)
+# ------------------------------------------------------------
+
+find_package(PkgConfig REQUIRED)
+
+# Creates imported target: PkgConfig::CRITERION
+pkg_check_modules(CRITERION REQUIRED IMPORTED_TARGET criterion)
+
+# ------------------------------------------------------------
 # Platform-specific configuration
 # ------------------------------------------------------------
 
@@ -35,7 +44,6 @@ file(GLOB TEST_SCHEMES_FILES schemes/*.c)
 function(BuildUnitTests testfiles libname)
 
     foreach(test_file IN LISTS ${testfiles})
-
         get_filename_component(test_name ${test_file} NAME_WE)
 
         add_executable(${test_name} ${test_file})

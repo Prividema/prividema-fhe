@@ -63,7 +63,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	biv_to_univ(params_glwe, phase_computed_univ, phase_computed);
 
 	// Compare both phase in Rn[X]
-	for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
 		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
@@ -132,7 +132,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, then |err_p| + 2^(-l*kappa)
-	for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
 		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
@@ -204,7 +204,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	biv_to_univ(params_glwe, phase_computed_univ, phase_computed);
 
 	// Compare both phase in Rn[X]
-	for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
 		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
@@ -278,7 +278,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, then |err_p| + 2^(-l*kappa)
-	for (int64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
 		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
