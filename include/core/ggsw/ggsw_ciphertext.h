@@ -123,7 +123,7 @@ GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params);
  *
  * @param ct The bivGGSW in DFT space.
  */
-void delete_ggsw_dft(const GGSWCiphertextDFT* ct);
+void delete_ggsw_dft(GGSWCiphertextDFT* ct);
 
 /**
  * @brief Return the pointer to biGLWE(DFT(-m * sk_j / 2^kappa*(i+1))) in DFT space.

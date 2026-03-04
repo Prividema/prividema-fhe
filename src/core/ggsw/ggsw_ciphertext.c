@@ -22,7 +22,7 @@ GGSWCiphertext* new_ggsw(const GGSWCtParams* params)
 
 	ggsw_ct->params = params;
 
-	// Initialize  the GGSW ciphertext with 0s'
+	// Initialize the GGSW ciphertext with 0s'
 	ggsw_ct->mat = calloc(ggsw_coef_number(params), sizeof(int64_t));
 	if (log_is_null(ggsw_ct->mat, "calloc in new_ggsw") < 0) 
 	{
