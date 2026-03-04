@@ -280,7 +280,7 @@ Test(new_ggsw_dft, basic)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertextDFT* ct_dft = new_ggsw_dft(params_ggsw, NULL);
+	GGSWCiphertextDFT* ct_dft = new_ggsw_dft(params_ggsw);
 
 	cr_assert(eq(int, ct_dft->mat != NULL, 1));
 	cr_assert(eq(int, ct_dft->params != NULL, 1));
@@ -296,7 +296,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertextDFT* ct_dft = new_ggsw_dft(params_ggsw, NULL);
+	GGSWCiphertextDFT* ct_dft = new_ggsw_dft(params_ggsw);
 
 	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++) {
@@ -324,8 +324,8 @@ Test(normalize_ggsw_dft, basic)
 	GGSWCtParams* params_ggsw       = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module             = new_module_info(NBASE, FFT64);
 
-	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw, NULL);
-	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw, NULL);
+	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
 
 	normalize_ggsw_dft(module, res_dft, ct_dft);
 
@@ -342,9 +342,9 @@ Test(add_ggsw_dft, basic)
 	GGSWCtParams* params_ggsw   = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module              = new_module_info(NBASE, FFT64);
 
-	GGSWCiphertextDFT* ct_l_dft = new_ggsw_dft(params_ggsw, NULL);
-	GGSWCiphertextDFT* ct_r_dft = new_ggsw_dft(params_ggsw, NULL);
-	GGSWCiphertextDFT* res_dft  = new_ggsw_dft(params_ggsw, NULL);
+	GGSWCiphertextDFT* ct_l_dft = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* ct_r_dft = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* res_dft  = new_ggsw_dft(params_ggsw);
 
 	// Draws uniformly the GGSW ciphertexts
 	inplace_uniform_random_vec_znx_dft(module, ct_l_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
@@ -377,8 +377,8 @@ Test(const_mult_ggsw_dft, without_normalization)
 	MODULE* module             = new_module_info(NBASE, FFT64);
 
 	PolyUnivDFT* u_dft         = new_uniform_random_vec_znx_dft(module, 1, KAPPABASE - 1);
-	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw, NULL);
-	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw, NULL);
+	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
 
 	// Draws uniformly the GGSW ciphertext in DFT space
 	inplace_uniform_random_vec_znx_dft(module, ct_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
@@ -433,8 +433,8 @@ Test(const_mult_ggsw_dft, with_normalization)
 	MODULE* module             = new_module_info(NBASE, FFT64);
 
 	PolyUnivDFT* u_dft         = new_uniform_random_vec_znx_dft(module, 1, KAPPABASE - 1);
-	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw, NULL);
-	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw, NULL);
+	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
 
 	// Draws uniformly the GGSW ciphertext in DFT space
 	inplace_uniform_random_vec_znx_dft(module, ct_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);

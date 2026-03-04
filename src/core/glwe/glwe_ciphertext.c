@@ -119,11 +119,13 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* ct1_dft, 
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u_dft, const GLWECiphertextDFT* ct_dft,
                         int do_normalization)
 {
+	// GLWE set of parameters
+	const GLWECtParams* params = res_dft->params;
+	
 	// GLWE parameters
-	GLWECtParams* params = res_dft->params;
-	uint64_t N           = res_dft->params->N;
-	uint64_t k           = res_dft->params->k;
-	uint64_t l           = poly_biv_size(params);
+	uint64_t N = params->N;
+	uint64_t k = params->k;
+	uint64_t l = poly_biv_size(params);
 
 	// The pointer to DFT(u * ct)
 	VecBivDFT* u_ct_dft = malloc(glwe_bytes(params));

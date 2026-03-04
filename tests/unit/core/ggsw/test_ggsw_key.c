@@ -50,7 +50,7 @@ Test(transform_ggsw_secret_key_values_dft_to_not_dft, basic)
 	MODULE* module           = new_module_info(NBASE, FFT64);
 
 	PolyUnivDFT** values_dft = new_uniform_ggsw_secret_key_values_dft(module, KBASE, 3);
-	PolyUniv** values        = transform_ggsw_secret_key_values_dft_to_not_dft(module, values_dft, KBASE);
+	PolyUniv** values        = transform_ggsw_secret_key_values_dft_to_not_dft(module, (const PolyUnivDFT**)values_dft, KBASE);
 
 	for (uint64_t j = 0; j < KBASE; j++)
 		for (uint64_t p = 0; p < NBASE; p++) cr_log_info("%" PRId64 " X^%" PRId64, values[j][p], p);
@@ -65,8 +65,7 @@ Test(transform_ggsw_secret_key_values_dft_to_not_dft, basic)
  */
 Test(new_ggsw_secret_key, values_not_null)
 {
-	PolyBiv** values  = new_ggsw_secret_key_values(NBASE, KBASE);
-	GGSWSecretKey* sk = new_ggsw_secret_key(values, NBASE, KBASE);
+	GGSWSecretKey* sk = new_ggsw_secret_key(NBASE, KBASE);
 
 	cr_assert(eq(int, sk != NULL, 1));
 	cr_assert(eq(int, sk->values != NULL, 1));
@@ -155,7 +154,7 @@ Test(transform_ggsw_secret_key_values_not_dft_to_dft, basic)
 	MODULE* module           = new_module_info(NBASE, FFT64);
 
 	PolyUniv** values        = new_uniform_ggsw_secret_key_values(module, KBASE, 3);
-	PolyUnivDFT** values_dft = transform_ggsw_secret_key_values_not_dft_to_dft(module, values, KBASE);
+	PolyUnivDFT** values_dft = transform_ggsw_secret_key_values_not_dft_to_dft(module, (const PolyUniv**)values, KBASE);
 
 	for (uint64_t j = 0; j < KBASE; j++)
 		for (uint64_t p = 0; p < NBASE; p++) cr_log_info("%lf X^%" PRId64, values_dft[j][p], p);
@@ -170,8 +169,7 @@ Test(transform_ggsw_secret_key_values_not_dft_to_dft, basic)
  */
 Test(new_ggsw_secret_key_dft, values_not_null)
 {
-	PolyBivDFT** values      = new_ggsw_secret_key_values_dft(NBASE, KBASE);
-	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(values, NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 
 	cr_assert(eq(int, sk_dft != NULL, 1));
 	cr_assert(eq(int, sk_dft->values != NULL, 1));

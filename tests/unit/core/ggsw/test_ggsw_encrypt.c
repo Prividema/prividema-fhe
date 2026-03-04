@@ -85,25 +85,19 @@ Test(ggsw_secret_encrypt, works)
 
 			// Assures that the difference between the phase = msg / (2^kappa_tilde)^(i+1) and the computed phase,
 			// are only different by an error of approximation and a gaussian error
-			for (uint64_t p = 0; p < NBASE; p++) {
+			for (uint64_t p = 0; p < NBASE; p++) 
+			{
 				double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
 				double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
 				                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
-				double err_length = ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE);
 
 				int cond =
-				    (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
+				    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
 
-				cr_assert(
-				    cond,
-				    "Equality failed at p = %ld with : \n-(msg * sk_j)[%ld] / (2^kappa_tilde)^%ld = %lf and "
-				    "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf, \n-(msg * sk_j)[%ld] / "
-				    "(2^kappa_tilde)^%ld = %lf and phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-				    p, p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-				    phase_univ_RnX_computed[p], ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE),
-				    p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-				    phase_univ_RnX_computed[p] - floor(phase_univ_RnX_computed[p]) - ceil(phase_univ_RnX_computed[p]),
-				    ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE));
+				cr_assert(cond,
+				    "Equality failed at p = %ld with : \n-(msg * sk_%ld)[%ld] / (2^kappa_tilde)^%ld = %lf and "
+				    "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
+				    p, j, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p], err_length);
 			}
 
 			free(phase_univ_RnX_computed);
@@ -138,17 +132,12 @@ Test(ggsw_secret_encrypt, works)
 			                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
 
 			int cond =
-			    (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
+			    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
 
 			cr_assert(cond,
 			          "Equality failed at p = %ld with : \nmsg[%ld] / (2^kappa_tilde)^%ld = %lf and "
-			          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf, \nmsg[%ld] / (2^kappa_tilde)^%ld = "
-			          "%lf and phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-			          p, p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-			          phase_univ_RnX_computed[p], ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE),
-			          p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-			          phase_univ_RnX_computed[p] - floor(phase_univ_RnX_computed[p]) - ceil(phase_univ_RnX_computed[p]),
-			          ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE));
+			          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
+			          p, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p], err_length);
 		}
 		free(ct_glwe);
 		free(phase);
@@ -184,7 +173,7 @@ Test(ggsw_secret_encrypt_dft, works)
 	    new_ggsw_ct_params(params_glwe_for_ggsw, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module                 = new_module_info_p(NBASE);
 
-	GGSWCiphertextDFT* ct_ggsw_dft = new_ggsw_dft(params_ggsw, NULL);
+	GGSWCiphertextDFT* ct_ggsw_dft = new_ggsw_dft(params_ggsw);
 	GGSWSecretKeyDFT* sk_dft       = new_uniform_ggsw_secret_key_dft(module, KBASE, 3);
 
 	// Message uniformly drawn
@@ -239,18 +228,13 @@ Test(ggsw_secret_encrypt_dft, works)
 				double err_length = ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE);
 
 				int cond =
-				    (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
+				    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
 
 				cr_assert(
 				    cond,
-				    "Equality failed at p = %ld with : \n-(msg * sk_j)[%ld] / (2^kappa_tilde)^%ld = %lf and "
-				    "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf, \n-(msg * sk_j)[%ld] / "
-				    "(2^kappa_tilde)^%ld = %lf and phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-				    p, p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-				    phase_univ_RnX_computed[p], ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE),
-				    p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-				    phase_univ_RnX_computed[p] - floor(phase_univ_RnX_computed[p]) - ceil(phase_univ_RnX_computed[p]),
-				    ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE));
+				    "Equality failed at p = %ld with : \n-(msg * sk_%ld)[%ld] / (2^kappa_tilde)^%ld = %lf and "
+				    "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
+				    p, j, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p], err_length);
 			}
 
 			free(phase_univ_RnX_computed);
@@ -279,7 +263,8 @@ Test(ggsw_secret_encrypt_dft, works)
 
 		// Assures that the difference between the phase = msg / (2^kappa_tilde)^(i+1) and the computed phase,
 		// are only different by an error of approximation and a gaussian error
-		for (uint64_t p = 0; p < NBASE; p++) {
+		for (uint64_t p = 0; p < NBASE; p++) 
+		{
 			double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
 			double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
 			                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
@@ -289,13 +274,8 @@ Test(ggsw_secret_encrypt_dft, works)
 
 			cr_assert(cond,
 			          "Equality failed at p = %ld with : \nmsg[%ld] / (2^kappa_tilde)^%ld = %lf and "
-			          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf, \nmsg[%ld] / (2^kappa_tilde)^%ld = "
-			          "%lf and phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-			          p, p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-			          phase_univ_RnX_computed[p], ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE),
-			          p, K_TILDEBASE, i + 1, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p,
-			          phase_univ_RnX_computed[p] - floor(phase_univ_RnX_computed[p]) - ceil(phase_univ_RnX_computed[p]),
-			          ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE));
+			          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
+			          p, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p], err_length);
 		}
 		free(ct_glwe_dft);
 		free(phase);

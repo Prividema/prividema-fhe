@@ -33,7 +33,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	MODULE* module            = new_module_info_p(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
-	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NBASE, KBASE);
 
 	// The result bivGLWE
 	VecBiv* ct_glwe = malloc(glwe_coef_number(params_glwe) * sizeof(int64_t));
@@ -99,7 +99,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	MODULE* module            = new_module_info_p(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
-	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NBASE, KBASE);
 
 	// The result bivGLWE
 	VecBiv* ct_glwe = malloc(glwe_coef_number(params_glwe) * sizeof(int64_t));
@@ -170,7 +170,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	MODULE* module            = new_module_info_p(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
-	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NBASE, KBASE);
 
 	// The result bivGLWE
 	VecBivDFT* ct_glwe_dft = malloc(glwe_coef_number(params_glwe) * sizeof(double));
@@ -241,7 +241,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	MODULE* module            = new_module_info_p(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
-	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NULL, NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NBASE, KBASE);
 
 	// The result bivGLWE
 	VecBivDFT* ct_glwe_dft = malloc(glwe_coef_number(params_glwe) * sizeof(double));
