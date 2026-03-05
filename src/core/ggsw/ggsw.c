@@ -147,8 +147,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 	}
 
 	// Add the phase to acc
-	for (uint64_t i = 1; i <= l; i++)
-		for (uint64_t p = 0; p < N; p++) acc[(i - 1) * N + p] += phase[(i - 1) * N + p];
+	for (size_t i = 0; i < N * l; ++i) acc[i] += phase[i];
 
 	// The pointer to limb_0(b)
 	PolyBiv* b_0 = result + k * N;
