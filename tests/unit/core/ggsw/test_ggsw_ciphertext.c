@@ -99,7 +99,7 @@ Test(ggsw_Sj_Yti, basic)
 	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
-			VecBiv* ct_mat_ij = ggsw_Sj_Yti(params_ggsw, ggsw->mat, j, i);
+			VecBiv* ct_mat_ij = ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i);
 
 			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 			ct_mat_ij[0] = 1;
@@ -214,8 +214,8 @@ Test(const_mult_ggsw, without_normalization)
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw->mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, product_computed->mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retreive_bivglwe(params_ggsw, product_computed->mat, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
 					for (uint64_t i = 1; i <= LBASE; i++)
@@ -275,8 +275,8 @@ Test(const_mult_ggsw, with_normalization)
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw->mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, product_computed->mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retreive_bivglwe(params_ggsw, product_computed->mat, jj, ii);
 
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
@@ -496,8 +496,8 @@ Test(const_mult_ggsw_dft, without_normalization)
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw_mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, prod_computed_mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retreive_bivglwe(params_ggsw, ggsw_mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retreive_bivglwe(params_ggsw, prod_computed_mat, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
 					for (uint64_t i = 1; i <= LBASE; i++)
@@ -563,8 +563,8 @@ Test(const_mult_ggsw_dft, with_normalization)
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw_mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, prod_computed_mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retreive_bivglwe(params_ggsw, ggsw_mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retreive_bivglwe(params_ggsw, prod_computed_mat, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
 				{

@@ -42,11 +42,21 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
 /**
  * @brief Masks the phase (message + noise) and puts it in result.
  *
+<<<<<<< HEAD
  * @param module      Additionnal information for backend.
  * @param params_glwe The GLWE parameters.
  * @param result      The result bivariate ciphertext.
  * @param sk_dft      The secret key in the DFT domain.
  * @param phase       message + noise.
+=======
+ * Alternatively, this is GLWEGadgetEncrypt in the ISO standard
+ *
+ * @param module The backend module object
+ * @param params The GLWE parameters.
+ * @param result The result bivariate ciphertext.
+ * @param sk_dft The GGSW secret key in the DFT domain.
+ * @param phase  A message + noise.
+>>>>>>> 1f25e88 (Improved documentation for some functions)
  *
  * @retval • `-1` if an error occurs.
  * @retval • `0` otherwise otherwise.

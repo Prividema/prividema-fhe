@@ -61,8 +61,8 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  * 
  * As a Bivariate GGSW's matrix is : 
  * 
- * - bivGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k.
- * - bivGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k.
+ * - bivGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) for j < k.
+ * - bivGLWE(DFT(m / 2^{kappa_tilde * i}))         for j = k.
  * 
  * The function takes j and i and get the associated bivGLWE.
  *
@@ -73,7 +73,7 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  *
  * @return A Pointer to the associated Bivariate GLWE.	
  */
-VecBiv* ggsw_Sj_Yti(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i);
+VecBiv* ggsw_retreive_bivglwe(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i);
 
 /**
  * @brief Normalizes a GGSW ciphertext.
@@ -103,8 +103,8 @@ void add_ggsw(GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs, const GGSW
  * @param result    A Pointer to store the result. Must be a GGSWCiphertext.
  * @param ggsw      A Pointer to the GGSW ciphertext.
  * @param cte       The constant in \f$\mathbb{Z}_n[X]\f$.
- * @param normalize A boolean that tells to normalize the result.
- * 
+ * @param normalize Whether to normalize (1) or not (0) the resulting GGSW ciphertext * 
+ *
  * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
  * @retval • `0` otherwise.
  */

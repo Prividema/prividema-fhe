@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "core/ggsw/ggsw.h"
+#include "ggsw_ciphertext.h"
 #include "rng.h"
 #include "utils.h"
 
@@ -81,7 +82,7 @@ Test(ggsw_secret_encrypt, works)
 			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
 
 			// Copy bivGLWE(-m * sk_j / 2^{kappa_tilde * i}) in glwe_vec
-			memcpy(glwe_vec_computed, ggsw_Sj_Yti(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
+			memcpy(glwe_vec_computed, ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
 			glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed);

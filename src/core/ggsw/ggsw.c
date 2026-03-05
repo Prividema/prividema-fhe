@@ -121,28 +121,29 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 	acc = calloc(N * l, sizeof(double));
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_masking_ggsw_lib");
 
-	// Point to DFT(sk_j) * DFT(a_j)
+	// Allocate the variable for DFT(sk_j) * DFT(a_j)
 	as_j_dft = malloc(poly_biv_bytes(params_glwe));
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking_ggsw_lib");
 
 	// Point to sk_j * a_j
+	// Allocate the variable for sk_j * a_j
 	as_j = malloc(poly_biv_bytes(params_glwe));
 	CHECK_ALLOC(as_j, "as_j's calloc failed in glwe_secret_masking_ggsw_lib");
 
 	// Computes Sum_j{0,k-1}[sk_j * a_j]
 	for (uint64_t j = 0; j < k; j++)
 	{
-		// The j-ème component of the secret key sk_dft
+		// The j-th component of the DFT encoding of the secret key
 		PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
 
 		// Computes DFT(sk_j) * DFT(a_j)
 		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, result + j * N, l, (k + 1) * N);
 
-		// Computes sk_j * a_j
+		// Undo DFT to retreive sk_j * a_j
 		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l),
 		           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
 
-		// And adds it to acc_j
+		// Add it all to the accumulator
 		for (uint64_t p = 0; p < N * l; p++) acc[p] += as_j[p];
 	}
 
@@ -275,10 +276,10 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 			CHECK_CALL(compute_phase_ij(module, params_ggsw, phase, phase_univ_RnX, m_skj_univ, m_skj_univ_dft, 
 										sk_dft, m_univ_dft, m_univ, i, j),
 			           "compute_phase_ij failed in ggsw_secret_encrypt");
-			
-			// The pointer to : bivGLWE(-m * sk_j / 2^{kappa_tilde * i}), if j < k
-			//                         bivGLWE( m / 2^{kappa_tilde * i}), if j = k
-			VecBiv* glwe_vec = ggsw_Sj_Yti(params_ggsw, result->mat, j, i);
+
+			// The pointer to : bivGLWE(-m * sk_j / 2^{kappa_tilde*i}), if j < k
+			//                         bivGLWE( m / 2^{kappa_tilde*i}), if j = k
+			VecBiv* glwe_vec = ggsw_retreive_bivglwe(params_ggsw, result->mat, j, i);
 
 			// Computes : bivGLWE(-m * sk_j / 2^{kappa_tilde * i}), if j < k
 			//                   bivGLWE( m / 2^{kappa_tilde * i}), if j = k

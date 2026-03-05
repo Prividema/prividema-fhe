@@ -60,7 +60,7 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits);
  *
  * @param limb_len The size of each limb. N for TGLWE and TGGSW.
  * @param res      The result.
- * @param res_size The number of limbs.
+ * @param nb_limbs The number of limbs.
  * @param res_sl   The stride (in elements) between two consecutive result limbs.
  *                 It indicates how many elements must be skipped in memory to reach
  *                 the start of the next limb in `res`.
