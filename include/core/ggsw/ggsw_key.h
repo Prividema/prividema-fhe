@@ -33,7 +33,7 @@ PolyUniv** new_ggsw_secret_key_values(uint64_t N, uint64_t k);
 /**
  * @brief Creates a new secret key values component, where each Zn[X] poly is uniformly drawn.
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param k The number of Zn[X] polynomials in a secret key.
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUniv**
@@ -60,7 +60,7 @@ GGSWSecretKey* new_ggsw_secret_key(uint64_t N, uint64_t k);
 /**
  * @brief Draws a secret key uniformly.
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return GGSWSecretKeyDFT*
@@ -75,18 +75,18 @@ GGSWSecretKey* new_uniform_ggsw_secret_key(const MODULE* module, uint64_t k, uin
 void delete_ggsw_secret_key(GGSWSecretKey* sk);
 
 /**
- * @brief Computes the secret key out of DFT space.
+ * @brief Computes the secret key out of the DFT domain.
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param sk_dft The secret key in the DFT domain.
  * @return GGSWSecretKey*
  */
 GGSWSecretKey* transform_ggsw_secret_key_dft_to_not_dft(const MODULE* module, const GGSWSecretKeyDFT* sk_dft);
 
 /**
- * @brief Computes the values of the secret key out of DFT space.
+ * @brief Computes the values of the secret key out of the DFT domain.
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param values_dft The values of the secret key in the DFT domain.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUniv**
@@ -115,7 +115,7 @@ PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k);
 /**
  * @brief Creates a new secret key values component in the DFT domain, where each Zn[X] poly is uniformly drawn.
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param k The number of Zn[X] polynomials in a secret key.
  * @param nb_bits The exponent of the range = [-2^nb_bits, 2^nb_bits).
  * @return PolyUnivDFT**
@@ -161,8 +161,8 @@ void delete_ggsw_secret_key_dft(GGSWSecretKeyDFT* sk_dft);
 /**
  * @brief Computes the secret key in the DFT domain.
  *
- * @param module TODO
- * @param sk The secret key out of DFT space.
+ * @param module Additionnal information for backend.
+ * @param sk The secret key out of the DFT domain.
  * @return GGSWSecretKey*
  */
 GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(const MODULE* module, const GGSWSecretKey* sk);
@@ -170,8 +170,8 @@ GGSWSecretKeyDFT* transform_ggsw_secret_key_not_dft_to_dft(const MODULE* module,
 /**
  * @brief Computes the values of the secret key in the DFT domain.
  *
- * @param module TODO
- * @param values The values of the secret key out of DFT space.
+ * @param module Additionnal information for backend.
+ * @param values The values of the secret key out of the DFT domain.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return PolyUnivDFT**
  */

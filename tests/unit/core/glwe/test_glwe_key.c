@@ -42,16 +42,13 @@ Test(new_uniform_glwe_secret_key_values, basic)
 
 /**
  * @brief Tests wether transform_secret_key_values_dft_to_not_dft actually transforms the values of the secret key in
- * DFT space, out of DFT space.
+ * out of the DFT domain.
  */
 Test(transform_glwe_secret_key_values_dft_to_not_dft, basic)
 {
 	MODULE* module           = new_module_info(NBASE, FFT64);
 	PolyUnivDFT** values_dft = new_uniform_glwe_secret_key_values_dft(module, KBASE, 3);
 	PolyUniv** values        = transform_glwe_secret_key_values_dft_to_not_dft(module, (const PolyUnivDFT**)values_dft, KBASE);
-
-	for (uint64_t j = 0; j < KBASE; j++)
-		for (uint64_t p = 0; p < NBASE; p++) cr_log_info("%" PRId64 " X^%" PRId64, values[j][p], p);
 
 	delete_module_info(module);
 	delete_glwe_secret_key_values_dft(values_dft, KBASE);
@@ -101,9 +98,6 @@ Test(transform_glwe_secret_key_dft_to_not_dft, basic)
 	GLWESecretKeyDFT* sk_dft = new_uniform_glwe_secret_key_dft(module, KBASE, 3);
 	GLWESecretKey* sk        = transform_glwe_secret_key_dft_to_not_dft(module, sk_dft);
 
-	for (uint64_t j = 0; j < KBASE; j++)
-		for (uint64_t p = 0; p < NBASE; p++) cr_log_info("%" PRId64 " X^%" PRId64, sk->values[j][p], p);
-
 	delete_module_info(module);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_secret_key(sk);
@@ -142,17 +136,14 @@ Test(new_uniform_glwe_secret_key_values_dft, basic)
 }
 
 /**
- * @brief Tests wether transform_secret_key_values_not_dft_to_dft actually transforms the values of the secret key out
- * of DFT space, in the DFT domain.
+ * @brief Tests wether transform_secret_key_values_not_dft_to_dft actually transforms the values of the secret key
+ * in the DFT domain.
  */
 Test(transform_glwe_secret_key_values_not_dft_to_dft, basic)
 {
 	MODULE* module     = new_module_info(NBASE, FFT64);
 	PolyUniv** values        = new_uniform_glwe_secret_key_values(module, KBASE, 3);
 	PolyUnivDFT** values_dft = transform_glwe_secret_key_values_not_dft_to_dft(module, (const PolyUniv**)values, KBASE);
-
-	for (uint64_t j = 0; j < KBASE; j++)
-		for (uint64_t p = 0; p < NBASE; p++) cr_log_info("%lf X^%" PRId64, values_dft[j][p], p);
 
 	delete_module_info(module);
 	delete_glwe_secret_key_values(values, KBASE);
@@ -195,7 +186,7 @@ Test(new_uniform_glwe_secret_key_dft, what_s_inside)
 }
 
 /**
- * @brief Tests wether transform_glwe_secret_key_not_dft_to_dft transforms the secret key out of DFT space, in DFT
+ * @brief Tests wether transform_glwe_secret_key_not_dft_to_dft transforms the secret key out of the DFT domain, in DFT
  * space.
  */
 Test(transform_glwe_secret_key_not_dft_to_dft, basic)
@@ -203,9 +194,6 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 	MODULE* module           = new_module_info(NBASE, FFT64);
 	GLWESecretKey* sk        = new_uniform_glwe_secret_key(module, KBASE, 3);
 	GLWESecretKeyDFT* sk_dft = transform_glwe_secret_key_not_dft_to_dft(module, sk);
-
-	for (uint64_t j = 0; j < KBASE; j++)
-		for (uint64_t p = 0; p < NBASE; p++) cr_log_info("%lf X^%" PRId64, sk_dft->values[j][p], p);
 
 	delete_module_info(module);
 	delete_glwe_secret_key(sk);

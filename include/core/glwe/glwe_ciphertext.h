@@ -19,139 +19,149 @@ typedef struct glwe_ciphertext
 /**
  * @brief Return the number of coefficient in a bivariate GLWE ciphertext.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return int64_t
  */
-uint64_t glwe_coef_number(const GLWECtParams* params);
+uint64_t glwe_coef_number(const GLWECtParams* params_glwe);
 
 /**
  * @brief Creates a bivGLWE, filled with 0.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return GLWECiphertext*
  */
-GLWECiphertext* new_glwe(const GLWECtParams* params);
+GLWECiphertext* new_glwe(const GLWECtParams* params_glwe);
 
 /**
  * @brief Deletes a GLWE ciphertext, but the GLWE parameters.
  *
- * @param ct The GLWE ciphertext.
+ * @param glwe The GLWE ciphertext.
  */
-void delete_glwe(GLWECiphertext* ct);
+void delete_glwe(GLWECiphertext* glwe);
 
 /**
  * @brief Normalizes a GLWE ciphertext.
  *
- * @param module
- * @param res The result normalized GLWE ciphertext.
- * @param ct_glwe The GLWE ciphertext.
+ * @param module Additionnal information for backend.
+ * @param result The result normalized GLWE ciphertext.
+ * @param glwe The GLWE ciphertext.
  */
-void normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* ct_glwe);
+int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
 /**
  * @brief Adds two GLWE ciphertexts.
  *
- * @param res The result GLWE ciphertext.
- * @param ct1 The left-hand side GLWE ciphertext.
- * @param ct2 The right-hand side GLWE ciphertext.
+ * @param result The result GLWE ciphertext.
+ * @param glwe_lhs The left-hand side GLWE ciphertext.
+ * @param glwe_rhs The right-hand side GLWE ciphertext.
  */
-void add_glwe(GLWECiphertext* res, const GLWECiphertext* ct1, const GLWECiphertext* ct2);
+void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECiphertext* glwe_rhs);
 
 /**
  * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial.
  *
- * @param module
- * @param res The result GLWE ciphertext.
+ * @param module Additionnal information for backend.
+ * @param result The result GLWE ciphertext.
  * @param u The Zn[X] polynomial.
- * @param ct The GLWE ciphertext.
+ * @param glwe The GLWE ciphertext.
  * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  * 
  * @retval -1 if a malloc fails.
  * @retval 0 if everything works.
  */
-int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* ct, int do_normalization);
+int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe, int do_normalization);
 
 //! GLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft
 {
 	const GLWECtParams* params;  // GLWE parameters
-	VecBivDFT* vec;        // Prepared vector
+	VecBivDFT* vec;        		 // Vector in the DFT 
 } GLWECiphertextDFT;
 
 /**
  * @brief The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return int64_t
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t glwe_coef_number_dft(const GLWECtParams* params);
+uint64_t glwe_coef_number_dft(const GLWECtParams* params_glwe);
 
 /**
  * @brief Creates a new empty GLWE ciphertext.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return GLWECiphertextDFT*
  */
-GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params);
+GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params_glwe);
 
 /**
  * @brief Deletes a GLWE ciphertext, but not the parameters.
  *
- * @param ct The GLWE ciphertext.
+ * @param glwe The GLWE ciphertext.
  */
-void delete_glwe_dft(GLWECiphertextDFT* ct);
+void delete_glwe_dft(GLWECiphertextDFT* glwe);
+
+// TODO test normalize_glwe_dft
+/**
+ * @brief Normalizes a GLWE ciphertext in the DFT domain.
+ *
+ * @param module Additionnal information for backend.
+ * @param result_dft The result normalized GLWE ciphertext in the DFT domain.
+ * @param glwe_dft The GLWE ciphertext in the DFT domain.
+ */
+int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_dft);
 
 /**
  * @brief Adds two GLWE ciphertext.
  *
  * @param res_dft The result GLWE ciphertext in the DFT domain.
- * @param ct1_dft The left-hand side GLWE ciphertext in the DFT domain.
- * @param ct2_dft The right-hand side GLWE ciphertext in the DFT domain.
+ * @param glwe_lhs_dft The left-hand side GLWE ciphertext in the DFT domain.
+ * @param glwe_rhs_dft The right-hand side GLWE ciphertext in the DFT domain.
  */
-void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* ct1_dft, const GLWECiphertextDFT* ct2_dft);
+void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_dft, const GLWECiphertextDFT* glwe_rhs_dft);
 
 /**
  * @brief Multiply a GLWE ciphertext by a Zn[X] polynomial in the DFT domain.
  *
- * @param module
+ * @param module Additionnal information for backend.
  * @param res_dft The result GLWE ciphertext in the DFT domain.
  * @param u The Zn[X] polynomial.
- * @param ct_dft The GLWE ciphertext in the DFT domain.
+ * @param glwe_dft The GLWE ciphertext in the DFT domain.
  * @param do_normalization the function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
-int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u, const GLWECiphertextDFT* ct_dft,
+int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u, const GLWECiphertextDFT* glwe_dft,
                         int do_normalization);
 
 //! COMMON PART (begin)
 
 /**
- * @brief Return the size of a bivGLWE ciphertext, in the DFT domain & out of DFT space.
+ * @brief Return the size of a bivGLWE ciphertext, in the DFT domain & out of the DFT domain.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return int64_t
  *
- * @note The size of a bivGLWE ciphertext is the same in and out of DFT space.
+ * @note The size of a bivGLWE ciphertext is the same in and out of the DFT domain.
  */
-uint64_t glwe_size(const GLWECtParams* params);
+uint64_t glwe_size(const GLWECtParams* params_glwe);
 
 /**
  * @brief The number of bytes needed to store a bivGLWE ciphertext.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return int64_t
  *
- * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of DFT space.
+ * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of the DFT domain.
  */
-uint64_t glwe_bytes(const GLWECtParams* params);
+uint64_t glwe_bytes(const GLWECtParams* params_glwe);
 
 /**
  * @brief Compute the polynomial product of c and d, component-wise in the DFT domain.
  *
- * @param module The module stocking the degree N.
+ * @param module Additionnal information for backend.
  * @param res_dft The result in the DFT domain.
  * @param res_size The result's size.
  * @param c_dft The left-hand side polynomial in the DFT domain .

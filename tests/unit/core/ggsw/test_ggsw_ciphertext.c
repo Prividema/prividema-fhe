@@ -386,7 +386,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	// Computes DFT(u)*GGSW
 	const_mult_ggsw_dft(module, res_dft, ct_dft, u_dft, 0);
 
-	// Computes the variables out of DFT space
+	// Computes the variables out of the DFT domain
 	PolyUniv* u = malloc(NBASE * sizeof(double));
 	vec_znx_idft_p(module, u, 1, u_dft, 1);
 	MatBiv* ct_mat = malloc(ggsw_bytes(params_ggsw));
@@ -442,7 +442,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	// Computes DFT(u)*GGSW
 	const_mult_ggsw_dft(module, res_dft, ct_dft, u_dft, 1);
 
-	// Computes the variables out of DFT space
+	// Computes the variables out of the DFT domain
 	PolyUniv* u = malloc(NBASE * sizeof(double));
 	vec_znx_idft_p(module, u, 1, u_dft, 1);
 	MatBiv* ct_mat = malloc(ggsw_bytes(params_ggsw));

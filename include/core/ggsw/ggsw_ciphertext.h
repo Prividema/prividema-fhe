@@ -5,7 +5,7 @@
  * @file ggsw_ciphertext.h
  * @brief GGSW ciphertext
  *
- * In this header file, we define the structure representing bivariate GGSW ciphertext
+ * In this header file, we define the structure represultenting bivariate GGSW ciphertext
  * and bivariate GGSW in the DFT domain. Moreover, we define alias for double and int64_t.
  * Thus, we properly manipulate mathematical structure (polynomial, vector or matrix).
  * The types below are provided solely for clarity, nothing is changed in spqlios.
@@ -23,7 +23,7 @@
 typedef struct ggsw_ciphertext
 {
 	const GGSWCtParams* params;  // GGSW parameters
-	MatBiv* mat;  // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
+	MatBiv* mat;  // Represultent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
 } GGSWCiphertext;
 
 /**
@@ -67,25 +67,25 @@ VecBiv* ggsw_Sj_Yti(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j
 /**
  * @brief Normalize a GGSW ciphertext.
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param result The result normalized GGSW ciphertext.
  * @param ggsw The input GGSW ciphertext.
  */
-void normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
+int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
 
 /**
- * @brief Adds two GGSW ciphertexts with same params and put result in res
+ * @brief Adds two GGSW ciphertexts with same params and put result in result
  *
- * @param res The result GGSW ciphertext.
+ * @param result The result GGSW ciphertext.
  * @param ggsw_lhs The left-hand side GGSW ciphertext.
  * @param ggsw_rhs The right-hand side GGSW ciphertext.
  */
-void add_ggsw(GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs);
+void add_ggsw(GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs);
 
 /**
  * @brief Multiply a GGSW ciphertext by a constant in Zn[X]
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param result The result GGSW ciphertext.
  * @param ggsw The GGSW ciphertext.
  * @param u_dft The Zn[X] polynomial in the DFT domain.
@@ -101,7 +101,7 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 typedef struct ggsw_ciphertext_dft
 {
 	const GGSWCtParams* params;  // GGSW parameters
-	MatBivDFT* mat;  // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
+	MatBivDFT* mat;  // Represultent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
 } GGSWCiphertextDFT;
 
 /**
@@ -144,7 +144,7 @@ VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat,
 /**
  * @brief Normalize a GGSW ciphertext in the DFT domain.
  *
- * @param module TODO
+ * @param module Additionnal information for backend.
  * @param result_dft The result normalized GGSW ciphertext in the DFT domain.
  * @param ggsw_dft The input GGSW ciphertext in the DFT domain.
  */
@@ -162,9 +162,9 @@ void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_l
 /**
  * @brief  Multiply a GGSW ciphertext by a constant in Zn[X]
  *
- * @param module TODO
- * @param res_dft The result GGSW ciphertext.
- * @param ct_dft The GGSW ciphertext.
+ * @param module Additionnal information for backend.
+ * @param result_dft The result GGSW ciphertext.
+ * @param ggsw_dft The GGSW ciphertext.
  * @param u_dft The Zn[X] polynomial in the DFT domain, with coefficient in [-2^(kappa-1), 2^(kappa-1)].
  * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  */
@@ -174,12 +174,12 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 //! COMMON PART (begin)
 
 /**
- * @brief Return the size of a bivGGSW ciphertext, in the DFT domain & out of DFT space.
+ * @brief Return the size of a bivGGSW ciphertext, in the DFT domain & out of the DFT domain.
  *
  * @param params_ggsw The GGSW parameters.
  * @return int64_t
  *
- * @note The size of a bivGGSW ciphertext is the same in and out of DFT space.
+ * @note The size of a bivGGSW ciphertext is the same in and out of the DFT domain.
  */
 uint64_t ggsw_size(const GGSWCtParams* params_ggsw);
 
@@ -189,7 +189,7 @@ uint64_t ggsw_size(const GGSWCtParams* params_ggsw);
  * @param params_ggsw The GGSW parameters.
  * @return int64_t
  *
- * @note The number of bytes needed to store a bivGGSW ciphertext, is the same in and out of DFT space.
+ * @note The number of bytes needed to store a bivGGSW ciphertext, is the same in and out of the DFT domain.
  */
 uint64_t ggsw_bytes(const GGSWCtParams* params_ggsw);
 

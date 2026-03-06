@@ -82,7 +82,6 @@ Test(mult_vec_znx_dft, size_equal_one)
 		for (uint64_t k = p + 1; k < NBASE; k++) {
 			acc += -a[k] * b[NBASE + p - k];
 		}
-		cr_log_info("acc %ld res[p] %ld X^%ld", acc, res[p], p);
 		cr_assert(eq(i64, res[p], acc));
 	}
 
@@ -145,7 +144,6 @@ Test(mult_vec_znx_dft, random_size)
 			for (uint64_t k = p + 1; k < NBASE; k++) {
 				acc += -a[i * NBASE + k] * b[i * NBASE + NBASE + p - k];
 			}
-			cr_log_info("acc %ld res[i*NBASE + p] %ld X^%ld", acc, res[i * NBASE + p], p);
 			cr_assert(eq(i64, res[i * NBASE + p], acc));
 		}
 	}
@@ -167,7 +165,7 @@ Test(mult_vec_znx_dft, random_size)
  */
 Test(glwe_coef_number, basic)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	cr_assert(eq(i64, glwe_coef_number(params_glwe), NLIMBSBASE * NBASE));
 
@@ -179,7 +177,7 @@ Test(glwe_coef_number, basic)
  */
 Test(new_glwe, basic)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GLWECiphertext* ct   = new_glwe(params_glwe);
 
 	cr_assert(eq(int, (ct != NULL) && (ct->vec != NULL), 1));
@@ -204,12 +202,8 @@ Test(add_glwe, basic)
 
 	add_glwe(res, ct_l, ct_r);
 
-	for (uint64_t i = 1; i < LBASE; i++)
-		for (uint64_t j = 0; j < KBASE + 1; j++)
-			for (uint64_t p = 0; p < NBASE; p++)
-				cr_assert(eq(res->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p],
-				             ct_l->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] +
-				                 ct_r->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]));
+	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++)
+		cr_assert(eq(res->vec[t], ct_l->vec[t] + ct_r->vec[t]));
 
 	delete_glwe(ct_l);
 	delete_glwe(ct_r);
@@ -382,21 +376,21 @@ Test(const_mult_glwe_dft, without_normalization)
 	GLWECiphertextDFT* res_dft = new_glwe_dft(params_glwe);
 	VecBiv* res_vec            = malloc(glwe_bytes(params_glwe));
 
-	// Draws uniformly the GLWE ciphertext and computes it out of DFT space
+	// Draws uniformly the GLWE ciphertext and computes it out of the DFT domain
 	GLWECiphertextDFT* ct_dft = new_glwe_dft(params_glwe);
 	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	VecBiv* ct_vec = malloc(glwe_bytes(params_glwe));
 	vec_znx_idft_p(module, ct_vec, glwe_size(params_glwe), ct_dft->vec, glwe_size(params_glwe));
 
-	// Draws uniformly the ZnX polynomial and computes it ouf of DFT space
+	// Draws uniformly the ZnX polynomial and computes it out of the DFT domain
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
 	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
 	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
 
 	const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 0);
 
-	// Computes res out of DFT space
+	// Computes res out of the DFT domain
 	vec_znx_idft_p(module, res_vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 
 	for (uint64_t i = 1; i <= LBASE; i++)
@@ -435,21 +429,21 @@ Test(const_mult_glwe_dft, with_normalization)
 	GLWECiphertextDFT* res_dft = new_glwe_dft(params_glwe);
 	VecBiv* res_vec            = malloc(glwe_bytes(params_glwe));
 
-	// Draws uniformly the GLWE ciphertext and computes it out of DFT space
+	// Draws uniformly the GLWE ciphertext and computes it out of the DFT domain
 	GLWECiphertextDFT* ct_dft = new_glwe_dft(params_glwe);
 	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	VecBiv* ct_vec = malloc(glwe_bytes(params_glwe));
 	vec_znx_idft_p(module, ct_vec, glwe_size(params_glwe), ct_dft->vec, glwe_size(params_glwe));
 
-	// Draws uniformly the ZnX polynomial and computes it ouf of DFT space
+	// Draws uniformly the ZnX polynomial and computes it out of the DFT domain
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
 	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
 	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
 
 	const_mult_glwe_dft(module, res_dft, u_dft, ct_dft, 1);
 
-	// Computes res out of DFT space
+	// Computes res out of the DFT domain
 	vec_znx_idft_p(module, res_vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 
 	for (uint64_t j = 0; j < KBASE + 1; j++)

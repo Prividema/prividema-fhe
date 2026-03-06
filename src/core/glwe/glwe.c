@@ -72,7 +72,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* ct, GLWESecretKeyD
 	}
 
 	// Add the phase to acc
-	for (uint64_t t = 0; t <= N * l; t++) 
+	for (uint64_t t = 0; t < N * l; t++) 
 		acc[t] += phase[t];
 
 	// The pointer to limb_0(b)
@@ -234,7 +234,7 @@ int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, GLWESecretKeyD
 	uint64_t k           = params->k;
 	uint64_t l           = poly_biv_size(params);
 
-	// Computes the input ciphertext out of DFT space
+	// Computes the input ciphertext out of the DFT domain
 	VecBiv* ct = calloc(glwe_coef_number(params), sizeof(int64_t));
 	if (log_is_null(ct, "ct's calloc failed in glwe_secret_demasking_dft") < 0) return -1;
 	if (vec_znx_idft_p(module, ct, glwe_size(params), ct_dft->vec, glwe_size(params)) < 0)

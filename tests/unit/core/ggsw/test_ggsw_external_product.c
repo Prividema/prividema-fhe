@@ -35,8 +35,8 @@ Test(ggsw_external_product, without_error)
 	GGSWCtParams* params_ggsw     = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module                = new_module_info(NBASE, FFT64);
 
-	GGSWCiphertext* ct_ggsw       = new_ggsw(params_ggsw);
-	GLWECiphertext* ct_glwe_tilde = new_glwe(params_glwe_tilde);
+	GGSWCiphertext* ggsw       = new_ggsw(params_ggsw);
+	GLWECiphertext* glwe_tilde = new_glwe(params_glwe_tilde);
 	GLWECiphertext* res           = new_glwe(params_glwe);
 
 	// Draws respectively uniformly the secret key in the DFT domain, a Zn[X] polynomial and a Zn[X,Y] polynomial
@@ -51,15 +51,15 @@ Test(ggsw_external_product, without_error)
 	PolyBiv* m       = new_uniform_random_biv_poly(module, params_glwe_tilde, 1);
 
 	//! Computation with function
-	// Computes ct_glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
-	glwe_secret_masking(module, ct_glwe_tilde, sk_glwe_dft, m);
+	// Computes glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
+	glwe_secret_masking(module, glwe_tilde, sk_glwe_dft, m);
 
-	// Computes ct_ggsw, a bivGGSW(u) using the base-2Kappa
-	ggsw_secret_encrypt(module, params_ggsw, ct_ggsw, sk_ggsw_dft, u_univ);
+	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
+	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_ggsw_dft, u_univ);
 
-	// Computes the external product of ct_glwe_tilde and ct_ggsw
+	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_external_product(module, res, ct_glwe_tilde, ct_ggsw);
+	ggsw_external_product(module, res, glwe_tilde, ggsw);
 	normalize_glwe(module, res, res);
 
 	// Computes the result phase = u*m + err
@@ -89,13 +89,10 @@ Test(ggsw_external_product, without_error)
 	biv_to_univ(params_glwe, um_univ, um);
 
 	//! Tests equality
-	for (uint64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++)
 		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
-		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
-		          um_univ[p]);
-
-		cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
-	}
+		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", 
+				  p, um_univ_computed[p], p, um_univ[p]);
 
 	free(m);
 	free(u_univ);
@@ -107,8 +104,8 @@ Test(ggsw_external_product, without_error)
 	free(um_univ_computed);
 
 	delete_glwe(res);
-	delete_glwe(ct_glwe_tilde);
-	delete_ggsw(ct_ggsw);
+	delete_glwe(glwe_tilde);
+	delete_ggsw(ggsw);
 
 	delete_ggsw_secret_key(sk_ggsw);
 	delete_glwe_secret_key_dft(sk_glwe_dft);
@@ -135,11 +132,11 @@ Test(ggsw_external_product_dft, without_error)
 	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module                 = new_module_info_p(NBASE);
 
-	GGSWCiphertextDFT* ct_ggsw_dft = new_ggsw_dft(params_ggsw);
-	GLWECiphertextDFT* ct_glwe_tilde_dft = new_glwe_dft(params_glwe_tilde);
+	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
+	GLWECiphertextDFT* glwe_tilde_dft = new_glwe_dft(params_glwe_tilde);
 	GLWECiphertextDFT* res_dft           = new_glwe_dft(params_glwe);
 
-	// Computes each ciphertext out of DFT space
+	// Computes each ciphertext out of the DFT domain
 	GLWECiphertext* res = new_glwe(params_glwe);
 
 	// Draws respectively uniformly the secret key in the DFT domain, a Zn[X] polynomial and a Zn[X,Y] polynomial
@@ -156,17 +153,17 @@ Test(ggsw_external_product_dft, without_error)
 	vec_znx_dft_p(module, m_dft, LBASE, m, LBASE, NBASE);
 
 	//! Computation with function
-	// Computes ct_glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
-	glwe_secret_masking_dft(module, ct_glwe_tilde_dft, sk_glwe_dft, m_dft);
+	// Computes glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
+	glwe_secret_masking_dft(module, glwe_tilde_dft, sk_glwe_dft, m_dft);
 
-	// Computes ct_ggsw, a bivGGSW(u) using the base-2Kappa
-	ggsw_secret_encrypt_dft(module, params_ggsw, ct_ggsw_dft, sk_ggsw_dft, u_univ);
+	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
+	ggsw_secret_encrypt_dft(module, params_ggsw, ggsw_dft, sk_ggsw_dft, u_univ);
 
-	// Computes the external product of ct_glwe_tilde and ct_ggsw
+	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_external_product_dft(module, res_dft, ct_glwe_tilde_dft, ct_ggsw_dft);
+	ggsw_external_product_dft(module, res_dft, glwe_tilde_dft, ggsw_dft);
 
-	// res out of DFT space
+	// res out of the DFT domain
 	vec_znx_idft_p(module, res->vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
 	normalize_glwe(module, res, res);
 
@@ -200,12 +197,10 @@ Test(ggsw_external_product_dft, without_error)
 	biv_to_univ(params_glwe, m_univ, m);
 
 	//! Tests equality
-	for (uint64_t p = 0; p < NBASE; p++) {
+	for (uint64_t p = 0; p < NBASE; p++)
 		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
-		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p,
-		          um_univ[p]);
-		cr_log_info("um_univ_computed[%ld] = %e um_univ[%ld] = %e", p, um_univ_computed[p], p, um_univ[p]);
-	}
+		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", 
+				  p, um_univ_computed[p], p, um_univ[p]);
 
 	free(m);
 	free(m_dft);
@@ -220,8 +215,8 @@ Test(ggsw_external_product_dft, without_error)
 
 	delete_glwe(res);
 	delete_glwe_dft(res_dft);
-	delete_glwe_dft(ct_glwe_tilde_dft);
-	delete_ggsw_dft(ct_ggsw_dft);
+	delete_glwe_dft(glwe_tilde_dft);
+	delete_ggsw_dft(ggsw_dft);
 
 	delete_ggsw_secret_key(sk_ggsw);
 	delete_glwe_secret_key_dft(sk_glwe_dft);

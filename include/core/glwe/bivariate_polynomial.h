@@ -15,14 +15,14 @@
  * @param params The GLWE parameters.
  * @return int64_t
  *
- * @note The number of coefficient is the same in and out DFT space.
+ * @note The number of coefficient is the same in and out of the DFT domain.
  */
 uint64_t poly_biv_coef_number(const GLWECtParams* params);
 
 /**
  * @brief Computes a random normal bivariate polynomial.
  *
- * @param module The module holding the degree N and FFT64.
+ * @param module Additionnal information for backend.
  * @param params The GLWE parameters.
  * @return PolyBiv*
  */
@@ -31,7 +31,7 @@ PolyBiv* new_normal_random_biv_poly(const MODULE* module, const GLWECtParams* pa
 /**
  * @brief Computes a random uniform bivariate polynomial.
  *
- * @param module The module holding the degree N and FFT64.
+ * @param module Additionnal information for backend.
  * @param params The GLWE parameters.
  * @param precision The maximum degree in Y of the polynomial.
  * @return PolyBiv*
@@ -68,7 +68,7 @@ uint64_t poly_biv_coef_number_dft(const GLWECtParams* params);
 /**
  * @brief Computes a random normal bivariate polynomial in the DFT domain.
  *
- * @param module The module holding the degree N and FFT64.
+ * @param module Additionnal information for backend.
  * @param params The GLWE parameters.
  * @return PolyBivDFT*
  */
@@ -77,7 +77,7 @@ PolyBivDFT* new_normal_random_biv_poly_dft(const MODULE* module, const GLWECtPar
 /**
  * @brief Computes a random uniform bivariate polynomial.
  *
- * @param module The module holding the degree N and FFT64.
+ * @param module Additionnal information for backend.
  * @param params The GLWE parameters.
  * @return PolyBiv*
  */
@@ -105,7 +105,7 @@ void add_biv_poly_dft(const GLWECtParams* params, PolyBivDFT* res_dft, int64_t r
  * @param params The GLWE parameters.
  * @return uint64_t
  *
- * @note The number of bytes needed to store a bivariate polynomial is the same in and out of DFT space.
+ * @note The number of bytes needed to store a bivariate polynomial is the same in and out of the DFT domain.
  */
 uint64_t poly_biv_bytes(const GLWECtParams* params);
 
@@ -117,7 +117,7 @@ uint64_t poly_biv_bytes(const GLWECtParams* params);
  * @param params
  * @return uint64_t
  *
- * @note The size of a bivariate polynomial is the same in and out of DFT space.
+ * @note The size of a bivariate polynomial is the same in and out of the DFT domain.
  */
 uint64_t poly_biv_size(const GLWECtParams* params);
 
@@ -127,7 +127,7 @@ uint64_t poly_biv_size(const GLWECtParams* params);
  * @param params The GLWE parameters.
  * @return uint64_t
  *
- * @note The number of bytes needed to store an univariate polynomial is the same in and out of DFT space.
+ * @note The number of bytes needed to store an univariate polynomial is the same in and out of the DFT domain.
  */
 uint64_t poly_univ_bytes(const GLWECtParams* params);
 

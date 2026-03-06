@@ -96,16 +96,10 @@ Test(univ_to_biv, one_test)
 	univ_to_biv(params_glwe, pol_biv, pol_univ);
 
 	for (uint64_t p = 0; p < NBASE; p++) {
-		cr_log_info("A %e X^%ld", pol_univ[p], p);
-		for (uint64_t i = 1; i <= LBASE; i++) cr_log_info("A(XY) %ld Y^%ld", pol_biv[(i - 1) * NBASE + p], i);
-	}
-
-	for (uint64_t p = 0; p < NBASE; p++) {
 		double acc = 0;
 		for (uint64_t i = 1; i <= LBASE; i++) {
 			acc += ldexp((double)pol_biv[(i - 1) * NBASE + p], -i * KAPPABASE);
 		}
-		cr_log_info("acc %lf pol %lf p %ld", acc, pol_univ[p], p);
 		cr_assert(epsilon_eq(dbl, acc - floor(acc) - pol_univ[p] + floor(pol_univ[p]), 0,
 		                     ldexp(1.0, -(LBASE - 1) * KAPPABASE)),
 		          "acc %lf pol %lf p %ld", acc - floor(acc), -pol_univ[p] + floor(pol_univ[p]), p);
@@ -127,29 +121,14 @@ Test(univ_to_biv, basic)
 	double* pol_univ     = malloc(poly_univ_bytes(params_glwe));
 	new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
 
-	int64_t mask = (1LL << KAPPABASE) - 1;
-	for (uint64_t p = 0; p < NBASE; p++) {
-		cr_log_info("A %e X^%ld", pol_univ[p], p);
-		for (uint64_t i = 1; i <= LBASE; i++) {
-			// cr_log_info("A(XY) %e Y^%ld", ldexp(pol_univ[p], i*kapPABASE), i) ;
-			// cr_log_info("A(XY) %ld Y^%ld", (int64_t) ldexp(pol_univ[p], i*kapPABASE) & mask, i) ;
-		}
-	}
-
 	PolyBiv* pol_biv = malloc(poly_biv_bytes(params_glwe));
 	univ_to_biv(params_glwe, pol_biv, pol_univ);
-
-	for (uint64_t p = 0; p < NBASE; p++) {
-		cr_log_info("A %e X^%ld", pol_univ[p], p);
-		for (uint64_t i = 1; i <= LBASE; i++) cr_log_info("A(XY) %ld Y^%ld", pol_biv[(i - 1) * NBASE + p], i);
-	}
 
 	for (uint64_t p = 0; p < NBASE; p++) {
 		double acc = 0;
 		for (uint64_t i = 1; i <= LBASE; i++) {
 			acc += ldexp((double)pol_biv[(i - 1) * NBASE + p], -i * KAPPABASE);
 		}
-		cr_log_info("acc %lf pol %lf p %ld", acc, pol_univ[p], p);
 		cr_assert(epsilon_eq(dbl, acc - floor(acc) - pol_univ[p] + floor(pol_univ[p]), 0,
 		                     ldexp(1.0, -(LBASE - 1) * KAPPABASE)),
 		          "acc %lf pol %lf p %ld", acc - floor(acc), -pol_univ[p] + floor(pol_univ[p]), p);
