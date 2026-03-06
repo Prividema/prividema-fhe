@@ -56,30 +56,6 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
                                  const PolyBiv* phase);
 
 /**
- * @brief Computes the base-2kappa decomposition of the univariate phase : -m * sk_j / 2^{kappa_tilde * i} + err, if j < k
-                                                                            m / 2^{kappa_tilde * i} + err       , if j = k
- *
- * @param module         Additionnal information for backend.
- * @param params_ggsw    The GGSW parameters.
- * @param result         The bivariate result phase.
- * @param phase_univ_RnX The phase in univariate space.
- * @param m_skj_univ     The product m * sk_j, for j < k.
- * @param m_skj_univ_dft The product m * sk_j in the DFT domain, for j < k.
- * @param sk_dft         The secret key in the DFT domain.
- * @param m_univ_dft     The univariate message in the DFT domain.
- * @param m_univ         The univariate message.
- * @param i              The i-th block of HalfGGSW = [GLWE(-m*sk_0 / 2^{kappa_tilde * i}), ... , GLWE(-m*sk_(k-1) / 2^{kappa_tilde * i}), GLWE(m / 2^{kappa_tilde * i})].
- * @param j              The index of the element of the secret key.
- * 
- * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
- */
-int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, PolyBiv* result, 
-					 PolyUnivRnX* phase_univ_RnX, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, 
-					 const GGSWSecretKeyDFT* sk_dft, const PolyUnivDFT* m_univ_dft, const PolyUniv* m_univ, 
-                     int64_t i, int64_t j);
-
-/**
  * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params.
  *
  * @param module      Additionnal information for backend.
@@ -144,30 +120,6 @@ int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams*
 int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, VecBivDFT* result_dft, const GGSWSecretKeyDFT* sk_dft,
                                      const PolyBivDFT* phase_dft);
 
-/**
- * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde^i} + err, if j < k
- *                                                                      m / 2^{kappa_tilde^i} + err, if j = k
- *
- * @param module         Additionnal information for backend.
- * @param params_ggsw    The GGSW parameters.
- * @param sk_dft         The secret key in the DFT domain.
- * @param m_univ         The input message.
- * @param m_univ_dft     The input message in the DFT domain.
- * @param phase_dft      The phase in the DFT domain.
- * @param phase          The phase.
- * @param phase_univ_RnX The phase in univariate space.
- * @param m_skj_univ     The product m * sk_j, for j < k.
- * @param m_skj_univ_dft The product m * sk_j in the DFT domain, for j < k.
- * @param i              The i-th block of HalfGGSW = [GLWE(-m*sk_0 / 2^{kappa_tilde * i}), ... , GLWE(-m*sk_(k-1) / 2^{kappa_tilde * i}), GLWE(m / 2^{kappa_tilde * i})].
- * @param j              The index of the element of the secret key.
- * 
- * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
- */
-int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, PolyBivDFT* result_dft, 
-						 PolyBiv* phase, PolyUnivRnX* phase_univ_RnX, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, 
-						 const GGSWSecretKeyDFT* sk_dft, const PolyUnivDFT* m_univ_dft, const PolyUniv* m_univ,
-						 int64_t i, int64_t j);
 
 /**
  * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params in the DFT domain.
