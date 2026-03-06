@@ -21,7 +21,7 @@ int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* re
 	// Draw a random error in the DFT domain
 	err = new_biv_poly(params_glwe);
     CHECK_ALLOC(err, "new_biv_poly failed in add_error");
-	CHECK_CALL(normal_random_biv_poly(module, params_glwe, err), "normal_random_biv_poly failed in add_error");
+	CHECK_CALL(normal_random_biv_poly(params_glwe, err), "normal_random_biv_poly failed in add_error");
 
 	// Add the error in the DFT domain
 	add_biv_poly(params_glwe, result, params_glwe->N, phase, params_glwe->N, err, params_glwe->N);
@@ -31,7 +31,7 @@ int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* re
 cleanup:
 	free(err);
 
-	return 0;
+	return status;
 }
 
 int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result,

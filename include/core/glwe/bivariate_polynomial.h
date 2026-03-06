@@ -25,27 +25,33 @@ PolyBiv* new_biv_poly(const GLWECtParams* params_glwe);
 
 /**
  * @brief Computes a random normal bivariate polynomial.
+ * 
+ * By "random normal" it is meant that the coefficients of the polynomial before 
+ * the base-2k decomposition have been sampled from a normal distribution according
+ * to the parameters
  *
- * @param module Additionnal information for backend.
  * @param params_glwe The bivGLWE parameters.
  * @param result The result bivariate polynomial.
  * 
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int normal_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result);
+int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result);
 
 /**
  * @brief Computes a random uniform bivariate polynomial.
  *
- * @param module Additionnal information for backend.
+ * By "random uniform" it is meant that the coefficients of the polynomial before 
+ * the base-2k decomposition have been sampled from a  distribution according
+ * to the parameters
+ *
  * @param params_glwe The bivGLWE parameters.
  * @param precision The maximum degree in Y of the polynomial.
  * 
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int uniform_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, int64_t precision);
+int uniform_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result, int64_t precision);
 
 /**
  * @brief Adds two bivariate polynomial and puts it in res.

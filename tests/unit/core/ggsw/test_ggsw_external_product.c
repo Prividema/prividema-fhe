@@ -83,7 +83,7 @@ Test(ggsw_external_product, without_error)
 
 	// Draws uniformly both messages
 	uniform_random_pol_znx(u_univ, NBASE, KAPPABASE);
-	uniform_random_biv_poly(module, params_glwe_tilde, m, 1);
+	uniform_random_biv_poly(params_glwe_tilde, m, 1);
 
 	//! Computation with function
 	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
@@ -201,7 +201,7 @@ Test(ggsw_external_product_dft, without_error)
 
 	// Draws uniformly both messages
 	uniform_random_pol_znx(u_univ, NBASE, KAPPABASE);
-	uniform_random_biv_poly(module, params_glwe_tilde, m, 1);
+	uniform_random_biv_poly(params_glwe_tilde, m, 1);
 
 	// Computes m in the DFT space
 	vec_znx_dft_p(module, m_dft, 1, m, 1, NBASE);

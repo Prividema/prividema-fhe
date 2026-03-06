@@ -20,11 +20,10 @@ PolyBiv* new_biv_poly(const GLWECtParams* params_glwe)
 {
 	PolyBiv* pol = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	if (log_is_null(pol, "pol's malloc failed in new_biv_poly") < 0) return 0;
-
 	return pol;
 }
 
-int normal_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result)
+int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result)
 {
 	int status = -1;
 
@@ -72,7 +71,7 @@ cleanup:
 	return status;
 }
 
-int uniform_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, int64_t precision)
+int uniform_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result, int64_t precision)
 {
 	int status = -1;
 
@@ -123,7 +122,7 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params_
 	// Base-2Kappa normalized bivariate polynomial
 	rd_pol = malloc(poly_biv_bytes(params_glwe));
 	CHECK_ALLOC(rd_pol, "rd_pol malloc failed in normal_random_biv_poly_dft");
-	CHECK_CALL(normal_random_biv_poly(module, params_glwe, rd_pol),
+	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol),
 	           "normal_random_biv_poly failed in normal_biv_poly_dft.");
 
 	// Then compute in the DFT domain
@@ -146,7 +145,7 @@ int uniform_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params
 	PolyBiv* pol = NULL;
 
 	// Uniformly drawn bivariate polynomial
-	CHECK_CALL(uniform_random_biv_poly(module, params_glwe, pol, precision),
+	CHECK_CALL(uniform_random_biv_poly(params_glwe, pol, precision),
 	           "pol's malloc failed in uniform_random_biv_poly_dft.");
 
 	// Computes bivariate polynomial in the DFT domain

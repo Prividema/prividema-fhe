@@ -258,7 +258,7 @@ Test(normal_random_biv_poly, basic)
 	PolyBiv* pol = malloc(poly_biv_bytes(params_glwe));;
 	
 	// Draw normaly pol in Zn[X,Y]
-	int status = normal_random_biv_poly(module, params_glwe, pol);
+	int status = normal_random_biv_poly(params_glwe, pol);
 
 	// Asserts normal_random_biv_poly passed
 	cr_assert(eq(int, status, 0, "normal_random_biv failed."));
@@ -283,7 +283,7 @@ Test(normal_random_biv_poly, is_it_working)
 	PolyBiv* pol = malloc(poly_biv_bytes(params_glwe));;
 	
 	// Draw normaly pol in Zn[X,Y]
-	normal_random_biv_poly(module, params_glwe, pol);
+	normal_random_biv_poly(params_glwe, pol);
 
 	// Asserts pol is normalized. 
 	// I.e. that each coefficient is between -2^(KAPPABASE-1) and 2^(KAPPABASE-1)
@@ -317,8 +317,8 @@ Test(add_biv_poly, basic)
 	PolyBiv* sum_computed  = malloc(poly_biv_bytes(params_glwe));
 
 	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]
-	normal_random_biv_poly(module, params_glwe, pol_lhs);
-	normal_random_biv_poly(module, params_glwe, pol_rhs);
+	normal_random_biv_poly(params_glwe, pol_lhs);
+	normal_random_biv_poly(params_glwe, pol_rhs);
 
 	// Computes pol_lhs + pol_rhs
 	add_biv_poly(params_glwe, sum_computed, params_glwe->N, pol_lhs, params_glwe->N, pol_rhs, params_glwe->N);

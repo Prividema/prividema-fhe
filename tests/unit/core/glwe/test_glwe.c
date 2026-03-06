@@ -50,10 +50,10 @@ Test(glwe_secret_masking, small_error)
 	uniform_glwe_secret_key_dft(module, sk_dft, 2);
 
 	// The input message uniformly drawn in Zn[X,Y]
-	uniform_random_biv_poly(module, params_glwe, m, LBASE / 2);
+	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
 
 	// The input error normaly drawn in Zn[X,Y]
-	normal_random_biv_poly(module, params_glwe, err);
+	normal_random_biv_poly(params_glwe, err);
 
 	//! Computations with functions
 	// Computes the message in Tn[X] with the base-2Kappa
@@ -141,7 +141,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
 
 	// Draws normaly the error
-	normal_random_biv_poly(module, params_glwe, err);
+	normal_random_biv_poly(params_glwe, err);
 
 	//! Computation with functions
 	// Computes m_univ_RnX bivariate form
@@ -231,10 +231,10 @@ Test(glwe_secret_masking_dft, small_error)
 	uniform_glwe_secret_key_dft(module, sk_dft, 2);
 
 	// The input message uniformly drawn in Zn[X,Y]
-	uniform_random_biv_poly(module, params_glwe, m, LBASE / 2);
+	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
 
 	// The input error normaly drawn in Zn[X,Y]
-	normal_random_biv_poly(module, params_glwe, err);
+	normal_random_biv_poly(params_glwe, err);
 
 	//! Computes with functions
 	// Computes the message in Tn[X] with the base-2Kappa
@@ -328,7 +328,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
 
 	// Draws normaly the error
-	normal_random_biv_poly(module, params_glwe, err);
+	normal_random_biv_poly(params_glwe, err);
 
 	//! Computation with functions
 	// Computes m_univ_RnX bivariate form
