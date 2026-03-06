@@ -43,25 +43,12 @@ int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result)
 		CHECK_CALL(rand_normal(rd_pol_univ + p, 0.0, params_glwe->sigma),
 		           "rand_normal failed in normal_random_biv_poly.");
 
-	// For each, (p,i) in [0,N-1]x[0,l-1], Pbiv_p_i = centered(floor(P_p * (2^kappa)^i))
-	// Where centered(_) is in [-2^(kappa-1) ; 2^(kappa-1) - 1]
-	int64_t mask = (1LL << kappa) - 1;
-	for (uint64_t p = 0; p < N; p++)
-	{
-		// For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to P_p
-		for (uint64_t i = 1; i <= l; i++) rd_pol_univ[p] += ldexp(1.0, kappa - 1 - kappa * i);
+  
+  // TODO: this performs an unnecessary copy
+  // For now this is better than duplicating the code,
+  // but we might want to optimise later on
+  univ_to_biv(params_glwe, result, rd_pol_univ);
 
-		if (rd_pol_univ[p] >= 0)
-			for (uint64_t i = 1; i <= l; i++)
-				result[(i - 1) * N + p] = (((int64_t)ldexp(rd_pol_univ[p], i * kappa)) & mask) - (1LL << (kappa - 1));
-
-		else
-		{
-			rd_pol_univ[p] -= floor(rd_pol_univ[p]);
-			for (uint64_t i = 1; i <= l; i++)
-				result[(i - 1) * N + p] = (((int64_t)ldexp(rd_pol_univ[p], i * kappa)) & mask) - (1LL << (kappa - 1));
-		}
-	}
 
 	status = 0;
 
