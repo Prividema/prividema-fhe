@@ -11,20 +11,20 @@
 
 //! bivGGSW PART (begin)
 
-int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const PolyBiv* phase)
+int add_bivariate_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const PolyBiv* pol)
 {
 	int status = -1;
 
 	// Variables 
 	PolyBiv* err = NULL;
 
-	// Draw a random error in the DFT domain
+	// Draw a random error
 	err = new_biv_poly(params_glwe);
     CHECK_ALLOC(err, "new_biv_poly failed in add_error");
 	CHECK_CALL(normal_random_biv_poly(params_glwe, err), "normal_random_biv_poly failed in add_error");
 
 	// Add the error in the DFT domain
-	add_biv_poly(params_glwe, result, params_glwe->N, phase, params_glwe->N, err, params_glwe->N);
+	add_biv_poly(params_glwe, result, params_glwe->N, pol, params_glwe->N, err, params_glwe->N);
 
 	status = 0;
 
@@ -118,6 +118,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 	if (uniform_random_vec(k * N, result, l, (k + 1) * N, kappa) < 0) return -1;
 
 	// acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
+	// In other words, acc is <A, SK>
 	acc = calloc(N * l, sizeof(double));
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_masking_ggsw_lib");
 
@@ -147,13 +148,13 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 		for (uint64_t p = 0; p < N * l; p++) acc[p] += as_j[p];
 	}
 
-	// Add the phase to acc
+	// Add the message with noise to acc, so acc now becomes B before normalization
 	for (size_t i = 0; i < N * l; ++i) acc[i] += phase[i];
 
-	// The pointer to limb_0(b)
+	// The pointer to the last row of the ciphertext vector (B)
 	PolyBiv* b_0 = result + k * N;
 
-	// For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
+	// Normalize acc (B) and put it in the result variable
 	CHECK_CALL(vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k + 1) * N, acc, l, N),
 	           "vec_znx_normalize_base2k_p failed in glwe_secret_masking_ggsw_lib");
 
@@ -199,8 +200,8 @@ int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, Poly
 		// Compute the base-2^kappa decomposition of : -m * sk_j / 2^{kappa_tilde * i}
 		CHECK_CALL(univ_to_biv(params_glwe, result, phase_univ_RnX), "univ_to_biv failed in compute_phase_ij");
 
-		// Computes the phase Dec_Kappa(-m * sk_j / 2^{kappa_tilde * i}) + err
-		CHECK_CALL(add_error(module, params_glwe, result, result), "add_error failed in compute_phase_ij");
+		// Computes the phase Dec_Kappa(-m * sk_j / 2^{kappa_tilde*i}) + err
+		CHECK_CALL(add_bivariate_error(module, params_glwe, result, result), "add_error failed in compute_phase_ij");
 	}
 	else
 	{
@@ -210,8 +211,8 @@ int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, Poly
 		// Compute the base-2^kappa decomposition of : m / 2^{kappa_tilde * i}
 		CHECK_CALL(univ_to_biv(params_glwe, result, phase_univ_RnX) < 0, "univ_to_biv failed in compute_phase_ij");
 
-		// Computes the phase Dec_Kappa(m / 2^{kappa_tilde * i}) + err
-		CHECK_CALL(add_error(module, params_glwe, result, result), "add_error failed in compute_phase_ij");
+		// Computes the phase Dec_Kappa(m / 2^{kappa_tilde*i}) + err
+		CHECK_CALL(add_bivariate_error(module, params_glwe, result, result), "add_error failed in compute_phase_ij");
 	}
 
 	status = 0;
@@ -497,8 +498,8 @@ int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, 
 		// Compute the base-2^kappa decomposition of : -m * sk_j / 2^{kappa_tilde * i}
 		CHECK_CALL(univ_to_biv(params_glwe, phase, phase_univ_RnX), "univ_to_biv failed in compute_phase_ij_dft");
 
-		// Computes the phase Dec_Kappa(-m * sk_j / 2^{kappa_tilde * i}) + err
-		CHECK_CALL(add_error(module, params_glwe, phase, phase), "add_error failed in compute_phase_ij_dft");
+		// Computes the phase Dec_Kappa(-m * sk_j / 2^{kappa_tilde*i}) + err
+		CHECK_CALL(add_bivariate_error(module, params_glwe, phase, phase), "add_error failed in compute_phase_ij_dft");
 
 		// Computes the phase in the DFT domain
 		vec_znx_dft_p(module, result_dft, poly_biv_size(params_glwe), phase, poly_biv_size(params_glwe), N);
@@ -513,7 +514,7 @@ int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, 
 		CHECK_CALL(univ_to_biv(params_glwe, phase, phase_univ_RnX), "univ_to_biv failed in compute_phase_ij_dft");
 
 		// Computes the phase Dec_Kappa(m / 2^{kappa_tilde*}) + err
-		CHECK_CALL(add_error(module, params_glwe, phase, phase), "add_error failed in compute_phase_ij_dft");
+		CHECK_CALL(add_bivariate_error(module, params_glwe, phase, phase), "add_error failed in compute_phase_ij_dft");
 
 		vec_znx_dft_p(module, result_dft, poly_biv_size(params_glwe), phase, poly_biv_size(params_glwe), N);
 	}

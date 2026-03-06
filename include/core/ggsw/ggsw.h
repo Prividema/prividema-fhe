@@ -13,17 +13,18 @@
 // =============================================
 
 /**
- * @brief Adds a bivariate error to the bivariate phase.
+ * TODO: move to GLWE code
+ * @brief Adds a bivariate error to a bivariate polynomial.
  *
  * @param module      Additionnal information for backend.
  * @param params_glwe The GLWE parameters.
  * @param res         The result bivariate phase.
- * @param phase       The input phase.
+ * @param pol         The input polynomial.
  * 
  * @retval • `-1` if an error occurs.
  * @retval • `0` otherwise otherwise.
  */
-int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const PolyBiv* phase);
+int add_bivariate_error(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const PolyBiv* pol);
 
 /**
  * @brief Demasks the phase (message + noise).
@@ -42,21 +43,11 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
 /**
  * @brief Masks the phase (message + noise) and puts it in result.
  *
-<<<<<<< HEAD
  * @param module      Additionnal information for backend.
  * @param params_glwe The GLWE parameters.
  * @param result      The result bivariate ciphertext.
  * @param sk_dft      The secret key in the DFT domain.
  * @param phase       message + noise.
-=======
- * Alternatively, this is GLWEGadgetEncrypt in the ISO standard
- *
- * @param module The backend module object
- * @param params The GLWE parameters.
- * @param result The result bivariate ciphertext.
- * @param sk_dft The GGSW secret key in the DFT domain.
- * @param phase  A message + noise.
->>>>>>> 1f25e88 (Improved documentation for some functions)
  *
  * @retval • `-1` if an error occurs.
  * @retval • `0` otherwise otherwise.
