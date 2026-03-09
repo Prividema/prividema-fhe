@@ -45,19 +45,16 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
 	uint64_t l = poly_biv_size(params_glwe);
 
 	// Variables
-	PolyBiv* acc         = NULL;
-	PolyBivDFT* as_j_dft = NULL;
-	PolyBiv* as_j        = NULL;
+	PolyBiv* acc         = NULL;  // -Sum_j{0,k-1}[sk_j * a_j]
+	PolyBivDFT* as_j_dft = NULL;  // DFT(sk_j * a_j)
+	PolyBiv* as_j        = NULL;  // sk_j * a_j
 
-	// Point to -Sum_j{0,k-1}[sk_j * a_j]
 	acc = calloc(N * l, sizeof(int64_t));
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_demasking_ggsw_lib");
 
-	// Point to DFT(sk_j * a_j)
 	as_j_dft = calloc(2 * poly_biv_coef_number_dft(params_glwe), sizeof(double));
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_demasking_ggsw_lib");
 
-	// Point to sk_j * a_j
 	as_j = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	CHECK_ALLOC(as_j, "as_j's calloc failed in glwe_secret_demasking_ggsw_lib");
 
@@ -71,7 +68,7 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
 		// Computes DFT(sk_j * a_j)
 		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
 
-		// Computes sk_j * a_j
+		// Computes sk_j * a_j by inverting the DFT
 		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l),
 		           "vec_znx_idft_p failed in glwe_secret_demasking_ggsw_lib");
 
@@ -82,8 +79,10 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
 	// Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
 	const PolyBiv* b = glwe_vec + k * N;
 
-	add_biv_poly(params_glwe, acc, N, b, (k + 1) * N, acc, N);
+	// acc += b <=> acc = b - sum(sk_j*a_j)
+	add_biv_poly(params_glwe, acc, N, acc, N, b, (k + 1) * N);
 
+	//normalize acc into result
 	CHECK_CALL(vec_znx_normalize_base2k_p(module, params_glwe->kappa, result, l, N, acc, l, N), 
 		"vec_znx_normalize_base2k_p failed in glwe_secret_demasking_ggsw_lib");
 
@@ -111,7 +110,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 
 	// Variables
 	PolyBiv* acc         = NULL;
-	PolyBivDFT* as_j_dft = NULL;
+	PolyBivDFT* as_j_dft = NULL;  // DFT(sk_j) * DFT(a_j)
 	PolyBiv* as_j        = NULL;
 
 	// Draws uniformly in Zn[X,Y] the ajs'
@@ -122,7 +121,6 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 	acc = calloc(N * l, sizeof(double));
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_masking_ggsw_lib");
 
-	// Allocate the variable for DFT(sk_j) * DFT(a_j)
 	as_j_dft = malloc(poly_biv_bytes(params_glwe));
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking_ggsw_lib");
 
