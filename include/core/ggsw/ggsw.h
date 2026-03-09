@@ -46,8 +46,8 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
                                  const PolyBiv* phase);
 
 /**
- * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde*(i+1)} + err, if j < k
-                                                                        m / 2^{kappa_tilde*(i+1)} + err, if j = k
+ * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde^i} + err, if j < k
+                                                                        m / 2^{kappa_tilde^i} + err, if j = k
  *
  * @param module The module stocking the degree N.
  * @param params_ggsw The GGSW parameters.
@@ -152,8 +152,8 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
                                      const PolyBivDFT* phase_dft);
 
 /**
- * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde*(i+1)} + err, if j < k
- *                                                                      m / 2^{kappa_tilde*(i+1)} + err, if j = k
+ * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde^i} + err, if j < k
+ *                                                                      m / 2^{kappa_tilde^i} + err, if j = k
  *
  * @param module Additionnal information for backend.
  * @param params_ggsw
