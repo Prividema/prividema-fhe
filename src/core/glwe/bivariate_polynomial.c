@@ -43,12 +43,7 @@ int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result)
 		CHECK_CALL(rand_normal(rd_pol_univ + p, 0.0, params_glwe->sigma),
 		           "rand_normal failed in normal_random_biv_poly.");
 
-  
-  // TODO: this performs an unnecessary copy
-  // For now this is better than duplicating the code,
-  // but we might want to optimise later on
   univ_to_biv(params_glwe, result, rd_pol_univ);
-
 
 	status = 0;
 
@@ -182,9 +177,6 @@ int univ_to_biv(const GLWECtParams* params_glwe, PolyBiv* res, const double* pol
 {
 	int status = -1;
 
-	// Variables
-	double* tmp_pol_univ = NULL;
-
 	// bivGLWE parameters
 	uint64_t N     = params_glwe->N;
 	uint64_t kappa = params_glwe->kappa;
@@ -194,26 +186,23 @@ int univ_to_biv(const GLWECtParams* params_glwe, PolyBiv* res, const double* pol
 	// 1) - 1]
 	int64_t mask = (1LL << kappa) - 1;
 
-	tmp_pol_univ = malloc(poly_biv_bytes(params_glwe));
-	CHECK_ALLOC(tmp_pol_univ, "tmp_pol_univ's malloc failed in univ_to_biv.");
-
-	for (uint64_t p = 0; p < N; p++)
-	{
+	for (uint64_t p = 0; p < N; p++) {
 		// For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to pol_univ[p]
-		tmp_pol_univ[p] = pol_univ[p];
-		for (uint64_t i = 1; i <= l; i++) tmp_pol_univ[p] += ldexp(1.0, kappa - 1 - kappa * i);
+		double tmp = pol_univ[p];
+		for (uint64_t i = 1; i <= l; i++) {
+			tmp += ldexp(1.0, kappa - 1 - kappa * i);
+		}
 
-		if (tmp_pol_univ[p] < 0) tmp_pol_univ[p] -= floor(tmp_pol_univ[p]);
+		if (tmp < 0) tmp -= floor(tmp);
 		for (uint64_t i = 1; i <= l; i++)
 		{
-			res[(i - 1) * N + p] = (((int64_t)ldexp(tmp_pol_univ[p], i * kappa)) & mask) - (1LL << (kappa - 1));
+			res[(i - 1) * N + p] = (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
 		}
 	}
 
 	status = 0;
 
 cleanup:
-	free(tmp_pol_univ);
 
 	return status;
 }
