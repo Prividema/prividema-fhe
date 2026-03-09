@@ -73,9 +73,9 @@ cleanup:
 void add_biv_poly(const GLWECtParams* params_glwe, PolyBiv* res, int64_t res_sl, const PolyBiv* a, int64_t a_sl,
                   const PolyBiv* b, int64_t b_sl)
 {
-	for (uint64_t i = 1; i <= poly_biv_size(params_glwe); i++)
+	for (uint64_t i = 0; i < poly_biv_size(params_glwe); i++)
 		for (uint64_t p = 0; p < params_glwe->N; p++)
-			res[p + (i - 1) * res_sl] = a[p + (i - 1) * a_sl] + b[p + (i - 1) * b_sl];
+			res[p + i  * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
 }
 
 //! BIV POLY IN DFT PART (begin)
@@ -144,9 +144,9 @@ cleanup:
 void add_biv_poly_dft(const GLWECtParams* params_glwe, PolyBivDFT* res, int64_t res_sl, const PolyBivDFT* a,
                       int64_t a_sl, const PolyBivDFT* b, int64_t b_sl)
 {
-	for (uint64_t i = 1; i <= poly_biv_size(params_glwe); i++)
+	for (uint64_t i = 0; i < poly_biv_size(params_glwe); i++)
 		for (uint64_t p = 0; p < params_glwe->N; p++)
-			res[p + (i - 1) * res_sl] = a[p + (i - 1) * a_sl] + b[p + (i - 1) * b_sl];
+			res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
 }
 
 //! COMMON PART (begin)
@@ -169,6 +169,7 @@ void biv_to_univ(const GLWECtParams* params_glwe, double* res_univ, const PolyBi
 	uint64_t l     = poly_biv_size(params_glwe);
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
+  // TODO: slow polynomial evaulation,
 	for (uint64_t i = 1; i <= l; i++)
 		for (uint64_t p = 0; p < N; p++) res_univ[p] += ldexp((double)pol_biv[(i - 1) * N + p], -i * kappa);
 }

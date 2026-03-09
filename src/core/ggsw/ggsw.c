@@ -1,5 +1,6 @@
 #include "ggsw.h"
 
+#include <stdint.h>
 #include <string.h>
 
 #include "glwe_ciphertext.h"
