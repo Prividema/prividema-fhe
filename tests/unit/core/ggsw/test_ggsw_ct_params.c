@@ -20,7 +20,7 @@
 //! GGSW Part (begin)
 
 // Test normalize_ggsw
-Test(normalize_ggsw, basic)
+Test(new_ggsw_ct_params, basic)
 {
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);

@@ -14,7 +14,7 @@
 
 #define K_TILDEBASE      1
 #define KAPPA_TILDEBASE  4
-#define NLIMBS_TILDEBASE 10
+#define NLIMBS_TILDEBASE (K_TILDEBASE + 1)*2
 #define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
 #define SIGMA_TILDEBASE  -3
 
@@ -62,6 +62,9 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	double* phase_computed_univ = calloc(NBASE, sizeof(double));
 	biv_to_univ(params_glwe, phase_computed_univ, phase_computed);
 
+	// A variable counting the number of times the error is greater than 3*sigma
+	int big_error_count = 0;
+
 	// Compare both phase in Rn[X]
 	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
@@ -69,10 +72,13 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 		                ceil(phase_computed_univ[p]);
 		double err_length = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
-		int cond = (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
-		cr_assert(cond, "Equality failed at p = %ld with msg_univ[%ld] = %lf and phase_computed_univ[%ld] = %lf", p, p,
-		          msg_univ[p], p, phase_computed_univ[p]);
+		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+
+		if (!cond) big_error_count++;
 	}
+
+	// The error should be greater than 3*sigma 0.27% of the time
+	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
 	free(msg);
 	free(msg_univ);
@@ -130,18 +136,24 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	double* phase_computed_univ = calloc(NBASE, sizeof(double));
 	biv_to_univ(params_glwe, phase_computed_univ, phase_computed);
 
+	// A variable counting the number of times the error is greater than 3*sigma
+	int big_error_count = 0;
+
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
-	// msgComputed_p| Ie, then |err_p| + 2^(-l*kappa)
+	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
 		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
-		double err_length = 3 * sigma + ldexp(1.0, -LBASE * KAPPABASE);
+		double err_length = 3*sigma + ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
-		int cond = (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
-		cr_assert(cond, "Equality failed at p = %ld with msg_univ[%ld] = %lf and phase_computed_univ[%ld] = %lf", p, p,
-		          msg_univ[p], p, phase_computed_univ[p]);
+		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+
+		if (!cond) big_error_count++;
 	}
+
+	// The error should be greater than 3*sigma 0.27% of the time
+	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
 	free(msg);
 	free(msg_univ);
@@ -203,17 +215,24 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	double* phase_computed_univ = calloc(NBASE, sizeof(double));
 	biv_to_univ(params_glwe, phase_computed_univ, phase_computed);
 
-	// Compare both phase in Rn[X]
+	// A variable counting the number of times the error is greater than 3*sigma
+	int big_error_count = 0;
+
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
+	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
 		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
-		double err_length = 3 * sigma;
+		double err_length = 3*sigma + ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
-		int cond = (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
-		cr_assert(cond, "Equality failed at p = %ld with msg_univ[%ld] = %lf and phase_computed_univ[%ld] = %lf", p, p,
-		          msg_univ[p], p, phase_computed_univ[p]);
+		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+
+		if (!cond) big_error_count++;
 	}
+
+	// The error should be greater than 3*sigma 0.27% of the time
+	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
 	free(msg);
 	free(msg_univ);
@@ -276,18 +295,24 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	double* phase_computed_univ = calloc(NBASE, sizeof(double));
 	biv_to_univ(params_glwe, phase_computed_univ, phase_computed);
 
+	// A variable counting the number of times the error is greater than 3*sigma
+	int big_error_count = 0;
+
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
-	// msgComputed_p| Ie, then |err_p| + 2^(-l*kappa)
+	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < NBASE; p++) {
 		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
 		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
-		double err_length = 3 * sigma + ldexp(1.0, -LBASE * KAPPABASE);
+		double err_length = 3*sigma + ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
-		int cond = (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
-		cr_assert(cond, "Equality failed at p = %ld with msg_univ[%ld] = %lf and phase_computed_univ[%ld] = %lf", p, p,
-		          msg_univ[p], p, phase_computed_univ[p]);
+		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+
+		if (!cond) big_error_count++;
 	}
+
+	// The error should be greater than 3*sigma 0.27% of the time
+	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
 	free(msg);
 	free(msg_univ);

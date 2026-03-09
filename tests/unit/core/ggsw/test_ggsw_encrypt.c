@@ -273,7 +273,7 @@ Test(ggsw_secret_encrypt_dft, works)
 			                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
 
 			int cond =
-			    (diff_1 <= err_length || diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
+			    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
 
 			cr_assert(cond,
 			          "Equality failed at p = %ld with : \nmsg[%ld] / (2^kappa_tilde)^%ld = %lf and "
