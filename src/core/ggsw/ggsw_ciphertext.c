@@ -180,7 +180,7 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
 	free(ggsw_dft);
 }
 
-VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
+VecBivDFT* ggsw_retreive_bivglwe_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;

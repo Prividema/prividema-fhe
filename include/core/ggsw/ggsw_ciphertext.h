@@ -184,7 +184,7 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
  *
  * @return A Pointer to the associated Bivariate GLWE in the DFT space.	
  */
-VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i);
+VecBivDFT* ggsw_retreive_bivglwe_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i);
 
 /**
  * @brief Normalizes a GGSW ciphertext in the DFT space.

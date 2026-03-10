@@ -257,7 +257,7 @@ Test(ggsw_secret_encrypt_dft, works)
 			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
 			
 			// The pointer to DFT(bivGLWE(-m * sk_j / 2^{kappa_tilde * i}))
-			memcpy(glwe_vec_computed_dft, ggsw_Sj_Yti_dft(params_ggsw, ggsw_dft->mat, j, i), glwe_bytes(params_glwe));
+			memcpy(glwe_vec_computed_dft, ggsw_retreive_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
 			glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed_dft);

@@ -373,7 +373,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
-			VecBivDFT* ct_mat_ij = ggsw_Sj_Yti_dft(params_ggsw, ggsw_dft->mat, j, i);
+			VecBivDFT* ct_mat_ij = ggsw_retreive_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i);
 
 			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 			ct_mat_ij[0] = 0.1;

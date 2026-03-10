@@ -448,39 +448,25 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
 	PolyUnivDFT* m_skj_univ_dft = NULL; // DFT(msg * sk_j)
 	PolyUniv* m_skj_univ = NULL;        // -m*sk_j
 
-	double* msk_univ_RnX = NULL;
-	PolyBiv* glwe_biv_msg = NULL; // Temp space for -m * sk_j / 2^{...}
-	PolyBivDFT* glwe_biv_msg_dft = NULL;
+	double* msk_univ_RnX = NULL;  // Temp space for -m * sk_j / 2^{...} (as univariate)
+	PolyBiv* glwe_biv_msg = NULL; // Temp space for -m * sk_j / 2^{...} (as bivariate)
+	PolyBivDFT* glwe_biv_msg_dft = NULL; // We'll store DFT(-m * sk_j / 2^{kappa_tilde*i})
 
-
-	// Point to DFT(msg)
 	m_univ_dft = malloc(poly_univ_bytes(params_glwe));
 	CHECK_ALLOC(m_univ_dft, "m_univ_dft's malloc failed");
-	
-	// Computes DFT(m)
-	vec_znx_dft_p(module, m_univ_dft, 1, m_univ, 1, N);
-
-	// Point to DFT(m * sk_j)
 	m_skj_univ_dft = malloc(poly_univ_bytes(params_glwe));
 	CHECK_ALLOC(m_skj_univ_dft, "m_skj_univ_dft's malloc failed");
-
-	// Point to -m * sk_j
 	m_skj_univ = malloc(poly_univ_bytes(params_glwe));
 	CHECK_ALLOC(m_skj_univ, "m_skj_univ's alloc failed");
-
-	// Point to (in univariate space) : -m * sk_j / 2^{kappa_tilde*i}, if j < k
-	//                                            m / 2^{kappa_tilde*i}, if j = k
 	msk_univ_RnX = malloc(poly_univ_bytes(params_glwe));
 	CHECK_ALLOC(msk_univ_RnX, "m_skj_univ's alloc failed");
-
-	// Point to (in bivariate space) : Dec_Kappa(-m * sk_j / 2^{kappa_tilde*i}) + err, if j < k
-	//                                           Dec_Kappa(m / 2^{kappa_tilde*i}) + err, if j = k
 	glwe_biv_msg = malloc(poly_biv_bytes(params_glwe));
 	CHECK_ALLOC(glwe_biv_msg, "phase's malloc failed");
-
-	// We'll store DFT(-m * sk_j / 2^{kappa_tilde*i})
 	glwe_biv_msg_dft = malloc(poly_biv_bytes(params_glwe));
 	CHECK_ALLOC(glwe_biv_msg_dft, "phase_dft's malloc failed");
+
+	// Computes DFT(m)
+	vec_znx_dft_p(module, m_univ_dft, 1, m_univ, 1, N);
 
 	for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
 	{
@@ -516,7 +502,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
       vec_znx_dft_p(module, glwe_biv_msg_dft, poly_biv_size(params_glwe), glwe_biv_msg, poly_biv_size(params_glwe), N);
 
       // Result destination
-      VecBivDFT* glwe_vec_dft = ggsw_Sj_Yti_dft(params_ggsw, result_dft->mat, j, i);
+      VecBivDFT* glwe_vec_dft = ggsw_retreive_bivglwe_dft(params_ggsw, result_dft->mat, j, i);
 
       // Finally, mask/encrypt the above result to get a bivGLWE
       CHECK_CALL(glwe_secret_masking_ggsw_lib_dft(module, params_glwe, glwe_vec_dft, sk_dft, glwe_biv_msg_dft),
