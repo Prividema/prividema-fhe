@@ -35,7 +35,7 @@ int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` otherwise otherwise.
  */
-int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, GLWESecretKeyDFT* sk_dft, PolyBiv* phase);
+int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft, const PolyBiv* phase);
 
 /**
  * @brief Computes -Sum_j{0,k-1}[sk_j * a_j]
@@ -59,7 +59,7 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` otherwise otherwise.
  */
-int glwe_secret_demasking(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertext* glwe);
+int glwe_secret_demasking(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const GLWECiphertext* glwe);
 
 //! bivGLWE IN DFT PART (begin)
 
@@ -73,7 +73,7 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* result, GLWESecretKeyDF
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` otherwise otherwise.
  */
-int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft, GLWESecretKeyDFT* sk_dft, PolyBivDFT* phase_dft);
+int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWESecretKeyDFT* sk_dft, const PolyBivDFT* phase_dft);
 
 /**
  * @brief Demasks the bivariate phase (message + noise) and puts it in result.
@@ -85,6 +85,6 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` otherwise otherwise.
  */
-int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertextDFT* ct);
+int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const GLWECiphertextDFT* glwe_dft);
 
 #endif  // bivGLWE_H
