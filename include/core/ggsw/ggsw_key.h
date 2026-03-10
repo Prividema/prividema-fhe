@@ -10,20 +10,9 @@
 #include "ggsw_ciphertext.h"
 #include "glwe_key.h"
 
-typedef struct ggsw_secret_key
-{
-	uint64_t N;
-	uint64_t k;
-	PolyUniv** values;  // The key itself. Vector of size k.
-} GGSWSecretKey;
+typedef GLWESecretKey GGSWSecretKey;
 
-typedef struct ggsw_prep_secret_key
-{
-	uint64_t N;
-	uint64_t k;
-	PolyUnivDFT** values;  // The key itself in the DFT domain. Vector of size k, each element is in the DFT domain
-	void* data;			   // TODO : What does data contain if values exists ????
-} GGSWSecretKeyDFT;
+typedef GLWESecretKeyDFT GGSWSecretKeyDFT;
 
 // =============================================
 // |                                           |

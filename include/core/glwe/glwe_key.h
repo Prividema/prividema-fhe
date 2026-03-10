@@ -25,7 +25,6 @@ typedef struct glwe_secret_key
 	uint64_t N;
 	uint64_t k;
 	PolyUniv** values;
-	void* data;
 } GLWESecretKey;
 
 typedef struct glwe_prep_secret_key
@@ -33,7 +32,6 @@ typedef struct glwe_prep_secret_key
 	uint64_t N;
 	uint64_t k;
 	PolyUnivDFT** values; 
-	void* data;
 } GLWESecretKeyDFT;
 
 //! bivGLWE KEY PART (begin)
