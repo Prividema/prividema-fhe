@@ -22,8 +22,8 @@ Test(transform_glwe_secret_key_dft_to_not_dft, basic)
 	MODULE* module = new_module_info(NBASE, FFT64);
 
 	// Create a bivGLWE secret key 
-	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
-	GLWESecretKey* sk =	new_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
 
 	// Draws uniformly in Zn[X] the secret key's values
 	uniform_glwe_secret_key_dft(module, sk_dft, 3);
@@ -53,8 +53,8 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 	MODULE* module = new_module_info(NBASE, FFT64);
 
 	// Variables
-	GLWESecretKey* sk = new_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	
 	// Draws uniformly in Zn[X] the bivGLWE secret key's values
 	uniform_glwe_secret_key(module, sk, 3);

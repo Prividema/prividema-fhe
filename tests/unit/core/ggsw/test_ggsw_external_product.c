@@ -55,10 +55,10 @@ Test(ggsw_external_product, without_error)
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	//! Variables
-	GLWESecretKey* sk_ggsw            = new_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_ggsw_dft     = new_glwe_secret_key_dft(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_tilde_dft     = new_glwe_secret_key_dft(NBASE, K_TILDEBASE);
-	GLWESecretKeyDFT* sk_glwe_dft     = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_ggsw_dft     = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_glwe_tilde_dft     = alloc_glwe_secret_key_dft(NBASE, K_TILDEBASE);
+	GLWESecretKeyDFT* sk_glwe_dft     = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde        = new_glwe(params_glwe_tilde);
 	GLWECiphertext* ext_prod_computed = new_glwe(params_glwe);
@@ -171,10 +171,10 @@ Test(ggsw_external_product_dft, without_error)
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	//! Variables
-	GLWESecretKey* sk_ggsw                = new_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_tilde_dft         = new_glwe_secret_key_dft(NBASE, K_TILDEBASE);
-	GLWESecretKeyDFT* sk_ggsw_dft         = new_glwe_secret_key_dft(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_dft         = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk_ggsw                = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_glwe_tilde_dft         = alloc_glwe_secret_key_dft(NBASE, K_TILDEBASE);
+	GLWESecretKeyDFT* sk_ggsw_dft         = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_glwe_dft         = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertextDFT* ggsw_dft              = new_ggsw_dft(params_ggsw);
 	GLWECiphertextDFT* glwe_tilde_dft        = new_glwe_dft(params_glwe_tilde);
 	GLWECiphertextDFT* ext_prod_computed_dft = new_glwe_dft(params_glwe);

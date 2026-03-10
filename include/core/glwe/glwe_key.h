@@ -43,7 +43,7 @@ typedef struct glwe_prep_secret_key
  * @param k The number of Zn[X] polynomials in a secret key.
  * @return PolyUniv**
  */
-PolyUniv** new_glwe_secret_key_values(uint64_t N, uint64_t k);
+PolyUniv** alloc_glwe_secret_key_values(uint64_t N, uint64_t k);
 
 /**
  * @brief Delete a secret key values component.
@@ -60,7 +60,7 @@ void delete_glwe_secret_key_values(PolyUniv** values, uint64_t k);
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKey* new_glwe_secret_key(uint64_t N, uint64_t k);
+GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k);
 
 /**
  * @brief Draws a secret key uniformly.
@@ -92,7 +92,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  * @param k The number of Zn[X] polynomials in a secret key.
  * @return PolyUnivDFT**
  */
-PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
+PolyUnivDFT** alloc_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
 
 /**
  * @brief Delete the values of a secret key in the DFT domain.
@@ -102,14 +102,15 @@ PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
  */
 void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 
+
 /**
- * @brief Creates a bivGLWE Secret key in the DFT domain.
+ * @brief Creates a GLWE Secret key in the DFT domain.
  *
  * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKeyDFT* new_glwe_secret_key_dft(uint64_t N, uint64_t k);
+GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k);
 
 /**
  * @brief Draws a secret key uniformly in the DFT domain.
@@ -124,6 +125,7 @@ GLWESecretKeyDFT* new_glwe_secret_key_dft(uint64_t N, uint64_t k);
  */
 int uniform_glwe_secret_key_dft(const MODULE* module, GLWESecretKeyDFT* sk_dft, uint64_t nb_bits);
 
+PolyUnivDFT** alloc_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
 /**
  * @brief Delete the secret key that is in the DFT domain.
  *

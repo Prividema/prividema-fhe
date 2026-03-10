@@ -4,6 +4,7 @@
 
 #include "core/ggsw/ggsw.h"
 #include "ggsw_ciphertext.h"
+#include "glwe_key.h"
 #include "rng.h"
 #include "utils.h"
 
@@ -42,7 +43,7 @@ Test(ggsw_secret_encrypt, works)
 	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertext* ggsw  = new_ggsw(params_ggsw);
 	PolyUniv* m_univ         = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* m_univ_dft  = malloc(poly_univ_bytes(params_glwe));
@@ -220,7 +221,7 @@ Test(ggsw_secret_encrypt_dft, works)
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
-	GLWESecretKeyDFT* sk_dft    = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft    = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUniv* m_univ            = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* m_univ_dft     = malloc(poly_univ_bytes(params_glwe));
 

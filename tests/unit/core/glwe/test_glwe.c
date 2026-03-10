@@ -4,6 +4,7 @@
 
 #include "common/spqlios_alias.h"
 #include "core/glwe/glwe.h"
+#include "glwe_transform_key.h"
 #include "rng.h"
 #include "utils.h"
 
@@ -36,7 +37,7 @@ Test(glwe_secret_masking, small_error)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyUnivRnX* m_univ_RnX              = calloc(NBASE, sizeof(double));
@@ -124,7 +125,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUnivRnX* m_univ_RnX              = malloc(poly_univ_bytes(params_glwe));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
@@ -216,7 +217,7 @@ Test(glwe_secret_masking_dft, small_error)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyUnivRnX* m_univ_RnX              = calloc(NBASE, sizeof(double));
@@ -310,7 +311,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUnivRnX* m_univ_RnX              = malloc(poly_univ_bytes(params_glwe));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));

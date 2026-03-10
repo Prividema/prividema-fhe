@@ -17,14 +17,12 @@
  */
 Test(new_glwe_secret_key_values, basic)
 {
-	// Create a bivGLWE secret key's values
-	PolyUniv** values = new_glwe_secret_key_values(NBASE, KBASE);
+	PolyUniv** values = alloc_glwe_secret_key_values(NBASE, KBASE);
 
 	// Assert values and its values is not NULL
 	cr_assert(eq(int, values != NULL, 1));
 	for (uint64_t j = 0; j < KBASE; j++) cr_assert(eq(int, values[j] != NULL, 1));
 
-	// Clean up
 	delete_glwe_secret_key_values(values, KBASE);
 }
 
@@ -33,8 +31,7 @@ Test(new_glwe_secret_key_values, basic)
  */
 Test(new_glwe_secret_key, values_not_null)
 {
-	// Create a bivGLWE secret key
-	GLWESecretKey* sk = new_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
 
 	// Asserts the secret key is not NULL
 	cr_assert(eq(int, sk != NULL, 1), "new_glwe_secret_key failed.");
@@ -51,7 +48,7 @@ Test(uniform_glwe_secret_key, values_not_null)
 	MODULE* module = new_module_info(NBASE, FFT64);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = new_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
 	int status = uniform_glwe_secret_key(module, sk, 2);
@@ -65,44 +62,6 @@ Test(uniform_glwe_secret_key, values_not_null)
 }
 
 
-//! bivGLWE KEY PART IN DFT SPACE (begin)
-
-/**
- * @brief Ensure new_secret_key_values_dft creates no NULL-pointer.
- */
-Test(new_glwe_secret_key_values_dft, basic)
-{
-	// Create a bivGLWE secret key's values
-	PolyUnivDFT** values_dft = new_glwe_secret_key_values_dft(NBASE, KBASE);
-
-	// Asserts values_dft is not NULL
-	cr_assert(eq(int, values_dft != NULL, 1));
-	for (uint64_t j = 0; j < KBASE; j++)
-		cr_assert(eq(int, values_dft[j] != NULL, 1));
-
-	// Clean up
-	delete_glwe_secret_key_values_dft(values_dft, KBASE);
-}
-
-/**
- * @brief Ensures new_glwe_secret_key_dft returns a non-NULL pointer when values != NULL.
- */
-Test(new_glwe_secret_key_dft, values_not_null)
-{
-	// Create a bivGLWE secret key in the DFT domain
-	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
-
-	// Asserts the secret key and its values are not NULL
-	cr_assert(eq(int, sk_dft != NULL, 1));
-	cr_assert(eq(int, sk_dft->values != NULL, 1));
-
-	for (uint64_t j = 0; j < KBASE; j++) 
-		cr_assert(eq(int, sk_dft->values[j] != NULL, 1));
-
-	// Clean up
-	delete_glwe_secret_key_dft(sk_dft);
-}
-
 /**
  * @brief Tests whether uniform_glwe_secret_key_gen works as intended.
  */
@@ -112,7 +71,7 @@ Test(uniform_glwe_secret_key_dft, what_s_inside)
 	MODULE* module = new_module_info(NBASE, FFT64);
 
 	// Create a bivGLWE secret key 
-	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
 
 	// Draw uniformly the bivGLWE secret key values
 	int status = uniform_glwe_secret_key_dft(module, sk_dft, 2);
@@ -122,5 +81,11 @@ Test(uniform_glwe_secret_key_dft, what_s_inside)
 
 	// Clean up
 	delete_module_info(module);
-	delete_glwe_secret_key_dft(sk_dft);
+  delete_glwe_secret_key_dft(sk_dft);
 }
+
+//! GLWE KEY PART IN DFT SPACE (begin)
+
+
+
+

@@ -22,3 +22,7 @@ void transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, GLWESecretKe
 	for (uint64_t j = 0; j < sk->k; j++) 
 		vec_znx_dft_p(module, result_dft->values[j], 1, sk->values[j], 1, sk->N);
 }
+
+
+
+
