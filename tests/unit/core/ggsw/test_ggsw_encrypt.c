@@ -42,11 +42,10 @@ Test(ggsw_secret_encrypt, works)
 	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	GGSWCiphertext* ggsw     = new_ggsw(params_ggsw);
-	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
+	GGSWCiphertext* ggsw  = new_ggsw(params_ggsw);
 	PolyUniv* m_univ         = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* m_univ_dft  = malloc(poly_univ_bytes(params_glwe));
-
 	// Variables to compute the phase of each ggsw's row
 	VecBiv* glwe_vec_computed            = calloc(glwe_coef_number(params_glwe), sizeof(int64_t));
 	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
@@ -56,7 +55,7 @@ Test(ggsw_secret_encrypt, works)
 	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
 
 	// Draws uniformly in (Zn[X])^k the secret key
-	uniform_ggsw_secret_key_dft(module, sk_dft, 3);
+	uniform_glwe_secret_key_dft(module, sk_dft, 3);
 
 	// Draws uniformly in Zn[X] the message
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
@@ -194,7 +193,7 @@ Test(ggsw_secret_encrypt, works)
 	free(m_univ);
 	free(m_univ_dft);
 	delete_ggsw(ggsw);
-	delete_ggsw_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_module_info_p(module);
@@ -221,7 +220,7 @@ Test(ggsw_secret_encrypt_dft, works)
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
-	GGSWSecretKeyDFT* sk_dft    = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft    = new_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUniv* m_univ            = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* m_univ_dft     = malloc(poly_univ_bytes(params_glwe));
 
@@ -234,7 +233,7 @@ Test(ggsw_secret_encrypt_dft, works)
 	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
 
 	// Draws uniformly in (Cm[X])^k the secret key in the DFT domain
-	uniform_ggsw_secret_key_dft(module, sk_dft, 3);
+	uniform_glwe_secret_key_dft(module, sk_dft, 3);
 
 	// Draws uniformly in Zn[X] the message
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
@@ -368,7 +367,7 @@ Test(ggsw_secret_encrypt_dft, works)
 	free(m_univ);
 	free(m_univ_dft);
 	delete_ggsw_dft(ggsw_dft);
-	delete_ggsw_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_module_info_p(module);

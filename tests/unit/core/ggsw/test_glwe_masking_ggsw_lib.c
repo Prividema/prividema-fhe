@@ -41,7 +41,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GGSWSecretKeyDFT* sk_dft             = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyUnivRnX* m_univ_RnX              = calloc(NBASE, sizeof(double));
@@ -52,7 +52,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
-	uniform_ggsw_secret_key_dft(module, sk_dft, 2);
+	uniform_glwe_secret_key_dft(module, sk_dft, 2);
 
 	// The input message uniformly drawn in Zn[X,Y]
 	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
@@ -107,7 +107,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	free(m_univ_RnX);
 	free(err);
 	free(m);
-	delete_ggsw_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -130,7 +130,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GGSWSecretKeyDFT* sk_dft             = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUnivRnX* m_univ_RnX              = malloc(poly_univ_bytes(params_glwe));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
@@ -141,7 +141,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
-	uniform_ggsw_secret_key_dft(module, sk_dft, 2);
+	uniform_glwe_secret_key_dft(module, sk_dft, 2);
 
 	// Draws normaly in Rn[X] m_univ
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
@@ -196,7 +196,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	free(m);
 	free(err);
 	free(m_univ_RnX);
-	delete_ggsw_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -221,7 +221,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GGSWSecretKeyDFT* sk_dft             = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyUnivRnX* m_univ_RnX              = calloc(NBASE, sizeof(double));
@@ -231,9 +231,10 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(double));
 
+
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
-	uniform_ggsw_secret_key_dft(module, sk_dft, 2);
+	uniform_glwe_secret_key_dft(module, sk_dft, 2);
 
 	// The input message uniformly drawn in Zn[X,Y]
 	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
@@ -292,7 +293,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	free(m_univ_RnX);
 	free(err);
 	free(m);
-	delete_ggsw_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -315,7 +316,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GGSWSecretKeyDFT* sk_dft             = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft             = new_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUnivRnX* m_univ_RnX              = calloc(NBASE, sizeof(double));
 	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
@@ -327,7 +328,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
-	uniform_ggsw_secret_key_dft(module, sk_dft, 2);
+	uniform_glwe_secret_key_dft(module, sk_dft, 2);
 
 	// Draws normaly in Rn[X] m_univ_RnX
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
@@ -385,7 +386,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	free(m);
 	free(err);
 	free(m_univ_RnX);
-	delete_ggsw_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }

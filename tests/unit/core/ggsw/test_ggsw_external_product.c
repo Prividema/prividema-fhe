@@ -55,8 +55,8 @@ Test(ggsw_external_product, without_error)
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	//! Variables
-	GGSWSecretKey* sk_ggsw            = new_ggsw_secret_key(NBASE, KBASE);
-	GGSWSecretKeyDFT* sk_ggsw_dft     = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk_ggsw            = new_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_ggsw_dft     = new_glwe_secret_key_dft(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_glwe_tilde_dft     = new_glwe_secret_key_dft(NBASE, K_TILDEBASE);
 	GLWESecretKeyDFT* sk_glwe_dft     = new_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
@@ -90,7 +90,7 @@ Test(ggsw_external_product, without_error)
 	glwe_secret_masking(module, glwe_tilde, sk_glwe_tilde_dft, m);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
-	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_ggsw_dft, u_univ);
+	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_glwe_dft, u_univ);
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
@@ -145,10 +145,9 @@ Test(ggsw_external_product, without_error)
 	delete_glwe(glwe_tilde);
 	delete_ggsw(ggsw);
 
-	delete_ggsw_secret_key(sk_ggsw);
+	delete_glwe_secret_key(sk_ggsw);
 	delete_glwe_secret_key_dft(sk_glwe_tilde_dft);
-	delete_ggsw_secret_key_dft(sk_ggsw_dft);
-
+	delete_glwe_secret_key_dft(sk_ggsw_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_glwe_ct_params(params_glwe_tilde);
 	delete_ggsw_ct_params(params_ggsw);
@@ -172,9 +171,9 @@ Test(ggsw_external_product_dft, without_error)
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	//! Variables
-	GGSWSecretKey* sk_ggsw                = new_ggsw_secret_key(NBASE, KBASE);
+	GLWESecretKey* sk_ggsw                = new_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_glwe_tilde_dft         = new_glwe_secret_key_dft(NBASE, K_TILDEBASE);
-	GGSWSecretKeyDFT* sk_ggsw_dft         = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_ggsw_dft         = new_glwe_secret_key_dft(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_glwe_dft         = new_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertextDFT* ggsw_dft              = new_ggsw_dft(params_ggsw);
 	GLWECiphertextDFT* glwe_tilde_dft        = new_glwe_dft(params_glwe_tilde);
@@ -211,7 +210,7 @@ Test(ggsw_external_product_dft, without_error)
 	glwe_secret_masking_dft(module, glwe_tilde_dft, sk_glwe_tilde_dft, m_dft);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
-	ggsw_secret_encrypt_dft(module, params_ggsw, ggsw_dft, sk_ggsw_dft, u_univ);
+	ggsw_secret_encrypt_dft(module, params_ggsw, ggsw_dft, sk_glwe_dft, u_univ);
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
@@ -266,8 +265,8 @@ Test(ggsw_external_product_dft, without_error)
 	delete_glwe_dft(glwe_tilde_dft);
 	delete_ggsw_dft(ggsw_dft);
 
-	delete_ggsw_secret_key(sk_ggsw);
-	delete_ggsw_secret_key_dft(sk_ggsw_dft);
+	delete_glwe_secret_key(sk_ggsw);
+	delete_glwe_secret_key_dft(sk_ggsw_dft);
 	delete_glwe_secret_key_dft(sk_glwe_tilde_dft);
 	delete_glwe_secret_key_dft(sk_glwe_dft);
 
