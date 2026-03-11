@@ -32,7 +32,7 @@ Test(transform_ggsw_secret_key_dft_to_not_dft, basic)
 
 	// Create a GGSW secret key 
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
-	GGSWSecretKey* sk =	new_ggsw_secret_key_dft(NBASE, KBASE);
+	GGSWSecretKey* sk =	new_ggsw_secret_key(NBASE, KBASE);
 
 	// Draw uniformly in Zn[X] the secret key's values
 	uniform_ggsw_secret_key_dft(module, sk_dft, 3);
@@ -91,7 +91,7 @@ Test(transform_ggsw_secret_key_not_dft_to_dft, basic)
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 	
 	// Draws uniformly in Zn[X] the GGSW secret key's values
-	new_uniform_ggsw_secret_key(module, sk, 3);
+	uniform_ggsw_secret_key(module, sk, 3);
 
 	// Computes the GGSW secret key in the DFT domain
 	transform_ggsw_secret_key_not_dft_to_dft(module, sk_dft, sk);
@@ -122,7 +122,7 @@ Test(transform_ggsw_secret_key_dft_to_glwe_secret_key_dft, basic)
 	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft, sk_ggsw_dft);
 
 	// Clean up
-	delete_glwe_secret_key(sk_glwe_dft);
-	delete_ggsw_secret_key(sk_ggsw_dft);
+	delete_glwe_secret_key_dft(sk_glwe_dft);
+	delete_ggsw_secret_key_dft(sk_ggsw_dft);
 	delete_module_info(module);
 }

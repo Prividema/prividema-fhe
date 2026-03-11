@@ -99,17 +99,6 @@ int ggsw_external_product(const MODULE* module,
                           const GGSWCiphertext* ggsw   // GGSW ciphertext
 );
 
-// The three functions below are not implemented
-
-// GGSWPublicKey is a struct encapsulating everything regarding the public
-// key.
-/* Encrypts message m into GGSW ciphertext res with parameters params */
-void ggsw_public_encrypt(GGSWCiphertext* result,  // result
-                         const GGSWPublicKey* pk,    // secret key
-                         const int64_t* m,           // message
-                         const GGSWCtParams* params  // parameters
-);
-
 // PartialGGSWCiphertext is a struct encapsulating ciphertext values and params.
 /* Encrypts message m into halfGGSW ciphertext res with parameters params */
 void halfggsw_secret_encrypt(PartialGGSWCiphertext* result,  // result
@@ -118,12 +107,6 @@ void halfggsw_secret_encrypt(PartialGGSWCiphertext* result,  // result
                              const GGSWCtParams* params         // parameters
 );
 
-/* Encrypts message m into halfGGSW ciphertext res with parameters params */
-void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
-                             const GGSWPublicKey* pk,           // public key
-                             const int64_t* m,                  // message
-                             const GGSWCtParams* params         // parameters
-);
 
 
 //! GGSW IN DFT PART (begin)

@@ -61,23 +61,6 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  */
 int glwe_secret_demasking(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertext* glwe);
 
-// public key encrypt
-void glwe_public_masking(const Core* core,    // all params of the library: is fft or
-                                              // ntt, all N that are used
-                         GLWECiphertext* ct,  // ciphertext
-                         GLWEPublicKey* pk,   // public key
-                         TNXElement* phase    // message + noise
-);
-
-// public key decrypt
-void glwe_public_demasking(const Core* core,          // all params of the library: is fft or
-                                                      // ntt, all N that are used
-                           GLWECiphertext* ct,        // ciphertext
-                           GLWESecretKeyDFT* sk_dft,  // secret key: vec of size k
-                           TNXElement* phase          // message + noise
-);
-
-
 //! GLWE IN DFT PART (begin)
 
 /**
@@ -103,21 +86,5 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
  * @retval  -`0` otherwise otherwise.
  */
 int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertextDFT* ct);
-
-// public key encrypt
-void glwe_public_masking_dft(const Core* core,    // all params of the library: is fft or
-                                                  // ntt, all N that are used
-                             GLWECiphertext* ct,  // ciphertext
-                             GLWEPublicKey* pk,   // public key
-                             TNXElement* phase    // message + noise
-);
-
-// public key decrypt
-void glwe_public_demasking_dft(const Core* core,          // all params of the library: is fft or
-                                                          // ntt, all N that are used
-                               GLWECiphertext* ct,        // ciphertext
-                               GLWESecretKeyDFT* sk_dft,  // secret key: vec of size k
-                               TNXElement* phase          // message + noise
-);
 
 #endif  // GLWE_H

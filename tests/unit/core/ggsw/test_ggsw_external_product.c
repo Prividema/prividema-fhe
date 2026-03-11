@@ -25,39 +25,49 @@
 /** The test is done without error, it is a proof of concept*/
 Test(ggsw_external_product, without_error)
 {
-	// GLWE and GGSW parameters. This set of GLWE parameters is for GGSW ciphertext
-	double sigma              = 0;
-	double sigma_tilde        = 0;
+	//! Variance of the error's normal distributions
+	double sigma       = 0;
+	double sigma_tilde = 0;
 
-	// Parameters
+	//! Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GLWECtParams* params_glwe_tilde =
 	    new_glwe_ct_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
-	GGSWCtParams* params_ggsw     = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module                = new_module_info(NBASE, FFT64);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module            = new_module_info(NBASE, FFT64);
 
-	// Variables
-	GGSWSecretKey* sk_ggsw = new_ggsw_secret_key(NBASE, KBASE);
-	GGSWSecretKeyDFT* sk_ggsw_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_dft = new_glwe_secret_key_dft(NBASE, KBASE);
-	GGSWCiphertext* ggsw       = new_ggsw(params_ggsw);
-	GLWECiphertext* glwe_tilde = new_glwe(params_glwe_tilde);
-	GLWECiphertext* res        = new_glwe(params_glwe);
-	
+	//! Variables
+	GGSWSecretKey* sk_ggsw            = new_ggsw_secret_key(NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_ggsw_dft     = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_glwe_dft     = new_glwe_secret_key_dft(NBASE, KBASE);
+	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
+	GLWECiphertext* glwe_tilde        = new_glwe(params_glwe_tilde);
+	GLWECiphertext* ext_prod_computed = new_glwe(params_glwe);
+	PolyUniv* u_univ                  = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* m                        = malloc(poly_biv_bytes(params_glwe_tilde));
+
+	//! Variables to compute the result phase of the external product
+	PolyBiv* phase_computed       = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyUnivRnX* um_univ_computed = calloc(NBASE, sizeof(double));
+	PolyUnivDFT* u_univ_dft       = malloc(NBASE * sizeof(double));
+	PolyBivDFT* um_dft            = malloc(poly_biv_bytes(params_glwe_tilde));
+	PolyBiv* um                   = malloc(poly_biv_bytes(params_glwe));
+	double* um_univ               = calloc(NBASE, sizeof(double));
+
 	// Define sk_ggsw = (1, 0, ... , 0)
 	sk_ggsw->values[0][0] = 1;
 	sk_ggsw->values[0][1] = 0;
-	
+
 	// Computes the GGSW secret key out of the DFT domain
- 	transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw_dft, sk_ggsw);
-	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft ,sk_ggsw_dft);
+	transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw_dft, sk_ggsw);
+	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft, sk_ggsw_dft);
 
 	// Draws uniformly both messages
-	PolyUniv* u_univ = new_uniform_random_vec(NBASE, KAPPABASE);
-	PolyBiv* m       = new_uniform_random_biv_poly(module, params_glwe_tilde, 1);
+	uniform_random_pol_znx(u_univ, NBASE, KAPPABASE);
+	uniform_random_biv_poly(module, params_glwe_tilde, m, 1);
 
 	//! Computation with function
-	// Computes glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
+	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
 	glwe_secret_masking(module, glwe_tilde, sk_glwe_dft, m);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
@@ -65,41 +75,46 @@ Test(ggsw_external_product, without_error)
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_external_product(module, res, glwe_tilde, ggsw);
-	normalize_glwe(module, res, res);
+	ggsw_external_product(module, ext_prod_computed, glwe_tilde, ggsw);
+	normalize_glwe(module, ext_prod_computed, ext_prod_computed);
 
-	// Computes the result phase = u*m + err
-	PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	glwe_secret_demasking(module, phase_computed, sk_glwe_dft, res);
+	// Computes the result phase = u*m + err , normalized with the base-2Kappa
+	glwe_secret_demasking(module, phase_computed, sk_glwe_dft, ext_prod_computed);
 
-	// The computed phase = u*m + err in Rn[X]
-	PolyUnivRnX* um_univ_computed = calloc(NBASE, sizeof(double));
+	// The computed phase = u*m + err in Tn[X]
 	biv_to_univ(params_glwe, um_univ_computed, phase_computed);
 
 	//! Computation by hand
 	// Computes DFT(m)
-	PolyUnivDFT* u_univ_dft = malloc(NBASE * sizeof(double));
 	vec_znx_dft_p(module, u_univ_dft, 1, u_univ, 1, NBASE);
 
 	// Computes DFT(u*m)
-	PolyBivDFT* um_dft = malloc(poly_biv_bytes(params_glwe));
-	svp_apply_dft_p(module, um_dft, LBASE, u_univ_dft, m, LBASE, NBASE);
+	svp_apply_dft_p(module, um_dft, L_TILDEBASE, u_univ_dft, m, L_TILDEBASE, NBASE);
 
 	// Computes u*m in ZN[X,Y]
-	PolyBiv* um = malloc(poly_biv_bytes(params_glwe));
-	vec_znx_idft_p(module, um, LBASE, um_dft, LBASE);
-	vec_znx_normalize_base2k_p(module, KAPPA_TILDEBASE, um, LBASE, NBASE, um, LBASE, NBASE);
+	vec_znx_idft_p(module, um, L_TILDEBASE, um_dft, L_TILDEBASE);
 
-	// Computes u*m in Rn[X]
-	double* um_univ = calloc(NBASE, sizeof(double));
-	biv_to_univ(params_glwe, um_univ, um);
+	// Normalizes u*m with the base-2Kappa_tilde
+	vec_znx_normalize_base2k_p(module, KAPPA_TILDEBASE, um, L_TILDEBASE, NBASE, um, L_TILDEBASE, NBASE);
 
-	//! Tests equality
+	// Computes u*m in Tn[X]
+	biv_to_univ(params_glwe_tilde, um_univ, um);
+
+	//! Asserts um_univ_computed(X) = u * m_univ
 	for (uint64_t p = 0; p < NBASE; p++)
-		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
-		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", 
-				  p, um_univ_computed[p], p, um_univ[p]);
+	{
+		double diff_1 = um_univ[p] - floor(um_univ[p]) - um_univ_computed[p];
+		double diff_2 = um_univ[p] - floor(um_univ[p]) - um_univ_computed[p] + floor(um_univ_computed[p]) +
+		                ceil(um_univ_computed[p]);
+		double err_length = ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE);
 
+		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+
+		cr_assert(cond, "Equality failed with um_univ_computed[%ld] = %lf and  um_univ[%ld] = %lf", p, p,
+		          um_univ[p] - floor(um_univ[p]), p, um_univ_computed[p] - floor(um_univ_computed[p]), err_length);
+	}
+
+	// Clean up
 	free(m);
 	free(u_univ);
 	free(u_univ_dft);
@@ -109,7 +124,7 @@ Test(ggsw_external_product, without_error)
 	free(um_dft);
 	free(um_univ_computed);
 
-	delete_glwe(res);
+	delete_glwe(ext_prod_computed);
 	delete_glwe(glwe_tilde);
 	delete_ggsw(ggsw);
 
@@ -125,41 +140,52 @@ Test(ggsw_external_product, without_error)
 
 //! GGSW PART in the DFT domain (begin)
 
-/** The test is done without error, it is a proof of concept*/
 Test(ggsw_external_product_dft, without_error)
 {
-	// GLWE and GGSW parameters. This set of GLWE parameters is for GGSW ciphertext
-	double sigma              = 0;
-	double sigma_tilde        = 0;
+	//! Variance of the error's normal distributions
+	double sigma       = 0;
+	double sigma_tilde = 0;
 
+	//! Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GLWECtParams* params_glwe_tilde =
 	    new_glwe_ct_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module                 = new_module_info_p(NBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module            = new_module_info(NBASE, FFT64);
 
-	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
-	GLWECiphertextDFT* glwe_tilde_dft = new_glwe_dft(params_glwe_tilde);
-	GLWECiphertextDFT* res_dft           = new_glwe_dft(params_glwe);
+	//! Variables
+	GGSWSecretKey* sk_ggsw                = new_ggsw_secret_key(NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_ggsw_dft         = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_glwe_dft         = new_glwe_secret_key_dft(NBASE, KBASE);
+	GGSWCiphertext* ggsw_dft              = new_ggsw(params_ggsw);
+	GLWECiphertext* glwe_tilde_dft        = new_glwe(params_glwe_tilde);
+	GLWECiphertext* ext_prod_computed_dft = new_glwe(params_glwe);
+	PolyUniv* u_univ                      = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* m                            = malloc(poly_biv_bytes(params_glwe_tilde));
+	PolyBivDFT* m_dft                     = malloc(poly_biv_bytes(params_glwe));
 
-	// Computes each ciphertext out of the DFT domain
-	GLWECiphertext* res = new_glwe(params_glwe);
+	//! Variables to compute the result phase of the external product
+	PolyBiv* phase_computed       = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyUnivRnX* um_univ_computed = calloc(NBASE, sizeof(double));
+	PolyUnivDFT* u_univ_dft       = malloc(NBASE * sizeof(double));
+	PolyBivDFT* um_dft            = malloc(poly_biv_bytes(params_glwe_tilde));
+	PolyBiv* um                   = malloc(poly_biv_bytes(params_glwe));
+	double* um_univ               = calloc(NBASE, sizeof(double));
 
-	// Draws respectively uniformly the secret key in the DFT domain, a Zn[X] polynomial and a Zn[X,Y] polynomial
-	GGSWSecretKey* sk_ggsw        = new_ggsw_secret_key(NBASE, KBASE);
-	sk_ggsw->values[0][0]         = 1;
-	sk_ggsw->values[0][1]         = 0;
-	GGSWSecretKeyDFT* sk_ggsw_dft = transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw);
-	GLWESecretKeyDFT* sk_glwe_dft = transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_ggsw_dft);
+	// Define sk_ggsw = (1, 0, ... , 0)
+	sk_ggsw->values[0][0] = 1;
+	sk_ggsw->values[0][1] = 0;
+
+	// Computes the GGSW secret key out of the DFT domain
+	transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw_dft, sk_ggsw);
+	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft, sk_ggsw_dft);
 
 	// Draws uniformly both messages
-	PolyUniv* u_univ  = new_uniform_random_vec(NBASE, KAPPABASE);
-	PolyBiv* m        = new_uniform_random_biv_poly(module, params_glwe_tilde, 1);
-	PolyBivDFT* m_dft = malloc(poly_biv_bytes(params_glwe_tilde));
-	vec_znx_dft_p(module, m_dft, LBASE, m, LBASE, NBASE);
+	uniform_random_pol_znx(u_univ, NBASE, KAPPABASE);
+	uniform_random_biv_poly(module, params_glwe_tilde, m, 1);
 
 	//! Computation with function
-	// Computes glwe_tilde, a bivGLWE(m) using the base 2-Kappa_tilde
+	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
 	glwe_secret_masking_dft(module, glwe_tilde_dft, sk_glwe_dft, m_dft);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
@@ -167,50 +193,47 @@ Test(ggsw_external_product_dft, without_error)
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_external_product_dft(module, res_dft, glwe_tilde_dft, ggsw_dft);
+	ggsw_external_product_dft(module, ext_prod_computed_dft, glwe_tilde_dft, ggsw_dft);
+	normalize_glwe_dft(module, ext_prod_computed_dft, ext_prod_computed_dft);
 
-	// res out of the DFT domain
-	vec_znx_idft_p(module, res->vec, glwe_size(params_glwe), res_dft->vec, glwe_size(params_glwe));
-	normalize_glwe(module, res, res);
+	// Computes the result phase = u*m + err , normalized with the base-2Kappa
+	glwe_secret_demasking_dft(module, phase_computed, sk_glwe_dft, ext_prod_computed_dft);
 
-	// Computes the result phase = u*m + err
-	PolyBiv* phase_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	glwe_secret_demasking_dft(module, phase_computed, sk_glwe_dft, res_dft);
-
-	// The computed phase = u*m + err in Rn[X]
-	PolyUnivRnX* um_univ_computed = calloc(NBASE, sizeof(double));
+	// The computed phase = u*m + err in Tn[X]
 	biv_to_univ(params_glwe, um_univ_computed, phase_computed);
 
 	//! Computation by hand
 	// Computes DFT(m)
-	PolyUnivDFT* u_univ_dft = malloc(NBASE * sizeof(double));
 	vec_znx_dft_p(module, u_univ_dft, 1, u_univ, 1, NBASE);
 
 	// Computes DFT(u*m)
-	PolyBivDFT* um_dft = malloc(poly_biv_bytes(params_glwe));
-	svp_apply_dft_p(module, um_dft, LBASE, u_univ_dft, m, LBASE, NBASE);
+	svp_apply_dft_p(module, um_dft, L_TILDEBASE, u_univ_dft, m, L_TILDEBASE, NBASE);
 
 	// Computes u*m in ZN[X,Y]
-	PolyBiv* um = malloc(poly_biv_bytes(params_glwe));
-	vec_znx_idft_p(module, um, LBASE, um_dft, LBASE);
-	vec_znx_normalize_base2k_p(module, KAPPA_TILDEBASE, um, LBASE, NBASE, um, LBASE, NBASE);
+	vec_znx_idft_p(module, um, L_TILDEBASE, um_dft, L_TILDEBASE);
 
-	// Computes u*m in Rn[X]
-	double* um_univ = calloc(NBASE, sizeof(double));
-	biv_to_univ(params_glwe, um_univ, um);
+	// Normalizes u*m with the base-2Kappa_tilde
+	vec_znx_normalize_base2k_p(module, KAPPA_TILDEBASE, um, L_TILDEBASE, NBASE, um, L_TILDEBASE, NBASE);
 
-	double* m_univ = calloc(NBASE, sizeof(double));
-	biv_to_univ(params_glwe, m_univ, m);
+	// Computes u*m in Tn[X]
+	biv_to_univ(params_glwe_tilde, um_univ, um);
 
-	//! Tests equality
+	//! Asserts um_univ_computed(X) = u * m_univ
 	for (uint64_t p = 0; p < NBASE; p++)
-		cr_assert(eq(dbl, um_univ_computed[p], um_univ[p]),
-		          "Equality failed with um_univ_computed[%ld] = %e um_univ[%ld] = %e", 
-				  p, um_univ_computed[p], p, um_univ[p]);
+	{
+		double diff_1 = um_univ[p] - floor(um_univ[p]) - um_univ_computed[p];
+		double diff_2 = um_univ[p] - floor(um_univ[p]) - um_univ_computed[p] + floor(um_univ_computed[p]) +
+		                ceil(um_univ_computed[p]);
+		double err_length = ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE);
 
+		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+
+		cr_assert(cond, "Equality failed with um_univ_computed[%ld] = %lf and  um_univ[%ld] = %lf", p, p,
+		          um_univ[p] - floor(um_univ[p]), p, um_univ_computed[p] - floor(um_univ_computed[p]), err_length);
+	}
+
+	// Clean up
 	free(m);
-	free(m_dft);
-	free(m_univ);
 	free(u_univ);
 	free(u_univ_dft);
 	free(phase_computed);
@@ -219,8 +242,7 @@ Test(ggsw_external_product_dft, without_error)
 	free(um_dft);
 	free(um_univ_computed);
 
-	delete_glwe(res);
-	delete_glwe_dft(res_dft);
+	delete_glwe_dft(ext_prod_computed_dft);
 	delete_glwe_dft(glwe_tilde_dft);
 	delete_ggsw_dft(ggsw_dft);
 

@@ -53,7 +53,7 @@ int uniform_ggsw_secret_key(const MODULE* module, GGSWSecretKey* sk, uint64_t nb
 	
 	// Uniform random generation of k Zn[X] polynomials.
 	for (uint64_t j = 0; j < sk->k; j++)
-		CHECK_CALL(uniform_random_vec(sk->N, sk->values[j], 1, sk->N, nb_bits), 
+		CHECK_CALL(uniform_random_pol_znx(sk->values[j], sk->N, nb_bits), 
 				  "uniform_random_vec failed in new_uniform_ggsw_secret_key_values");		
 
 	status = 0;

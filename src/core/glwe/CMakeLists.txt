@@ -8,6 +8,7 @@ set(GLWE_SRCS
     glwe_ct_params.c
     glwe_ciphertext.c
     glwe_key.c
+    glwe_transform_key.c
     bivariate_polynomial.c
 )
 

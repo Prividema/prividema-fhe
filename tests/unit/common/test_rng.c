@@ -183,7 +183,7 @@ Test(normal_random_vec, basic)
 	}
 
 	if (normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0) {
-		log_m(LOG_ERROR, "new_normal_random_vec failedi.");
+		log_m(LOG_ERROR, "normal_random_vec failedi.");
 		delete_module_info_p(module);
 		free(pol_univ);
 		cr_fail();

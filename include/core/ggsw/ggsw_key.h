@@ -76,7 +76,7 @@ void delete_ggsw_secret_key(GGSWSecretKey* sk);
 /**
  * @brief Creates a new secret key values component in the DFT domain.
  *
- * @param N The dimension of the module Zn[X].
+ * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomials in a secret key.
  * 
  * @retval `NULL` if malloc failed inside the function.
@@ -95,7 +95,7 @@ void delete_ggsw_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 /**
  * @brief Creates a GGSW secret key in the DFT domain.
  *
- * @param N The polynomials' maximum degree in X.
+ * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GGSWSecretKeyDFT*
  */
@@ -104,7 +104,7 @@ GGSWSecretKeyDFT* new_ggsw_secret_key_dft(uint64_t N, uint64_t k);
 /**
  * @brief Draws a secret key uniformly in the DFT domain.
  *
- * @param module   TODO
+ * @param module Additionnal information for backend.
  * @param sk_dft   The secret key in the DFT domain.
  * @param nb_bits  Bit-size of coefficients: coefficients are sampled uniformly
  *                 in the range [-2^nb_bits, 2^nb_bits).
@@ -120,11 +120,5 @@ int uniform_ggsw_secret_key_dft(const MODULE* module, GGSWSecretKeyDFT* sk_dft, 
  * @param sk_dft The secret key in the DFT domain.
  */
 void delete_ggsw_secret_key_dft(GGSWSecretKeyDFT* sk_dft);
-
-typedef struct ggsw_public_key
-{
-	uint32_t size;       // number of ciphertexts in public key
-	GGSWCiphertext* pk;  // Public key is multiple encryptions of 0
-} GGSWPublicKey;
 
 #endif  // GGSW_KEY_H

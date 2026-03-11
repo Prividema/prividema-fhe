@@ -1,6 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "logger.h"
+
 #endif  // UTILS_H
 #define CHECK_ALLOC(ptr, m) \
 	do                        \
