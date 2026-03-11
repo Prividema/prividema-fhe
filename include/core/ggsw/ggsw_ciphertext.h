@@ -53,13 +53,13 @@ GGSWCiphertext* new_ggsw(const GGSWCtParams* params_ggsw);
 void delete_ggsw(GGSWCiphertext* ggsw);
 
 /**
- * @brief Return the pointer to : biGLWE(DFT(-m * sk_j / 2^kappa_tilde^i)) if j < k.
- * 								  biGLWE(DFT(m / 2^kappa_tilde^i))         if j = k.
+ * @brief Return the pointer to : biGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k.
+ * 								  biGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k.
  *
  * @param params_ggsw The bivGGSW parameters.
  * @param ggsw_mat The bivGGSW ciphertext's matrix.
  * @param j The j-th component of the secret key.
- * @param i The i in -m * sk_j / (2^kappa_tilde)^i.
+ * @param i The i in -m * sk_j / 2^{kappa_tilde * i}.
  *
  * @return VecBiv*
  */
@@ -72,8 +72,8 @@ VecBiv* ggsw_Sj_Yti(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j
  * @param result The result normalized bivGGSW ciphertext.
  * @param ggsw The input bivGGSW ciphertext.
  * 
- * @retval - `-1` if malloc failed inside the function vec_znx_normalize_base2k_p.
- * @retval - `0`.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
 
@@ -137,13 +137,13 @@ GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params_ggsw);
 void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
 
 /**
- * @brief Return the pointer to : biGLWE(DFT(-m * sk_j / 2^kappa_tilde^i)) if j < k in the DFT domain.
- * 								  biGLWE(DFT(m / 2^kappa_tilde^i))         if j = k in the DFT domain.
+ * @brief Return the pointer to : biGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k in the DFT domain.
+ * 								  biGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k in the DFT domain.
  *
  * @param params_ggsw The bivGGSW parameters.
  * @param ggsw_mat_dft The bivGGSW ciphertext's matrix in the DFT domain.
  * @param j The j-th component of Sk.
- * @param i The i in the phase = -m * sk_j / (2^kappa_tilde)^i.
+ * @param i The i in the phase = -m * sk_j / 2^{kappa_tilde * i}.
  *
  * @return VecBivDFT*
  */
@@ -156,8 +156,8 @@ VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_
  * @param result_dft The result normalized bivGGSW ciphertext in the DFT domain.
  * @param ggsw_dft The input bivGGSW ciphertext in the DFT domain.
  * 
- * @retval `-1` if malloc failed inside vec_znx_normalize_base2k_p.
- * @retval `0`.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft);
 
@@ -179,8 +179,8 @@ void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_l
  * @param u_dft The Zn[X] polynomial in the DFT domain, with coefficient in [-2^(kappa-1), 2^(kappa-1)].
  * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  * 
- * @retval `-1` if malloc failed inside the function.
- * @retval `0`.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
                         const PolyUnivDFT* u_dft, int do_normalization);

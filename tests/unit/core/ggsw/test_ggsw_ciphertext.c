@@ -21,11 +21,14 @@
 // Test ggsw_size
 Test(ggsw_size, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
+	// Asserts ggsw_size returns NLIMBS_TILDEBASE * NLIMBSBASE
 	cr_assert(eq(i64, ggsw_size(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
 
+	// Clean up
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
@@ -33,11 +36,14 @@ Test(ggsw_size, basic)
 // Test ggsw_bytes
 Test(ggsw_bytes, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	cr_assert(eq(i64, ggsw_bytes(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE * 8));
+	// Asserts ggsw_bytes returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE * sizeof(int64_t)
+	cr_assert(eq(i64, ggsw_bytes(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE * sizeof(int64_t)));
 
+	// Clean up
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
@@ -47,11 +53,14 @@ Test(ggsw_bytes, basic)
 // Test ggsw_coef_number
 Test(ggsw_coef_number, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
+	// Asserts ggsw_coeff_number returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE
 	cr_assert(eq(i64, ggsw_coef_number(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE));
 
+	// Clean up
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
@@ -59,15 +68,19 @@ Test(ggsw_coef_number, basic)
 // Test new_ggsw
 Test(new_ggsw, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertext* ct = new_ggsw(params_ggsw);
+	// Variables
+	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
-	cr_assert(eq(int, ct->mat != NULL, 1));
-	cr_assert(eq(int, ct->params != NULL, 1));
+	// Asserts new_ggsw worked
+	cr_assert(eq(int, ggsw->mat != NULL, 1));
+	cr_assert(eq(int, ggsw->params != NULL, 1));
 
-	delete_ggsw(ct);
+	// Clean up
+	delete_ggsw(ggsw);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
@@ -75,25 +88,30 @@ Test(new_ggsw, basic)
 // Test ggsw_Sj_Yti
 Test(ggsw_Sj_Yti, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertext* ct        = new_ggsw(params_ggsw);
+	// Variables
+	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
+	// asserts ggsw_Sj_Yti returns the right pointer
 	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
-		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++) {
-			VecBiv* ct_mat_ij = ggsw_Sj_Yti(params_ggsw, ct->mat, j, i);
+		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
+		{
+			VecBiv* ct_mat_ij = ggsw_Sj_Yti(params_ggsw, ggsw->mat, j, i);
 
-			// Modify the two firsts coefficients of biGLWE(-m * sk_j / (2^kappa_tilde)^i).
+			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 			ct_mat_ij[0] = 1;
 			ct_mat_ij[1] = 2;
 
-			cr_assert(eq(i64, ct->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE], 1));
+			cr_assert(eq(i64, ggsw->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE], 1));
 			cr_assert(
-			    eq(i64, ct->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE + 1], 2));
+			    eq(i64, ggsw->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE + 1], 2));
 		}
 
-	delete_ggsw(ct);
+	// Clean up
+	delete_ggsw(ggsw);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
@@ -101,16 +119,23 @@ Test(ggsw_Sj_Yti, basic)
 // Test normalize_ggsw
 Test(normalize_ggsw, basic)
 {
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	// Parameters
 	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertext* ct        = new_ggsw(params_ggsw);
-	GGSWCiphertext* res       = new_ggsw(params_ggsw);
+	// Variables
+	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
+	GGSWCiphertext* res  = new_ggsw(params_ggsw);
 
-	normalize_ggsw(module, res, ct);
+	// Normalize the ggsw ciphertext
+	int status = normalize_ggsw(module, res, ggsw);
 
-	delete_ggsw(ct);
+	// Asserts normalize_ggsw succeed
+	cr_assert(eq(int, status, 0), "normalize_ggsw failed");
+
+	// Clean up
+	delete_ggsw(ggsw);
 	delete_ggsw(res);
 	delete_module_info(module);
 	delete_glwe_ct_params(params_glwe);
@@ -119,68 +144,92 @@ Test(normalize_ggsw, basic)
 
 Test(add_ggsw, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertext* ct_l      = new_ggsw(params_ggsw);
-	GGSWCiphertext* ct_r      = new_ggsw(params_ggsw);
-	GGSWCiphertext* res       = new_ggsw(params_ggsw);
+	// Variables
+	GGSWCiphertext* ggsw_lhs     = new_ggsw(params_ggsw);
+	GGSWCiphertext* ggsw_rhs     = new_ggsw(params_ggsw);
+	GGSWCiphertext* sum_computed = new_ggsw(params_ggsw);
 
 	// Draws uniformly the GGSW ciphertexts
-	inplace_uniform_random_vec(NBASE, ct_l->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
-	inplace_uniform_random_vec(NBASE, ct_r->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw_lhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw_rhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 
-	add_ggsw(res, ct_l, ct_r);
+	// Computes ggsw_lhs + ggsw_rhs
+	add_ggsw(sum_computed, ggsw_lhs, ggsw_rhs);
 
-	uint64_t nb_rows = res->params->n_limbs_tilde;
-	uint64_t nb_cols = res->params->params_glwe->n_limbs;
-	uint64_t N       = res->params->params_glwe->N;
+	uint64_t nb_rows = sum_computed->params->n_limbs_tilde;
+	uint64_t nb_cols = sum_computed->params->params_glwe->n_limbs;
+	uint64_t N       = sum_computed->params->params_glwe->N;
 
+	// Asserts sum_computed = ggsw_lhs + ggsw_rhs
 	for (uint64_t i = 0; i < nb_rows; i++)
 		for (uint64_t j = 0; j < nb_cols; j++)
 			for (uint64_t p = 0; p < N; p++)
-				cr_assert(eq(res->mat[i * N * nb_cols + j * N + p],
-				             ct_l->mat[i * N * nb_cols + j * N + p] + ct_r->mat[i * N * nb_cols + j * N + p]));
+			{
+				uint64_t idx = i * N * nb_cols + j * N + p;
+				cr_assert(eq(int, sum_computed->mat[idx], ggsw_lhs->mat[idx] + ggsw_rhs->mat[idx]),
+				          "add_biv_ggswy mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64
+				          ", got %" PRId64,
+				          (long long)idx, ggsw_lhs->mat[idx], ggsw_rhs->mat[idx],
+				          ggsw_lhs->mat[idx] + ggsw_rhs->mat[idx], sum_computed->mat[idx]);
+			}
 
-	delete_ggsw(ct_l);
-	delete_ggsw(ct_r);
-	delete_ggsw(res);
+	// Clean up
+	delete_ggsw(ggsw_lhs);
+	delete_ggsw(ggsw_rhs);
+	delete_ggsw(sum_computed);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_glwe_ct_params(params_glwe);
 }
 
 Test(const_mult_ggsw, without_normalization)
 {
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	// Parameters
 	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	PolyUniv* u               = new_uniform_random_vec(NBASE, KAPPABASE - 1);
-	GGSWCiphertext* ct        = new_ggsw(params_ggsw);
-	GGSWCiphertext* res       = new_ggsw(params_ggsw);
+	// Variables
+	PolyUniv* u                      = malloc(NBASE * sizeof(int64_t));
+	PolyUnivDFT* u_dft               = malloc(NBASE * sizeof(double));
+	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
+	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
+
+	// Draws uniformly the Zn[X] constant
+	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
 
 	// Draws uniformly the GGSW ciphertext
-	inplace_uniform_random_vec(NBASE, ct->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 
-	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(double));
+	// Computes u in the DFT domain
 	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
 
-	const_mult_ggsw(module, res, ct, u_dft, 0);
+	// Computes u * ggsw
+	const_mult_ggsw(module, product_computed, ggsw, u_dft, 0);
 
+	// Asserts product_computed = u * ggsw
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++) {
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ct->mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, res->mat, jj, ii);
+		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
+		{
+			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw->mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, product_computed->mat, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
-					for (uint64_t i = 1; i <= LBASE; i++) {
-						for (uint64_t i = LBASE; i >= 1; i--) {
+					for (uint64_t i = 1; i <= LBASE; i++)
+					{
+						for (uint64_t i = LBASE; i >= 1; i--)
+						{
 							PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
 							int64_t acc     = 0;
-							for (uint64_t k = 0; k <= p; k++) {
+							for (uint64_t k = 0; k <= p; k++)
+							{
 								acc += u[k] * ct_ij[p - k];
 							}
-							for (uint64_t k = p + 1; k < NBASE; k++) {
+							for (uint64_t k = p + 1; k < NBASE; k++)
+							{
 								acc += -u[k] * ct_ij[NBASE + p - k];
 							}
 							cr_assert(eq(i64, res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], acc));
@@ -188,50 +237,62 @@ Test(const_mult_ggsw, without_normalization)
 					}
 		}
 
+	// Clean up
 	free(u);
 	free(u_dft);
-	delete_module_info(module);
-	delete_ggsw(ct);
-	delete_ggsw(res);
+	delete_ggsw(ggsw);
+	delete_ggsw(product_computed);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_glwe_ct_params(params_glwe);
+	delete_module_info(module);
 }
 
 Test(const_mult_ggsw, with_normalization)
 {
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	// Parameters
 	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	PolyUniv* u               = new_uniform_random_vec(NBASE, KAPPABASE - 1);
-	u[0]                      = 0;
-	GGSWCiphertext* ct        = new_ggsw(params_ggsw);
-	GGSWCiphertext* res       = new_ggsw(params_ggsw);
+	// Variables
+	PolyUniv* u                      = malloc(NBASE * sizeof(int64_t));
+	PolyUnivDFT* u_dft               = malloc(NBASE * sizeof(double));
+	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
+	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
+
+	// Draws uniformly the Zn[X] constant
+	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
 
 	// Draws uniformly the GGSW ciphertext
-	inplace_uniform_random_vec(NBASE, ct->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 
-	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(double));
+	// Computes u in the DFT domain
 	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
 
-	const_mult_ggsw(module, res, ct, u_dft, 1);
+	// Computes u * ggsw
+	const_mult_ggsw(module, product_computed, ggsw, u_dft, 1);
 
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++) {
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ct->mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, res->mat, jj, ii);
+		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
+		{
+			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw->mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, product_computed->mat, jj, ii);
 
 			for (uint64_t j = 0; j < KBASE + 1; j++)
-				for (uint64_t p = 0; p < NBASE; p++) {
+				for (uint64_t p = 0; p < NBASE; p++)
+				{
 					int64_t remainder = 0;
-					for (uint64_t i = LBASE; i >= 1; i--) {
+					for (uint64_t i = LBASE; i >= 1; i--)
+					{
 						PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
 
-						int64_t acc     = 0;
-						for (uint64_t k = 0; k <= p; k++) {
+						int64_t acc = 0;
+						for (uint64_t k = 0; k <= p; k++)
+						{
 							acc += u[k] * ct_ij[p - k];
 						}
-						for (uint64_t k = p + 1; k < NBASE; k++) {
+						for (uint64_t k = p + 1; k < NBASE; k++)
+						{
 							acc += -u[k] * ct_ij[NBASE + p - k];
 						}
 
@@ -251,13 +312,14 @@ Test(const_mult_ggsw, with_normalization)
 				}
 		}
 
+	// Clean up
 	free(u);
 	free(u_dft);
-	delete_module_info(module);
-	delete_ggsw(ct);
-	delete_ggsw(res);
+	delete_ggsw(ggsw);
+	delete_ggsw(product_computed);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_glwe_ct_params(params_glwe);
+	delete_module_info(module);
 }
 
 //! GGSW IN DFT SPACE Part (begin)
@@ -265,27 +327,34 @@ Test(const_mult_ggsw, with_normalization)
 // Test ggsw_coef_number
 Test(ggsw_coef_number_dft, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
+	// Asserts ggsw_coef_number_dft returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE / 2
 	cr_assert(eq(i64, ggsw_coef_number_dft(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE / 2));
 
-	delete_glwe_ct_params(params_glwe);
+	// Clean up
 	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_ct_params(params_glwe);
 }
 
 // Test new_ggsw
 Test(new_ggsw_dft, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertextDFT* ct_dft = new_ggsw_dft(params_ggsw);
+	// Variables
+	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
-	cr_assert(eq(int, ct_dft->mat != NULL, 1));
-	cr_assert(eq(int, ct_dft->params != NULL, 1));
+	// Asserts new_ggsw_dft worked
+	cr_assert(eq(int, ggsw_dft->mat != NULL, 1));
+	cr_assert(eq(int, ggsw_dft->params != NULL, 1));
 
-	delete_ggsw_dft(ct_dft);
+	// Clean up
+	delete_ggsw_dft(ggsw_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
@@ -293,26 +362,32 @@ Test(new_ggsw_dft, basic)
 // Test ggsw_Sj_Yti_dft
 Test(ggsw_Sj_Yti_dft, basic)
 {
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw      = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertextDFT* ct_dft = new_ggsw_dft(params_ggsw);
+	// Variables
+	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
+	// Asserts ggsw_Sj_Yti_dft returns the right pointer
 	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
-		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++) {
-			VecBivDFT* ct_mat_ij = ggsw_Sj_Yti_dft(params_ggsw, ct_dft->mat, j, i);
+		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
+		{
+			VecBivDFT* ct_mat_ij = ggsw_Sj_Yti_dft(params_ggsw, ggsw_dft->mat, j, i);
 
-			// Modify the two firsts coefficients of biGLWE(-m * sk_j / (2^kappa_tilde)^i).
+			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 			ct_mat_ij[0] = 0.1;
 			ct_mat_ij[1] = 0.2;
 
 			cr_assert(
-			    eq(dbl, ct_dft->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE], 0.1));
-			cr_assert(eq(
-			    dbl, ct_dft->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE + 1], 0.2));
+			    eq(dbl, ggsw_dft->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE], 0.1));
+			cr_assert(eq(dbl,
+			             ggsw_dft->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * NBASE + j * NLIMBSBASE * NBASE + 1],
+			             0.2));
 		}
 
-	delete_ggsw_dft(ct_dft);
+	// Clean up
+	delete_ggsw_dft(ggsw_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
@@ -320,16 +395,23 @@ Test(ggsw_Sj_Yti_dft, basic)
 // Test normalize_ggsw
 Test(normalize_ggsw_dft, basic)
 {
-	GLWECtParams* params_glwe  = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw       = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module             = new_module_info(NBASE, FFT64);
+	// Parameters
+	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
+	// Variables
+	GGSWCiphertextDFT* res_dft  = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
-	normalize_ggsw_dft(module, res_dft, ct_dft);
+	// Normalize ggsw_dft
+	int status = normalize_ggsw_dft(module, res_dft, ggsw_dft);
 
-	delete_ggsw_dft(ct_dft);
+	// Asserts normalize_ggsw_dft succeed
+	cr_assert(eq(int, status, 0), "normalize_ggsw_dft failed");
+
+	// Clean up
+	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(res_dft);
 	delete_module_info(module);
 	delete_glwe_ct_params(params_glwe);
@@ -338,33 +420,44 @@ Test(normalize_ggsw_dft, basic)
 
 Test(add_ggsw_dft, basic)
 {
-	GLWECtParams* params_glwe   = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw   = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module              = new_module_info(NBASE, FFT64);
+	// Parameters
+	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	GGSWCiphertextDFT* ct_l_dft = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* ct_r_dft = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* res_dft  = new_ggsw_dft(params_ggsw);
+	// Variables
+	GGSWCiphertextDFT* ggsw_lhs_dft     = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* ggsw_rhs_dft     = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* sum_computed_dft = new_ggsw_dft(params_ggsw);
 
 	// Draws uniformly the GGSW ciphertexts
-	inplace_uniform_random_vec_znx_dft(module, ct_l_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
-	inplace_uniform_random_vec_znx_dft(module, ct_r_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_lhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_rhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
-	add_ggsw_dft(res_dft, ct_l_dft, ct_r_dft);
+	// Computes ggsw_lhs_dft + ggsw_rhs_dft
+	add_ggsw_dft(sum_computed_dft, ggsw_lhs_dft, ggsw_rhs_dft);
 
 	uint64_t nb_rows = params_ggsw->n_limbs_tilde;
 	uint64_t nb_cols = params_glwe->n_limbs;
 	uint64_t N       = params_glwe->N;
 
+	// Asserts sum_computed = ggsw_lhs_dft + ggsw_rhs_dft
 	for (uint64_t i = 0; i < nb_rows; i++)
 		for (uint64_t j = 0; j < nb_cols; j++)
 			for (uint64_t p = 0; p < N; p++)
-				cr_assert(eq(res_dft->mat[i * N * nb_cols + j * N + p],
-				             ct_l_dft->mat[i * N * nb_cols + j * N + p] + ct_r_dft->mat[i * N * nb_cols + j * N + p]));
+			{
+				uint64_t idx = i * N * nb_cols + j * N + p;
+				cr_assert(eq(dbl, sum_computed_dft->mat[idx], ggsw_lhs_dft->mat[idx] + ggsw_rhs_dft->mat[idx]),
+				          "add_biv_ggswy mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64
+				          ", got %" PRId64,
+				          (long long)idx, ggsw_lhs_dft->mat[idx], ggsw_rhs_dft->mat[idx],
+				          ggsw_lhs_dft->mat[idx] + ggsw_rhs_dft->mat[idx], sum_computed_dft->mat[idx]);
+			}
 
-	delete_ggsw_dft(ct_l_dft);
-	delete_ggsw_dft(ct_r_dft);
-	delete_ggsw_dft(res_dft);
+	// Clean up
+	delete_ggsw_dft(ggsw_lhs_dft);
+	delete_ggsw_dft(ggsw_rhs_dft);
+	delete_ggsw_dft(sum_computed_dft);
 	delete_module_info(module);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_glwe_ct_params(params_glwe);
@@ -372,42 +465,53 @@ Test(add_ggsw_dft, basic)
 
 Test(const_mult_ggsw_dft, without_normalization)
 {
-	GLWECtParams* params_glwe  = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw  = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module             = new_module_info(NBASE, FFT64);
+	// Parameters
+	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	PolyUnivDFT* u_dft         = new_uniform_random_vec_znx_dft(module, 1, KAPPABASE - 1);
-	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
+	// Variables
+	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(double));
+	GGSWCiphertextDFT* ggsw_dft          = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* prod_computed_dft = new_ggsw_dft(params_ggsw);
+	PolyUniv* u                          = malloc(NBASE * sizeof(double));
+	MatBiv* ggsw_mat                     = malloc(ggsw_bytes(params_ggsw));
+	MatBiv* prod_computed_mat            = malloc(ggsw_bytes(params_ggsw));
+
+	// Draws uniformly the Zn[X] polynomial in the DFT domain
+	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
 
 	// Draws uniformly the GGSW ciphertext in the DFT domain
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
-	// Computes DFT(u)*GGSW
-	const_mult_ggsw_dft(module, res_dft, ct_dft, u_dft, 0);
+	// Computes DFT(u) * DFT(ggsw)
+	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft, 0);
 
-	// Computes the variables out of the DFT domain
-	PolyUniv* u = malloc(NBASE * sizeof(double));
+	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	vec_znx_idft_p(module, u, 1, u_dft, 1);
-	MatBiv* ct_mat = malloc(ggsw_bytes(params_ggsw));
-	vec_znx_idft_p(module, ct_mat, ggsw_size(params_ggsw), ct_dft->mat, ggsw_size(params_ggsw));
-	MatBiv* res_mat = malloc(ggsw_bytes(params_ggsw));
-	vec_znx_idft_p(module, res_mat, ggsw_size(params_ggsw), res_dft->mat, ggsw_size(params_ggsw));
+	vec_znx_idft_p(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
+	vec_znx_idft_p(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
 
+	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++) {
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ct_mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, res_mat, jj, ii);
+		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
+		{
+			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw_mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, prod_computed_mat, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
-					for (uint64_t i = 1; i <= LBASE; i++) {
-						for (uint64_t i = LBASE; i >= 1; i--) {
+					for (uint64_t i = 1; i <= LBASE; i++)
+					{
+						for (uint64_t i = LBASE; i >= 1; i--)
+						{
 							PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
 							int64_t acc     = 0;
-							for (uint64_t k = 0; k <= p; k++) {
+							for (uint64_t k = 0; k <= p; k++)
+							{
 								acc += u[k] * ct_ij[p - k];
 							}
-							for (uint64_t k = p + 1; k < NBASE; k++) {
+							for (uint64_t k = p + 1; k < NBASE; k++)
+							{
 								acc += -u[k] * ct_ij[NBASE + p - k];
 							}
 							cr_assert(eq(i64, res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], acc));
@@ -415,56 +519,67 @@ Test(const_mult_ggsw_dft, without_normalization)
 					}
 		}
 
+	// Clean up
 	free(u);
 	free(u_dft);
-	free(ct_mat);
-	free(res_mat);
-	delete_ggsw_dft(ct_dft);
-	delete_ggsw_dft(res_dft);
-	delete_module_info(module);
+	free(ggsw_mat);
+	free(prod_computed_mat);
+	delete_ggsw_dft(ggsw_dft);
+	delete_ggsw_dft(prod_computed_dft);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_glwe_ct_params(params_glwe);
+	delete_module_info(module);
 }
 
 Test(const_mult_ggsw_dft, with_normalization)
 {
-	GLWECtParams* params_glwe  = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw  = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module             = new_module_info(NBASE, FFT64);
+	// Parameters
+	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
-	PolyUnivDFT* u_dft         = new_uniform_random_vec_znx_dft(module, 1, KAPPABASE - 1);
-	GGSWCiphertextDFT* ct_dft  = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* res_dft = new_ggsw_dft(params_ggsw);
+	// Variables
+	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(double));
+	GGSWCiphertextDFT* ggsw_dft          = new_ggsw_dft(params_ggsw);
+	GGSWCiphertextDFT* prod_computed_dft = new_ggsw_dft(params_ggsw);
+	PolyUniv* u                          = malloc(NBASE * sizeof(double));
+	MatBiv* ggsw_mat                     = malloc(ggsw_bytes(params_ggsw));
+	MatBiv* prod_computed_mat            = malloc(ggsw_bytes(params_ggsw));
+
+	// Draws uniformly the Zn[X] polynomial in the DFT domain
+	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
 
 	// Draws uniformly the GGSW ciphertext in the DFT domain
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
-	// Computes DFT(u)*GGSW
-	const_mult_ggsw_dft(module, res_dft, ct_dft, u_dft, 1);
+	// Computes DFT(u) * DFT(ggsw)
+	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft, 0);
 
-	// Computes the variables out of the DFT domain
-	PolyUniv* u = malloc(NBASE * sizeof(double));
+	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	vec_znx_idft_p(module, u, 1, u_dft, 1);
-	MatBiv* ct_mat = malloc(ggsw_bytes(params_ggsw));
-	vec_znx_idft_p(module, ct_mat, ggsw_size(params_ggsw), ct_dft->mat, ggsw_size(params_ggsw));
-	MatBiv* res_mat = malloc(ggsw_bytes(params_ggsw));
-	vec_znx_idft_p(module, res_mat, ggsw_size(params_ggsw), res_dft->mat, ggsw_size(params_ggsw));
+	vec_znx_idft_p(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
+	vec_znx_idft_p(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
 
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++) {
-			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ct_mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, res_mat, jj, ii);
+		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
+		{
+			VecBiv* ct_mat_ii_jj  = ggsw_Sj_Yti(params_ggsw, ggsw_mat, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_Sj_Yti(params_ggsw, prod_computed_mat, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
-				for (uint64_t p = 0; p < NBASE; p++) {
+				for (uint64_t p = 0; p < NBASE; p++)
+				{
 					int64_t remainder = 0;
-					for (uint64_t i = LBASE; i >= 1; i--) {
+					for (uint64_t i = LBASE; i >= 1; i--)
+					{
 						PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
 
-						int64_t acc     = 0;
-						for (uint64_t k = 0; k <= p; k++) {
+						int64_t acc = 0;
+						for (uint64_t k = 0; k <= p; k++)
+						{
 							acc += u[k] * ct_ij[p - k];
 						}
-						for (uint64_t k = p + 1; k < NBASE; k++) {
+						for (uint64_t k = p + 1; k < NBASE; k++)
+						{
 							acc += -u[k] * ct_ij[NBASE + p - k];
 						}
 
@@ -484,13 +599,14 @@ Test(const_mult_ggsw_dft, with_normalization)
 				}
 		}
 
+	// Clean up
 	free(u);
 	free(u_dft);
-	free(ct_mat);
-	free(res_mat);
-	delete_ggsw_dft(ct_dft);
-	delete_ggsw_dft(res_dft);
-	delete_module_info(module);
+	free(ggsw_mat);
+	free(prod_computed_mat);
+	delete_ggsw_dft(ggsw_dft);
+	delete_ggsw_dft(prod_computed_dft);
 	delete_ggsw_ct_params(params_ggsw);
 	delete_glwe_ct_params(params_glwe);
+	delete_module_info(module);
 }

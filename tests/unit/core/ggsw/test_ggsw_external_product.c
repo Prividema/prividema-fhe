@@ -29,22 +29,28 @@ Test(ggsw_external_product, without_error)
 	double sigma              = 0;
 	double sigma_tilde        = 0;
 
+	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GLWECtParams* params_glwe_tilde =
 	    new_glwe_ct_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
 	GGSWCtParams* params_ggsw     = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 	MODULE* module                = new_module_info(NBASE, FFT64);
 
+	// Variables
+	GGSWSecretKey* sk_ggsw = new_ggsw_secret_key(NBASE, KBASE);
+	GGSWSecretKeyDFT* sk_ggsw_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_glwe_dft = new_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertext* ggsw       = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde = new_glwe(params_glwe_tilde);
-	GLWECiphertext* res           = new_glwe(params_glwe);
-
-	// Draws respectively uniformly the secret key in the DFT domain, a Zn[X] polynomial and a Zn[X,Y] polynomial
-	GGSWSecretKey* sk_ggsw        = new_ggsw_secret_key(NBASE, KBASE);
-	sk_ggsw->values[0][0]         = 1;
-	sk_ggsw->values[0][1]         = 0;
-	GGSWSecretKeyDFT* sk_ggsw_dft = transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw);
-	GLWESecretKeyDFT* sk_glwe_dft = transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_ggsw_dft);
+	GLWECiphertext* res        = new_glwe(params_glwe);
+	
+	// Define sk_ggsw = (1, 0, ... , 0)
+	sk_ggsw->values[0][0] = 1;
+	sk_ggsw->values[0][1] = 0;
+	
+	// Computes the GGSW secret key out of the DFT domain
+ 	transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw_dft, sk_ggsw);
+	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft ,sk_ggsw_dft);
 
 	// Draws uniformly both messages
 	PolyUniv* u_univ = new_uniform_random_vec(NBASE, KAPPABASE);

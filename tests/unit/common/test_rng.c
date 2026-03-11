@@ -173,7 +173,7 @@ Test(rand_normal, test_rand_normal)
 #define NBASE 4
 #define KBASE 2
 
-Test(new_normal_random_vec, basic)
+Test(normal_random_vec, basic)
 {
 	MODULE* module   = new_module_info_p(NBASE);
 	double* pol_univ = malloc(NBASE * KBASE * sizeof(double));
@@ -182,8 +182,8 @@ Test(new_normal_random_vec, basic)
 		cr_fail();
 	}
 
-	if (new_normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0) {
-		log_msg(LOG_ERROR, "new_normal_random_vec failedi.");
+	if (normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0) {
+		log_m(LOG_ERROR, "new_normal_random_vec failedi.");
 		delete_module_info_p(module);
 		free(pol_univ);
 		cr_fail();
@@ -193,7 +193,7 @@ Test(new_normal_random_vec, basic)
 	free(pol_univ);
 }
 
-Test(inplace_uniform_random_vec_dft, basic)
+Test(uniform_random_vec_dft, basic)
 {
 	MODULE* module       = new_module_info_p(NBASE);
 	PolyUnivDFT* res_dft = malloc(NBASE * KBASE * sizeof(double));
@@ -202,8 +202,8 @@ Test(inplace_uniform_random_vec_dft, basic)
 		cr_fail();
 	}
 
-	if (inplace_uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0) {
-		log_msg(LOG_ERROR, "inplace_uniform_random_vec_znx_dft failed.");
+	if (uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0) {
+		log_m(LOG_ERROR, "uniform_random_vec_znx_dft failed.");
 		delete_module_info_p(module);
 		free(res_dft);
 		cr_fail();

@@ -46,9 +46,9 @@ PolyUniv** new_uniform_glwe_secret_key_values(const MODULE* module, uint64_t k, 
 			return NULL;
 		}
 
-		if (inplace_uniform_random_vec(N, values[j], 1, N, nb_bits) < 0)
+		if (uniform_random_vec(N, values[j], 1, N, nb_bits) < 0)
 		{
-			log_perror("inplace_uniform_random_vec failed in new_uniform_glwe_secret_key_values.");
+			log_perror("uniform_random_vec failed in new_uniform_glwe_secret_key_values.");
 
 			for (uint64_t t = 0; t < j; t++) free(values[t]);
 			free(values);
@@ -207,9 +207,9 @@ PolyUnivDFT** new_uniform_glwe_secret_key_values_dft(const MODULE* module, uint6
 			return NULL;
 		}
 
-		if (inplace_uniform_random_vec_znx_dft(module, values_dft[j], 1, nb_bits) < 0)
+		if (uniform_random_vec_znx_dft(module, values_dft[j], 1, nb_bits) < 0)
 		{
-			log_perror("inplace_uniform_random_vec_znx_dft failed in new_uniform_glwe_secret_key_values_dft.");
+			log_perror("uniform_random_vec_znx_dft failed in new_uniform_glwe_secret_key_values_dft.");
 
 			for (uint64_t t = 0; t < j; t++) free(values_dft[t]);
 			free(values_dft);

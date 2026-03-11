@@ -30,26 +30,30 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	// The variance of the error's distribution
 	double sigma              = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
+	// Parameters
 	MODULE* module            = new_module_info_p(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
+	// Secret key in the DFT domain
 	GGSWSecretKeyDFT* sk_dft  = new_ggsw_secret_key_dft(NBASE, KBASE);
 
+	// Variables
+	
 	// The result bivGLWE
 	VecBiv* glwe_vec = malloc(glwe_coef_number(params_glwe) * sizeof(int64_t));
 
 	// The input message uniformly drawn in Zn[X,Y]
-	PolyBiv* msg     = new_uniform_random_biv_poly(module, params_glwe, LBASE / 2);
+	PolyBiv* m     = new_uniform_random_biv_poly(module, params_glwe, LBASE / 2);
 
-	double* msg_univ = calloc(NBASE, sizeof(double));
-	biv_to_univ(params_glwe, msg_univ, msg);
+	double* m_univ = calloc(NBASE, sizeof(double));
+	biv_to_univ(params_glwe, m_univ, m);
 
 	// The input error normaly drawn in Zn[X,Y]
 	PolyBiv* err = new_normal_random_biv_poly(module, params_glwe);
 
-	// The final phase = msg + err
+	// The final phase = m + err
 	PolyBiv* phase = calloc(NBASE * LBASE, sizeof(int64_t));
-	add_biv_poly(params_glwe, phase, NBASE, msg, NBASE, err, NBASE);
+	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the bivGLWE ciphertext
 	glwe_secret_masking_ggsw_lib(module, params_glwe, glwe_vec, sk_dft, phase);
@@ -67,8 +71,8 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 
 	// Compare both phase in Rn[X]
 	for (uint64_t p = 0; p < NBASE; p++) {
-		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
-		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
+		double diff_1 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p];
+		double diff_2 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
 		double err_length = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
@@ -80,8 +84,8 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	// The error should be greater than 3*sigma 0.27% of the time
 	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
-	free(msg);
-	free(msg_univ);
+	free(m);
+	free(m_univ);
 	free(err);
 	free(phase);
 	free(glwe_vec);
@@ -111,19 +115,19 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	VecBiv* glwe_vec = malloc(glwe_coef_number(params_glwe) * sizeof(int64_t));
 
 	// The input message uniformly drawn in Rn[X]
-	double* msg_univ = malloc(poly_univ_bytes(params_glwe));
-	new_normal_random_vec(NBASE, msg_univ, 1, NBASE, 0.0, 0.1);
+	double* m_univ = malloc(poly_univ_bytes(params_glwe));
+	new_normal_random_vec(NBASE, m_univ, 1, NBASE, 0.0, 0.1);
 
 	// Computes the bivariate form
-	PolyBiv* msg = malloc(poly_biv_bytes(params_glwe));
-	univ_to_biv(params_glwe, msg, msg_univ);
+	PolyBiv* m = malloc(poly_biv_bytes(params_glwe));
+	univ_to_biv(params_glwe, m, m_univ);
 
 	// The input error normaly drawn in Zn[X,Y]
 	PolyBiv* err = new_normal_random_biv_poly(module, params_glwe);
 
-	// The final phase = msg + err
+	// The final phase = m + err
 	PolyBiv* phase = calloc(NBASE * LBASE, sizeof(int64_t));
-	add_biv_poly(params_glwe, phase, NBASE, msg, NBASE, err, NBASE);
+	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the bivGLWE ciphertext
 	glwe_secret_masking_ggsw_lib(module, params_glwe, glwe_vec, sk_dft, phase);
@@ -139,11 +143,11 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
 
-	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
-	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |m_p -
+	// mComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < NBASE; p++) {
-		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
-		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
+		double diff_1 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p];
+		double diff_2 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
 		double err_length = 3*sigma + ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
@@ -155,8 +159,8 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	// The error should be greater than 3*sigma 0.27% of the time
 	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
-	free(msg);
-	free(msg_univ);
+	free(m);
+	free(m_univ);
 	free(err);
 	free(phase);
 	free(phase_computed);
@@ -188,17 +192,17 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	VecBivDFT* glwe_vec_dft = malloc(glwe_coef_number(params_glwe) * sizeof(double));
 
 	// The input message uniformly drawn in Zn[X,Y]
-	PolyBiv* msg     = new_uniform_random_biv_poly(module, params_glwe, LBASE / 2);
+	PolyBiv* m     = new_uniform_random_biv_poly(module, params_glwe, LBASE / 2);
 
-	double* msg_univ = calloc(NBASE, sizeof(double));
-	biv_to_univ(params_glwe, msg_univ, msg);
+	double* m_univ = calloc(NBASE, sizeof(double));
+	biv_to_univ(params_glwe, m_univ, m);
 
 	// The input error normaly drawn in Zn[X,Y]
 	PolyBiv* err = new_normal_random_biv_poly(module, params_glwe);
 
-	// The final phase = msg + err
+	// The final phase = m + err
 	PolyBiv* phase = calloc(NBASE * LBASE, sizeof(int64_t));
-	add_biv_poly(params_glwe, phase, NBASE, msg, NBASE, err, NBASE);
+	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the phase in the DFT domain
 	PolyBivDFT* phase_dft = malloc(poly_biv_bytes(params_glwe));
@@ -218,11 +222,11 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
 
-	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
-	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |m_p -
+	// mComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < NBASE; p++) {
-		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
-		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
+		double diff_1 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p];
+		double diff_2 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
 		double err_length = 3*sigma + ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
@@ -234,8 +238,8 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	// The error should be greater than 3*sigma 0.27% of the time
 	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
-	free(msg);
-	free(msg_univ);
+	free(m);
+	free(m_univ);
 	free(err);
 	free(phase);
 	free(phase_computed);
@@ -266,19 +270,19 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	VecBivDFT* glwe_vec_dft = malloc(glwe_coef_number(params_glwe) * sizeof(double));
 
 	// The input message uniformly drawn in Rn[X]
-	double* msg_univ = malloc(poly_univ_bytes(params_glwe));
-	new_normal_random_vec(NBASE, msg_univ, 1, NBASE, 0.0, 0.1);
+	double* m_univ = malloc(poly_univ_bytes(params_glwe));
+	new_normal_random_vec(NBASE, m_univ, 1, NBASE, 0.0, 0.1);
 
 	// Computes the bivariate form
-	PolyBiv* msg = malloc(poly_biv_bytes(params_glwe));
-	univ_to_biv(params_glwe, msg, msg_univ);
+	PolyBiv* m = malloc(poly_biv_bytes(params_glwe));
+	univ_to_biv(params_glwe, m, m_univ);
 
 	// The input error normaly drawn in Zn[X,Y]
 	PolyBiv* err = new_normal_random_biv_poly(module, params_glwe);
 
-	// The final phase = msg + err
+	// The final phase = m + err
 	PolyBiv* phase = calloc(NBASE * LBASE, sizeof(int64_t));
-	add_biv_poly(params_glwe, phase, NBASE, msg, NBASE, err, NBASE);
+	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the phase in the DFT domain
 	PolyBivDFT* phase_dft = malloc(poly_biv_bytes(params_glwe));
@@ -298,11 +302,11 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
 
-	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
-	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |m_p -
+	// mComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < NBASE; p++) {
-		double diff_1 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p];
-		double diff_2 = msg_univ[p] - round(msg_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
+		double diff_1 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p];
+		double diff_2 = m_univ[p] - round(m_univ[p]) - phase_computed_univ[p] + floor(phase_computed_univ[p]) +
 		                ceil(phase_computed_univ[p]);
 		double err_length = 3*sigma + ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
@@ -314,8 +318,8 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	// The error should be greater than 3*sigma 0.27% of the time
 	cr_assert(big_error_count <= (int) 99.73*NBASE);
 
-	free(msg);
-	free(msg_univ);
+	free(m);
+	free(m_univ);
 	free(err);
 	free(phase);
 	free(phase_computed);

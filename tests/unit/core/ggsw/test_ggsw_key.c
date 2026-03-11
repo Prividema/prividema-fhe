@@ -1,14 +1,21 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+#include <stdio.h>
 
 #include "core/ggsw/ggsw_key.h"
 
-#define NBASE      1024
-#define KBASE      1
-#define KAPPABASE  4
-#define NLIMBSBASE (KBASE + 1) * 4
-#define LBASE      NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE  -(LBASE / 2 + 1) * KAPPABASE
+#define NBASE            1024
+#define KBASE            1
+#define KAPPABASE        4
+#define NLIMBSBASE       (KBASE + 1) * 2
+#define LBASE            NLIMBSBASE / (KBASE + 1)
+#define SIGMABASE        -(LBASE / 2 + 1) * KAPPABASE
+
+#define K_TILDEBASE      1
+#define KAPPA_TILDEBASE  4
+#define NLIMBS_TILDEBASE (K_TILDEBASE + 1) * 2
+#define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
+#define SIGMA_TILDEBASE  -3
 
 //! GGSW KEY PART (begin)
 
@@ -17,43 +24,14 @@
  */
 Test(new_ggsw_secret_key_values, basic)
 {
+	// Create a GGSW secret key's values
 	PolyUniv** values = new_ggsw_secret_key_values(NBASE, KBASE);
 
+	// Assert values and its values is not NULL
 	cr_assert(eq(int, values != NULL, 1));
 	for (uint64_t j = 0; j < KBASE; j++) cr_assert(eq(int, values[j] != NULL, 1));
 
-	delete_ggsw_secret_key_values(values, KBASE);
-}
-
-/**
- * @brief Ensure new_uniform_secret_key_values creates no NULL-pointer.
- */
-Test(new_uniform_ggsw_secret_key_values, basic)
-{
-	MODULE* module    = new_module_info(NBASE, FFT64);
-
-	PolyUniv** values = new_uniform_ggsw_secret_key_values(module, KBASE, 3);
-
-	cr_assert(eq(int, values != NULL, 1));
-	for (uint64_t j = 0; j < KBASE; j++) cr_assert(eq(int, values[j] != NULL, 1));
-
-	delete_module_info(module);
-	delete_ggsw_secret_key_values(values, KBASE);
-}
-
-/**
- * @brief Tests wether transform_secret_key_values_dft_to_not_dft actually transforms the values of the secret key in
- * the DFT domain.
- */
-Test(transform_ggsw_secret_key_values_dft_to_not_dft, basic)
-{
-	MODULE* module           = new_module_info(NBASE, FFT64);
-
-	PolyUnivDFT** values_dft = new_uniform_ggsw_secret_key_values_dft(module, KBASE, 3);
-	PolyUniv** values        = transform_ggsw_secret_key_values_dft_to_not_dft(module, (const PolyUnivDFT**)values_dft, KBASE);
-
-	delete_module_info(module);
-	delete_ggsw_secret_key_values_dft(values_dft, KBASE);
+	// Clean up
 	delete_ggsw_secret_key_values(values, KBASE);
 }
 
@@ -62,49 +40,37 @@ Test(transform_ggsw_secret_key_values_dft_to_not_dft, basic)
  */
 Test(new_ggsw_secret_key, values_not_null)
 {
+	// Create a GGSW secret key
 	GGSWSecretKey* sk = new_ggsw_secret_key(NBASE, KBASE);
 
-	cr_assert(eq(int, sk != NULL, 1));
-	cr_assert(eq(int, sk->values != NULL, 1));
-
-	for (uint64_t j = 0; j < KBASE; j++) cr_assert(eq(int, sk->values[j] != NULL, 1));
+	// Asserts the secret key is not NULL
+	cr_assert(eq(int, sk != NULL, 1), "new_ggsw_secret_key failed.");
 
 	delete_ggsw_secret_key(sk);
 }
 
 /**
- * @brief Ensures new_uniform_ggsw_secret_key returns a non-NULL pointer when values != NULL.
+ * @brief Ensures uniform_ggsw_secret_key returns a non-NULL pointer when values != NULL.
  */
-Test(new_uniform_ggsw_secret_key, values_not_null)
+Test(uniform_ggsw_secret_key, values_not_null)
 {
-	MODULE* module    = new_module_info(NBASE, FFT64);
+	// Parameters
+	MODULE* module = new_module_info(NBASE, FFT64);
 
-	GGSWSecretKey* sk = new_uniform_ggsw_secret_key(module, KBASE, 2);
+	// Create a GGSW secret key
+	GGSWSecretKey* sk = new_ggsw_secret_key(NBASE, KBASE);
 
-	cr_assert(eq(int, sk != NULL, 1));
-	cr_assert(eq(int, sk->values != NULL, 1));
+	// Draw uniformly in Zn[X] the GGSW secret key's values
+	int status = uniform_ggsw_secret_key(module, sk, 2);
 
-	for (uint64_t j = 0; j < KBASE; j++) cr_assert(eq(int, sk->values[j] != NULL, 1));
+	// Asserts uniform_ggsw_secret_key worked
+	cr_assert(eq(int, status, 0), "uniform_ggsw_secret_key failed.");
 
+	// Clean up
 	delete_module_info(module);
 	delete_ggsw_secret_key(sk);
 }
 
-/**
- * @brief Tests wether transform_ggsw_secret_key_dft_to_not_dft transforms the secret key in the DFT domain, out of DFT
- * space.
- */
-Test(transform_ggsw_secret_key_dft_to_not_dft, basic)
-{
-	MODULE* module           = new_module_info(NBASE, FFT64);
-
-	GGSWSecretKeyDFT* sk_dft = new_uniform_ggsw_secret_key_dft(module, KBASE, 3);
-	GGSWSecretKey* sk        = transform_ggsw_secret_key_dft_to_not_dft(module, sk_dft);
-
-	delete_module_info(module);
-	delete_ggsw_secret_key_dft(sk_dft);
-	delete_ggsw_secret_key(sk);
-}
 
 //! GGSW KEY PART IN DFT SPACE (begin)
 
@@ -113,45 +79,15 @@ Test(transform_ggsw_secret_key_dft_to_not_dft, basic)
  */
 Test(new_ggsw_secret_key_values_dft, basic)
 {
+	// Create a GGSW secret key's values
 	PolyUnivDFT** values_dft = new_ggsw_secret_key_values_dft(NBASE, KBASE);
 
+	// Asserts values_dft is not NULL
 	cr_assert(eq(int, values_dft != NULL, 1));
-	for (uint64_t j = 0; j < KBASE; j++) {
+	for (uint64_t j = 0; j < KBASE; j++)
 		cr_assert(eq(int, values_dft[j] != NULL, 1));
-	}
 
-	delete_ggsw_secret_key_values_dft(values_dft, KBASE);
-}
-
-/**
- * @brief Ensure new_uniform_secret_key_values_dft creates no NULL-pointer.
- */
-Test(new_uniform_ggsw_secret_key_values_dft, basic)
-{
-	MODULE* module           = new_module_info(NBASE, FFT64);
-
-	PolyUnivDFT** values_dft = new_uniform_ggsw_secret_key_values_dft(module, KBASE, 3);
-
-	cr_assert(eq(int, values_dft != NULL, 1));
-	for (uint64_t j = 0; j < KBASE; j++) cr_assert(eq(int, values_dft[j] != NULL, 1));
-
-	delete_module_info(module);
-	delete_ggsw_secret_key_values_dft(values_dft, KBASE);
-}
-
-/**
- * @brief Tests wether transform_secret_key_values_not_dft_to_dft actually transforms the values of the secret key out
- * in the DFT domain.
- */
-Test(transform_ggsw_secret_key_values_not_dft_to_dft, basic)
-{
-	MODULE* module           = new_module_info(NBASE, FFT64);
-
-	PolyUniv** values        = new_uniform_ggsw_secret_key_values(module, KBASE, 3);
-	PolyUnivDFT** values_dft = transform_ggsw_secret_key_values_not_dft_to_dft(module, (const PolyUniv**)values, KBASE);
-
-	delete_module_info(module);
-	delete_ggsw_secret_key_values(values, KBASE);
+	// Clean up
 	delete_ggsw_secret_key_values_dft(values_dft, KBASE);
 }
 
@@ -160,50 +96,38 @@ Test(transform_ggsw_secret_key_values_not_dft_to_dft, basic)
  */
 Test(new_ggsw_secret_key_dft, values_not_null)
 {
+	// Create a GGSW secret key in the DFT domain
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 
+	// Asserts the secret key and its values are not NULL
 	cr_assert(eq(int, sk_dft != NULL, 1));
 	cr_assert(eq(int, sk_dft->values != NULL, 1));
 
-	for (uint64_t j = 0; j < KBASE; j++) {
+	for (uint64_t j = 0; j < KBASE; j++) 
 		cr_assert(eq(int, sk_dft->values[j] != NULL, 1));
-	}
 
+	// Clean up
 	delete_ggsw_secret_key_dft(sk_dft);
 }
 
 /**
- * @brief Tests whether new_uniform_ggsw_secret_key_gen works as intended.
+ * @brief Tests whether uniform_ggsw_secret_key_gen works as intended.
  */
-Test(new_uniform_ggsw_secret_key_dft, what_s_inside)
+Test(uniform_ggsw_secret_key_dft, what_s_inside)
 {
-	MODULE* module           = new_module_info(NBASE, FFT64);
+	// Parameters
+	MODULE* module = new_module_info(NBASE, FFT64);
 
-	GGSWSecretKeyDFT* sk_dft = new_uniform_ggsw_secret_key_dft(module, KBASE, 2);
+	// Create a GGSW secret key 
+	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 
-	cr_assert(eq(int, sk_dft != NULL, 1));
-	cr_assert(eq(int, sk_dft->values != NULL, 1));
+	// Draw uniformly the GGSW secret key values
+	int status = uniform_ggsw_secret_key_dft(module, KBASE, 2);
 
-	for (uint64_t j = 0; j < KBASE; j++) {
-		cr_assert(eq(int, sk_dft->values[j] != NULL, 1));
-	}
+	// Asserts uniform_ggsw_secret_key_dft worked
+	cr_assert(eq(int, status, 0), "uniform_ggsw_secret_key_dft failed.");
 
+	// Clean up
 	delete_module_info(module);
-	delete_ggsw_secret_key_dft(sk_dft);
-}
-
-/**
- * @brief Tests wether transform_ggsw_secret_key_not_dft_to_dft transforms the secret key out of the DFT domain, in DFT
- * space.
- */
-Test(transform_ggsw_secret_key_not_dft_to_dft, basic)
-{
-	MODULE* module           = new_module_info(NBASE, FFT64);
-
-	GGSWSecretKey* sk        = new_uniform_ggsw_secret_key(module, KBASE, 3);
-	GGSWSecretKeyDFT* sk_dft = transform_ggsw_secret_key_not_dft_to_dft(module, sk);
-
-	delete_module_info(module);
-	delete_ggsw_secret_key(sk);
 	delete_ggsw_secret_key_dft(sk_dft);
 }

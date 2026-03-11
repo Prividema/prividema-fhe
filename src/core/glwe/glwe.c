@@ -57,8 +57,8 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* ct, GLWESecretKeyD
 	uint64_t kappa = ct->params->kappa;
 	uint64_t l     = poly_biv_size(ct->params);
 
-	if (inplace_uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) < 0)
-		return log_perror("inplace_uniform_random_vec failed in glwe_secret_masking");
+	if (uniform_random_vec(k * N, ct->vec, l, (k + 1) * N, kappa) < 0)
+		return log_perror("uniform_random_vec failed in glwe_secret_masking");
 
 	// acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
 	PolyBiv* acc = calloc(N * l, sizeof(int64_t));
@@ -183,7 +183,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* ct_dft, GLW
 	VecBiv* ct           = calloc(glwe_coef_number(params), sizeof(int64_t));
 	if (log_is_null(ct, "ct's calloc failed in glwe_secret_masking_dft") < 0) return -1;
 
-	if (inplace_uniform_random_vec(k * N, ct, l, (k + 1) * N, kappa) < 0) {
+	if (uniform_random_vec(k * N, ct, l, (k + 1) * N, kappa) < 0) {
 		free(ct);
 		return -1;
 	}

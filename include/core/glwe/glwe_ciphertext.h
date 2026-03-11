@@ -45,6 +45,9 @@ void delete_glwe(GLWECiphertext* glwe);
  * @param module Additionnal information for backend.
  * @param result The result normalized GLWE ciphertext.
  * @param glwe The GLWE ciphertext.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
@@ -66,8 +69,8 @@ void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECip
  * @param glwe The GLWE ciphertext.
  * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
  * 
- * @retval -1 if a malloc fails.
- * @retval 0 if everything works.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe, int do_normalization);
 
@@ -112,6 +115,9 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe);
  * @param module Additionnal information for backend.
  * @param result_dft The result normalized GLWE ciphertext in the DFT domain.
  * @param glwe_dft The GLWE ciphertext in the DFT domain.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_dft);
 
@@ -132,6 +138,9 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
  * @param u The Zn[X] polynomial.
  * @param glwe_dft The GLWE ciphertext in the DFT domain.
  * @param do_normalization the function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u, const GLWECiphertextDFT* glwe_dft,
                         int do_normalization);

@@ -12,36 +12,48 @@
 /**
  * @brief Returns the number of coefficient in bivariate polynomial.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return int64_t
  *
  * @note The number of coefficient is the same in and out of the DFT domain.
  */
-uint64_t poly_biv_coef_number(const GLWECtParams* params);
+uint64_t poly_biv_coef_number(const GLWECtParams* params_glwe);
+
+/**
+ * @brief Creates an allocated bivariate polynomial
+ * 
+ * @param params_glwe The GLWE parameters.
+ */
+PolyBiv* new_biv_poly(const GLWECtParams* params_glwe);
 
 /**
  * @brief Computes a random normal bivariate polynomial.
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
- * @return PolyBiv*
+ * @param params_glwe The GLWE parameters.
+ * @param result The result bivariate polynomial.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
-PolyBiv* new_normal_random_biv_poly(const MODULE* module, const GLWECtParams* params);
+int normal_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result);
 
 /**
  * @brief Computes a random uniform bivariate polynomial.
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param precision The maximum degree in Y of the polynomial.
- * @return PolyBiv*
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
-PolyBiv* new_uniform_random_biv_poly(const MODULE* module, const GLWECtParams* params, int64_t precision);
+int uniform_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, int64_t precision);
 
 /**
  * @brief Adds two bivariate polynomial and puts it in res.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res The result bivariate polynomial.
  * @param res_sl The stride between each Zn[X] polynomial in res.
  * @param a The left-hand side bivariate polynomial.
@@ -49,7 +61,7 @@ PolyBiv* new_uniform_random_biv_poly(const MODULE* module, const GLWECtParams* p
  * @param b The right-hand side bivariate polynomial.
  * @param b_sl The stride between each Zn[X] polynomial in b.
  */
-void add_biv_poly(const GLWECtParams* params, PolyBiv* res, int64_t res_sl, const PolyBiv* a, int64_t a_sl, const PolyBiv* b,
+void add_biv_poly(const GLWECtParams* params_glwe, PolyBiv* res, int64_t res_sl, const PolyBiv* a, int64_t a_sl, const PolyBiv* b,
                   int64_t b_sl);
 
 //! BIV POLY IN DFT PART (begin)
@@ -57,36 +69,49 @@ void add_biv_poly(const GLWECtParams* params, PolyBiv* res, int64_t res_sl, cons
 /**
  * @brief The number of coefficient in bivariate polynomial.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return int64_t
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t poly_biv_coef_number_dft(const GLWECtParams* params);
+uint64_t poly_biv_coef_number_dft(const GLWECtParams* params_glwe);
+
+/**
+ * @brief Creates an allocated bivariate polynomial in the DFT domain.
+ * 
+ * @param params_glwe The GLWE parameters.
+ */
+PolyBivDFT* new_biv_poly_dft(const GLWECtParams* params_glwe);
 
 /**
  * @brief Computes a random normal bivariate polynomial in the DFT domain.
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
- * @return PolyBivDFT*
+ * @param params_glwe The GLWE parameters.
+ * @param result_dft The result bivarariate polynomial in the DFT domain.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
-PolyBivDFT* new_normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params);
+int normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBivDFT* result_dft);
 
 /**
  * @brief Computes a random uniform bivariate polynomial.
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
- * @return PolyBiv*
+ * @param params_glwe The GLWE parameters.
+ * @param result_dft The result bivariate polynomial in the DFT domain.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
-PolyBivDFT* new_uniform_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params, int64_t precision);
+int uniform_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBivDFT* result_dft, int64_t precision);
 
 /**
  * @brief Adds two bivariate polynomial and puts it in res in the DFT domain.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res_dft The result bivariate polynomial in the DFT domain.
  * @param res_sl The stride between each Zn[X] polynomialin res_dft.
  * @param a_dft The left-hand side bivariate polynomial in the DFT domain.
@@ -94,7 +119,7 @@ PolyBivDFT* new_uniform_random_biv_poly_dft(const MODULE* module, const GLWECtPa
  * @param b_dft The right-hand side bivariate polynomial in the DFT domain.
  * @param b_sl The stride between each Zn[X] polynomial in b_dft.
  */
-void add_biv_poly_dft(const GLWECtParams* params, PolyBivDFT* res_dft, int64_t res_sl, const PolyBivDFT* a_dft, int64_t a_sl,
+void add_biv_poly_dft(const GLWECtParams* params_glwe, PolyBivDFT* res_dft, int64_t res_sl, const PolyBivDFT* a_dft, int64_t a_sl,
                       const PolyBivDFT* b_dft, int64_t b_sl);
 
 //! COMMON PART (begin)
@@ -102,52 +127,54 @@ void add_biv_poly_dft(const GLWECtParams* params, PolyBivDFT* res_dft, int64_t r
 /**
  * @brief Returns the number of bytes needed to store a bivariate polynomial.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return uint64_t
  *
  * @note The number of bytes needed to store a bivariate polynomial is the same in and out of the DFT domain.
  */
-uint64_t poly_biv_bytes(const GLWECtParams* params);
+uint64_t poly_biv_bytes(const GLWECtParams* params_glwe);
 
 // TODO modifie size partout
 /**
  *
  * @brief Returns the size - the number l of Zn[X] coefficients - for a bivariate polynomial.
  *
- * @param params
+ * @param params_glwe
  * @return uint64_t
  *
  * @note The size of a bivariate polynomial is the same in and out of the DFT domain.
  */
-uint64_t poly_biv_size(const GLWECtParams* params);
+uint64_t poly_biv_size(const GLWECtParams* params_glwe);
 
 /**
  * @brief Returns the number of bytes needed to store a univariate polynomial.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @return uint64_t
  *
  * @note The number of bytes needed to store an univariate polynomial is the same in and out of the DFT domain.
  */
-uint64_t poly_univ_bytes(const GLWECtParams* params);
+uint64_t poly_univ_bytes(const GLWECtParams* params_glwe);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param pol_univ The result univariate polynomial in Rn[X].
  * @param pol_biv The input bivariate polynomial.
  */
-void biv_to_univ(const GLWECtParams* params, double* res_univ, const PolyBiv* pol);
+void biv_to_univ(const GLWECtParams* params_glwe, double* res_univ, const PolyBiv* pol);
 
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Rn[X].
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_univ The univariate polynomial.
- * @return int
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
-int univ_to_biv(const GLWECtParams* params, PolyBiv* res, const double* pol_univ);
+int univ_to_biv(const GLWECtParams* params_glwe, PolyBiv* res, const double* pol_univ);
 
 #endif  // BIVARIATE_POLYNOMIAL_H

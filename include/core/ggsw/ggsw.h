@@ -13,58 +13,59 @@
  * @brief Adds a bivariate error to the bivariate phase.
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res The result bivariate phase.
  * @param phase The input phase.
  */
-int add_error(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const PolyBiv* phase);
+int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const PolyBiv* phase);
 
 /**
  * @brief Demasks the phase (message + noise).
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param result The result phase in Zn[X,Y].
  * @param sk_dft The secret key in the DFT domain.
  * @param glwe_vec The ciphertext.
  */
-int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const GGSWSecretKeyDFT* sk_dft, const VecBiv* glwe_vec);
+int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const GGSWSecretKeyDFT* sk_dft, const VecBiv* glwe_vec);
 
 /**
  * @brief Masks the phase (message + noise) and puts it in result.
  *
- * @param module The module stocking the degree N.
- * @param params The GLWE parameters.
+ * @param module Additionnal information for backend.
+ * @param params_glwe The GLWE parameters.
  * @param result The result bivariate ciphertext.
  * @param sk_dft The secret key in the DFT domain.
  * @param phase message + noise.
  *
- * @retval `-1` if an error occurs.
- * @retval `0` otherwise.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise otherwise.
  */
-int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* params, VecBiv* result, const GGSWSecretKeyDFT* sk_dft,
+int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, VecBiv* result, const GGSWSecretKeyDFT* sk_dft,
                                  const PolyBiv* phase);
 
 /**
- * @brief Computes the base-2kappa decomposition of the phase : -m * sk_j / 2^{kappa_tilde^i} + err, if j < k
-                                                                        m / 2^{kappa_tilde^i} + err, if j = k
+ * @brief Computes the base-2kappa decomposition of the univariate phase : -m * sk_j / 2^{kappa_tilde * i} + err, if j < k
+                                                                            m / 2^{kappa_tilde * i} + err       , if j = k
  *
- * @param module The module stocking the degree N.
+ * @param module Additionnal information for backend.
  * @param params_ggsw The GGSW parameters.
- * @param params_glwe
- * @param sk_dft
- * @param msg_univ_dft
- * @param phase_biv
- * @param phase_univ_RnX
- * @param m_skj_univ
- * @param m_skj_univ_dft
- * @param i
- * @param j
+ * @param result The bivariate result phase.
+ * @param phase_univ_RnX The phase in univariate space.
+ * @param m_skj_univ The product m * sk_j, for j < k.
+ * @param m_skj_univ_dft The product m * sk_j in the DFT domain, for j < k.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param m_univ_dft The univariate message in the DFT domain.
+ * @param m_univ The univariate message.
+ * @param i The i-ème block of HalfGGSW = [GLWE(-m*sk_0 / 2^{kappa_tilde * i}), ... , GLWE(-m*sk_(k-1) / 2^{kappa_tilde * i}), GLWE(m / 2^{kappa_tilde * i})]
+ * @param j The index of the element of the secret key.
  * @return int
  */
-int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, const GGSWSecretKeyDFT* sk_dft, const PolyUniv* msg_univ,
-                     const PolyUnivDFT* msg_univ_dft, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, 
-                     PolyBiv* result, PolyUnivRnX* phase_univ_RnX, int64_t i, int64_t j);
+int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, PolyBiv* result, 
+					 PolyUnivRnX* phase_univ_RnX, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, 
+					 const GGSWSecretKeyDFT* sk_dft, const PolyUnivDFT* m_univ_dft, const PolyUniv* m_univ, 
+                     int64_t i, int64_t j);
 
 /**
  * @brief Encrypts the message m into GGSW ciphertext res with parameters params.
@@ -73,13 +74,13 @@ int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, cons
  * @param params_ggsw The encryption params
  * @param result The encrypted message
  * @param sk_dft The secret key
- * @param msg_univ The message
+ * @param m_univ The message
  *
- * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise otherwise.
  */
 int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertext* result, const GGSWSecretKeyDFT* sk_dft,
-                        const PolyUniv* msg_univ);
+                        const PolyUniv* m_univ);
 
 /**
  * @brief Computes the external product between a bivGLWE and a bivGGSW.
@@ -88,6 +89,9 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
  * @param result The bivariate GLWE result ciphertext.
  * @param glwe The bivariate GLWE input ciphertext.
  * @param ggsw The bivariate GGSW input ciphertext.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise otherwise.
  */
 int ggsw_external_product(const MODULE* module,
                           GLWECiphertext* result,      // result
@@ -128,27 +132,30 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
  * @brief Demasks the phase (message + noise) in the DFT domain and computes it out of the DFT domain.
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param result result phase in Zn[X,Y].
  * @param sk_dft The secret key in the DFT domain.
  * @param glwe_vec_dft The ciphertext.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
-int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const GGSWSecretKeyDFT* sk_dft,
+int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const GGSWSecretKeyDFT* sk_dft,
                                        const VecBivDFT* glwe_vec_dft);
 
 /**
  * @brief Masks the phase (message + noise) in the DFT domain and puts it in result.
  *
  * @param module Additionnal information for backend.
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param result_dft The result ciphertext in the DFT domain.
  * @param sk_dft The secret key in the DFT domain.
  * @param phase_dft message + error.
  *
- * @retval `-1` if an error occurs.
- * @retval `0` otherwise.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise otherwise.
  */
-int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params, VecBivDFT* result_dft, const GGSWSecretKeyDFT* sk_dft,
+int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, VecBivDFT* result_dft, const GGSWSecretKeyDFT* sk_dft,
                                      const PolyBivDFT* phase_dft);
 
 /**
@@ -156,37 +163,40 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
  *                                                                      m / 2^{kappa_tilde^i} + err, if j = k
  *
  * @param module Additionnal information for backend.
- * @param params_ggsw
- * @param sk_dft
- * @param msg_univ
- * @param msg_univ_dft
- * @param phase_dft
- * @param phase
+ * @param params_ggsw The GGSW parameters.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param m_univ The input message.
+ * @param m_univ_dft The input message in the DFT domain.
+ * @param phase_dft The phase in the DFT domain.
+ * @param phase The phase.
  * @param phase_univ_RnX
  * @param m_skj_univ
  * @param m_skj_univ_dft
  * @param i
  * @param j
- * @return int
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
-int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, const GGSWSecretKeyDFT* sk_dft, const PolyUniv* msg_univ,
-                         const PolyUnivDFT* msg_univ_dft, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft,
-                         PolyBivDFT* phase_dft, PolyBiv* result, PolyUnivRnX* phase_univ_RnX, int64_t i, int64_t j);
+int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, PolyBivDFT* result_dft, 
+						 PolyBiv* phase, PolyUnivRnX* phase_univ_RnX, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, 
+						 const GGSWSecretKeyDFT* sk_dft, const PolyUnivDFT* m_univ_dft, const PolyUniv* m_univ,
+						 int64_t i, int64_t j);
 
 /**
  * @brief Encrypts the message m into GGSW ciphertext res with parameters params in the DFT domain.
  *
  * @param module Additionnal information for backend.
- * @param params The encryption params
+ * @param params_ggsw The encryption params
  * @param res_dft The encrypted message
  * @param sk_dft The secret key
- * @param msg_univ The message
+ * @param m_univ The message
  *
- * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise otherwise.
  */
 int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertextDFT* result_dft,
-                            const GGSWSecretKeyDFT* sk_dft, const PolyUniv* msg_univ);
+                            const GGSWSecretKeyDFT* sk_dft, const PolyUniv* m_univ);
 
 /**
  * @brief Computes the external product between a bivGLWE and a biv GGSW.

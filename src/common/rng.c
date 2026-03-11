@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "utils.h"
 #include "logger.h"
 
 #ifdef _WIN32
@@ -33,7 +34,7 @@ int read_rand(int64_t* result)
 // For Windows
 #ifdef _WIN32
 	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, sizeof(*result), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-	if (status != STATUS_SUCCESS) return log_msg(LOG_ERROR, "BCryptGenRandom() Failed");
+	if (status != STATUS_SUCCESS) return log_m(LOG_ERROR, "BCryptGenRandom() Failed");
 
 // For MACOS/FreeBSD
 // According to arc4random's doc, the function crashes if an error occurs :
@@ -57,7 +58,7 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
 	if (nb_bits > 8 * sizeof(int64_t))
-		return log_msg(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits,
+		return log_m(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits,
 		               8 * sizeof(int64_t));
 
 	// Generate a random int64_t
@@ -132,9 +133,23 @@ int rand_normal(double* result, double mu, double sigma)
 	return 0;
 }
 
+int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
+{
+	int status = -1;
+
+	for(uint64_t p = 0 ; p < N ; p++)
+		CHECK_CALL(rand_uniform(res + p, nb_bits), "rand_uniform failed");
+	
+	status = 0;
+
+cleanup:
+
+	return status;
+}
+
 // Random Vectors
 
-int inplace_uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
+int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
 		for (uint64_t j = 0; j < limb_len; j++)
@@ -142,66 +157,38 @@ int inplace_uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs
 	return 0;
 }
 
-VecUniv* new_uniform_random_vec(uint64_t vec_size, uint64_t nb_bits)
+int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
 {
-	VecUniv* res = malloc(vec_size * sizeof(int64_t));
-	if (log_is_null(res, "malloc in new_uniform_random_vec") < 0) return NULL;
+	int status = -1;
 
-	for (uint64_t i = 0; i < vec_size; i++)
-		if (rand_uniform(res + i, nb_bits) < 0) return NULL;
+	// Variables
+	int64_t* tmp_space = NULL;
 
-	return res;
-}
+	// The degree of the cyclotomic polynomial
+	uint64_t N = module->nn;
 
-int inplace_uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* res_dft, int64_t res_size, uint64_t nb_bits)
-{
-	uint64_t N         = module->nn;
-	int64_t* tmp_space = malloc(N * res_size * sizeof(int64_t));
-	if (log_is_null(tmp_space, "malloc in inplace_uniform_random_vec_znx_dft") < 0) return -1;
-
-	for (int i = 0; i < res_size; i++) {
-		for (int p = 0; p < N; p++) {
-			if (rand_uniform(tmp_space + i * N + p, nb_bits) < 0) {
-				free(tmp_space);
-				return -1;
-			}
-		}
-	}
-
-	vec_znx_dft_p(module, res_dft, res_size, tmp_space, res_size, N);
-	free(tmp_space);
-
-	return 0;
-}
-
-VecUnivDFT* new_uniform_random_vec_znx_dft(const MODULE* module, uint64_t vec_size, uint64_t nb_bits)
-{
-	uint64_t N         = module->nn;
-	int64_t* tmp_space = malloc(N * vec_size * sizeof(int64_t));
-	if (log_is_null(tmp_space, "malloc in new_uniform_random_vec_znx_dft") < 0) return NULL;
-	// Draws the uniformly the vector
-	for (int i = 0; i < vec_size; i++) {
-		for (int p = 0; p < N; p++) {
-			if (rand_uniform(tmp_space + i * N + p, nb_bits) < 0) {
-				free(tmp_space);
-				return NULL;
-			}
-		}
-	}
+	// Pointer to a uniformly drawn Zn[X] vector of size = vec_size 
+	tmp_space = malloc(N * vec_size * sizeof(int64_t));
+	CHECK_ALLOC(tmp_space, "malloc in new_uniform_random_vec_znx_dft");
+	
+	// Draws uniformly in Zn[X] the vector elements
+	for (int i = 0; i < vec_size; i++)
+		for (int p = 0; p < N; p++)
+			CHECK_CALL(rand_uniform(tmp_space + i * N + p, nb_bits), 
+					  "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	VecUnivDFT* res_dft = malloc(vec_size * N * sizeof(double));
-	if (log_is_null(tmp_space, "malloc in new_uniform_random_vec_znx_dft") < 0) {
-		free(tmp_space);
-		return NULL;
-	}
+	vec_znx_dft_p(module, result_dft, vec_size, tmp_space, vec_size, N);
+	
+	status = 0;
 
-	vec_znx_dft_p(module, res_dft, vec_size, tmp_space, vec_size, N);
+cleanup:
 	free(tmp_space);
-	return res_dft;
+
+	return status;
 }
 
-int new_normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma)
+int normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma)
 {
 	for (int i = 0; i < res_size; i++)
 		for (int j = 0; j < limb_len; j++)

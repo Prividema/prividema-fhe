@@ -30,7 +30,7 @@ const char* log_level_str(LogLevel level)
 }
 
 // The main logging function
-int log_msg(LogLevel level, const char* fmt, ...)
+int log_m(LogLevel level, const char* fmt, ...)
 {
 	// Skip lower-priority messages
 	if (level < LOG_THRESHOLD) return 0;
@@ -59,6 +59,6 @@ int log_msg(LogLevel level, const char* fmt, ...)
 }
 
 // Perror with logger
-int log_perror(const char* header) { return log_msg(LOG_ERROR, "%s : %s", header, strerror(errno)); }
+int log_perror(const char* header) { return log_m(LOG_ERROR, "%s : %s", header, strerror(errno)); }
 
 int log_is_null(void* ptr, const char* header) { return (ptr == NULL) ? log_perror(header) : 0; }

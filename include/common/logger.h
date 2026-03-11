@@ -22,7 +22,7 @@ void set_log_level(LogLevel level);
  * @retval -1 if the level is LOG_ERROR.
  * @retval  0 otherwise.
  */
-int log_msg(LogLevel level, const char* fmt, ...);
+int log_m(LogLevel level, const char* fmt, ...);
 
 /**
  * @brief Log a syscall error like perror but with LOG_ERROR.

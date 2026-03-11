@@ -33,7 +33,7 @@ int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @param phase message + noise.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
+ * @retval  -`0` otherwise otherwise.
  */
 int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, GLWESecretKeyDFT* sk_dft, PolyBiv* phase);
 
@@ -57,7 +57,7 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @param glwe The bivGLWE ciphertext.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
+ * @retval  -`0` otherwise otherwise.
  */
 int glwe_secret_demasking(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertext* glwe);
 
@@ -88,7 +88,7 @@ void glwe_public_demasking(const Core* core,          // all params of the libra
  * @param phase_dft message + noise in the DFT domain.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
+ * @retval  -`0` otherwise otherwise.
  */
 int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft, GLWESecretKeyDFT* sk_dft, PolyBivDFT* phase_dft);
 
@@ -100,7 +100,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval `0` otherwise.
+ * @retval  -`0` otherwise otherwise.
  */
 int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertextDFT* ct);
 

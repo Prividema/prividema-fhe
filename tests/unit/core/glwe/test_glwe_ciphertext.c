@@ -52,11 +52,11 @@ Test(mult_vec_znx_dft, size_equal_one)
 
 	// def a = 1 + X
 	int64_t* a = calloc(poly_univ_bytes(params_glwe), 1);
-	inplace_uniform_random_vec(NBASE, a, 1, NBASE, 14);
+	uniform_random_vec(NBASE, a, 1, NBASE, 14);
 
 	// def b = 1 + X
 	int64_t* b = calloc(poly_univ_bytes(params_glwe), 1);
-	inplace_uniform_random_vec(NBASE, b, 1, NBASE, 14);
+	uniform_random_vec(NBASE, b, 1, NBASE, 14);
 
 	double* res_dft = calloc(poly_univ_bytes(params_glwe), 1);
 	double* a_dft   = calloc(poly_univ_bytes(params_glwe), 1);
@@ -114,10 +114,10 @@ Test(mult_vec_znx_dft, random_size)
 	int64_t* res = calloc(poly_univ_bytes(params_glwe) * size, 1);
 
 	int64_t* a   = calloc(poly_univ_bytes(params_glwe) * size, 1);
-	inplace_uniform_random_vec(NBASE, a, size, NBASE, 14);
+	uniform_random_vec(NBASE, a, size, NBASE, 14);
 
 	int64_t* b = calloc(poly_univ_bytes(params_glwe) * size, 1);
-	inplace_uniform_random_vec(NBASE, b, size, NBASE, 14);
+	uniform_random_vec(NBASE, b, size, NBASE, 14);
 
 	double* res_dft = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	double* a_dft   = calloc(poly_univ_bytes(params_glwe) * size, 1);
@@ -197,8 +197,8 @@ Test(add_glwe, basic)
 	GLWECiphertext* ct_r = new_glwe(params_glwe);
 	GLWECiphertext* res  = new_glwe(params_glwe);
 
-	inplace_uniform_random_vec(NBASE, ct_l->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
-	inplace_uniform_random_vec(NBASE, ct_r->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ct_l->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ct_r->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	add_glwe(res, ct_l, ct_r);
 
@@ -223,7 +223,7 @@ Test(const_mult_glwe, without_normalization)
 
 	// Draws uniformly the GLWE ciphertext and the ZnX polynomial
 	GLWECiphertext* ct = new_glwe(params_glwe);
-	inplace_uniform_random_vec(NBASE, ct->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ct->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
 	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
@@ -266,7 +266,7 @@ Test(const_mult_glwe, with_normalization)
 
 	// Draws uniformly the GLWE ciphertext and the ZnX polynomial
 	GLWECiphertext* ct = new_glwe(params_glwe);
-	inplace_uniform_random_vec(NBASE, ct->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ct->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	PolyUniv* u        = new_uniform_random_vec(NBASE, KAPPABASE - 1);
 	PolyUnivDFT* u_dft = malloc(NBASE * sizeof(int64_t));
@@ -346,8 +346,8 @@ Test(add_glwe_dft, basic)
 	GLWECiphertextDFT* ct_r_dft   = new_glwe_dft(params_glwe);
 	GLWECiphertextDFT* ct_sum_dft = new_glwe_dft(params_glwe);
 
-	inplace_uniform_random_vec_znx_dft(module, ct_l_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
-	inplace_uniform_random_vec_znx_dft(module, ct_r_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ct_l_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ct_r_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	add_glwe_dft(ct_sum_dft, ct_l_dft, ct_r_dft);
 
@@ -378,7 +378,7 @@ Test(const_mult_glwe_dft, without_normalization)
 
 	// Draws uniformly the GLWE ciphertext and computes it out of the DFT domain
 	GLWECiphertextDFT* ct_dft = new_glwe_dft(params_glwe);
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	VecBiv* ct_vec = malloc(glwe_bytes(params_glwe));
 	vec_znx_idft_p(module, ct_vec, glwe_size(params_glwe), ct_dft->vec, glwe_size(params_glwe));
@@ -431,7 +431,7 @@ Test(const_mult_glwe_dft, with_normalization)
 
 	// Draws uniformly the GLWE ciphertext and computes it out of the DFT domain
 	GLWECiphertextDFT* ct_dft = new_glwe_dft(params_glwe);
-	inplace_uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ct_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	VecBiv* ct_vec = malloc(glwe_bytes(params_glwe));
 	vec_znx_idft_p(module, ct_vec, glwe_size(params_glwe), ct_dft->vec, glwe_size(params_glwe));

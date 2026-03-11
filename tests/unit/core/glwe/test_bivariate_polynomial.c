@@ -26,11 +26,14 @@
  */
 Test(poly_biv_size, basic)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
+	// Asserts poly_biv_size returns LBASE
 	cr_assert(eq(i64, poly_biv_size(params_glwe), LBASE, "poly_biv_size failed: got %" PRId64 ", expected %" PRId64,
 	             poly_biv_size(params_glwe), LBASE));
 
+	// Clean up
 	delete_glwe_ct_params(params_glwe);
 }
 
@@ -39,12 +42,15 @@ Test(poly_biv_size, basic)
  */
 Test(poly_univ_bytes, basic)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
+	// Asserts poly_univ_bytes returns NBASE * sizeof(int64_t)
 	cr_assert(eq(i64, poly_univ_bytes(params_glwe), NBASE * sizeof(int64_t),
 	             "poly_univ_bytes failed: got %" PRId64 ", expected %" PRId64, poly_univ_bytes(params_glwe),
 	             NBASE * sizeof(int64_t)));
 
+	// Clean up
 	delete_glwe_ct_params(params_glwe);
 }
 
@@ -53,30 +59,47 @@ Test(poly_univ_bytes, basic)
  */
 Test(poly_biv_bytes, basic)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
+	// Asserts poly_biv_bytes returns NBASE * LBASE * sizeof(int64_t)
 	cr_assert(eq(i64, poly_biv_bytes(params_glwe), NBASE * LBASE * sizeof(int64_t),
 	             "poly_biv_bytes failed: got %" PRId64 ", expected %" PRId64, poly_biv_bytes(params_glwe),
 	             NBASE * LBASE * sizeof(int64_t)));
 
+	// Clean up
 	delete_glwe_ct_params(params_glwe);
 }
 
 /**
  * @brief Test biv_to_univ
  */
-Test(biv_to_univ, test_with_random_biv_generation)
+Test(biv_to_univ, runs)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module       = new_module_info_p(NBASE);
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	MODULE* module            = new_module_info_p(NBASE);
 
-	double* pol_univ     = malloc(poly_univ_bytes(params_glwe));
-	PolyBiv* pol_biv     = new_normal_random_biv_poly(module, params_glwe);
+	// Variables
+	PolyBiv* pol                  	   = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyUnivRnX* pol_univ_computed     = malloc(poly_univ_bytes(params_glwe));
+	
+	// Define pol_biv = Y
+	pol[0] = 1;
 
-	biv_to_univ(params_glwe, pol_univ, pol_biv);
+	// Computes the bivariate polynomial in the Tn[X]
+	biv_to_univ(params_glwe, pol_univ_computed, pol);
 
-	free(pol_univ);
-	free(pol_biv);
+	// Asserts pol_univ_computed(X) = 2^{-KAPPABASE}
+	cr_assert(eq(dbl, pol_univ_computed[0], ldexp(1.0, -KAPPABASE)));
+	
+	for(uint64_t p = 1 ; p < NBASE ; p++)
+		cr_assert(eq(dbl, pol_univ_computed[p], 0),
+		          "pol_univ_computed[%ld] = %ld ", p, pol_univ_computed[p]);
+
+	// Clean up 
+	free(pol);
+	free(pol_univ_computed);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -86,26 +109,36 @@ Test(biv_to_univ, test_with_random_biv_generation)
  */
 Test(univ_to_biv, one_test)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	MODULE* module       = new_module_info_p(NBASE);
 
-	double* pol_univ     = calloc(poly_univ_bytes(params_glwe), 1);
-	pol_univ[0]          = 0.0625;
+	// Variables
+	double* pol_univ      = calloc(poly_univ_bytes(params_glwe), 1);
+	PolyBiv* pol_computed = malloc(poly_biv_bytes(params_glwe));
 
-	PolyBiv* pol_biv     = malloc(poly_biv_bytes(params_glwe));
-	univ_to_biv(params_glwe, pol_biv, pol_univ);
+	// Define pol_univ(X) = 2^{-KAPPABASE} , i.e. in Zn[X,Y] pol(X,Y) = Y
+	pol_univ[0] = ldexp(1.0, - KAPPABASE);
+	
+	// Compute pol_univ's base-2KAPPABASE normalized decomposition
+	univ_to_biv(params_glwe, pol_computed, pol_univ);
 
-	for (uint64_t p = 0; p < NBASE; p++) {
-		double acc = 0;
-		for (uint64_t i = 1; i <= LBASE; i++) {
-			acc += ldexp((double)pol_biv[(i - 1) * NBASE + p], -i * KAPPABASE);
-		}
-		cr_assert(epsilon_eq(dbl, acc - floor(acc) - pol_univ[p] + floor(pol_univ[p]), 0,
-		                     ldexp(1.0, -(LBASE - 1) * KAPPABASE)),
-		          "acc %lf pol %lf p %ld", acc - floor(acc), -pol_univ[p] + floor(pol_univ[p]), p);
-	}
+	// Asserts pol_computed = Y
+	cr_assert(eq(int, pol_computed[0], 1),
+		          "pol_computed[%ld, %ld] = %ld ", 0, 1, pol_computed[0]);
+
+	for(uint64_t p = 1 ; p < NBASE ; p++)
+		cr_assert(eq(int, pol_computed[p], 0),
+		          "pol_computed[%ld, %ld] = %ld ", p, 1, pol_computed[p]);
+
+	for (uint64_t i = 2; i <= LBASE ; i++)
+		for (uint64_t p = 0 ; p < NBASE ; p++)
+			cr_assert(eq(int, pol_computed[(i-1)*NBASE + p], 0),
+		          "pol_computed[%ld, %ld] = %ld ", p, i, pol_computed[(i-1)*NBASE + p]);
+	
+	// Clean up
 	free(pol_univ);
-	free(pol_biv);
+	free(pol_computed);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -115,26 +148,38 @@ Test(univ_to_biv, one_test)
  */
 Test(univ_to_biv, basic)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module       = new_module_info(NBASE, FFT64);
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	MODULE* module            = new_module_info(NBASE, FFT64);
 
-	double* pol_univ     = malloc(poly_univ_bytes(params_glwe));
-	new_normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+	// Variables
+	double* pol_univ      = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* pol_computed = malloc(poly_biv_bytes(params_glwe));
+	
+	// Draws normaly pol_univ in Rn[X]
+	normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+	
+	// Computes pol_univ's base-2KAPPABASE normalized decomposition
+	univ_to_biv(params_glwe, pol_computed, pol_univ);
 
-	PolyBiv* pol_biv = malloc(poly_biv_bytes(params_glwe));
-	univ_to_biv(params_glwe, pol_biv, pol_univ);
+	// pol_computed_p = pol_computed(X, Y = 2^{-KAPPABASE})[p]
+	double pol_computed_p = 0;
 
-	for (uint64_t p = 0; p < NBASE; p++) {
-		double acc = 0;
-		for (uint64_t i = 1; i <= LBASE; i++) {
-			acc += ldexp((double)pol_biv[(i - 1) * NBASE + p], -i * KAPPABASE);
-		}
-		cr_assert(epsilon_eq(dbl, acc - floor(acc) - pol_univ[p] + floor(pol_univ[p]), 0,
+	// Asserts pol_computed, in Rn[X] (with Y = 2^{-KAPPABASE}), is equal to pol_univ
+	for (uint64_t p = 0; p < NBASE; p++) 
+	{
+		pol_computed_p = 0;
+		for (uint64_t i = 1; i <= LBASE; i++) 
+			pol_computed_p += ldexp((double)pol_computed[(i - 1) * NBASE + p], -i * KAPPABASE);
+		
+		cr_assert(epsilon_eq(dbl, pol_computed_p - floor(pol_computed_p) - pol_univ[p] + floor(pol_univ[p]), 0,
 		                     ldexp(1.0, -(LBASE - 1) * KAPPABASE)),
-		          "acc %lf pol %lf p %ld", acc - floor(acc), -pol_univ[p] + floor(pol_univ[p]), p);
+		          "pol_univ(X = %ld) = %lf and pol(X = %ld) %lf", p, pol_computed_p - floor(pol_computed_p), -pol_univ[p] + floor(pol_univ[p]), p);
 	}
+
+	// Clean up
 	free(pol_univ);
-	free(pol_biv);
+	free(pol_computed);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -144,30 +189,37 @@ Test(univ_to_biv, basic)
  */
 Test(univ_to_biv, maths_test)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	MODULE* module       = new_module_info_p(NBASE);
 
-	// A univariate polynomial drawn normaly in Rn[X]
-	double* pol_input_univ = malloc(poly_univ_bytes(params_glwe));
-	new_normal_random_vec(NBASE, pol_input_univ, 1, NBASE, 0.0, 1e-2);
+	// Variables 
+	double* pol_univ = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* pol_computed = malloc(poly_biv_bytes(params_glwe));
+	double* pol_univ_computed = calloc(poly_univ_bytes(params_glwe), 1);
+	
+	// Draw pol_univ normaly in Rn[X]
+	normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
 
-	PolyBiv* pol_input = malloc(poly_biv_bytes(params_glwe));
-	univ_to_biv(params_glwe, pol_input, pol_input_univ);
+	// Computes pol_univ's base-2KAPPABASE decomposition
+	univ_to_biv(params_glwe, pol_computed, pol_univ);
 
-	double* pol_computed_univ = calloc(poly_univ_bytes(params_glwe), 1);
-	biv_to_univ(params_glwe, pol_computed_univ, pol_input);
+	// Computes pol in Rn[X] with Y = 2^{-KAPPABASE}
+	biv_to_univ(params_glwe, pol_univ_computed, pol_computed);
 
+	// Asserts pol_univ_computed(X) = pol_univ(X)
 	for (uint64_t p = 0; p < NBASE; p++) {
 		cr_assert(
 		    epsilon_eq(
-		        dbl, pol_input_univ[p] - floor(pol_input_univ[p]) - pol_computed_univ[p] + floor(pol_computed_univ[p]),
+		        dbl, pol_univ[p] - floor(pol_univ[p]) - pol_univ_computed[p] + floor(pol_univ_computed[p]),
 		        0, ldexp(1.0, -(LBASE - 1) * KAPPABASE)),
-		    "pol_input_univ[%ld] %lf pol_computed_univ[%ld] %lf", p, pol_input_univ[p], p, pol_computed_univ[p]);
+		    "pol_univ[%ld] = %lf and pol_univ_computed[%ld] = %lf", p, pol_univ[p], p, pol_univ_computed[p]);
 	}
 
-	free(pol_input_univ);
-	free(pol_input);
-	free(pol_computed_univ);
+	// Clean up
+	free(pol_univ);
+	free(pol_computed);
+	free(pol_univ_computed);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -180,12 +232,15 @@ Test(univ_to_biv, maths_test)
  */
 Test(poly_biv_coef_number, classic_params)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	// Parameters
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
+	// Asserts poly_biv_coef_number returns NBASE * LBASE
 	cr_assert(eq(i64, poly_biv_coef_number(params_glwe), NBASE * LBASE,
 	             "poly_biv_coef_number failed: got %" PRId64 ", expected %" PRId64, poly_biv_coef_number(params_glwe),
 	             NBASE * LBASE));
 
+	// Clean up
 	delete_glwe_ct_params(params_glwe);
 }
 
@@ -193,39 +248,56 @@ Test(poly_biv_coef_number, classic_params)
  * @brief Test normal_bivariate_poly
  *
  */
-Test(new_normal_random_biv_poly, basic)
+Test(normal_random_biv_poly, basic)
 {
+	// Parameters
 	MODULE* module       = new_module_info_p(NBASE);
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	PolyBiv* a           = new_normal_random_biv_poly(module, params_glwe);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	
+	// Variables
+	PolyBiv* pol = NULL;
+	
+	// Draw normaly pol in Zn[X,Y]
+	int status = normal_random_biv_poly(module, params_glwe, pol);
 
-	cr_assert(eq(int, a != NULL, 1, "new_normal_random_biv returned a NULL pointer."));
+	// Asserts normal_random_biv_poly passed
+	cr_assert(eq(int, status, 0, "normal_random_biv failed."));
 
-	free(a);
+	// Clean up
+	free(pol);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
 
 /**
- * @brief Test new_normal_random_biv_poly
+ * @brief Test normal_random_biv_poly
  *
  */
-Test(new_normal_random_biv_poly, is_it_working)
+Test(normal_random_biv_poly, is_it_working)
 {
+	// Parameters
 	MODULE* module       = new_module_info_p(NBASE);
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	PolyBiv* a           = new_normal_random_biv_poly(module, params_glwe);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	
+	// Variables 
+	PolyBiv* pol = NULL;
+	
+	// Draw normaly pol in Zn[X,Y]
+	normal_random_biv_poly(module, params_glwe, pol);
 
+	// Asserts pol is normalized. 
+	// I.e. that each coefficient is between -2^(KAPPABASE-1) and 2^(KAPPABASE-1)
 	for (uint64_t i = 1; i <= LBASE; i++) {
 		for (uint64_t p = 0; p < params_glwe->N; p++) {
-			cr_assert(le(i64, a[(i - 1) * NBASE + p], (1 << (KAPPABASE - 1)),
+			cr_assert(le(i64, pol[(i - 1) * NBASE + p], (1 << (KAPPABASE - 1)),
 			             "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
-			cr_assert(ge(i64, a[(i - 1) * NBASE + p], -(1 << (KAPPABASE - 1)),
+			cr_assert(ge(i64, pol[(i - 1) * NBASE + p], -(1 << (KAPPABASE - 1)),
 			             "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
 		}
 	}
 
-	free(a);
+	// Clean up
+	free(pol);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
@@ -235,93 +307,117 @@ Test(new_normal_random_biv_poly, is_it_working)
  */
 Test(add_biv_poly, basic)
 {
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	// Parameters
 	MODULE* module       = new_module_info_p(NBASE);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
-	PolyBiv* a           = new_normal_random_biv_poly(module, params_glwe);
-	PolyBiv* b           = new_normal_random_biv_poly(module, params_glwe);
-	PolyBiv* res         = malloc(poly_biv_bytes(params_glwe));
+	// Variables 
+	PolyBiv* pol_lhs = NULL;
+	PolyBiv* pol_rhs = NULL;
+	PolyBiv* sum_computed  = malloc(poly_biv_bytes(params_glwe));
 
-	add_biv_poly(params_glwe, res, params_glwe->N, a, params_glwe->N, b, params_glwe->N);
+	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]
+	normal_random_biv_poly(module, params_glwe, pol_lhs);
+	normal_random_biv_poly(module, params_glwe, pol_rhs);
 
+	// Computes pol_lhs + pol_rhs
+	add_biv_poly(params_glwe, sum_computed, params_glwe->N, pol_lhs, params_glwe->N, pol_rhs, params_glwe->N);
+
+	// Asserts sum_computed = pol_lhs + pol_rhs
 	for (uint64_t i = 1; i <= LBASE; i++) {
 		for (uint64_t p = 0; p < NBASE; p++) {
 			int64_t idx = p + (i - 1) * params_glwe->N;
-			cr_assert(eq(dbl, res[idx], a[idx] + b[idx]),
+			cr_assert(eq(dbl, sum_computed[idx], pol_lhs[idx] + pol_rhs[idx]),
 			          "add_biv_poly mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64
 			          ", got %" PRId64,
-			          (long long)idx, a[idx], b[idx], a[idx] + b[idx], res[idx]);
+			          (long long)idx, pol_lhs[idx], pol_rhs[idx], pol_lhs[idx] + pol_rhs[idx], sum_computed[idx]);
 		}
 	}
 
-	free(a);
-	free(b);
-	free(res);
+	// Clean up
+	free(pol_lhs);
+	free(pol_rhs);
+	free(sum_computed);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
 }
 
 //! BIV POLY IN DFT PART (begin)
 
-/**
- * @brief Test add_biv_poly_dft correctness with random normal DFT polynomials
- */
-Test(add_biv_poly_dft, basic)
-{
-	GLWECtParams* params_glwe= new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module       = new_module_info_p(NBASE);
-
-	PolyBivDFT* a        = new_normal_random_biv_poly_dft(module, params_glwe);
-	PolyBivDFT* b        = new_normal_random_biv_poly_dft(module, params_glwe);
-	PolyBivDFT* res      = malloc(poly_biv_bytes(params_glwe));
-
-	add_biv_poly_dft(params_glwe, res, params_glwe->N, a, params_glwe->N, b, params_glwe->N);
-
-	for (uint64_t i = 1; i <= LBASE; i++) {
-		for (uint64_t p = 0; p < NBASE; p++) {
-			int64_t idx = p + (i - 1) * params_glwe->N;
-			cr_assert(epsilon_eq(dbl, res[idx], a[idx] + b[idx], 1e-9),
-			          "add_biv_poly_dft mismatch at index %" PRId64 ": %f + %f = %f, got %f", (long long)idx, a[idx],
-			          b[idx], a[idx] + b[idx], res[idx]);
-		}
-	}
-
-	free(a);
-	free(b);
-	free(res);
-	delete_module_info_p(module);
-	delete_glwe_ct_params(params_glwe);
-}
 
 /**
- * @brief Test new_normal_random_biv_poly_dft
+ * @brief Test normal_random_biv_poly_dft
  *
  */
-Test(new_normal_random_biv_poly_dft, is_it_working)
+Test(normal_random_biv_poly_dft, is_it_working)
 {
+	// Parameters
 	MODULE* module        = new_module_info_p(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
-	PolyBivDFT* a_dft     = new_normal_random_biv_poly_dft(module, params_glwe);
-	PolyBiv* a            = malloc(poly_biv_bytes(params_glwe));
-	PolyBiv* a_normalized = malloc(poly_biv_bytes(params_glwe));
+	// Variables
+	PolyBivDFT* pol_dft     = NULL;
+	PolyBiv* pol            = malloc(poly_biv_bytes(params_glwe));
+	PolyBiv* pol_normalized = malloc(poly_biv_bytes(params_glwe));
 
-	vec_znx_idft_p(module, a, LBASE, a_dft, LBASE);
-	vec_znx_normalize_base2k_p(module, KAPPABASE, a_normalized, LBASE, NBASE, a, LBASE, NBASE);
+	// Draw pol_dft normaly in the DFT domain
+	normal_random_biv_poly_dft(module, params_glwe, pol_dft);
+
+	// Computes pol_dft out of the DFT domain
+	vec_znx_idft_p(module, pol, LBASE, pol_dft, LBASE);
+
+	// Normalize pol
+	vec_znx_normalize_base2k_p(module, KAPPABASE, pol_normalized, LBASE, NBASE, pol, LBASE, NBASE);
 
 	for (uint64_t i = 1; i <= LBASE; i++) {
 		for (uint64_t p = 0; p < params_glwe->N; p++) {
-			cr_assert(le(i64, a_normalized[(i - 1) * NBASE + p], (1 << (KAPPABASE - 1)),
+			cr_assert(le(i64, pol_normalized[(i - 1) * NBASE + p], (1 << (KAPPABASE - 1)),
 			             "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
-			cr_assert(ge(i64, a_normalized[(i - 1) * NBASE + p], -(1 << (KAPPABASE - 1)),
+			cr_assert(ge(i64, pol_normalized[(i - 1) * NBASE + p], -(1 << (KAPPABASE - 1)),
 			             "The coefficient of a(X^p, Y^i) is smaller than -2^(kappa-1)."));
 		}
 	}
 	cr_assert(1);
 
-	free(a_dft);
-	free(a);
-	free(a_normalized);
+	free(pol_dft);
+	free(pol);
+	free(pol_normalized);
 	delete_glwe_ct_params(params_glwe);
 	delete_module_info_p(module);
+}
+
+/**
+ * @brief Test add_biv_poly_dft correctness with random normal DFT polynomials
+ */
+Test(add_biv_poly_dft, basic)
+{
+	// Parameters
+	MODULE* module       = new_module_info_p(NBASE);
+	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+
+	// Variables 
+	PolyBivDFT* pol_lhs_dft = NULL;
+	PolyBivDFT* pol_rhs_dft = NULL;
+	PolyBivDFT* sum_computed_dft  = malloc(poly_biv_bytes(params_glwe));
+
+	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]
+	normal_random_biv_poly_dft(module, params_glwe, pol_lhs_dft);
+	normal_random_biv_poly_dft(module, params_glwe, pol_rhs_dft);
+
+	add_biv_poly_dft(params_glwe, sum_computed_dft, params_glwe->N, pol_lhs_dft, params_glwe->N, pol_rhs_dft, params_glwe->N);
+
+	for (uint64_t i = 1; i <= LBASE; i++) {
+		for (uint64_t p = 0; p < NBASE; p++) {
+			int64_t idx = p + (i - 1) * params_glwe->N;
+			cr_assert(epsilon_eq(dbl, sum_computed_dft[idx], pol_lhs_dft[idx] + pol_rhs_dft[idx], 1e-9),
+			          "add_biv_poly_dft mismatch at index %" PRId64 ": %f + %f = %f, got %f", (long long)idx, pol_lhs_dft[idx],
+			          pol_rhs_dft[idx], pol_lhs_dft[idx] + pol_rhs_dft[idx], sum_computed_dft[idx]);
+		}
+	}
+
+	free(pol_lhs_dft);
+	free(pol_rhs_dft);
+	free(sum_computed_dft);
+	delete_module_info_p(module);
+	delete_glwe_ct_params(params_glwe);
 }
