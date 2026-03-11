@@ -37,24 +37,7 @@ typedef struct glwe_prep_secret_key
 //! bivGLWE KEY PART (begin)
 
 /**
- * @brief Creates a new secret key values component.
- *
- * @param N The degree of the chosen cyclotomic polynomial.
- * @param k The number of Zn[X] polynomials in a secret key.
- * @return PolyUniv**
- */
-PolyUniv** alloc_glwe_secret_key_values(uint64_t N, uint64_t k);
-
-/**
- * @brief Delete a secret key values component.
- *
- * @param values The values of the secret key.
- * @param k The number of Zn[X] polynomials.
- */
-void delete_glwe_secret_key_values(PolyUniv** values, uint64_t k);
-
-/**
- * @brief Creates a bivGLWE Secret key.
+ * @brief Creates a GLWE Secret key.
  *
  * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
@@ -85,23 +68,6 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
 
 //! bivGLWE IN DFT SPACE PART (begin)
 
-/**
- * @brief Creates a new secret key values component in the DFT domain.
- *
- * @param N The degree of the chosen cyclotomic polynomial.
- * @param k The number of Zn[X] polynomials in a secret key.
- * @return PolyUnivDFT**
- */
-PolyUnivDFT** alloc_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
-
-/**
- * @brief Delete the values of a secret key in the DFT domain.
- *
- * @param values The values of the secret key in the DFT domain.
- * @param k The number of Zn[X] polynomial in the secret key.
- */
-void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
-
 
 /**
  * @brief Creates a GLWE Secret key in the DFT domain.
@@ -112,20 +78,7 @@ void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
  */
 GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k);
 
-/**
- * @brief Draws a secret key uniformly in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param sk_dft   The secret key in the DFT domain.
- * @param nb_bits  Bit-size of coefficients: coefficients are sampled uniformly
- *                 in the range [-2^nb_bits, 2^nb_bits).
- *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
- */
-int uniform_glwe_secret_key_dft(const MODULE* module, GLWESecretKeyDFT* sk_dft, uint64_t nb_bits);
 
-PolyUnivDFT** alloc_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
 /**
  * @brief Delete the secret key that is in the DFT domain.
  *
@@ -133,4 +86,20 @@ PolyUnivDFT** alloc_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
  */
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
-#endif  // bivGLWE_KEY_H
+
+typedef struct glwe_public_key
+{
+	uint64_t N;
+	uint64_t k;
+	int64_t Y;
+	GLWECiphertext** pk;  // vector of Y element (A1,...,Ak, B)
+	void* data;
+} GLWEPublicKey;
+
+// generation secret key
+void glwe_secret_key_gen(const Core* core, uint64_t lambda, GLWESecretKey* s);
+
+// generation public key
+void glwe_public_key_gen(const Core* core, uint64_t lambda, GLWESecretKey* s, GLWEPublicKey* pk);
+
+#endif  // GLWE_KEY_H

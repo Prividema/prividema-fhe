@@ -25,9 +25,6 @@ Test(transform_glwe_secret_key_dft_to_not_dft, basic)
 	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
 
-	// Draws uniformly in Zn[X] the secret key's values
-	uniform_glwe_secret_key_dft(module, sk_dft, 3);
-
 	// Compute the bivGLWE secret key out of DFT space
 	int status = transform_glwe_secret_key_dft_to_not_dft(module, sk, sk_dft);
 

@@ -6,91 +6,54 @@
 #include "spqlios_alias.h"
 #include "utils.h"
 
-//! bivGLWE PART (begin)
-
-PolyUniv** alloc_glwe_secret_key_values(uint64_t N, uint64_t k)
-{
-	PolyUniv** values = malloc(k * sizeof(PolyUniv*));
-	if (log_is_null(values, "values' malloc failed in new_glwe_secret_key_values.") < 0) return NULL;
-
-	for (uint64_t j = 0; j < k; j++)
-	{
-		values[j] = calloc(N, sizeof(int64_t));
-		if (log_is_null(values[j], "values elements' calloc failed in new_glwe_secret_key_values.") < 0)
-		{
-			for (uint64_t t = 0; t < j; t++) free(values[t]);
-			free(values);
-
-			return NULL;
-		}
-	}
-
-	return values;
-}
-
-PolyUnivDFT** alloc_glwe_secret_key_values_dft(uint64_t N, uint64_t k)
-{
-	PolyUnivDFT** values = malloc(k * sizeof(PolyUnivDFT*));
-	if (log_is_null(values, "values' malloc failed in new_glwe_secret_key_values.") < 0) return NULL;
-
-	for (uint64_t j = 0; j < k; j++)
-	{
-		values[j] = calloc(N, sizeof(double));
-		if (log_is_null(values[j], "values elements' calloc failed in new_glwe_secret_key_values.") < 0)
-		{
-			for (uint64_t t = 0; t < j; t++) free(values[t]);
-			free(values);
-
-			return NULL;
-		}
-	}
-
-	return values;
-}
-
-
-void delete_glwe_secret_key_values(PolyUniv** values, uint64_t k)
-{
-	for (uint64_t j = 0; j < k; j++) free(values[j]);
-	free(values);
-}
 
 GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k)
 {
 	GLWESecretKey* sk = malloc(sizeof(GLWESecretKey));
-	if (log_is_null(sk, "sk's malloc failed in new_glwe_secret_key.") < 0) return NULL;
+  CHECK_ALLOC(sk,"sk's malloc failed in alloc_glwe_secret_key");
 
 	sk->N = N;
 	sk->k = k;
+  
+  sk->values = calloc(k, sizeof(double *));
+  CHECK_ALLOC(sk->values, "values creation failed in glwe key generation");
 
-	sk->values = alloc_glwe_secret_key_values(N, k);
-	if (log_is_null(sk->values, "new_glwe_secret_key_values failed in new_glwe_secret_key") < 0)
+  uint64_t j = 0;
+	for (j = 0; j < k; j++)
 	{
-		free(sk);
-		return NULL;
+		sk->values[j] = calloc(N, sizeof(double));
+    CHECK_ALLOC(sk->values[j], "values elements' calloc failed in alloc_glwe_secret_key");
 	}
 
 	return sk;
+cleanup:
+  for (uint64_t t = 0; t < j; t++) free(sk->values[t]);
+  if (sk) free(sk->values);
+  free(sk);
+  return NULL;
 }
 
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits)
 {
-	int status = -1;
 
+	uint64_t N = module->nn;
+	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
 	for (uint64_t j = 0; j < sk->k; j++)
-		CHECK_CALL(uniform_random_pol_znx(sk->values[j], sk->N, nb_bits), 
-				  "uniform_random_vec failed in new_uniform_ggsw_secret_key_values");		
-
-	status = 0;
-
+	{
+		CHECK_CALL(uniform_random_vec(N, sk->values[j], 1, N, nb_bits), "random vector generation failed in key generation");
+	}
+  
+	return 0;
 cleanup:
-	return status;
+  return -1;
 }
 
 void delete_glwe_secret_key(GLWESecretKey* sk)
 {
-	delete_glwe_secret_key_values(sk->values, sk->k);
+  if (!sk) return;
+	for (uint64_t j = 0; j < sk->k; j++) free(sk->values[j]);
+	free(sk->values);
 	free(sk);
 }
 
@@ -102,28 +65,23 @@ GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k)
 	sk->N = N;
 	sk->k = k;
 
-	sk->values = alloc_glwe_secret_key_values_dft(N, k);
+	sk->values = malloc(k * sizeof(PolyUnivDFT*));
+	CHECK_ALLOC(sk->values, "values' malloc failed in alloc_glwe_secret_key_dft");
 
-cleanup:
- 
-  return sk;
-}
+  uint64_t j = 0;
+	for (j = 0; j < k; j++)
+	{
+		sk->values[j] = calloc(N, sizeof(double));
+    CHECK_ALLOC(sk->values[j], "values elements' calloc failed in alloc_glwe_secret_key_dft");
+	}
 
-
-int uniform_glwe_secret_key_dft(const MODULE* module, GLWESecretKeyDFT* sk_dft, uint64_t nb_bits)
-{
-	int status = -1;
-
-	// Uniform random generation of k Zn[X] polynomials.
-	for (uint64_t j = 0; j < sk_dft->k ; j++)
-		CHECK_CALL(uniform_random_vec_znx_dft(module, sk_dft->values[j], 1, nb_bits),
-			      "uniform_random_vec_znx_dft failed in new_uniform_ggsw_secret_key_values_dft");
-
-	status = 0;
-
+	return sk;
 cleanup:
 
-	return status;
+  for (uint64_t t = 0; t < j; t++) free(sk->values[t]);
+  if(sk) free(sk->values);
+  free(sk);
+  return NULL;
 }
 
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft)

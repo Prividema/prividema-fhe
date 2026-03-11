@@ -5,6 +5,7 @@
 #include "core/ggsw/ggsw.h"
 #include "ggsw_ciphertext.h"
 #include "glwe_key.h"
+#include "glwe_transform_key.h"
 #include "rng.h"
 #include "utils.h"
 
@@ -43,6 +44,7 @@ Test(ggsw_secret_encrypt, works)
 	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
+	GLWESecretKey* sk           = alloc_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertext* ggsw  = new_ggsw(params_ggsw);
 	PolyUniv* m_univ         = malloc(poly_univ_bytes(params_glwe));
@@ -56,7 +58,8 @@ Test(ggsw_secret_encrypt, works)
 	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
 
 	// Draws uniformly in (Zn[X])^k the secret key
-	uniform_glwe_secret_key_dft(module, sk_dft, 3);
+	uniform_glwe_secret_key(module, sk, 3);
+  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws uniformly in Zn[X] the message
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
@@ -221,6 +224,7 @@ Test(ggsw_secret_encrypt_dft, works)
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
+	GLWESecretKey* sk           = alloc_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft    = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUniv* m_univ            = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* m_univ_dft     = malloc(poly_univ_bytes(params_glwe));
@@ -234,7 +238,8 @@ Test(ggsw_secret_encrypt_dft, works)
 	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
 
 	// Draws uniformly in (Cm[X])^k the secret key in the DFT domain
-	uniform_glwe_secret_key_dft(module, sk_dft, 3);
+	uniform_glwe_secret_key(module, sk, 3);
+  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws uniformly in Zn[X] the message
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);

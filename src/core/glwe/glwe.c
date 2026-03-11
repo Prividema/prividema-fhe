@@ -9,46 +9,81 @@
 //! bivGLWE PART (begin)
 int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* glwe, GLWESecretKeyDFT* sk_dft)
 {
-	int status = -1;
-	
-	// bivGLWE parameters
+  int status = -1;
+	// GLWE parameters
 	uint64_t N = params->N;
 	uint64_t k = params->k;
 	uint64_t l = poly_biv_size(params);
-	
-	// Variables
-	PolyBivDFT* as_j_dft = NULL;
-	PolyBiv* as_j = NULL; 
-	
-	// Point to DFT(sk_j * a_j)
-	as_j_dft = malloc(poly_biv_bytes(params));
-	CHECK_ALLOC(as_j_dft, "as_j_dft's malloc failed in add_mult");
 
-	// Points to sk_j * a_j
-	as_j = malloc(poly_biv_bytes(params));
-	CHECK_ALLOC(as_j, "as_j's malloc failed in add_mult");
+	PolyBivDFT* as_j_dft = NULL; //DFT(sk_j * a_j)
+	PolyBiv* as_j = NULL; // sk_j * a_j
+  
+  as_j_dft = malloc(poly_biv_bytes(params));
+  CHECK_ALLOC(as_j_dft, "as_j_dft's malloc failed in add_mult");
+  as_j = malloc(poly_biv_bytes(params));
+  CHECK_ALLOC(as_j, "as_j's malloc failed in add_mult");
 
 	// Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
-	for (uint64_t j = 0; j < k; j++) 
-	{
-		// The j-ème component of resp. the secret key and the bivGLWE ciphertext
+	for (uint64_t j = 0; j < k; j++) {
+		// The j-th component of resp. the secret key and the bivGLWE ciphertext
 		PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
 		PolyBiv* a_j               = glwe + j * N;
 
 		// Computes DFT(sk_j * a_j)
 		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
 
-		// Computes sk_j * a_j
+		// Invert DFT to get sk_j * a_j
 		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in add_mult");
 
 		// Computes acc = acc - sk_j * a_j
 		for (uint64_t p = 0; p < N * l; p++)
 			res[p] += as_j[p];
 	}
-	
-	status = 0;
-
+  status = 0;
 cleanup:
+
+	free(as_j_dft);
+	free(as_j);
+
+	return status;
+}
+
+int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft)
+{
+  int status = -1;
+	// GLWE parameters
+	uint64_t N = params->N;
+	uint64_t k = params->k;
+	uint64_t l = poly_biv_size(params);
+
+	PolyBivDFT* as_j_dft = NULL; //DFT(sk_j * a_j)
+	PolyBiv* as_j = NULL; // sk_j * a_j
+  
+  as_j_dft = malloc(poly_biv_bytes(params));
+  CHECK_ALLOC(as_j_dft, "as_j_dft's malloc failed in sub_mult");
+  as_j = malloc(poly_biv_bytes(params));
+  CHECK_ALLOC(as_j, "as_j's malloc failed in sub_mult");
+
+	// Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
+	for (uint64_t j = 0; j < k; j++) {
+		// The j-th component of resp. the secret key and the bivGLWE ciphertext
+		PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
+		PolyBiv* a_j               = ct + j * N;
+
+		// Computes DFT(sk_j * a_j)
+		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
+
+		// Invert DFT to get sk_j * a_j
+		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in add_mult");
+
+		// Computes acc = acc - sk_j * a_j
+		for (uint64_t p = 0; p < N * l; p++) {
+			res[p] -= as_j[p];
+		}
+	}
+  status = 0;
+  cleanup:
+
 	free(as_j_dft);
 	free(as_j);
 
@@ -124,59 +159,6 @@ cleanup:
 	return status;
 }
 
-int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* glwe, GLWESecretKeyDFT* sk_dft)
-{
-	int status = -1;
-
-	// bivGLWE parameters
-	uint64_t N = params->N;
-	uint64_t k = params->k;
-	uint64_t l = poly_biv_size(params);
-
-	// Variables
-	PolyBivDFT* as_j_dft = NULL;
-	PolyBiv* as_j = NULL;
-
-	// Point to DFT(sk_j * a_j)
-	as_j_dft = malloc(poly_biv_bytes(params));
-	CHECK_ALLOC(as_j_dft, "as_j_dft's malloc failed in sub_mult.");
-
-	// Point to sk_j * a_j
-	as_j = malloc(poly_biv_bytes(params));
-	CHECK_ALLOC(as_j, "as_j's malloc failed in sub_mult.");
-
-	// Computes acc = -Sum_j{0,k-1}[sk_j * a_j]
-	for (uint64_t j = 0; j < k; j++) {
-		// The j-ème component of resp. the secret key and the bivGLWE ciphertext
-		PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
-		PolyBiv* a_j               = glwe + j * N;
-
-		// Computes DFT(sk_j * a_j)
-		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
-
-		// Computes sk_j * a_j
-		if (vec_znx_idft_p(module, as_j, l, as_j_dft, l) < 0)
-		{
-			free(as_j_dft);
-			free(as_j);
-
-			return log_perror("vec_znx_idft_p failed in sub_mult");
-		}
-
-		// Computes acc = acc - sk_j * a_j
-		for (uint64_t p = 0; p < N * l; p++) {
-			res[p] -= as_j[p];
-		}
-	}
-	
-	status = 0;
-
-cleanup:
-	free(as_j_dft);
-	free(as_j);
-
-	return status;
-}
 
 int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKeyDFT* sk_dft, const GLWECiphertext* glwe)
 {
@@ -287,9 +269,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* glwe_dft, c
 		}
 	}
 
-	
-	status = 0;
-
+  status = 0;
 cleanup:
 	free(glwe_vec);
 	free(acc);

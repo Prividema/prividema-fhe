@@ -2,7 +2,6 @@
 #define bivGLWE_H
 
 #include "glwe_key.h"
-#include "vec_znx_arithmetic_private.h"
 
 // tnx element R[X] mod X^N+1 mod 1
 typedef struct tnx_element
