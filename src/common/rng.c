@@ -19,8 +19,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-// Random Numbers
-
 /*
     Read a random number depending on the OS :
     - On Windows : Uses Windows' Cryptographic API called CNG.
@@ -34,7 +32,7 @@ int read_rand(int64_t* result)
 // For Windows
 #ifdef _WIN32
 	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, sizeof(*result), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-	if (status != STATUS_SUCCESS) return log_m(LOG_ERROR, "BCryptGenRandom() Failed");
+	if (status != STATUS_SUCCESS) return log_message(LOG_ERROR, "BCryptGenRandom() Failed");
 
 // For MACOS/FreeBSD
 // According to arc4random's doc, the function crashes if an error occurs :
@@ -58,7 +56,7 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
 	if (nb_bits > 8 * sizeof(int64_t))
-		return log_m(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits,
+		return log_message(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits,
 		               8 * sizeof(int64_t));
 
 	// Generate a random int64_t
@@ -135,25 +133,18 @@ int rand_normal(double* result, double mu, double sigma)
 
 int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
 {
-	int status = -1;
-
 	for(uint64_t p = 0 ; p < N ; p++)
-		CHECK_CALL(rand_uniform(res + p, nb_bits), "rand_uniform failed");
-	
-	status = 0;
-
-cleanup:
-
-	return status;
+		if(rand_uniform(res + p, nb_bits) < 0)
+			return log_message(LOG_ERROR, "uniform_random_pol_znx failed");
+	return 0;
 }
-
-// Random Vectors
 
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
 		for (uint64_t j = 0; j < limb_len; j++)
-			if (rand_uniform(res + i * res_sl + j, nb_bits) < 0) return -1;
+			if (rand_uniform(res + i * res_sl + j, nb_bits) < 0) 
+				return log_message(LOG_ERROR, "uniform_random_vec failed");
 	return 0;
 }
 
@@ -192,6 +183,7 @@ int normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t 
 {
 	for (int i = 0; i < res_size; i++)
 		for (int j = 0; j < limb_len; j++)
-			if (rand_normal(res + (i * res_sl) + j, mu, sigma) < 0) return -1;
+			if (rand_normal(res + (i * res_sl) + j, mu, sigma) < 0)
+				return log_message(LOG_ERROR, "normal_random_vec failed");
 	return 0;
 }

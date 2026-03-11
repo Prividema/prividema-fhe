@@ -1,22 +1,33 @@
 #include "maths_structures.h"
 #include "vec_znx_arithmetic_private.h"
 
-//! DEFINE SPQLIOS ALIAS (begin)
+// =============================================
+// |                                           |
+// |      Aliases for spqlios structures       |
+// |                                           |
+// =============================================
 
 typedef enum module_type_t MODULE_TYPE;
-/** @brief opaque structure that describe the modules (Zn[X],TnX) and the hardware */
+
+/// @brief Opaque structure that describe the modules (\f$\mathbb{Z}_n[X]\f$, \f$\mathbb{T}_n[X]\f$) and the hardware.
 typedef struct module_info_t MODULE;
-/** @brief opaque type that represents a prepared matrix */
+
+/// @brief Opaque type that represents a prepared matrix.
 typedef struct vmp_pmat_t VMP_PMAT;
-/** @brief opaque type that represents a vector of Zn[X] in the DFT domain */
+
+/// @brief Opaque type that represents a vector of \f$\mathbb{Z}_n[X]\f$ in the DFT domain.
 typedef struct vec_znx_dft_t VEC_ZNX_DFT;
-/** @brief opaque type that represents a vector of Zn[X] in large coeffs space */
+
+/// @brief Opaque type that represents a vector of \f$\mathbb{Z}_n[X]\f$ in large coeffs space.
 typedef struct vec_znx_bigcoeff_t VEC_ZNX_BIG;
-/** @brief opaque type that represents a prepared scalar vector product */
+
+/// @brief Opaque type that represents a prepared scalar vector product.
 typedef struct svp_ppol_t SVP_PPOL;
-/** @brief opaque type that represents a prepared left convolution vector product */
+
+/// @brief Opaque type that represents a prepared left convolution vector product.
 typedef struct cnv_pvec_l_t CNV_PVEC_L;
-/** @brief opaque type that represents a prepared right convolution vector product */
+
+/// @brief Opaque type that represents a prepared right convolution vector product.
 typedef struct cnv_pvec_r_t CNV_PVEC_R;
 
 //! The p in "*_p" stands for PRIVIDEMA (begin)
