@@ -76,7 +76,7 @@ int uniform_random_biv_poly(const MODULE* module, const GLWECtParams* params_glw
 {
 	int status = -1;
 
-	for (uint64_t i = 1; i < precision + 1; i++)
+	for (uint64_t i = 1; i <= precision ; i++)
 		for (uint64_t p = 0; p < params_glwe->N; p++)
 			if (rand_uniform(result + (i - 1) * params_glwe->N + p, params_glwe->kappa), "rand_uniform failed in uniform_random_biv_poly.");
 

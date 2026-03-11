@@ -255,7 +255,7 @@ Test(normal_random_biv_poly, basic)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	
 	// Variables
-	PolyBiv* pol = NULL;
+	PolyBiv* pol = malloc(poly_biv_bytes(params_glwe));;
 	
 	// Draw normaly pol in Zn[X,Y]
 	int status = normal_random_biv_poly(module, params_glwe, pol);
@@ -280,7 +280,7 @@ Test(normal_random_biv_poly, is_it_working)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	
 	// Variables 
-	PolyBiv* pol = NULL;
+	PolyBiv* pol = malloc(poly_biv_bytes(params_glwe));;
 	
 	// Draw normaly pol in Zn[X,Y]
 	normal_random_biv_poly(module, params_glwe, pol);
@@ -312,8 +312,8 @@ Test(add_biv_poly, basic)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables 
-	PolyBiv* pol_lhs = NULL;
-	PolyBiv* pol_rhs = NULL;
+	PolyBiv* pol_lhs = malloc(poly_biv_bytes(params_glwe));;
+	PolyBiv* pol_rhs = malloc(poly_biv_bytes(params_glwe));;
 	PolyBiv* sum_computed  = malloc(poly_biv_bytes(params_glwe));
 
 	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]
@@ -356,7 +356,7 @@ Test(normal_random_biv_poly_dft, is_it_working)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
-	PolyBivDFT* pol_dft     = NULL;
+	PolyBivDFT* pol_dft     = malloc(poly_biv_bytes(params_glwe));;
 	PolyBiv* pol            = malloc(poly_biv_bytes(params_glwe));
 	PolyBiv* pol_normalized = malloc(poly_biv_bytes(params_glwe));
 
@@ -396,8 +396,8 @@ Test(add_biv_poly_dft, basic)
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables 
-	PolyBivDFT* pol_lhs_dft = NULL;
-	PolyBivDFT* pol_rhs_dft = NULL;
+	PolyBivDFT* pol_lhs_dft = malloc(poly_biv_bytes(params_glwe));;
+	PolyBivDFT* pol_rhs_dft = malloc(poly_biv_bytes(params_glwe));;
 	PolyBivDFT* sum_computed_dft  = malloc(poly_biv_bytes(params_glwe));
 
 	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]

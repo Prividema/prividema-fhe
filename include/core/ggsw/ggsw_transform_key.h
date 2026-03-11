@@ -1,5 +1,7 @@
 #include "ggsw_key.h"
 
+//! GLWE KEY PART (begin)
+
 /**
  * @brief Computes the input secret key out of the DFT domain.
  *
@@ -20,6 +22,8 @@ int transform_ggsw_secret_key_dft_to_not_dft(const MODULE* module, GGSWSecretKey
  */
 void transform_ggsw_secret_key_to_glwe_secret_key(GLWESecretKey* result, const GGSWSecretKey* sk_ggsw);
 
+
+//! GLWE IN DFT SPACE PART (begin)
 
 /**
  * @brief Computes the secret key in the DFT domain.

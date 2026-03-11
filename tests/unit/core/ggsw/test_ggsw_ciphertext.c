@@ -553,7 +553,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u) * DFT(ggsw)
-	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft, 0);
+	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft, 1);
 
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	vec_znx_idft_p(module, u, 1, u_dft, 1);

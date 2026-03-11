@@ -134,3 +134,9 @@ cleanup:
 
 	return status;
 }
+
+void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft)
+{
+	delete_glwe_secret_key_values_dft(sk_dft->values, sk_dft->k);
+	free(sk_dft);
+}
