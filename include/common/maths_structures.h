@@ -103,7 +103,7 @@ typedef double MatBivDFT;
  * 
  * @param pol     A Pointer to the Bivariate Polynomial.
  * @param pol_sl  The stride length : The step to jump from the beggining to the next polynomial.
- * @param N       // TODO : How to define it properly ?
+ * @param N       The degree of the chosen cyclotomic polynomial.
  * @param l       The degree in Y.
  */
 void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l);
@@ -113,7 +113,7 @@ void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l);
  * 
  * @param pols          A Pointer to the vector.
  * @param pols_size     The size of the vector.
- * @param N             // TODO : How to define it properly ?
+ * @param N             The degree of the chosen cyclotomic polynomial.
  * @param l             The degree in Y.
  */
 void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size, int64_t N, int64_t l);
@@ -122,7 +122,7 @@ void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size, int64_t N, int64_t l);
  * @brief Prints a Univariate Polynomial in \f$\mathbb{Z}_n[X]\f$.
  * 
  * @param pol A Pointer to the Univariate Polynomial.
- * @param N   The number of coefficients in the Polynomial.
+ * @param N   The degree of the chosen cyclotomic polynomial.
  */
 void printf_poly_univ_ZnX(PolyUniv* pol, int64_t N);
 
@@ -130,7 +130,7 @@ void printf_poly_univ_ZnX(PolyUniv* pol, int64_t N);
  * @brief Prints a Univariate Polynomial in \f$\mathbb{R}_n[X]\f$.
  * 
  * @param pol A Pointer to the Univariate Polynomial.
- * @param N   The number of coefficients in the Polynomial.
+ * @param N   The degree of the chosen cyclotomic polynomial.
  */
 void printf_poly_univ_RnX(double* pol, int64_t N);
 
@@ -139,7 +139,7 @@ void printf_poly_univ_RnX(double* pol, int64_t N);
  * 
  * @param pols        A Pointer to the vector.
  * @param pols_size   The size of the vector.
- * @param N           The number of coefficients in each Polynomial.
+ * @param N           The degree of the chosen cyclotomic polynomial.
  */
 void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t N);
 
