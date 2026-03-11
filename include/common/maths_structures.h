@@ -1,98 +1,147 @@
 #include <stdint.h>
-//! DEFINE STRUCTURE ALIAS, NOT DFT & DFT (begin)
+
+// =============================================
+// |                                           |
+// |         Univariate Structures             |
+// |                                           |
+// =============================================
 
 /**
- * @brief type that represents a Rn[X] polynomial.
- * @note `Length = N for a polynomial in Rn[X]`.
+ * @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial.
+ * @note `Length = N` for a polynomial in \f$\mathbb{R}_n[X]\f$.
  */
 typedef double PolyUnivRnX;
 
 /**
- * @brief type that represents a Rn[X] polynomial vector.
- * @note `Length = (k+1) * N for a TRLWE`.
- * @note `Length = k * N for a TRLWE secret key`.
+ * @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial vector.
+ * @note `Length = (k+1) * N` for a TRLWE.
+ * @note `Length = k * N` for a TRLWE secret key.
  */
 typedef double VecUnivRnX;
 
-/** @brief type that represents a Rn[X] polynomial vector.
- *  @note `Length = (k+1) * N for a GLWE`.
- *  @note `Length = k * N for a GLWE`
+/** @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial vector.
+ *  @note `Length = (k+1) * N` for a GLWE.
+ *  @note `Length = k * N` for a GLWE.
  */
 typedef int64_t VecUniv;
 
-/** @brief type that represents a Zn[X] polynomial.
- *  @note `Length = N for a polynomial in Zn[X]`.
+/** @brief Represents a \f$\mathbb{Z}_n[X]\f$ polynomial.
+ *  @note `Length = N` for a polynomial in \f$\mathbb{Z}_n[X]\f$.
  */
 typedef int64_t PolyUniv;
 
-/** @brief type that represents a Zn[X] univariate polynomial vector.
- *  @note `Length = k * N for a GLWE secret key`.
+/** @brief Represents a \f$\mathbb{Z}_n[X]\f$ univariate polynomial vector.
+ *  @note `Length = k * N` for a GLWE secret key.
  */
 typedef int64_t VecUniv;
 
-/** @brief type that represents a univariate GGSW.
- *  @note `Length = n_limbs_tilde * k * N for a GGSW`.
+/** @brief Represents a univariate GGSW.
+ *  @note `Length = n_limbs_tilde * k * N` for a GGSW.
  */
 typedef int64_t MatUniv;
 
-/** @brief type that represents a Zn[X] polynomial in the DFT domain.
- *  @note `Length = N for a polynomial in Zn[X]`.
+/** @brief Represents a \f$\mathbb{Z}_n[X]\f$ polynomial in the DFT domain.
+ *  @note `Length = N` for a polynomial in \f$\mathbb{Z}_n[X]\f$.
  */
 typedef double PolyUnivDFT;
 
-/** @brief type that represents a univariate Zn[X] polynomial vector in the DFT domain.
- *  @note `Length = (k+1) * N for a GLWE`
- *  @note `Length = k * N for a GLWE secret key`
+/** @brief Represents a univariate \f$\mathbb{Z}_n[X]\f$ polynomial vector in the DFT domain.
+ *  @note `Length = (k+1) * N` for a GLWE.
+ *  @note `Length = k * N` for a GLWE secret key.
  */
 typedef double VecUnivDFT;
 
-/** @brief type that represents a univariate GGSW in the DFT domain.
- *  @note `Length = n_limbs_tilde * (k+1) * N for a GGSW`
+/** @brief Represents a univariate GGSW in the DFT domain.
+ *  @note `Length = n_limbs_tilde * (k+1) * N` for a GGSW.
  */
 typedef double MatUnivDFT;
 
-//! DEFINE STRUCTURE ALIAS, NOT DFT & DFT (begin)
+// =============================================
+// |                                           |
+// |          Bivariate Structures             |
+// |                                           |
+// =============================================
 
-/** @brief type that represents a bivariate polynomial
- *  @note `Length = l * N for bivariate polynomial in Zn[X,Y]`
+/** @brief Represents a bivariate polynomial.
+ *  @note `Length = l * N` for bivariate polynomial in \f$\mathbb{Z}_n[X, Y]\f$.
  */
 typedef int64_t PolyBiv;
 
-/** @brief type that represents a bivariate polynomial vector
- *  @note `Length = l * (k+1) * N for a bivGLWE`
+/** @brief Represents a bivariate polynomial vector.
+ *  @note `Length = l * (k+1) * N` for a bivGLWE.
  */
 typedef int64_t VecBiv;
 
-/** @brief type that represents a bivariate polynomial matrix
- *  @note `Length = n_limbs_tilde * l * (k+1) * N
+/** @brief Represents a bivariate polynomial matrix.
+ *  @note `Length = n_limbs_tilde * l * (k+1) * N.
  */
 typedef int64_t MatBiv;
 
-/** @brief type that represents a bivariate polynomial in the DFT domain.
+/** @brief Represents a bivariate polynomial in the DFT domain.
  *  @note `Length = l*N`.
  */
 typedef double PolyBivDFT;
 
-/** @brief type that represents a bivariate polynomial vector in the DFT domain.
+/** @brief Represents a bivariate polynomial vector in the DFT domain.
  *  @note `Length = l * (k+1) * N` for a bivGLWE.
  */
 typedef double VecBivDFT;
 
-/** @brief type that represents a bivariate polynomial matrix in the DFT domain.
+/** @brief Represents a bivariate polynomial matrix in the DFT domain.
  *  @note `Length = n_limbs_tilde * l * (k+1) * N` for a bivGGSW.
  */
 typedef double MatBivDFT;
 
-//! DEFINE FUNCTION TO PRINT THEM
+// =============================================
+// |                                           |
+// |              Print Functions              |
+// |                                           |
+// =============================================
 
+/**
+ * @brief Prints a Bivariate Polynomial.
+ * 
+ * @param pol     A Pointer to the Bivariate Polynomial.
+ * @param pol_sl  The stride length : The step to jump from the beggining to the next polynomial.
+ * @param N       // TODO : How to define it properly ?
+ * @param l       The degree in Y.
+ */
 void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l);
 
+/**
+ * @brief Prints a Vector of Bivariate Polynomial such as a GLWE ciphertext.
+ * 
+ * @param pols          A Pointer to the vector.
+ * @param pols_size     The size of the vector.
+ * @param N             // TODO : How to define it properly ?
+ * @param l             The degree in Y.
+ */
 void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size, int64_t N, int64_t l);
 
+/**
+ * @brief Prints a Univariate Polynomial in \f$\mathbb{Z}_n[X]\f$.
+ * 
+ * @param pol A Pointer to the Univariate Polynomial.
+ * @param N   The number of coefficients in the Polynomial.
+ */
 void printf_poly_univ_ZnX(PolyUniv* pol, int64_t N);
 
+/**
+ * @brief Prints a Univariate Polynomial in \f$\mathbb{R}_n[X]\f$.
+ * 
+ * @param pol A Pointer to the Univariate Polynomial.
+ * @param N   The number of coefficients in the Polynomial.
+ */
 void printf_poly_univ_RnX(double* pol, int64_t N);
 
+/**
+ * @brief Prints a Vector of Univariate Polynomials.
+ * 
+ * @param pols        A Pointer to the vector.
+ * @param pols_size   The size of the vector.
+ * @param N           The number of coefficients in each Polynomial.
+ */
 void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t N);
 
+// TODO : Used for debugging. To be removed.
 void printf_secret_key(PolyUniv** sk_values, int64_t N, int64_t k);

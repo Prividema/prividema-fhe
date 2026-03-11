@@ -6,11 +6,10 @@
 #include <string.h>
 #include <time.h>
 
-// Global log level threshold
-LogLevel LOG_THRESHOLD = LOG_DEBUG;
+unsigned char LOG_FLAG = 0;
 
-// log threshold setter
-void set_log_level(LogLevel level) { LOG_THRESHOLD = level; }
+// LOG_FLAG Setter
+void set_log_flag(unsigned char flag) { LOG_FLAG = flag; }
 
 // Get string representation of log level
 const char* log_level_str(LogLevel level)
@@ -30,10 +29,10 @@ const char* log_level_str(LogLevel level)
 }
 
 // The main logging function
-int log_m(LogLevel level, const char* fmt, ...)
+int log_message(LogLevel level, const char* fmt, ...)
 {
-	// Skip lower-priority messages
-	if (level < LOG_THRESHOLD) return 0;
+	// Skip the function if the level is not in LOG_FLAG
+	if ((LOG_FLAG & level) != 0) return 0;
 
 	// Get current time
 	time_t t = time(NULL);
@@ -59,6 +58,6 @@ int log_m(LogLevel level, const char* fmt, ...)
 }
 
 // Perror with logger
-int log_perror(const char* header) { return log_m(LOG_ERROR, "%s : %s", header, strerror(errno)); }
+int log_perror(const char* header) { return log_message(LOG_ERROR, "%s : %s", header, strerror(errno)); }
 
 int log_is_null(void* ptr, const char* header) { return (ptr == NULL) ? log_perror(header) : 0; }
