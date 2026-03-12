@@ -8,7 +8,6 @@ set(GGSW_SRCS
     ggsw_ciphertext.c
     ggsw_ct_params.c
     ggsw_key.c
-    ggsw_transform_key.c
 )
 
 # Create a shared library named GGSW

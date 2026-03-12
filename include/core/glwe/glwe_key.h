@@ -93,7 +93,6 @@ typedef struct glwe_public_key
 	uint64_t k;
 	int64_t Y;
 	GLWECiphertext** pk;  // vector of Y element (A1,...,Ak, B)
-	void* data;
 } GLWEPublicKey;
 
 // generation secret key

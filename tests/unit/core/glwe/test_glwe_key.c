@@ -48,8 +48,3 @@ Test(uniform_glwe_secret_key, values_not_null)
 	delete_glwe_secret_key(sk);
 }
 
-
-
-//! GLWE KEY PART IN DFT SPACE (begin)
-
-

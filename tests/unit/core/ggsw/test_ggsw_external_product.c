@@ -5,7 +5,7 @@
 #include "core/ggsw/ggsw.h"
 #include "core/glwe/glwe.h"
 #include "core/glwe/glwe_ciphertext.h"
-#include "core/ggsw/ggsw_transform_key.h"
+#include "core/glwe/glwe_transform_key.h"
 #include "rng.h"
 
 #define NBASE            8
@@ -56,8 +56,6 @@ Test(ggsw_external_product, without_error)
 
 	//! Variables
 	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_ggsw_dft     = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_tilde_dft     = alloc_glwe_secret_key_dft(NBASE, K_TILDEBASE);
 	GLWESecretKeyDFT* sk_glwe_dft     = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde        = new_glwe(params_glwe_tilde);
@@ -77,9 +75,7 @@ Test(ggsw_external_product, without_error)
 	sk_ggsw->values[0][0] = 1;
 
 	// Computes the bivGGSW secret key out of the DFT domain
-	transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw_dft, sk_ggsw);
-	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_tilde_dft, sk_ggsw_dft);
-	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft, sk_ggsw_dft);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_glwe_dft, sk_ggsw);
 
 	// Draws uniformly both messages
 	uniform_random_pol_znx(u_univ, NBASE, KAPPABASE);
@@ -87,7 +83,7 @@ Test(ggsw_external_product, without_error)
 
 	//! Computation with function
 	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
-	glwe_secret_masking(module, glwe_tilde, sk_glwe_tilde_dft, m);
+	glwe_secret_masking(module, glwe_tilde, sk_glwe_dft, m);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
 	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_glwe_dft, u_univ);
@@ -146,8 +142,7 @@ Test(ggsw_external_product, without_error)
 	delete_ggsw(ggsw);
 
 	delete_glwe_secret_key(sk_ggsw);
-	delete_glwe_secret_key_dft(sk_glwe_tilde_dft);
-	delete_glwe_secret_key_dft(sk_ggsw_dft);
+	delete_glwe_secret_key_dft(sk_glwe_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_glwe_ct_params(params_glwe_tilde);
 	delete_ggsw_ct_params(params_ggsw);
@@ -172,8 +167,6 @@ Test(ggsw_external_product_dft, without_error)
 
 	//! Variables
 	GLWESecretKey* sk_ggsw                = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_tilde_dft         = alloc_glwe_secret_key_dft(NBASE, K_TILDEBASE);
-	GLWESecretKeyDFT* sk_ggsw_dft         = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_glwe_dft         = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertextDFT* ggsw_dft              = new_ggsw_dft(params_ggsw);
 	GLWECiphertextDFT* glwe_tilde_dft        = new_glwe_dft(params_glwe_tilde);
@@ -194,9 +187,7 @@ Test(ggsw_external_product_dft, without_error)
 	sk_ggsw->values[0][0] = 2;
 
 	// Computes the bivGGSW secret key out of the DFT domain
-	transform_ggsw_secret_key_not_dft_to_dft(module, sk_ggsw_dft, sk_ggsw);
-	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_tilde_dft, sk_ggsw_dft);
-	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft, sk_ggsw_dft);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_glwe_dft, sk_ggsw);
 
 	// Draws uniformly both messages
 	uniform_random_pol_znx(u_univ, NBASE, KAPPABASE);
@@ -207,7 +198,7 @@ Test(ggsw_external_product_dft, without_error)
 
 	//! Computation with function
 	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
-	glwe_secret_masking_dft(module, glwe_tilde_dft, sk_glwe_tilde_dft, m_dft);
+	glwe_secret_masking_dft(module, glwe_tilde_dft, sk_glwe_dft, m_dft);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
 	ggsw_secret_encrypt_dft(module, params_ggsw, ggsw_dft, sk_glwe_dft, u_univ);
@@ -266,8 +257,6 @@ Test(ggsw_external_product_dft, without_error)
 	delete_ggsw_dft(ggsw_dft);
 
 	delete_glwe_secret_key(sk_ggsw);
-	delete_glwe_secret_key_dft(sk_ggsw_dft);
-	delete_glwe_secret_key_dft(sk_glwe_tilde_dft);
 	delete_glwe_secret_key_dft(sk_glwe_dft);
 
 	delete_glwe_ct_params(params_glwe);

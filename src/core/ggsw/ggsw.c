@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "glwe_ciphertext.h"
+#include "glwe_key.h"
 #include "glwe_ct_params.h"
 #include "logger.h"
 #include "math.h"
@@ -38,7 +39,7 @@ cleanup:
 }
 
 int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result,
-                                   const GGSWSecretKeyDFT* sk_dft, const VecBiv* glwe_vec)
+                                   const GLWESecretKeyDFT* sk_dft, const VecBiv* glwe_vec)
 {
   GLWECiphertext ct;
   ct.params = params_glwe;
@@ -47,7 +48,7 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
 }
 
 int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, VecBiv* result,
-                                 const GGSWSecretKeyDFT* sk_dft, const PolyBiv* phase)
+                                 const GLWESecretKeyDFT* sk_dft, const PolyBiv* phase)
 {
   GLWECiphertext ct;
   ct.params = params_glwe;
@@ -57,7 +58,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 
 
 int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertext* result,
-                        const GGSWSecretKeyDFT* sk_dft, const PolyUniv* m_univ)
+                        const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ)
 {
 	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
@@ -204,7 +205,7 @@ cleanup:
 //! bivGGSW IN DFT PART (begin)
 
 int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result,
-                                       const GGSWSecretKeyDFT* sk_dft, const VecBivDFT* glwe_vec_dft)
+                                       const GLWESecretKeyDFT* sk_dft, const VecBivDFT* glwe_vec_dft)
 {
 	int status = -1;
 
@@ -229,7 +230,7 @@ cleanup:
 }
 
 int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, VecBivDFT* result_dft,
-                                     const GGSWSecretKeyDFT* sk_dft, const PolyBivDFT* phase_dft)
+                                     const GLWESecretKeyDFT* sk_dft, const PolyBivDFT* phase_dft)
 {
   GLWECiphertextDFT ct;
   ct.params = params_glwe;
@@ -238,7 +239,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
 }
 
 int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertextDFT* result_dft,
-                            const GGSWSecretKeyDFT* sk_dft, const PolyUniv* m_univ)
+                            const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ)
 {
 	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt_dft");

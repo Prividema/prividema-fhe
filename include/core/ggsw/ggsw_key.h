@@ -8,11 +8,6 @@
  */
 
 #include "ggsw_ciphertext.h"
-#include "glwe_key.h"
-
-typedef GLWESecretKey GGSWSecretKey;
-
-typedef GLWESecretKeyDFT GGSWSecretKeyDFT;
 
 
 typedef struct ggsw_public_key
