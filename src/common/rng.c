@@ -27,7 +27,7 @@
                         if an error occurs during the generation.
     - On other Linux distributions : read /dev/urandom.
 */
-int read_rand(int64_t* result)
+int read_rand(uint64_t* result)
 {
 // For Windows
 #ifdef _WIN32
@@ -60,10 +60,9 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 		               8 * sizeof(int64_t));
 
 	// Generate a random int64_t
-	// r is in the interval [0, int64_MAX]
-	int64_t r;
-	int res;
-	if ((res = read_rand(&r)) < 0) return -1;
+	// r is in the interval [0, uint64_MAX]
+	uint64_t r;
+	if (read_rand(&r) < 0) return -1;
 
 	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
 	if (nb_bits == 8 * sizeof(int64_t)) *result = (int64_t)r;
@@ -75,7 +74,7 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 	else {
 		// Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
 		// As r is still an unsigned int, it is now in [0, p)
-		int64_t p = (1 << nb_bits);
+		uint64_t p = (1 << nb_bits);
 		r &= p - 1;
 
 		// Apply an offset so result is in [-p/2, p/2)
