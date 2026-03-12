@@ -13,19 +13,19 @@ GLWECiphertext* new_glwe(const GLWECtParams* params)
 {
 	// The bivGLWE does not own the GLWECtParams
 	GLWECiphertext* glwe = malloc(sizeof(GLWECiphertext));
-	if (log_is_null(glwe, "glwe's malloc failed in new_glwe")) return NULL;
+  CHECK_ALLOC(glwe, "glwe's malloc failed in new_glwe");
 
 	glwe->params = params;
 
 	// Initialize the bivGLWE ciphertext with 0s'
 	glwe->vec = calloc(glwe_coef_number(params), sizeof(int64_t));
-	if (log_is_null(glwe->vec, "glwe->vec's calloc failed in new_glwe") < 0)
-    {
-        free(glwe);
-		return NULL;
-    }
+  CHECK_ALLOC(glwe->vec, "glwe->vec's calloc failed in new_glwe");
 
 	return glwe;
+cleanup:
+
+  free(glwe);
+  return NULL;
 }
 
 void delete_glwe(GLWECiphertext* glwe)
