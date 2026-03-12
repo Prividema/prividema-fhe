@@ -7,6 +7,7 @@
 #include "core/glwe/glwe_ciphertext.h"
 #include "core/glwe/glwe_transform_key.h"
 #include "rng.h"
+#include "utils.h"
 
 #define NBASE            8
 #define KBASE            1
@@ -118,10 +119,9 @@ Test(ggsw_external_product, without_error)
 	//! Asserts um_computed_univ(X) = u * m_univ
 	for (uint64_t p = 0; p < NBASE; p++)
 	{
-		double diff_1 = um_computed_univ_RnX[p] - (um_univ_RnX[p] - floor(um_univ_RnX[p]));
-		double diff_2 = um_computed_univ_RnX[p] - (um_univ_RnX[p] - floor(um_univ_RnX[p]) - 1);
 
-		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+    double diff = torus_distance(um_univ_RnX[p], um_computed_univ_RnX[p]);
+    int cond = diff < err_length;
 
 		cr_assert(cond, "Equality failed with um_computed_univ_RnX[%ld] = %lf and  um_univ_RnX[%ld] = %lf", p, p,
 		          um_univ_RnX[p] - floor(um_univ_RnX[p]), p, um_computed_univ_RnX[p], err_length);
@@ -233,10 +233,9 @@ Test(ggsw_external_product_dft, without_error)
 	//! Asserts um_computed_univ(X) = u * m_univ
 	for (uint64_t p = 0; p < NBASE; p++)
 	{
-		double diff_1 = um_computed_univ_RnX[p] - (um_univ_RnX[p] - floor(um_univ_RnX[p]));
-		double diff_2 = um_computed_univ_RnX[p] - (um_univ_RnX[p] - floor(um_univ_RnX[p]) - 1);
 
-		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+    double diff = torus_distance(um_univ_RnX[p], um_computed_univ_RnX[p]);
+    int cond = diff < err_length;
 
 		cr_assert(cond, "Equality failed with um_computed_univ_RnX[%ld] = %lf and  um_univ_RnX[%ld] = %lf", p, p,
 		          um_computed_univ_RnX[p], p, um_univ_RnX[p], err_length);

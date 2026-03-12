@@ -78,13 +78,12 @@ Test(glwe_secret_masking, small_error)
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
 
-	//! Asserts phase_computed_univ_RnX = m + err
-	for (uint64_t p = 0; p < NBASE; p++)
-	{
-		double diff_1 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]));
-		double diff_2 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]) - 1);
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
+	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
+	for (uint64_t p = 0; p < NBASE; p++) {
+    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
-		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+		int cond = diff < err_length;
 
 		if (!cond) big_error_count++;
 	}
@@ -169,15 +168,12 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
 
-	//! Asserts phase_computed_univ_RnX = m + err
-	for (uint64_t p = 0; p < NBASE; p++)
-	{
-		double diff_1 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]));
-		double diff_2 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]) - 1);
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
+	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
+	for (uint64_t p = 0; p < NBASE; p++) {
+    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
-		double err_length = 3 * sigma + ldexp(1.0, -LBASE * KAPPABASE);
-
-		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+		int cond = diff < err_length;
 
 		if (!cond) big_error_count++;
 	}
@@ -268,13 +264,12 @@ Test(glwe_secret_masking_dft, small_error)
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
 
-	// Compare both phase in Rn[X]
-	for (uint64_t p = 0; p < NBASE; p++)
-	{
-		double diff_1 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]));
-		double diff_2 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]) - 1);
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
+	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
+	for (uint64_t p = 0; p < NBASE; p++) {
+    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
-		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+		int cond = diff < err_length;
 
 		if (!cond) big_error_count++;
 	}
@@ -365,12 +360,12 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
 
-	for (uint64_t p = 0; p < NBASE; p++)
-	{
-		double diff_1 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]));
-		double diff_2 = phase_computed_univ_RnX[p] - (m_univ_RnX[p] - floor(m_univ_RnX[p]) - 1);
+	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
+	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
+	for (uint64_t p = 0; p < NBASE; p++) {
+    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
-		int cond = (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+		int cond = diff < err_length;
 
 		if (!cond) big_error_count++;
 	}

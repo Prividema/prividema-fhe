@@ -117,11 +117,8 @@ Test(ggsw_secret_encrypt, works)
 			// are only different by an error of approximation and a gaussian error
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-				double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
-				double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
-
-				int cond =
-				    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+        double distance = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
+				int cond = distance < err_length;
 
 				if (!cond) big_error_count++;
 			}
@@ -167,11 +164,9 @@ Test(ggsw_secret_encrypt, works)
 		// are only different by an error of approximation and a gaussian error
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
-			double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
+      double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
 
-			int cond =
-			    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+			int cond = diff < err_length;
 
 			if (!cond) big_error_count++;
 		}
@@ -290,15 +285,12 @@ Test(ggsw_secret_encrypt_dft, works)
 			// A variable counting the number of times the error is greater than 3*sigma
 			int big_error_count = 0;
 
-			// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
+			// Assures that the difference between the phase = msg / (2^kappa_tilde)^i and the computed phase,
 			// are only different by an error of approximation and a gaussian error
-			for (uint64_t p = 0; p < NBASE; p++)
-			{
-				double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
-				double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
-				
-				int cond =
-				    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+			for (uint64_t p = 0; p < NBASE; p++) {
+
+        double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
+				int cond = diff < err_length;
 
 				if (!cond) big_error_count++;
 			}
@@ -344,11 +336,10 @@ Test(ggsw_secret_encrypt_dft, works)
 		// are only different by an error of approximation and a gaussian error
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
-			double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
 			
-			int cond =
-				(diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
+      double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
+
+			int cond = diff < err_length;
 
 			if (!cond) big_error_count++;
 		}

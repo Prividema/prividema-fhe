@@ -47,6 +47,14 @@
 		}                   			\
 	} while (0)
 
-#endif  // UTILS_H
+
+/**
+* @brief Computes the distance between two torus elements
+*
+* In other words, abs( (a mod 1) - (b mod 1))
+* Mostly used in tests
+*/
+double torus_distance(double a, double b);
 
 double binomial_tail(uint64_t N, double p);
+#endif  // UTILS_H
