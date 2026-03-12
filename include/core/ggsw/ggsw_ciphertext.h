@@ -3,207 +3,250 @@
 
 /**
  * @file ggsw_ciphertext.h
- * @brief bivGGSW ciphertext
  *
- * In this header file, we define the structure represultenting bivariate bivGGSW ciphertext
- * and bivariate bivGGSW in the DFT domain. Moreover, we define alias for double and int64_t.
- * Thus, we properly manipulate mathematical structure (polynomial, vector or matrix).
- * The types below are provided solely for clarity, nothing is changed in spqlios.
+ * In this header file, we define the structure representing bivariate GGSW ciphertext in both DFT and iDFT forms.
  */
 
-#include <stdint.h>
-#include <stdlib.h>
-
-#include "ggsw_ct_params.h"
-#include "maths_structures.h"
 #include "partialggsw_ciphertext.h"
 
-//! bivGGSW PART (begin)
+// =============================================
+// |                                           |
+// |      			 iDFT Form       		   |
+// |                                           |
+// =============================================
 
+/**
+ * @struct GGSWCtParams
+ * 
+ * @brief GGSW Ciphertext in the iDFT space.
+ */
 typedef struct ggsw_ciphertext
 {
-	const GGSWCtParams* params;  // bivGGSW parameters
-	MatBiv* mat;  // Represultent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Zn[X]
+	/// GGSW parameters.
+	const GGSWCtParams* params;
+
+  	/// A matrix of size \f$n\_limbs\_tilde \times n\_limbs\f$ with coefficients that are in \f$\mathbb{Z}_n[X]\f$.
+	MatBiv* mat;
+
 } GGSWCiphertext;
 
 /**
- * @brief Return the number of coefficients in a bivariate bivGGSW ciphertext.
+ * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext.
  *
- * @param params_ggsw The bivGGSW parameters.
- * @return int64_t
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ * 
+ * @return The number of coefficients in a GGSW ciphertext.
  */
 uint64_t ggsw_coef_number(const GGSWCtParams* params_ggsw);
 
 /**
- * @brief Creates a bivGGSW ciphertext, it is filled with 0.
+ * @brief Creates a Bivariate GGSW ciphertext filled with 0.
  *
- * @param params_ggsw The bivGGSW parameters.
+ * @param params_ggsw A Pointer to the GGSW parameters.
  *
- * @retval - `NULL` if malloc failed inside the function.
- * @retval - Allocated bivGGSW ciphertext, filled with 0.
- *
+ * @retval • `NULL` if malloc failed inside the function.
+ * @retval • The Allocated GGSW ciphertext filled with 0 otherwise.
  */
 GGSWCiphertext* new_ggsw(const GGSWCtParams* params_ggsw);
 
 /**
- * @brief Delete a bivGGSW ciphertext.
+ * @brief Deletes a GGSW ciphertext.
  *
- * @param ggsw The bivGGSW ciphertext.
+ * @param ggsw A Pointer to the GGSW parameters.
  */
 void delete_ggsw(GGSWCiphertext* ggsw);
 
 /**
- * @brief Return the pointer to : biGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k.
- * 								  biGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k.
+ * @brief Get the Bivariate GLWE Ciphertext inside the GGSW with the given values.
+ * 
+ * As a Bivariate GGSW's matrix is : 
+ * 
+ * - bivGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k.
+ * - bivGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k.
+ * 
+ * The function takes j and i and get the associated bivGLWE.
  *
- * @param params_ggsw The bivGGSW parameters.
- * @param ggsw_mat The bivGGSW ciphertext's matrix.
- * @param j The j-th component of the secret key.
- * @param i The i in -m * sk_j / 2^{kappa_tilde * i}.
+ * @param params_ggsw A Pointer to the GGSW parameters. Contains `kappa_tilde`.
+ * @param ggsw_mat    A Pointer to The GGSW ciphertext's matrix.
+ * @param j 		  The j-th component of the secret key.
+ * @param i 		  The i in -m * sk_j / 2^{kappa_tilde * i}.
  *
- * @return VecBiv*
+ * @return A Pointer to the associated Bivariate GLWE.	
  */
 VecBiv* ggsw_Sj_Yti(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i);
 
 /**
- * @brief Normalize a bivGGSW ciphertext.
+ * @brief Normalizes a GGSW ciphertext.
  *
  * @param module Additionnal information for backend.
- * @param result The result normalized bivGGSW ciphertext.
- * @param ggsw The input bivGGSW ciphertext.
+ * @param result A Pointer to store the normalized GGSW ciphertext.
+ * @param ggsw   A Pointer to the GGSW ciphertext to normalize.
  * 
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
+ * @retval • `0` otherwise.
  */
 int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
 
 /**
- * @brief Adds two bivGGSW ciphertexts with same params and put result in result
+ * @brief Adds two GGSW ciphertexts with same parameters.
  *
- * @param result The result bivGGSW ciphertext.
- * @param ggsw_lhs The left-hand side bivGGSW ciphertext.
- * @param ggsw_rhs The right-hand side bivGGSW ciphertext.
+ * @param result   A Pointer to store the result.
+ * @param ggsw_lhs A Pointer to the left-hand side GGSW ciphertext.
+ * @param ggsw_rhs A Pointer to the right-hand side GGSW ciphertext.
  */
 void add_ggsw(GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs);
 
 /**
- * @brief Multiply a bivGGSW ciphertext by a constant in Zn[X]
+ * @brief Multiplies a GGSW ciphertext by a constant in \f$\mathbb{Z}_n[X]\f$.
  *
- * @param module Additionnal information for backend.
- * @param result The result bivGGSW ciphertext.
- * @param ggsw The bivGGSW ciphertext.
- * @param u_dft The Zn[X] polynomial in the DFT domain.
- * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ * @param module    Additionnal information for backend.
+ * @param result    A Pointer to store the result. Must be a GGSWCiphertext.
+ * @param ggsw      A Pointer to the GGSW ciphertext.
+ * @param cte       The constant in \f$\mathbb{Z}_n[X]\f$.
+ * @param normalize A boolean that tells to normalize the result.
+ * 
+ * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
+ * @retval • `0` otherwise.
  */
-int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft,
-                    int do_normalization);
+int const_mult_ggsw(const MODULE* module,
+					GGSWCiphertext* result,
+					const GGSWCiphertext* ggsw, const PolyUnivDFT* cte,
+                    int normalize);
 
-//! bivGGSW IN DFT PART
-// The same functions but the operation are done in the DFT domain. The parameters are the same but the ciphertext are in the DFT 
-// domain.
+// =============================================
+// |                                           |
+// |      			 DFT Form       		   |
+// |                                           |
+// | Same functions as above but in DFT Space. |
+// |                                           |
+// |     The parameters are the same but 	   |
+// |   the ciphertexts are in the DFT space.   |
+// =============================================
 
+/**
+ * @struct GGSWCtParams
+ * 
+ * @brief GGSW Ciphertext in the DFT space.
+ */
 typedef struct ggsw_ciphertext_dft
 {
-	const GGSWCtParams* params;  // bivGGSW parameters
-	MatBivDFT* mat;  // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Cn/2[X]
+	/// GGSW parameters.
+	const GGSWCtParams* params;
+
+	/// A matrix of size \f$n\_limbs\_tilde \times n\_limbs\f$ with coefficients that are in \f$\mathbb{C}_n[X]\f$.
+	MatBivDFT* mat;
+
 } GGSWCiphertextDFT;
 
 /**
- * @brief The number of coefficient in a bivariate bivGGSW ciphertext in the DFT domain.
+ * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext in the DFT space.
  *
- * @param params_ggsw The bivGGSW parameters.
- * @return int64_t
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ * 
+ * @return The number of coefficients in a GGSW ciphertext.
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
- * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
+ * \f$\mathbb{Z}_n[X]\f$, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 uint64_t ggsw_coef_number_dft(const GGSWCtParams* params_ggsw);
 
 /**
- * @brief Creates a bivGGSW in the DFT domain, filled with 0.
+ * @brief Creates a Bivariate GGSW ciphertext in the DFT space filled with 0.
  *
- * @param params_ggsw The bivGGSW parameters.
- * 
- * @retval - `NULL` if malloc failed inside the function.
- * @retval - Allocated bivGGSW ciphertext in the DFT domain, filled with 0.
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ *
+ * @retval • `NULL` if malloc failed inside the function.
+ * @retval • The Allocated GGSW ciphertext filled with 0 otherwise.
  */
 GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params_ggsw);
 
 /**
- * @brief Delete a bivGGSW in the DFT domain.
+ * @brief Deletes a GGSW ciphertext in the DFT space.
  *
- * @param ggsw The bivGGSW in the DFT domain.
+ * @param ggsw A Pointer to the GGSW parameters.
  */
 void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
 
 /**
- * @brief Return the pointer to : biGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k in the DFT domain.
- * 								  biGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k in the DFT domain.
+ * @brief Get the Bivariate GLWE Ciphertext inside the GGSW with the given values.
+ * 
+ * As a Bivariate GGSW's matrix is : 
+ * 
+ * - bivGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k.
+ * - bivGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k.
+ * 
+ * The function takes j and i and get the associated bivGLWE.
  *
- * @param params_ggsw The bivGGSW parameters.
- * @param ggsw_mat_dft The bivGGSW ciphertext's matrix in the DFT domain.
- * @param j The j-th component of Sk.
- * @param i The i in the phase = -m * sk_j / 2^{kappa_tilde * i}.
+ * @param params_ggsw A Pointer to the GGSW parameters. Contains `kappa_tilde`.
+ * @param ggsw_mat    A Pointer to The GGSW ciphertext's matrix.
+ * @param j 		  The j-th component of the secret key.
+ * @param i 		  The i in -m * sk_j / 2^{kappa_tilde * i}.
  *
- * @return VecBivDFT*
+ * @return A Pointer to the associated Bivariate GLWE in the DFT space.	
  */
 VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i);
 
 /**
- * @brief Normalize a bivGGSW ciphertext in the DFT domain.
+ * @brief Normalizes a GGSW ciphertext in the DFT space.
  *
  * @param module Additionnal information for backend.
- * @param result_dft The result normalized bivGGSW ciphertext in the DFT domain.
- * @param ggsw_dft The input bivGGSW ciphertext in the DFT domain.
+ * @param result A Pointer to store the normalized GGSW ciphertext.
+ * @param ggsw   A Pointer to the GGSW ciphertext to normalize.
  * 
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
+ * @retval • `0` otherwise.
  */
 int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft);
 
 /**
- * @brief Adds two bivGGSW ciphertexts in the DFT domain.
+ * @brief Adds two GGSW ciphertexts in the DFT space with same parameters.
  *
- * @param result_dft The result bivGGSW ciphertext in the DFT domain.
- * @param ggsw_lhs_dft The left-hand side bivGGSW ciphertext in the DFT domain.
- * @param ggsw_rhs_dft The right-hand side bivGGSW ciphertext in the DFT domain.
+ * @param result   A Pointer to store the result.
+ * @param ggsw_lhs A Pointer to the left-hand side GGSW ciphertext.
+ * @param ggsw_rhs A Pointer to the right-hand side GGSW ciphertext.
  */
 void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_lhs_dft, const GGSWCiphertextDFT* ggsw_rhs_dft);
 
 /**
- * @brief Multiply a bivGGSW ciphertext by a constant in Zn[X].
+ * @brief Multiplies a GGSW ciphertext in the DFT space by a constant in \f$\mathbb{Z}_n[X]\f$.
  *
- * @param module Additionnal information for backend.
- * @param result_dft The result bivGGSW ciphertext in the DFT domain.
- * @param ggsw_dft The bivGGSW ciphertext in the DFT domain.
- * @param u_dft The Zn[X] polynomial in the DFT domain, with coefficient in [-2^(kappa-1), 2^(kappa-1)].
- * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ * @param module    Additionnal information for backend.
+ * @param result    A Pointer to store the result. Must be a GGSWCiphertext.
+ * @param ggsw      A Pointer to the GGSW ciphertext.
+ * @param cte       The constant in \f$\mathbb{Z}_n[X]\f$. Must be in the DFT space.
+ * @param normalize A boolean that tells to normalize the result.
  * 
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
+ * @retval • `0` otherwise.
  */
 int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
                         const PolyUnivDFT* u_dft, int do_normalization);
 
-//! COMMON PART (begin)
+// =============================================
+// |                                           |
+// |      			 Common Part     		   |
+// |                                           |
+// =============================================
 
 /**
- * @brief Return the size of a bivGGSW ciphertext, in the DFT domain & out of the DFT domain.
+ * @brief Gets the size of any type of GGSW ciphertext.
  *
- * @param params_ggsw The bivGGSW parameters.
- * @return int64_t
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ * 
+ * @return The size of any type of GGSW ciphertext.
  *
- * @note The size of a bivGGSW ciphertext is the same in and out of the DFT domain.
+ * @note The size is the same in DFT and iDFT domains.
  */
 uint64_t ggsw_size(const GGSWCtParams* params_ggsw);
 
 /**
- * @brief The number of bytes needed to store a bivGGSW ciphertext.
+ * @brief Gets the number of bytes needed to store a GGSW ciphertext.
  *
- * @param params_ggsw The bivGGSW parameters.
- * @return int64_t
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ * 
+ * @return The number of bytes needed to store a GGSW ciphertext.
  *
- * @note The number of bytes needed to store a bivGGSW ciphertext, is the same in and out of the DFT domain.
+ * @note This function works in both DFT and iDFT domains.
  */
 uint64_t ggsw_bytes(const GGSWCtParams* params_ggsw);
 
