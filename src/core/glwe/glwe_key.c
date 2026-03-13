@@ -5,7 +5,7 @@
 #include "rng.h"
 #include "spqlios_alias.h"
 
-//! GLWE PART (begin)
+//! bivGLWE PART (begin)
 
 PolyUniv** new_glwe_secret_key_values(uint64_t N, uint64_t k)
 {
@@ -72,7 +72,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 	free(sk);
 }
 
-//! GLWE PART in the DFT domain (begin)
+//! bivGLWE PART in the DFT domain (begin)
 
 PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k)
 {

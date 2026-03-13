@@ -10,7 +10,7 @@
 #define LBASE      NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE  -12
 
-//! GLWE KEY PART (begin)
+//! bivGLWE KEY PART (begin)
 
 /**
  * @brief Tests wether transform_glwe_secret_key_dft_to_not_dft transforms the secret key in the DFT domain, out of DFT
@@ -21,14 +21,14 @@ Test(transform_glwe_secret_key_dft_to_not_dft, basic)
 	// Parameters
 	MODULE* module = new_module_info(NBASE, FFT64);
 
-	// Create a GLWE secret key 
+	// Create a bivGLWE secret key 
 	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
 	GLWESecretKey* sk =	new_glwe_secret_key(NBASE, KBASE);
 
 	// Draws uniformly in Zn[X] the secret key's values
 	uniform_glwe_secret_key_dft(module, sk_dft, 3);
 
-	// Compute the GLWE secret key out of DFT space
+	// Compute the bivGLWE secret key out of DFT space
 	int status = transform_glwe_secret_key_dft_to_not_dft(module, sk, sk_dft);
 
 	// Asserts transform_glwe_secret_key_dft_to_not_dft succeed
@@ -41,7 +41,7 @@ Test(transform_glwe_secret_key_dft_to_not_dft, basic)
 }
 
 
-//! GLWE KEY PART IN DFT SPACE (begin)
+//! bivGLWE KEY PART IN DFT SPACE (begin)
 
 /**
  * @brief Tests wether transform_glwe_secret_key_not_dft_to_dft transforms the secret key out of the DFT domain, in DFT
@@ -56,10 +56,10 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 	GLWESecretKey* sk = new_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft = new_glwe_secret_key_dft(NBASE, KBASE);
 	
-	// Draws uniformly in Zn[X] the GLWE secret key's values
+	// Draws uniformly in Zn[X] the bivGLWE secret key's values
 	uniform_glwe_secret_key(module, sk, 3);
 
-	// Computes the GLWE secret key in the DFT domain
+	// Computes the bivGLWE secret key in the DFT domain
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Clean up

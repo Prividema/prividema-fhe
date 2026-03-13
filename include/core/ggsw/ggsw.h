@@ -1,5 +1,5 @@
-#ifndef GGSW_H
-#define GGSW_H
+#ifndef bivGGSW_H
+#define bivGGSW_H
 
 #include "ggsw_ciphertext.h"
 #include "ggsw_key.h"
@@ -7,15 +7,15 @@
 
 #define WITH_Y0
 
-//! GGSW PART (begin)
+//! bivGGSW PART (begin)
 
 /**
  * @brief Adds a bivariate error to the bivariate phase.
  *
  * @param module Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
+ * @param params_glwe The bivGLWE parameters.
  * @param res The result bivariate phase.
- * @param phase The input phase.
+ * @param phase The input bivariate phase.
  */
 int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const PolyBiv* phase);
 
@@ -23,10 +23,10 @@ int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* re
  * @brief Demasks the phase (message + noise).
  *
  * @param module Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
- * @param result The result phase in Zn[X,Y].
+ * @param params_glwe The bivGLWE parameters.
+ * @param result The result bivariate phase.
  * @param sk_dft The secret key in the DFT domain.
- * @param glwe_vec The ciphertext.
+ * @param glwe_vec The bivGLWE ciphertext.
  */
 int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const GGSWSecretKeyDFT* sk_dft, const VecBiv* glwe_vec);
 
@@ -34,7 +34,7 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
  * @brief Masks the phase (message + noise) and puts it in result.
  *
  * @param module Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
+ * @param params_glwe The bivGLWE parameters.
  * @param result The result bivariate ciphertext.
  * @param sk_dft The secret key in the DFT domain.
  * @param phase message + noise.
@@ -50,7 +50,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
                                                                             m / 2^{kappa_tilde * i} + err       , if j = k
  *
  * @param module Additionnal information for backend.
- * @param params_ggsw The GGSW parameters.
+ * @param params_ggsw The bivGGSW parameters.
  * @param result The bivariate result phase.
  * @param phase_univ_RnX The phase in univariate space.
  * @param m_skj_univ The product m * sk_j, for j < k.
@@ -58,9 +58,11 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
  * @param sk_dft The secret key in the DFT domain.
  * @param m_univ_dft The univariate message in the DFT domain.
  * @param m_univ The univariate message.
- * @param i The i-ème block of HalfGGSW = [GLWE(-m*sk_0 / 2^{kappa_tilde * i}), ... , GLWE(-m*sk_(k-1) / 2^{kappa_tilde * i}), GLWE(m / 2^{kappa_tilde * i})]
+ * @param i The i-ème block of HalfGGSW = [GLWE(-m*sk_0 / 2^{kappa_tilde * i}), ... , bivGLWE(-m*sk_(k-1) / 2^{kappa_tilde * i}), bivGLWE(m / 2^{kappa_tilde * i})]
  * @param j The index of the element of the secret key.
- * @return int
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise otherwise.
  */
 int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, PolyBiv* result, 
 					 PolyUnivRnX* phase_univ_RnX, PolyUniv* m_skj_univ, PolyUnivDFT* m_skj_univ_dft, 
@@ -68,13 +70,13 @@ int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, Poly
                      int64_t i, int64_t j);
 
 /**
- * @brief Encrypts the message m into GGSW ciphertext res with parameters params.
+ * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params.
  *
  * @param module Additionnal information for backend.
- * @param params_ggsw The encryption params
- * @param result The encrypted message
- * @param sk_dft The secret key
- * @param m_univ The message
+ * @param params_ggsw The encryption params.
+ * @param result The bivGGSW(m) encrypted message.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param m_univ The univariate message.
  *
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise otherwise.
@@ -86,17 +88,17 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
  * @brief Computes the external product between a bivGLWE and a bivGGSW.
  *
  * @param module Additionnal information for backend.
- * @param result The bivariate GLWE result ciphertext.
- * @param glwe The bivariate GLWE input ciphertext.
- * @param ggsw The bivariate GGSW input ciphertext.
+ * @param result The bivGLWE result ciphertext.
+ * @param glwe The bivGLWE input ciphertext.
+ * @param ggsw The bivGGSW input ciphertext.
  * 
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise otherwise.
  */
 int ggsw_external_product(const MODULE* module,
                           GLWECiphertext* result,      // result
-                          const GLWECiphertext* glwe,  // GLWE ciphertext
-                          const GGSWCiphertext* ggsw   // GGSW ciphertext
+                          const GLWECiphertext* glwe,  // bivGLWE ciphertext
+                          const GGSWCiphertext* ggsw   // bivGGSW ciphertext
 );
 
 // PartialGGSWCiphertext is a struct encapsulating ciphertext values and params.
@@ -108,14 +110,13 @@ void halfggsw_secret_encrypt(PartialGGSWCiphertext* result,  // result
 );
 
 
-
-//! GGSW IN DFT PART (begin)
+//! bivGGSW IN DFT PART (begin)
 
 /**
  * @brief Demasks the phase (message + noise) in the DFT domain and computes it out of the DFT domain.
  *
  * @param module Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
+ * @param params_glwe The bivGLWE parameters.
  * @param result result phase in Zn[X,Y].
  * @param sk_dft The secret key in the DFT domain.
  * @param glwe_vec_dft The ciphertext.
@@ -130,7 +131,7 @@ int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams*
  * @brief Masks the phase (message + noise) in the DFT domain and puts it in result.
  *
  * @param module Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
+ * @param params_glwe The bivGLWE parameters.
  * @param result_dft The result ciphertext in the DFT domain.
  * @param sk_dft The secret key in the DFT domain.
  * @param phase_dft message + error.
@@ -146,7 +147,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
  *                                                                      m / 2^{kappa_tilde^i} + err, if j = k
  *
  * @param module Additionnal information for backend.
- * @param params_ggsw The GGSW parameters.
+ * @param params_ggsw The bivGGSW parameters.
  * @param sk_dft The secret key in the DFT domain.
  * @param m_univ The input message.
  * @param m_univ_dft The input message in the DFT domain.
@@ -167,7 +168,7 @@ int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, 
 						 int64_t i, int64_t j);
 
 /**
- * @brief Encrypts the message m into GGSW ciphertext res with parameters params in the DFT domain.
+ * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params in the DFT domain.
  *
  * @param module Additionnal information for backend.
  * @param params_ggsw The encryption params
@@ -182,12 +183,12 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
                             const GGSWSecretKeyDFT* sk_dft, const PolyUniv* m_univ);
 
 /**
- * @brief Computes the external product between a bivGLWE and a biv GGSW.
+ * @brief Computes the external product between a bivGLWE and a biv bivGGSW.
  *
  * @param module Additionnal information for backend.
- * @param res_dft The bivariate GLWE result ciphertext in the DFT domain.
- * @param glwe_dft The bivariate GLWE input ciphertext in the DFT domain.
- * @param ggsw_dft The bivariate GGSW input ciphertext in the DFT domain.
+ * @param res_dft The bivariate bivGLWE result ciphertext in the DFT domain.
+ * @param glwe_dft The bivariate bivGLWE input ciphertext in the DFT domain.
+ * @param ggsw_dft The bivariate bivGGSW input ciphertext in the DFT domain.
  */
 int ggsw_external_product_dft(const MODULE* module,
                               GLWECiphertextDFT* result_dft,     
@@ -195,4 +196,4 @@ int ggsw_external_product_dft(const MODULE* module,
                               const GGSWCiphertextDFT* ggsw_dft);
 //! COMMON PART (begin)
 
-#endif  // GGSW_H
+#endif  // bivGGSW_H

@@ -5,7 +5,7 @@
 #include "logger.h"
 #include "utils.h"
 
-//! GLWE PART (begin)
+//! bivGLWE PART (begin)
 
 uint64_t glwe_coef_number(const GLWECtParams* params) { return glwe_size(params) * params->N; }
 
@@ -38,7 +38,7 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphe
 {
 	int status = -1;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N     = result->params->N;
 	uint64_t k     = result->params->k;
 	uint64_t kappa = result->params->kappa;
@@ -68,7 +68,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 	// Variables
 	VecBivDFT* u_glwe_vec_dft = NULL;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N = result->params->N;
 	uint64_t k = result->params->k;
 	uint64_t l = poly_biv_size(result->params);
@@ -97,17 +97,17 @@ cleanup:
 	return status;
 }
 
-//! GLWE IN DFT PART (begin)
+//! bivGLWE IN DFT PART (begin)
 
 uint64_t glwe_coef_number_dft(const GLWECtParams* params) { return glwe_size(params) * params->N / 2; }
 
 GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params)
 {
-	// The GLWE ciphertext in the DFT domain
+	// The bivGLWE ciphertext in the DFT domain
 	GLWECiphertextDFT* glwe_dft = malloc(sizeof(GLWECiphertextDFT));
 	if (log_is_null(glwe_dft, "glwe_dft's malloc failed in new_glwe_dft.") < 0) return NULL;
 
-	// The GLWE parameters
+	// The bivGLWE parameters
 	glwe_dft->params = params;
 
 	// initialize the bivGLWE ciphertext with 0s'
@@ -133,7 +133,7 @@ int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, cons
 	// Variables 
 	VecBiv* glwe_vec = NULL;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	const GLWECtParams* params_glwe = result_dft->params;
 	uint64_t N     = params_glwe->N;
 	uint64_t k     = params_glwe->k;
@@ -179,10 +179,10 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	VecBiv* glwe_vec = NULL;
 	VecBiv* result_vec_normalized = NULL;
 
-	// GLWE set of parameters
+	// bivGLWE set of parameters
 	const GLWECtParams* params = result_dft->params;
 	
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N = params->N;
 	uint64_t k = params->k;
 	uint64_t l = poly_biv_size(params);
@@ -191,7 +191,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	u_glwe_vec_dft = malloc(glwe_bytes(params));
 	CHECK_ALLOC(u_glwe_vec_dft, "u_glwe_dft's malloc failed in const_mult_glwe_dft.");
 
-	// Point to the GLWE ciphertext out of the DFT domain
+	// Point to the bivGLWE ciphertext out of the DFT domain
 	glwe_vec = malloc(glwe_bytes(params));
 	CHECK_ALLOC(glwe_vec, "glwe_vec's malloc failed in const_mult_glwe_dft.");
 
@@ -203,11 +203,11 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 
 	if (do_normalization) 
 	{
-		// Point to the GLWE ciphertext out of the DFT domain 
+		// Point to the bivGLWE ciphertext out of the DFT domain 
 		result_vec_normalized = malloc(glwe_bytes(params));
 		CHECK_ALLOC(result_vec_normalized, "result_normalized's malloc failed in const_mult_glwe_dft.");
 
-		// Computes the GLWE ciphertext out of the DFT domain
+		// Computes the bivGLWE ciphertext out of the DFT domain
 		CHECK_CALL(vec_znx_idft_p(module, result_vec_normalized, glwe_size(params), result_dft->vec, glwe_size(params)),
 				   "vec_znx_idft_p failed in const_mult_glwe_dft");
 
@@ -217,7 +217,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 			                           result_vec_normalized + j * N, l, (k + 1) * N), 
 					   "vec_znx_normalize_base2k_p failed in const_mult_glwe_dft");
 
-		// Computes the GLWE ciphertext in the DFT domain
+		// Computes the bivGLWE ciphertext in the DFT domain
 		vec_znx_dft_p(module, result_dft->vec, glwe_size(params), result_vec_normalized, glwe_size(params), N);
 	}
 

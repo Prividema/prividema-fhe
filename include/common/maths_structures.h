@@ -2,6 +2,24 @@
 
 // =============================================
 // |                                           |
+// |         Variable presentation             |
+// |                                           |
+// =============================================
+
+
+/**
+ * In this library, the name of a variable follow this principle :
+ * 
+ * var                : the elements of the variable are in the bivariate space.
+ * var_dft            : the elements of the variable are bivariates elements in the DFT domain.
+ * var_univariate     : the variable is a Zn[X] polynomial.
+ * var_univariate_RnX : the variable is a Rn[X] polynomial.
+ * var_univariate_dft : the variable is a Zn[X] polynomial in the DFT domain.
+ */
+
+
+// =============================================
+// |                                           |
 // |         Univariate Structures             |
 // |                                           |
 // =============================================
@@ -20,8 +38,8 @@ typedef double PolyUnivRnX;
 typedef double VecUnivRnX;
 
 /** @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial vector.
- *  @note `Length = (k+1) * N` for a GLWE.
- *  @note `Length = k * N` for a GLWE.
+ *  @note `Length = (k+1) * N` for a bivGLWE.
+ *  @note `Length = k * N` for a bivGLWE.
  */
 typedef int64_t VecUniv;
 
@@ -31,12 +49,12 @@ typedef int64_t VecUniv;
 typedef int64_t PolyUniv;
 
 /** @brief Represents a \f$\mathbb{Z}_n[X]\f$ univariate polynomial vector.
- *  @note `Length = k * N` for a GLWE secret key.
+ *  @note `Length = k * N` for a bivGLWE secret key.
  */
 typedef int64_t VecUniv;
 
-/** @brief Represents a univariate GGSW.
- *  @note `Length = n_limbs_tilde * k * N` for a GGSW.
+/** @brief Represents a univariate bivGGSW.
+ *  @note `Length = n_limbs_tilde * k * N` for a bivGGSW.
  */
 typedef int64_t MatUniv;
 
@@ -46,13 +64,13 @@ typedef int64_t MatUniv;
 typedef double PolyUnivDFT;
 
 /** @brief Represents a univariate \f$\mathbb{Z}_n[X]\f$ polynomial vector in the DFT domain.
- *  @note `Length = (k+1) * N` for a GLWE.
- *  @note `Length = k * N` for a GLWE secret key.
+ *  @note `Length = (k+1) * N` for a bivGLWE.
+ *  @note `Length = k * N` for a bivGLWE secret key.
  */
 typedef double VecUnivDFT;
 
-/** @brief Represents a univariate GGSW in the DFT domain.
- *  @note `Length = n_limbs_tilde * (k+1) * N` for a GGSW.
+/** @brief Represents a univariate bivGGSW in the DFT domain.
+ *  @note `Length = n_limbs_tilde * (k+1) * N` for a bivGGSW.
  */
 typedef double MatUnivDFT;
 
@@ -109,7 +127,7 @@ typedef double MatBivDFT;
 void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l);
 
 /**
- * @brief Prints a Vector of Bivariate Polynomial such as a GLWE ciphertext.
+ * @brief Prints a Vector of Bivariate Polynomial such as a bivGLWE ciphertext.
  * 
  * @param pols          A Pointer to the vector.
  * @param pols_size     The size of the vector.

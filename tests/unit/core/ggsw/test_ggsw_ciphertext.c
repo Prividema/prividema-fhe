@@ -48,7 +48,7 @@ Test(ggsw_bytes, basic)
 	delete_ggsw_ct_params(params_ggsw);
 }
 
-//! GGSW Part (begin)
+//! bivGGSW Part (begin)
 
 // Test ggsw_coef_number
 Test(ggsw_coef_number, basic)
@@ -153,7 +153,7 @@ Test(add_ggsw, basic)
 	GGSWCiphertext* ggsw_rhs     = new_ggsw(params_ggsw);
 	GGSWCiphertext* sum_computed = new_ggsw(params_ggsw);
 
-	// Draws uniformly the GGSW ciphertexts
+	// Draws uniformly the bivGGSW ciphertexts
 	uniform_random_vec(NBASE, ggsw_lhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 	uniform_random_vec(NBASE, ggsw_rhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 
@@ -201,7 +201,7 @@ Test(const_mult_ggsw, without_normalization)
 	// Draws uniformly the Zn[X] constant
 	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
 
-	// Draws uniformly the GGSW ciphertext
+	// Draws uniformly the bivGGSW ciphertext
 	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
@@ -263,7 +263,7 @@ Test(const_mult_ggsw, with_normalization)
 	// Draws uniformly the Zn[X] constant
 	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
 
-	// Draws uniformly the GGSW ciphertext
+	// Draws uniformly the bivGGSW ciphertext
 	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
@@ -322,7 +322,7 @@ Test(const_mult_ggsw, with_normalization)
 	delete_module_info(module);
 }
 
-//! GGSW IN DFT SPACE Part (begin)
+//! bivGGSW IN DFT SPACE Part (begin)
 
 // Test ggsw_coef_number
 Test(ggsw_coef_number_dft, basic)
@@ -430,7 +430,7 @@ Test(add_ggsw_dft, basic)
 	GGSWCiphertextDFT* ggsw_rhs_dft     = new_ggsw_dft(params_ggsw);
 	GGSWCiphertextDFT* sum_computed_dft = new_ggsw_dft(params_ggsw);
 
-	// Draws uniformly the GGSW ciphertexts
+	// Draws uniformly the bivGGSW ciphertexts
 	uniform_random_vec_znx_dft(module, ggsw_lhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 	uniform_random_vec_znx_dft(module, ggsw_rhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
@@ -481,7 +481,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	// Draws uniformly the Zn[X] polynomial in the DFT domain
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
 
-	// Draws uniformly the GGSW ciphertext in the DFT domain
+	// Draws uniformly the bivGGSW ciphertext in the DFT domain
 	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u) * DFT(ggsw)
@@ -549,7 +549,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	// Draws uniformly the Zn[X] polynomial in the DFT domain
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
 
-	// Draws uniformly the GGSW ciphertext in the DFT domain
+	// Draws uniformly the bivGGSW ciphertext in the DFT domain
 	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u) * DFT(ggsw)

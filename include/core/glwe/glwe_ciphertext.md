@@ -1,6 +1,6 @@
-# GLWE Documentation
+# bivGLWE Documentation
 
-This file documents the internal representation of a bivariate GLWE ciphertext used in the library. It focuses on the mathematical structure and memory layout rather than the API.
+This file documents the internal representation of a bivariate bivGLWE ciphertext used in the library. It focuses on the mathematical structure and memory layout rather than the API.
 
 ## Notations
 ### Polynomials
@@ -9,18 +9,18 @@ Let P(X) be a polynomial in Z_n[X]. Another representation is (P_0, ... $cdot$)
 
 
 /**
- * @page glwe_bivariate_ciphertext Bivariate GLWE Ciphertext
+ * @page glwe_bivariate_ciphertext Bivariate bivGLWE Ciphertext
  *
  * @section glwe_bivariate_overview glwe_bivariate_overview
  *
- * A GLWE ciphertext \f$\in (\mathbb{Z}_n[X])^k\f$ encodes a polynomial in @p X 
+ * A bivGLWE ciphertext \f$\in (\mathbb{Z}_n[X])^k\f$ encodes a polynomial in @p X 
  * with coefficients in \f$\mathbb{Z}\f$.
  *
- * A bivariate GLWE ciphertext \f$\in (\mathbb{Z}_n[X])^k\f$ encodes a polynomial 
+ * A bivariate bivGLWE ciphertext \f$\in (\mathbb{Z}_n[X])^k\f$ encodes a polynomial 
  * in @p X with coefficients in \f$\mathbb{Z}\f$.
  *
  *
- * It generalizes the classical GLWE ciphertext by organizing the
+ * It generalizes the classical bivGLWE ciphertext by organizing the
  * polynomial coefficients along a second dimension @p Y, allowing
  * structured decompositions and gadget-based constructions.
  *
@@ -47,7 +47,7 @@ Let P(X) be a polynomial in Z_n[X]. Another representation is (P_0, ... $cdot$)
  *
  * The index mapping is defined as follows:
  *
- * - Let @p k be the GLWE dimension
+ * - Let @p k be the bivGLWE dimension
  * - Let @p n_limbs be the total number of limbs
  * - Let:
  *   - @p l_a = floor((n_limbs + 1) / (k + 1))
@@ -102,9 +102,9 @@ Let P(X) be a polynomial in Z_n[X]. Another representation is (P_0, ... $cdot$)
  *
  * @section glwe_bivariate_summary Summary
  *
- * A bivariate GLWE ciphertext can be viewed as:
+ * A bivariate bivGLWE ciphertext can be viewed as:
  *
- * - A GLWE ciphertext whose coefficients are polynomials in @p Y
+ * - A bivGLWE ciphertext whose coefficients are polynomials in @p Y
  * - A matrix-like organization flattened into a 1D array
  * - A flexible structure enabling precision control and gadget-based
  *   operations

@@ -8,7 +8,7 @@ add_subdirectory(backend)
 # Common library
 add_subdirectory(common)
 
-# Core library (interface library containing GLWE and GGSW modules)
+# Core library (interface library containing bivGLWE and bivGGSW modules)
 add_subdirectory(core)
 
 # Schemes library

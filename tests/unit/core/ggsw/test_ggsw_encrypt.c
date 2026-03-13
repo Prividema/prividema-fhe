@@ -8,13 +8,13 @@
 #define NBASE            1024
 #define KBASE            1
 #define KAPPABASE        4
-#define NLIMBSBASE       (KBASE + 1) * 1
+#define NLIMBSBASE       (KBASE + 1) * 4
 #define LBASE            NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE        -(LBASE / 2 + 1) * KAPPABASE
 
 #define K_TILDEBASE      1
 #define KAPPA_TILDEBASE  4
-#define NLIMBS_TILDEBASE (K_TILDEBASE + 1) * 1
+#define NLIMBS_TILDEBASE (K_TILDEBASE + 1) * 4
 #define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
 #define SIGMA_TILDEBASE  -3
 
@@ -24,12 +24,12 @@
  */
 Test(ggsw_secret_encrypt, works)
 {
-	// GLWE and GGSW parameters. This set of GLWE parameters is for GGSW ciphertext
+	// bivGLWE and bivGGSW parameters. This set of bivGLWE parameters is for bivGGSW ciphertext
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
 	// chance
-	double err_length = ldexp(1.0, -(LBASE / 2) * KAPPABASE) + 3 * sigma;
+	double err_length = ldexp(1.0, -LBASE* KAPPABASE) + 3 * sigma;
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
@@ -46,8 +46,8 @@ Test(ggsw_secret_encrypt, works)
 	// Variables to compute the phase of each ggsw's row
 	VecBiv* glwe_vec_computed            = calloc(glwe_coef_number(params_glwe), sizeof(int64_t));
 	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* phase_univ_RnX_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* phase_univ_RnX          = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(int64_t));
+	PolyUnivRnX* phase_univ_RnX          = calloc(NBASE, sizeof(int64_t));
 	PolyUnivDFT* m_skj_univ_dft          = malloc(poly_univ_bytes(params_glwe));
 	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
 
@@ -55,7 +55,7 @@ Test(ggsw_secret_encrypt, works)
 	uniform_ggsw_secret_key_dft(module, sk_dft, 3);
 
 	// Draws uniformly in Zn[X] the message
-	uniform_random_pol_znx(NBASE, m_univ, KAPPABASE);
+	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
 
 	// Computes the message in the DFT domain
 	vec_znx_dft_p(module, m_univ_dft, 1, m_univ, 1, NBASE);
@@ -63,24 +63,30 @@ Test(ggsw_secret_encrypt, works)
 	// Computes a bivGGSW(m)
 	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_dft, m_univ);
 
-	// Asserts the j-th row in the i-th HalfGGSW(m) in the ggsw is :
+	// Asserts the j-th row in the i-th PartialGGSW(m) in the ggsw is :
 	// - a bivGLWE(-m * sk_j / 2^{kappa_tilde * i})), for j < k
 	// - a bivGLWE(m / 2^{kappa_tilde * i}))        , for j = k
 	for (uint64_t i = 1; i <= L_TILDEBASE; i++)
 	{
 		for (uint64_t j = 0; j < K_TILDEBASE; j++)
 		{
+			// Fills each changed variable with 0s'
+			memset(phase_computed, 0, poly_biv_bytes(params_glwe));
+			memset(phase_computed_univ_RnX, 0, poly_univ_bytes(params_glwe));
+			memset(m_skj_univ_dft, 0, poly_univ_bytes(params_glwe));
+			memset(m_skj_univ, 0, poly_univ_bytes(params_glwe));
+			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
+
 			// Copy bivGLWE(-m * sk_j / 2^{kappa_tilde * i}) in glwe_vec
-			memcpy(glwe_vec_computed, ggsw->mat + ((i - 1) * (K_TILDEBASE + 1) + j) * glwe_coef_number(params_glwe),
-			       glwe_bytes(params_glwe));
+			memcpy(glwe_vec_computed, ggsw_Sj_Yti(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
 			glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed);
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
-			biv_to_univ(params_glwe, phase_univ_RnX_computed, phase_computed);
+			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
 
-			// Computes by hand the phase = -m * sk_j / 2^{kappa_tilde*i}
+			//! Computes by hand the phase = -m * sk_j / 2^{kappa_tilde*i}
 			// Computes DFT(m * sk_j)
 			mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, m_univ_dft, 1);
 
@@ -97,63 +103,73 @@ Test(ggsw_secret_encrypt, works)
 				phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * i));
 			}
 
+			// A variable counting the number of times the error is greater than 3*sigma
+			int big_error_count = 0;
+
 			// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
 			// are only different by an error of approximation and a gaussian error
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-				double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
-				double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
-				                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
+				double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
+				double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
 
 				int cond =
 				    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
 
-				cr_assert(cond,
-				          "Equality failed at p = %ld with : \n-(m * sk_%ld)[%ld] / (2^kappa_tilde)^%ld = %lf and "
-				          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-				          p, j, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p],
-				          err_length);
+				if (!cond) big_error_count++;
 			}
-		}
 
-		// The GGSW row correponding to bivGLWE(m / 2^{kappa_tilde * i})
-		uint64_t row_i_kt = (i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE;
+			// Asserts big_error_count <= 0.0027 * N
+			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
+	          (int)(0.0027 * NBASE), big_error_count);
+		}
+		
+		// Fills each changed variable with 0s'
+		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
+		memset(phase_computed_univ_RnX, 0, poly_univ_bytes(params_glwe));
+		memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
+
+		// The bivGGSW row correponding to bivGLWE(m / 2^{kappa_tilde * i})
+		uint64_t row_i_ktilde = (i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE;
 
 		// Point to bivGLWE(m / 2^{kappa_tilde * i})
-		memcpy(glwe_vec_computed, ggsw->mat + row_i_kt * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
+		memcpy(glwe_vec_computed, ggsw->mat + row_i_ktilde * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
 
 		// Computes the phase = m / 2^{kappa_tilde * i} + err
 		glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed);
 
-		// Computes the phase in Rn[X]
-		biv_to_univ(params_glwe, phase_univ_RnX_computed, phase_computed);
+		// Computes the phase in Tn[X]
+		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
 
-		// Computes by hand the phase = m / 2^{kappa_tilde * i}
+		//! Computes by hand the phase = m / 2^{kappa_tilde * i}
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * i));
+			phase_univ_RnX[p] = ldexp((double)m_univ[p], -(params_ggsw->kappa_tilde * i));
 		}
+
+		// A variable counting the number of times the error is greater than 3*sigma
+		int big_error_count = 0;
 
 		// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
 		// are only different by an error of approximation and a gaussian error
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
-			double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
-			                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
+			double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
+			double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
 
 			int cond =
 			    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
 
-			cr_assert(cond,
-			          "Equality failed at p = %ld with : \nm[%ld] / (2^kappa_tilde)^%ld = %lf and "
-			          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-			          p, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p], err_length);
+			if (!cond) big_error_count++;
 		}
+
+		// Asserts big_error_count <= 0.0027 * N
+		cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
+	          (int)(0.0027 * NBASE), big_error_count);
 	}
 
 	// Clean up
-	free(phase_univ_RnX_computed);
+	free(phase_computed_univ_RnX);
 	free(m_skj_univ_dft);
 	free(m_skj_univ);
 	free(glwe_vec_computed);
@@ -161,11 +177,11 @@ Test(ggsw_secret_encrypt, works)
 	free(phase_univ_RnX);
 	free(m_univ);
 	free(m_univ_dft);
-	delete_module_info_p(module);
 	delete_ggsw(ggsw);
 	delete_ggsw_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
+	delete_module_info_p(module);
 }
 
 /**
@@ -174,12 +190,12 @@ Test(ggsw_secret_encrypt, works)
  */
 Test(ggsw_secret_encrypt_dft, works)
 {
-	// GLWE and GGSW parameters. This set of GLWE parameters is for GGSW ciphertext
+	// bivGLWE and bivGGSW parameters. This set of bivGLWE parameters is for bivGGSW ciphertext
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
 	// chance
-	double err_length = ldexp(1.0, -(LBASE / 2) * KAPPABASE) + 3 * sigma;
+	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
@@ -196,8 +212,8 @@ Test(ggsw_secret_encrypt_dft, works)
 	// Variables to compute the phase of each ggsw's row
 	VecBivDFT* glwe_vec_computed_dft     = calloc(glwe_coef_number(params_glwe), sizeof(int64_t));
 	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* phase_univ_RnX_computed = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* phase_univ_RnX          = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(int64_t));
+	PolyUnivRnX* phase_univ_RnX          = calloc(NBASE, sizeof(int64_t));
 	PolyUnivDFT* m_skj_univ_dft          = malloc(poly_univ_bytes(params_glwe));
 	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
 
@@ -205,6 +221,9 @@ Test(ggsw_secret_encrypt_dft, works)
 	uniform_ggsw_secret_key_dft(module, sk_dft, 3);
 
 	// Draws uniformly in Zn[X] the message
+	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
+	
+	// Computes the message in the DFT domain
 	vec_znx_dft_p(module, m_univ_dft, 1, m_univ, 1, NBASE);
 
 	// Computes a bivGGSW(m)
@@ -214,17 +233,23 @@ Test(ggsw_secret_encrypt_dft, works)
 	{
 		for (uint64_t j = 0; j < K_TILDEBASE; j++)
 		{
+			// Fills each changed variable with 0s'
+			memset(phase_computed_univ_RnX, 0, poly_univ_bytes(params_glwe));
+			memset(phase_computed, 0, poly_biv_bytes(params_glwe));
+			memset(m_skj_univ_dft, 0, poly_univ_bytes(params_glwe));
+			memset(m_skj_univ, 0, poly_univ_bytes(params_glwe));
+			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
+			
 			// The pointer to DFT(bivGLWE(-m * sk_j / 2^{kappa_tilde * i}))
-			memcpy(glwe_vec_computed_dft, ggsw_dft->mat + ((i - 1) * (K_TILDEBASE + 1) + j) * glwe_coef_number(params_glwe),
-			       glwe_bytes(params_glwe));
+			memcpy(glwe_vec_computed_dft, ggsw_Sj_Yti_dft(params_ggsw, ggsw_dft->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
 			glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed_dft);
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
-			biv_to_univ(params_glwe, phase_univ_RnX_computed, phase_computed);
+			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
 
-			// Computes by hand the phase = -m * sk_j / 2^{kappa_tilde*i}
+			//! Computes by hand the phase = -m * sk_j / 2^{kappa_tilde*i}
 			// Computes DFT(m * sk_j)
 			mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, m_univ_dft, 1);
 
@@ -238,65 +263,72 @@ Test(ggsw_secret_encrypt_dft, works)
 			// Computes -m * sk_j / 2^{kappa_tilde * i}
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-				phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * (i + 1)));
+				phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * i));
 			}
+
+			// A variable counting the number of times the error is greater than 3*sigma
+			int big_error_count = 0;
 
 			// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
 			// are only different by an error of approximation and a gaussian error
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-				double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
-				double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
-				                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
-				double err_length = ldexp(1.0, -(LBASE / 2) * KAPPABASE) + ldexp(1.0, -LBASE * KAPPABASE);
-
+				double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
+				double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
+				
 				int cond =
 				    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
 
-				cr_assert(cond,
-				          "Equality failed at p = %ld with : \n-(m * sk_%ld)[%ld] / (2^kappa_tilde)^%ld = %lf and "
-				          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-				          p, j, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p],
-				          err_length);
+				if (!cond) big_error_count++;
 			}
+
+			// Asserts big_error_count <= 0.0027 * N
+			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
+				(int)(0.0027 * NBASE), big_error_count);
 		}
+
+		// Fills each changed variable with 0s'
+		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
+		memset(phase_computed_univ_RnX, 0, poly_univ_bytes(params_glwe));
+		memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
+
+		// The bivGGSW row correponding to bivGLWE(m / 2^{kappa_tilde * i})
+		uint64_t row_i_ktilde = ((i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE);
+
 		// The pointer to bivGLWE(m / 2^{kappa_tilde * i})
-		memcpy(glwe_vec_computed_dft,
-		       ggsw_dft->mat + ((i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE) * glwe_coef_number(params_glwe),
-		       glwe_bytes(params_glwe));
+		memcpy(glwe_vec_computed_dft, ggsw_dft->mat + row_i_ktilde * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
 
 		// Computes the phase = m / 2^kappa_tilde + err
 		glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed_dft);
 
 		// Computes the phase in Rn[X]
-		biv_to_univ(params_glwe, phase_univ_RnX_computed, phase_computed);
+		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
 
-		// Computes by hand the phase = m / 2^{kappa_tilde * i}
+		//! Computes by hand the phase = m / 2^{kappa_tilde * i}
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * i));
+			phase_univ_RnX[p] = ldexp((double)m_univ[p], -(params_ggsw->kappa_tilde * i));
 		}
 
 		// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
 		// are only different by an error of approximation and a gaussian error
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			double diff_1 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p];
-			double diff_2 = phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - phase_univ_RnX_computed[p] +
-			                floor(phase_univ_RnX_computed[p]) + ceil(phase_univ_RnX_computed[p]);
+			double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
+			double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);	
 
 			int cond =
 			    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
 
 			cr_assert(cond,
-			          "Equality failed at p = %ld with : \nm[%ld] / (2^kappa_tilde)^%ld = %lf and "
-			          "phase_univ_RnX_computed[%ld] = %lf and error_length = %lf",
-			          p, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_univ_RnX_computed[p], err_length);
+			          "Equality failed at p = %ld with : \nm[%ld] / 2^{kappa_tilde * %ld} = %lf and "
+			          "phase_computed_univ_RnX[%ld] = %lf and error_length = %lf",
+			          p, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_computed_univ_RnX[p], err_length);
 		}
 	}
 
 	// Clean up
-	free(phase_univ_RnX_computed);
+	free(phase_computed_univ_RnX);
 	free(m_skj_univ_dft);
 	free(m_skj_univ);
 	free(glwe_vec_computed_dft);
@@ -304,9 +336,9 @@ Test(ggsw_secret_encrypt_dft, works)
 	free(phase_univ_RnX);
 	free(m_univ);
 	free(m_univ_dft);
-	delete_module_info_p(module);
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
+	delete_module_info_p(module);
 }

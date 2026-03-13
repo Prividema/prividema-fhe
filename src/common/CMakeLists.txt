@@ -8,6 +8,7 @@ set(COMMON_SRCS
     maths_structures.c
     spqlios_alias.c
     rng.c
+    utils.c
 )
 
 # Create a shared library named COMMON

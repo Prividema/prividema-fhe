@@ -17,7 +17,7 @@
 
 //! COMMON PART (begin)
 
-//! GGSW Part (begin)
+//! bivGGSW Part (begin)
 
 // Test normalize_ggsw
 Test(new_ggsw_ct_params, basic)

@@ -1,5 +1,5 @@
-#ifndef GGSW_CIPHERTEXT_H
-#define GGSW_CIPHERTEXT_H
+#ifndef bivGGSW_CIPHERTEXT_H
+#define bivGGSW_CIPHERTEXT_H
 
 /**
  * @file ggsw_ciphertext.h
@@ -93,7 +93,10 @@ void add_ggsw(GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs, const GGSW
  * @param result The result bivGGSW ciphertext.
  * @param ggsw The bivGGSW ciphertext.
  * @param u_dft The Zn[X] polynomial in the DFT domain.
- * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ * @param do_normalization The function normalizes the bivGLWE ciphertext if and only if do_normalization = 1.
+ * 
+ * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval - `0` otherwise.
  */
 int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft,
                     int do_normalization);
@@ -105,7 +108,7 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 typedef struct ggsw_ciphertext_dft
 {
 	const GGSWCtParams* params;  // bivGGSW parameters
-	MatBivDFT* mat;  // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Cn/2[X]
+	MatBivDFT* mat;  // Represent a matrix of size n_limbs_tilde x n_limbs with coefficients that are in Cm[X]
 } GGSWCiphertextDFT;
 
 /**
@@ -177,7 +180,7 @@ void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_l
  * @param result_dft The result bivGGSW ciphertext in the DFT domain.
  * @param ggsw_dft The bivGGSW ciphertext in the DFT domain.
  * @param u_dft The Zn[X] polynomial in the DFT domain, with coefficient in [-2^(kappa-1), 2^(kappa-1)].
- * @param do_normalization The function normalizes the GLWE ciphertext if and only if do_normalization = 1.
+ * @param do_normalization The function normalizes the bivGLWE ciphertext if and only if do_normalization = 1.
  * 
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
@@ -207,4 +210,4 @@ uint64_t ggsw_size(const GGSWCtParams* params_ggsw);
  */
 uint64_t ggsw_bytes(const GGSWCtParams* params_ggsw);
 
-#endif  // GGSW_CIPHERTEXT_H
+#endif  // bivGGSW_CIPHERTEXT_H

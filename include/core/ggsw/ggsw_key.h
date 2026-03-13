@@ -1,5 +1,5 @@
-#ifndef GGSW_KEY_H
-#define GGSW_KEY_H
+#ifndef bivGGSW_KEY_H
+#define bivGGSW_KEY_H
 
 #include "ggsw_ciphertext.h"
 #include "glwe_key.h"
@@ -19,7 +19,7 @@ typedef struct ggsw_prep_secret_key
 	void* data;
 } GGSWSecretKeyDFT;
 
-//! GGSW KEY PART (begin)
+//! bivGGSW KEY PART (begin)
 
 /**
  * @brief Creates a new secret key values component.
@@ -41,7 +41,7 @@ PolyUniv** new_ggsw_secret_key_values(uint64_t N, uint64_t k);
 void delete_ggsw_secret_key_values(PolyUniv** values, uint64_t k);
 
 /**
- * @brief Creates a GGSW secret key.
+ * @brief Creates a bivGGSW secret key.
  *
  * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
@@ -71,7 +71,7 @@ int uniform_ggsw_secret_key(const MODULE* module, GGSWSecretKey* sk, uint64_t nb
 void delete_ggsw_secret_key(GGSWSecretKey* sk);
 
 
-//! GGSW IN DFT SPACE PART (begin)
+//! bivGGSW IN DFT SPACE PART (begin)
 
 /**
  * @brief Creates a new secret key values component in the DFT domain.
@@ -93,7 +93,7 @@ PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k);
 void delete_ggsw_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 
 /**
- * @brief Creates a GGSW secret key in the DFT domain.
+ * @brief Creates a bivGGSW secret key in the DFT domain.
  *
  * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
@@ -121,4 +121,4 @@ int uniform_ggsw_secret_key_dft(const MODULE* module, GGSWSecretKeyDFT* sk_dft, 
  */
 void delete_ggsw_secret_key_dft(GGSWSecretKeyDFT* sk_dft);
 
-#endif  // GGSW_KEY_H
+#endif  // bivGGSW_KEY_H

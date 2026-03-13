@@ -1,5 +1,5 @@
-#ifndef GLWE_KEY_H
-#define GLWE_KEY_H
+#ifndef bivGLWE_KEY_H
+#define bivGLWE_KEY_H
 
 #include "glwe_ciphertext.h"
 
@@ -14,9 +14,9 @@ typedef struct core
 {
 } Core;
 
-//! GLWE SECRET KEY STRUCTURES
+//! bivGLWE SECRET KEY STRUCTURES
 /**
- * @brief Structure that represents a GLWE secret key
+ * @brief Structure that represents a bivGLWE secret key
  * 
  * @param N The degree of the chosen cyclotomic polynomial.
  */
@@ -36,7 +36,7 @@ typedef struct glwe_prep_secret_key
 	void* data;
 } GLWESecretKeyDFT;
 
-//! GLWE KEY PART (begin)
+//! bivGLWE KEY PART (begin)
 
 /**
  * @brief Creates a new secret key values component.
@@ -56,7 +56,7 @@ PolyUniv** new_glwe_secret_key_values(uint64_t N, uint64_t k);
 void delete_glwe_secret_key_values(PolyUniv** values, uint64_t k);
 
 /**
- * @brief Creates a GLWE Secret key.
+ * @brief Creates a bivGLWE Secret key.
  *
  * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
@@ -85,7 +85,7 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
 void delete_glwe_secret_key(GLWESecretKey* sk);
 
 
-//! GLWE IN DFT SPACE PART (begin)
+//! bivGLWE IN DFT SPACE PART (begin)
 
 /**
  * @brief Creates a new secret key values component in the DFT domain.
@@ -105,7 +105,7 @@ PolyUnivDFT** new_glwe_secret_key_values_dft(uint64_t N, uint64_t k);
 void delete_glwe_secret_key_values_dft(PolyUnivDFT** values, uint64_t k);
 
 /**
- * @brief Creates a GLWE Secret key in the DFT domain.
+ * @brief Creates a bivGLWE Secret key in the DFT domain.
  *
  * @param N The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
@@ -133,4 +133,4 @@ int uniform_glwe_secret_key_dft(const MODULE* module, GLWESecretKeyDFT* sk_dft, 
  */
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
-#endif  // GLWE_KEY_H
+#endif  // bivGLWE_KEY_H

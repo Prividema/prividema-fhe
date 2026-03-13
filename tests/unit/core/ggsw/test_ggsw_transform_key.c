@@ -18,7 +18,7 @@
 #define SIGMA_TILDEBASE  -3
 
 
-//! GGSW KEY PART (begin)
+//! bivGGSW KEY PART (begin)
 
 
 /**
@@ -30,14 +30,14 @@ Test(transform_ggsw_secret_key_dft_to_not_dft, basic)
 	// Parameters
 	MODULE* module = new_module_info(NBASE, FFT64);
 
-	// Create a GGSW secret key 
+	// Create a bivGGSW secret key 
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 	GGSWSecretKey* sk =	new_ggsw_secret_key(NBASE, KBASE);
 
 	// Draw uniformly in Zn[X] the secret key's values
 	uniform_ggsw_secret_key_dft(module, sk_dft, 3);
 
-	// Compute the GGSW secret key out of DFT space
+	// Compute the bivGGSW secret key out of DFT space
 	int status = transform_ggsw_secret_key_dft_to_not_dft(module, sk, sk_dft);
 
 	// Asserts transform_ggsw_secret_key_dft_to_not_dft succeed
@@ -62,10 +62,10 @@ Test(transform_ggsw_secret_key_to_glwe_secret_key, basic)
 	GGSWSecretKey* sk_ggsw = new_ggsw_secret_key(NBASE, KBASE);
 	GLWESecretKey* sk_glwe = new_glwe_secret_key(NBASE, KBASE);
 
-	// Draws uniformly in Zn[X] the GGSW secret key values
+	// Draws uniformly in Zn[X] the bivGGSW secret key values
 	uniform_ggsw_secret_key(module, sk_ggsw, 2);
 
-	// Computes the result GLWE secret key
+	// Computes the result bivGLWE secret key
 	transform_ggsw_secret_key_to_glwe_secret_key(sk_glwe, sk_ggsw);
 
 	// Clean up
@@ -75,7 +75,7 @@ Test(transform_ggsw_secret_key_to_glwe_secret_key, basic)
 }
 
 
-//! GGSW KEY PART IN DFT SPACE (begin)
+//! bivGGSW KEY PART IN DFT SPACE (begin)
 
 /**
  * @brief Tests wether transform_ggsw_secret_key_not_dft_to_dft transforms the secret key out of the DFT domain, in DFT
@@ -90,10 +90,10 @@ Test(transform_ggsw_secret_key_not_dft_to_dft, basic)
 	GGSWSecretKey* sk = new_ggsw_secret_key(NBASE, KBASE);
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 	
-	// Draws uniformly in Zn[X] the GGSW secret key's values
+	// Draws uniformly in Zn[X] the bivGGSW secret key's values
 	uniform_ggsw_secret_key(module, sk, 3);
 
-	// Computes the GGSW secret key in the DFT domain
+	// Computes the bivGGSW secret key in the DFT domain
 	transform_ggsw_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Clean up
@@ -115,10 +115,10 @@ Test(transform_ggsw_secret_key_dft_to_glwe_secret_key_dft, basic)
 	GGSWSecretKeyDFT* sk_ggsw_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_glwe_dft = new_glwe_secret_key_dft(NBASE, KBASE);
 
-	// Draws uniformly in Zn[X] the GGSW secret key values in the DFT domain
+	// Draws uniformly in Zn[X] the bivGGSW secret key values in the DFT domain
 	uniform_ggsw_secret_key_dft(module, sk_ggsw_dft, 2);
 
-	// Computes the result GLWE secret key in the DFT domain
+	// Computes the result bivGLWE secret key in the DFT domain
 	transform_ggsw_secret_key_dft_to_glwe_secret_key_dft(sk_glwe_dft, sk_ggsw_dft);
 
 	// Clean up

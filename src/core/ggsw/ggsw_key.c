@@ -6,7 +6,7 @@
 #include "utils.h"
 #include "spqlios_alias.h"
 
-//! GGSW PART (begin)
+//! bivGGSW PART (begin)
 
 PolyUniv** new_ggsw_secret_key_values(uint64_t N, uint64_t k)
 {
@@ -69,7 +69,7 @@ void delete_ggsw_secret_key(GGSWSecretKey* sk)
 }
 
 
-//! GGSW PART in the DFT domain (begin)
+//! bivGGSW PART in the DFT domain (begin)
 
 PolyUnivDFT** new_ggsw_secret_key_values_dft(uint64_t N, uint64_t k)
 {

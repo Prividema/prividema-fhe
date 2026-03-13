@@ -2,7 +2,7 @@
 
 #include "utils.h"
 
-//! GLWE KEY PART (begin)
+//! bivGLWE KEY PART (begin)
 
 int transform_ggsw_secret_key_dft_to_not_dft(const MODULE* module, GGSWSecretKey* result, const GGSWSecretKeyDFT* sk_dft)
 {
@@ -28,7 +28,7 @@ void transform_ggsw_secret_key_to_glwe_secret_key(GLWESecretKey* result, const G
 }
 
 
-//! GLWE IN DFT SPACE PART (begin)
+//! bivGLWE IN DFT SPACE PART (begin)
 
 void transform_ggsw_secret_key_not_dft_to_dft(const MODULE* module, GGSWSecretKeyDFT* result_dft, const GGSWSecretKey* sk)
 {

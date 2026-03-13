@@ -17,14 +17,14 @@
 #define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
 #define SIGMA_TILDEBASE  -3
 
-//! GGSW KEY PART (begin)
+//! bivGGSW KEY PART (begin)
 
 /**
  * @brief Ensures new_secret_key_values creates no NULL-pointer.
  */
 Test(new_ggsw_secret_key_values, basic)
 {
-	// Create a GGSW secret key's values
+	// Create a bivGGSW secret key's values
 	PolyUniv** values = new_ggsw_secret_key_values(NBASE, KBASE);
 
 	// Assert values and its values is not NULL
@@ -40,7 +40,7 @@ Test(new_ggsw_secret_key_values, basic)
  */
 Test(new_ggsw_secret_key, values_not_null)
 {
-	// Create a GGSW secret key
+	// Create a bivGGSW secret key
 	GGSWSecretKey* sk = new_ggsw_secret_key(NBASE, KBASE);
 
 	// Asserts the secret key is not NULL
@@ -57,10 +57,10 @@ Test(uniform_ggsw_secret_key, values_not_null)
 	// Parameters
 	MODULE* module = new_module_info(NBASE, FFT64);
 
-	// Create a GGSW secret key
+	// Create a bivGGSW secret key
 	GGSWSecretKey* sk = new_ggsw_secret_key(NBASE, KBASE);
 
-	// Draw uniformly in Zn[X] the GGSW secret key's values
+	// Draw uniformly in Zn[X] the bivGGSW secret key's values
 	int status = uniform_ggsw_secret_key(module, sk, 2);
 
 	// Asserts uniform_ggsw_secret_key worked
@@ -72,14 +72,14 @@ Test(uniform_ggsw_secret_key, values_not_null)
 }
 
 
-//! GGSW KEY PART IN DFT SPACE (begin)
+//! bivGGSW KEY PART IN DFT SPACE (begin)
 
 /**
  * @brief Ensure new_secret_key_values_dft creates no NULL-pointer.
  */
 Test(new_ggsw_secret_key_values_dft, basic)
 {
-	// Create a GGSW secret key's values
+	// Create a bivGGSW secret key's values
 	PolyUnivDFT** values_dft = new_ggsw_secret_key_values_dft(NBASE, KBASE);
 
 	// Asserts values_dft is not NULL
@@ -96,7 +96,7 @@ Test(new_ggsw_secret_key_values_dft, basic)
  */
 Test(new_ggsw_secret_key_dft, values_not_null)
 {
-	// Create a GGSW secret key in the DFT domain
+	// Create a bivGGSW secret key in the DFT domain
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 
 	// Asserts the secret key and its values are not NULL
@@ -118,11 +118,11 @@ Test(uniform_ggsw_secret_key_dft, what_s_inside)
 	// Parameters
 	MODULE* module = new_module_info(NBASE, FFT64);
 
-	// Create a GGSW secret key 
+	// Create a bivGGSW secret key 
 	GGSWSecretKeyDFT* sk_dft = new_ggsw_secret_key_dft(NBASE, KBASE);
 
-	// Draw uniformly the GGSW secret key values
-	int status = uniform_ggsw_secret_key_dft(module, KBASE, 2);
+	// Draw uniformly the bivGGSW secret key values
+	int status = uniform_ggsw_secret_key_dft(module, sk_dft, 2);
 
 	// Asserts uniform_ggsw_secret_key_dft worked
 	cr_assert(eq(int, status, 0), "uniform_ggsw_secret_key_dft failed.");

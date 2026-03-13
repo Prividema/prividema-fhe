@@ -43,14 +43,12 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 VecBiv* ggsw_Sj_Yti(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
-	uint64_t N       = params_ggsw->params_glwe->N;
-	uint64_t k       = params_ggsw->params_glwe->k;
-	uint64_t n_limbs = params_ggsw->params_glwe->n_limbs;
-	uint64_t l       = n_limbs / (k + 1);
+	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
 	// bivGGSW parameters
 	uint64_t k_tilde = params_ggsw->k_tilde;
-	return ggsw_mat + (i - 1) * (k_tilde + 1) * n_limbs * N + j * n_limbs * N;
+
+	return ggsw_mat + ((i - 1) * (k_tilde + 1) + j) * glwe_coef_number(params_glwe);
 }
 
 int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw)
@@ -183,15 +181,12 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
 VecBivDFT* ggsw_Sj_Yti_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
-	uint64_t N       = params_ggsw->params_glwe->N;
-	uint64_t k       = params_ggsw->params_glwe->k;
-	uint64_t n_limbs = params_ggsw->params_glwe->n_limbs;
-	uint64_t l       = n_limbs / (k + 1);
+	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
 	// bivGGSW parameters
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
-	return ggsw_mat_dft + (i - 1) * (k_tilde + 1) * n_limbs * N + j * n_limbs * N;
+	return ggsw_mat_dft + ((i - 1) * (k_tilde + 1) + j) * 2 * glwe_coef_number_dft(params_glwe);
 }
 
 int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft)

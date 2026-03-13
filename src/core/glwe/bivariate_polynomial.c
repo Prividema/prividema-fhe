@@ -31,7 +31,7 @@ int normal_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe
 	// Variables 
 	double* rd_pol_univ = NULL;
 	
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N     = params_glwe->N;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = params_glwe->n_limbs / (params_glwe->k + 1);
@@ -49,17 +49,17 @@ int normal_random_biv_poly(const MODULE* module, const GLWECtParams* params_glwe
 	for (uint64_t p = 0; p < N; p++) 
 	{
 		// For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to P_p
-		for (uint64_t i = 1; i < l + 1; i++) 
+		for (uint64_t i = 1; i <= l ; i++) 
 			rd_pol_univ[p] += ldexp(1.0, kappa - 1 - kappa * i);
 		
 		if (rd_pol_univ[p] >= 0)
-			for (uint64_t i = 1; i < l + 1; i++)
+			for (uint64_t i = 1; i <= l ; i++)
 				result[(i - 1) * N + p] = (((int64_t)ldexp(rd_pol_univ[p], i * kappa)) & mask) - (1LL << (kappa - 1));
 			
 		else 
 		{
 			rd_pol_univ[p] -= floor(rd_pol_univ[p]);
-			for (uint64_t i = 1; i < l + 1; i++)
+			for (uint64_t i = 1; i <= l ; i++)
 				result[(i - 1) * N + p] = (((int64_t)ldexp(rd_pol_univ[p], i * kappa)) & mask) - (1LL << (kappa - 1));
 		}
 	}
@@ -177,7 +177,7 @@ uint64_t poly_univ_bytes(const GLWECtParams* params_glwe)
 
 void biv_to_univ(const GLWECtParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N     = params_glwe->N;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = poly_biv_size(params_glwe);
@@ -194,7 +194,7 @@ int univ_to_biv(const GLWECtParams* params_glwe, PolyBiv* res, const double* pol
 	// Variables
 	double* tmp_pol_univ = NULL;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N     = params_glwe->N;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = poly_biv_size(params_glwe);

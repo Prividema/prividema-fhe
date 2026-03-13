@@ -17,7 +17,7 @@ add_library(GGSW SHARED ${GGSW_SRCS})
 # Set the output library name explicitly
 set_target_properties(GGSW PROPERTIES OUTPUT_NAME ggsw)
 
-# Link dependencies: GGSW depends on GLWE, libspqlios, and COMMON
+# Link dependencies: bivGGSW depends on GLWE, libspqlios, and COMMON
 target_link_libraries(GGSW PRIVATE GLWE libspqlios COMMON)
 
 # Include directories

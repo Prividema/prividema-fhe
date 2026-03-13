@@ -9,7 +9,7 @@
 #include "spqlios_alias.h"
 #include "utils.h"
 
-//! GGSW PART (begin)
+//! bivGGSW PART (begin)
 
 int add_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const PolyBiv* phase)
 {
@@ -39,7 +39,7 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
 {
 	int status = -1;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N = params_glwe->N;
 	uint64_t k = params_glwe->k;
 	uint64_t l = poly_biv_size(params_glwe);
@@ -102,7 +102,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
 {
 	int status = -1;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N       = params_glwe->N;
 	uint64_t k       = params_glwe->k;
 	uint64_t kappa   = params_glwe->kappa;
@@ -174,7 +174,7 @@ int compute_phase_ij(const MODULE* module, const GGSWCtParams* params_ggsw, Poly
 {
 	int status = -1;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
 	// Degree of chosen cyclotomic polynomial
@@ -231,7 +231,7 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N       = params_glwe->N;
 	uint64_t k       = params_glwe->k;
 	uint64_t k_tilde = params_ggsw->k_tilde;
@@ -302,8 +302,8 @@ cleanup:
 
 int ggsw_external_product(const MODULE* module,
                           GLWECiphertext* result,      // result
-                          const GLWECiphertext* glwe,  // GLWE ciphertext
-                          const GGSWCiphertext* ggsw   // GGSW ciphertext
+                          const GLWECiphertext* glwe,  // bivGLWE ciphertext
+                          const GGSWCiphertext* ggsw   // bivGGSW ciphertext
 )
 {
 	int status = -1;
@@ -322,11 +322,11 @@ int ggsw_external_product(const MODULE* module,
 	MatBivDFT* ggsw_pmat = NULL;
 	VecBivDFT* result_dft = NULL;
 
-	// Point to the GGSW ciphertext prepared in the DFT domain
+	// Point to the bivGGSW ciphertext prepared in the DFT domain
 	ggsw_pmat = malloc(ggsw_bytes(ggsw->params));
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
 
-	// Prepares GGSW ciphertext prepared in the DFT domain 
+	// Prepares bivGGSW ciphertext prepared in the DFT domain 
 	CHECK_CALL(vmp_prepare_contiguous_p(module, ggsw_pmat, ggsw->mat, nrows, ncols), 
 		"vmp_prepare_contiguous_p failed in ggsw_external_product");
 
@@ -338,7 +338,7 @@ int ggsw_external_product(const MODULE* module,
 	CHECK_CALL(vmp_apply_dft_p(module, result_dft, ncols, glwe->vec, nrows, N, ggsw_pmat, nrows, ncols),
 		"vmp_apply_dft_p failed in ggsw_external_product");
 
-	// Computes the GGSW ciphertext out of the DFT domain
+	// Computes the bivGGSW ciphertext out of the DFT domain
 	CHECK_CALL(vec_znx_idft_p(module, result->vec, ncols, result_dft, ncols), 
 		"vec_znx_idft_p failed in ggsw_external_product");
 
@@ -351,18 +351,18 @@ cleanup:
 	return 0;
 }
 
-//! GGSW IN DFT PART (begin)
+//! bivGGSW IN DFT PART (begin)
 
 int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result,
                                        const GGSWSecretKeyDFT* sk_dft, const VecBivDFT* glwe_vec_dft)
 {
 	int status = -1;
 
-	// Point to the GLWE ciphertext out of the DFT domain
+	// Point to the bivGLWE ciphertext out of the DFT domain
 	VecBiv* glwe_vec = malloc(glwe_bytes(params_glwe));
 	CHECK_ALLOC(glwe_vec, "glwe_vec's malloc failed in glwe_secret_demasking_ggsw_lib_dft");
 
-	// Computes the GLWE ciphertext out of the DFT domain
+	// Computes the bivGLWE ciphertext out of the DFT domain
 	CHECK_CALL(vec_znx_idft_p(module, glwe_vec, glwe_size(params_glwe), glwe_vec_dft, glwe_size(params_glwe)),
 		"vec_znx_idft_p failed in glwe_secret_demasking_ggsw_lib_dft");
 
@@ -383,7 +383,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
 {
 	int status = -1;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N       = params_glwe->N;
 	uint64_t k       = params_glwe->k;
 	uint64_t kappa   = params_glwe->kappa;
@@ -473,7 +473,7 @@ int compute_phase_ij_dft(const MODULE* module, const GGSWCtParams* params_ggsw, 
 {
 	int status = -1;
 
-	// GLWE set of parameters
+	// bivGLWE set of parameters
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
 	// Degree of chosen cyclotomic polynomial
@@ -541,10 +541,10 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
 	PolyBiv* phase = NULL;
 	PolyBivDFT* phase_dft = NULL;
 
-	// GLWE set of parameters
+	// bivGLWE set of parameters
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
 
-	// GLWE parameters
+	// bivGLWE parameters
 	uint64_t N       = params_glwe->N;
 	uint64_t k       = params_glwe->k;
 	uint64_t k_tilde = params_ggsw->k_tilde;
@@ -615,8 +615,8 @@ cleanup:
 
 int ggsw_external_product_dft(const MODULE* module,
                               GLWECiphertextDFT* result_dft,      // result
-                              const GLWECiphertextDFT* glwe_dft,  // GLWE ciphertext
-                              const GGSWCiphertextDFT* ggsw_dft   // GGSW ciphertext
+                              const GLWECiphertextDFT* glwe_dft,  // bivGLWE ciphertext
+                              const GGSWCiphertextDFT* ggsw_dft   // bivGGSW ciphertext
 )
 {
 	int status = -1;
@@ -635,18 +635,18 @@ int ggsw_external_product_dft(const MODULE* module,
 	MatBiv* ggsw_mat = NULL;
 	MatBivDFT* ggsw_pmat = NULL;
 
-	// Point to the GGSW ciphertext out of the DFT domain
+	// Point to the bivGGSW ciphertext out of the DFT domain
 	ggsw_mat = malloc(ggsw_bytes(ggsw_dft->params));
 	CHECK_ALLOC(ggsw_mat, "mat's malloc failed in ggsw_external_product_dft");
 	
-	// Computes the GGSW ciphertext out of the DFT domain
+	// Computes the bivGGSW ciphertext out of the DFT domain
 	CHECK_CALL(vec_znx_idft_p(module, ggsw_mat, nrows * ncols, ggsw_dft->mat, nrows * ncols),"vec_znx_idft_p failed in ggsw_external_product_dft");
 
-	// Point to the GGSW ciphertext in the DFT domain
+	// Point to the bivGGSW ciphertext in the DFT domain
 	ggsw_pmat = malloc(ggsw_bytes(ggsw_dft->params));
 	CHECK_ALLOC(ggsw_pmat, "pmat's malloc failed in ggsw_external_product_dft");
 
-	// Prepares the GGSW ciphertext in the DFT domain
+	// Prepares the bivGGSW ciphertext in the DFT domain
 	CHECK_CALL(vmp_prepare_contiguous_p(module, ggsw_pmat, ggsw_mat, nrows, ncols), "vmp_prepare_contiguous_p failed in ggsw_external_product_dft");
 
 	// Computes ExternalProduct(glwe, ggsw)

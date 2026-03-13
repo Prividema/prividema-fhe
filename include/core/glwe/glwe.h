@@ -1,5 +1,5 @@
-#ifndef GLWE_H
-#define GLWE_H
+#ifndef bivGLWE_H
+#define bivGLWE_H
 
 #include "glwe_key.h"
 #include "vec_znx_arithmetic_private.h"
@@ -13,13 +13,13 @@ typedef struct tnx_element
 	double* coeffs;
 } TNXElement;
 
-//! GLWE PART (begin)
+//! bivGLWE PART (begin)
 /**
  * @brief Computes Sum_j{0,k-1}[sk_j * a_j]
  *
  * @param module Additionnal information for backend.
  * @param result The bivariate polynomial result.
- * @param glwe The GLWE ciphertext
+ * @param glwe The bivGLWE ciphertext
  * @param sk_dft The Secret key in the DFT domain.
  * @return int 
  */
@@ -42,7 +42,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, GLWESecret
  *
  * @param module Additionnal information for backend.
  * @param result The bivariate result.
- * @param glwe The GLWE ciphertext
+ * @param glwe The bivGLWE ciphertext
  * @param sk_dft The Secret key in the DFT domain.
  * @return int
  */
@@ -61,12 +61,12 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  */
 int glwe_secret_demasking(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertext* glwe);
 
-//! GLWE IN DFT PART (begin)
+//! bivGLWE IN DFT PART (begin)
 
 /**
  * @brief Masks the phase (message + noise) in the DFT domain.
  *
- * @param result_dft The result bivariate GLWE ciphertext in the DFT domain..
+ * @param result_dft The result bivariate bivGLWE ciphertext in the DFT domain..
  * @param sk_dft The secret key in the DFT domain.
  * @param phase_dft message + noise in the DFT domain.
  *
@@ -87,4 +87,4 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
  */
 int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, GLWESecretKeyDFT* sk_dft, GLWECiphertextDFT* ct);
 
-#endif  // GLWE_H
+#endif  // bivGLWE_H

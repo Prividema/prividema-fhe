@@ -17,7 +17,7 @@
 //! COMMON PART (begin)
 
 /**
- * @brief Tests whether glwe_size computes the right size of a GLWE ciphertext.
+ * @brief Tests whether glwe_size computes the right size of a bivGLWE ciphertext.
  */
 Test(glwe_size, basic)
 {
@@ -32,7 +32,7 @@ Test(glwe_size, basic)
 }
 
 /**
- * @brief Tests whether glwe_bytes computes the right number of bytes in a GLWE ciphertext.
+ * @brief Tests whether glwe_bytes computes the right number of bytes in a bivGLWE ciphertext.
  */
 Test(glwe_bytes, basic)
 {
@@ -171,10 +171,10 @@ Test(mult_vec_znx_dft, random_size)
 	delete_glwe_ct_params(params_glwe);
 }
 
-//! GLWE PART (begin)
+//! bivGLWE PART (begin)
 
 /**
- * @brief Tests whether glwe_bytes computes the right number of coefficient in a GLWE ciphertext.
+ * @brief Tests whether glwe_bytes computes the right number of coefficient in a bivGLWE ciphertext.
  */
 Test(glwe_coef_number, basic)
 {
@@ -206,7 +206,7 @@ Test(new_glwe, basic)
 }
 
 /**
- * @brief Tests whether add_glwe adds two GLWE ciphertexts.
+ * @brief Tests whether add_glwe adds two bivGLWE ciphertexts.
  */
 Test(add_glwe, basic)
 {
@@ -218,7 +218,7 @@ Test(add_glwe, basic)
 	GLWECiphertext* glwe_rhs     = new_glwe(params_glwe);
 	GLWECiphertext* sum_computed = new_glwe(params_glwe);
 
-	// Draws in Zn[X] the GLWE's bivariate elements
+	// Draws in Zn[X] the bivGLWE's bivariate elements
 	uniform_random_vec(NBASE, glwe_lhs->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 	uniform_random_vec(NBASE, glwe_rhs->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
@@ -237,7 +237,7 @@ Test(add_glwe, basic)
 }
 
 /**
- * @brief Tests whether const_mult_glwe multiply a GLWE ciphertext by a ZnX polynomial.
+ * @brief Tests whether const_mult_glwe multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
 Test(const_mult_glwe, without_normalization)
 {
@@ -251,7 +251,7 @@ Test(const_mult_glwe, without_normalization)
 	PolyUniv* u                   = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* u_dft            = malloc(poly_univ_bytes(params_glwe));
 
-	// Draws uniformly the GLWE ciphertext and the ZnX polynomial
+	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
 	uniform_random_vec(NBASE, glwe->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	// Draws in Zn[X] the polynomial u
@@ -293,7 +293,7 @@ Test(const_mult_glwe, without_normalization)
 }
 
 /**
- * @brief Tests whether const_mult_glwe multiply a GLWE ciphertext by a ZnX polynomial.
+ * @brief Tests whether const_mult_glwe multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
 Test(const_mult_glwe, with_normalization)
 {
@@ -307,7 +307,7 @@ Test(const_mult_glwe, with_normalization)
 	PolyUniv* u                   = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* u_dft            = malloc(poly_univ_bytes(params_glwe));
 
-	// Draws uniformly the GLWE ciphertext and the ZnX polynomial
+	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
 	uniform_random_vec(NBASE, glwe->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
 
 	// Draws in Zn[X] the polynomial u
@@ -361,10 +361,10 @@ Test(const_mult_glwe, with_normalization)
 	delete_glwe_ct_params(params_glwe);
 }
 
-//! GLWE IN DFT PART (begin)
+//! bivGLWE IN DFT PART (begin)
 
 /**
- * @brief Tests whether glwe_coef_number_dft computes the right number of coefficient in a GLWE ciphertext in the DFT domain.
+ * @brief Tests whether glwe_coef_number_dft computes the right number of coefficient in a bivGLWE ciphertext in the DFT domain.
  */
 Test(glwe_coef_number_dft, basic)
 {
@@ -406,7 +406,7 @@ Test(add_glwe_dft, basic)
 	GLWECiphertextDFT* glwe_rhs_dft     = new_glwe_dft(params_glwe);
 	GLWECiphertextDFT* sum_computed_dft = new_glwe_dft(params_glwe);
 
-	// Draws uniformly the GLWE ciphertexts glwe_lhs_dft and glwe_rhs_dft in the DFT domain
+	// Draws uniformly the bivGLWE ciphertexts glwe_lhs_dft and glwe_rhs_dft in the DFT domain
 	uniform_random_vec_znx_dft(module, glwe_lhs_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 	uniform_random_vec_znx_dft(module, glwe_rhs_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
@@ -430,7 +430,7 @@ Test(add_glwe_dft, basic)
 }
 
 /**
- * @brief Tests whether const_mult_glwe_dft multiply a GLWE ciphertext by a ZnX polynomial.
+ * @brief Tests whether const_mult_glwe_dft multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
 Test(const_mult_glwe_dft, without_normalization)
 {
@@ -447,7 +447,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(int64_t));
 
 	//! Draws input variables
-	// Draws uniformly the GLWE ciphertext in the DFT domain
+	// Draws uniformly the bivGLWE ciphertext in the DFT domain
 	uniform_random_vec_znx_dft(module, glwe_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	// Draws uniformly
@@ -498,7 +498,7 @@ Test(const_mult_glwe_dft, without_normalization)
 }
 
 /**
- * @brief Tests whether const_mult_glwe_dft multiply a GLWE ciphertext by a ZnX polynomial.
+ * @brief Tests whether const_mult_glwe_dft multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
 Test(const_mult_glwe_dft, with_normalization)
 {
@@ -515,7 +515,7 @@ Test(const_mult_glwe_dft, with_normalization)
 	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(int64_t));
 
 	//! Draws input variables
-	// Draws uniformly the GLWE ciphertext in the DFT domain
+	// Draws uniformly the bivGLWE ciphertext in the DFT domain
 	uniform_random_vec_znx_dft(module, glwe_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
 
 	// Draws uniformly
