@@ -1,12 +1,7 @@
 #ifndef bivGLWE_CIPHERTEXT_H
 #define bivGLWE_CIPHERTEXT_H
 
-#include <stdint.h>
-
 #include "bivariate_polynomial.h"
-#include "glwe_ct_params.h"
-#include "spqlios_alias.h"
-#include "vec_znx_arithmetic_private.h"
 
 //! bivGLWE PART (begin)
 

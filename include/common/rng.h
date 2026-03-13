@@ -6,7 +6,12 @@
 #include "maths_structures.h"
 #include "spqlios_alias.h"
 
-// ================  Random Numbers ==================
+
+// =============================================
+// |                                           |
+// |              Random Numbers               |
+// |                                           |
+// =============================================
 
 /**
  * @brief Generates an uniform random number.
@@ -32,7 +37,11 @@ int rand_uniform(int64_t* result, uint64_t nb_bits);
 int rand_normal(double* result, double mu, double sigma);
 
 
-// ================  Random Polynomials and Vectors ==================
+// =============================================
+// |                                           |
+// |      Random Polynomials and Vectors       |
+// |                                           |
+// =============================================
 
 /**
  * @brief Generates a uniformly random Zn[X] polynomial.

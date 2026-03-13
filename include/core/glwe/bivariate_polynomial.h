@@ -1,10 +1,7 @@
 #ifndef BIVARIATE_POLYNOMIAL_H
 #define BIVARIATE_POLYNOMIAL_H
 
-#include <stdint.h>
-
 #include "glwe_ct_params.h"
-#include "maths_structures.h"
 #include "spqlios_alias.h"
 
 //! BIV POLY PART (begin)
