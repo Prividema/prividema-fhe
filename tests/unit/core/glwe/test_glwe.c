@@ -83,10 +83,12 @@ Test(glwe_secret_masking, small_error)
 		if (!cond) big_error_count++;
 	}
 
-	// Asserts big_error_count <= 0.0027*N
-	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
-	          (int)(0.0027 * NBASE), big_error_count);
+	/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
+	double proba = binomial_tail(NBASE, 0.0027);
 
+	/// Asserts big_error_count <= 0.0027*N
+	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+	          (int)(0.0027 * NBASE), big_error_count, proba);
 	//! Clean up
 	free(phase_computed_univ_RnX);
 	free(phase_computed);
@@ -169,9 +171,12 @@ Test(glwe_secret_masking, uniform_RnX_message)
 		if (!cond) big_error_count++;
 	}
 
-	// Asserts big_error_count <= 0.0027*N
-	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
-	          (int)(0.0027 * NBASE), big_error_count);
+	/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
+	double proba = binomial_tail(NBASE, 0.0027);
+
+	/// Asserts big_error_count <= 0.0027*N
+	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+	          (int)(0.0027 * NBASE), big_error_count, proba);
 
 	//! Clean up
 	free(phase_computed_univ_RnX);
@@ -260,11 +265,10 @@ Test(glwe_secret_masking_dft, small_error)
 
 	/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
 	double proba = binomial_tail(NBASE, 0.0027);
-	printf("\n \n proba : %lf \n \n", proba);
 
 	/// Asserts big_error_count <= 0.0027*N
-	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
-	          (int)(0.0027 * NBASE), big_error_count);
+	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+	          (int)(0.0027 * NBASE), big_error_count, proba);
 
 	//! Clean up
 	free(m);
@@ -350,9 +354,12 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 		if (!cond) big_error_count++;
 	}
 
-	// Asserts big_error_count <= 0.0027*N
-	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
-	          (int)(0.0027 * NBASE), big_error_count);
+	/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
+	double proba = binomial_tail(NBASE, 0.0027);
+
+	/// Asserts big_error_count <= 0.0027*N
+	cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+	          (int)(0.0027 * NBASE), big_error_count, proba);
 
 	//! Clean up
 	free(phase_computed_univ_RnX);

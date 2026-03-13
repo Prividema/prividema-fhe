@@ -4,6 +4,7 @@
 
 #include "core/ggsw/ggsw.h"
 #include "rng.h"
+#include "utils.h"
 
 #define NBASE            1024
 #define KBASE            1
@@ -119,9 +120,12 @@ Test(ggsw_secret_encrypt, works)
 				if (!cond) big_error_count++;
 			}
 
-			// Asserts big_error_count <= 0.0027 * N
-			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
-	          (int)(0.0027 * NBASE), big_error_count);
+			/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
+			double proba = binomial_tail(NBASE, 0.0027);
+
+			/// Asserts big_error_count <= 0.0027*N
+			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+					(int)(0.0027 * NBASE), big_error_count, proba);
 		}
 		
 		// Fills each changed variable with 0s'
@@ -163,9 +167,12 @@ Test(ggsw_secret_encrypt, works)
 			if (!cond) big_error_count++;
 		}
 
-		// Asserts big_error_count <= 0.0027 * N
-		cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
-	          (int)(0.0027 * NBASE), big_error_count);
+		/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
+		double proba = binomial_tail(NBASE, 0.0027);
+
+		/// Asserts big_error_count <= 0.0027*N
+		cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+	          (int)(0.0027 * NBASE), big_error_count, proba);
 	}
 
 	// Clean up
@@ -282,9 +289,12 @@ Test(ggsw_secret_encrypt_dft, works)
 				if (!cond) big_error_count++;
 			}
 
-			// Asserts big_error_count <= 0.0027 * N
-			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times",
-				(int)(0.0027 * NBASE), big_error_count);
+			/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
+			double proba = binomial_tail(NBASE, 0.0027);
+
+			/// Asserts big_error_count <= 0.0027*N
+			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+	          		(int)(0.0027 * NBASE), big_error_count, proba);
 		}
 
 		// Fills each changed variable with 0s'
@@ -310,21 +320,28 @@ Test(ggsw_secret_encrypt_dft, works)
 			phase_univ_RnX[p] = ldexp((double)m_univ[p], -(params_ggsw->kappa_tilde * i));
 		}
 
+		// A variable counting the number of times the error is greater than 3*sigma
+		int big_error_count = 0;
+
 		// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
 		// are only different by an error of approximation and a gaussian error
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
 			double diff_1 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]));
-			double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);	
-
+			double diff_2 = phase_computed_univ_RnX[p] - (phase_univ_RnX[p] - floor(phase_univ_RnX[p]) - 1);
+			
 			int cond =
-			    (diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length || diff_2 >= -err_length);
+				(diff_1 <= err_length && diff_1 >= -err_length) || (diff_2 <= err_length && diff_2 >= -err_length);
 
-			cr_assert(cond,
-			          "Equality failed at p = %ld with : \nm[%ld] / 2^{kappa_tilde * %ld} = %lf and "
-			          "phase_computed_univ_RnX[%ld] = %lf and error_length = %lf",
-			          p, p, i, phase_univ_RnX[p] - floor(phase_univ_RnX[p]), p, phase_computed_univ_RnX[p], err_length);
+			if (!cond) big_error_count++;
 		}
+
+		/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
+		double proba = binomial_tail(NBASE, 0.0027);
+
+		/// Asserts big_error_count <= 0.0027*N
+		cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
+				(int)(0.0027 * NBASE), big_error_count, proba);
 	}
 
 	// Clean up

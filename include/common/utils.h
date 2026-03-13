@@ -3,6 +3,9 @@
 
 #include "logger.h"
 
+#include <math.h>
+#include <stdint.h>
+
 /**
  * @brief Checks if a pointer is allocated.
  * 
@@ -45,3 +48,5 @@
 	} while (0)
 
 #endif  // UTILS_H
+
+double binomial_tail(uint64_t N, double p);
