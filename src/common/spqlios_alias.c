@@ -3,7 +3,11 @@
 
 MODULE* new_module_info_p(uint64_t N) { return new_module_info(N, FFT64); }
 
-void delete_module_info_p(MODULE* module) { delete_module_info(module); }
+void delete_module_info_p(MODULE* module)
+{
+  if (!module) return;
+  delete_module_info(module);
+}
 
 double* new_vec_znx_dft_p(const MODULE* module, int64_t size) { return (double*)new_vec_znx_dft(module, size); }
 
@@ -12,7 +16,11 @@ void vec_znx_dft_p(const MODULE* module, double* res, int64_t res_size, const in
 	vec_znx_dft(module, (VEC_ZNX_DFT*)res, res_size, a, a_size, a_sl);
 }
 
-void delete_vec_znx_dft_p(double* res) { delete_vec_znx_dft((VEC_ZNX_DFT*)res); }
+void delete_vec_znx_dft_p(double* res)
+{
+  if (!res) return;
+  delete_vec_znx_dft((VEC_ZNX_DFT*)res);
+}
 
 int64_t* new_vec_znx_big_p(const MODULE* module, int64_t size) { return (int64_t*)new_vec_znx_big(module, size); }
 
@@ -34,7 +42,11 @@ int vec_znx_idft_p(const MODULE* module, int64_t* res, int64_t res_size, const d
 	return 0;
 }
 
-void delete_vec_znx_big_p(int64_t* res) { delete_vec_znx_big((VEC_ZNX_BIG*)res); }
+void delete_vec_znx_big_p(int64_t* res)
+{
+  if (!res) return;
+  delete_vec_znx_big((VEC_ZNX_BIG*)res);
+}
 
 double* new_svp_ppol_p(const MODULE* module) { return (PolyUnivDFT*)new_svp_ppol(module); }
 
@@ -43,7 +55,11 @@ void svp_prepare_p(const MODULE* module, PolyUnivDFT* ppol, const int64_t* pol)
 	svp_prepare(module, (SVP_PPOL*)ppol, pol);
 }
 
-void delete_svp_ppol_p(double* pmat) { delete_svp_ppol(((SVP_PPOL*)pmat)); }
+void delete_svp_ppol_p(double* pmat)
+{
+  if (!pmat) return;
+  delete_svp_ppol(((SVP_PPOL*)pmat));
+}
 
 void svp_apply_dft_p(const MODULE* module, const double* res, int64_t res_size, const PolyUnivDFT* ppol,
                      const int64_t* a, int64_t a_size, int64_t a_sl)
@@ -69,7 +85,10 @@ int vmp_prepare_contiguous_p(const MODULE* module, double* pmat, const int64_t* 
 	return 0;
 }
 
-void delete_vmp_pmat_p(double* pmat) { delete_vmp_pmat(((VMP_PMAT*)pmat)); }
+void delete_vmp_pmat_p(double* pmat) {
+  if (!pmat) return;
+  delete_vmp_pmat(((VMP_PMAT*)pmat));
+}
 
 int vmp_apply_dft_p(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
                      int64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols)

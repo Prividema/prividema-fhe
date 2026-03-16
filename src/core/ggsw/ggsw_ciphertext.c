@@ -36,6 +36,7 @@ GGSWCiphertext* new_ggsw(const GGSWCtParams* params_ggsw)
 
 void delete_ggsw(GGSWCiphertext* ggsw)
 {
+  if (!ggsw) return;
 	free(ggsw->mat);
 	free(ggsw);
 }
@@ -176,6 +177,7 @@ GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params_ggsw)
 
 void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
 {
+  if (!ggsw_dft) return;
 	free(ggsw_dft->mat);
 	free(ggsw_dft);
 }

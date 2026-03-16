@@ -30,6 +30,7 @@ cleanup:
 
 void delete_glwe(GLWECiphertext* glwe)
 {
+  if (!glwe) return;
 	free(glwe->vec);
 	free(glwe);
 }
@@ -122,6 +123,7 @@ GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params)
 
 void delete_glwe_dft(GLWECiphertextDFT* glwe)
 {
+  if (!glwe) return;
 	free(glwe->vec);
 	free(glwe);
 }
