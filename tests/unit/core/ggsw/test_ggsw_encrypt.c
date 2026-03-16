@@ -19,6 +19,8 @@
 #define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
 #define SIGMA_TILDEBASE  -3
 
+#define PROB_FACTOR      3
+
 /**
  * @brief Tests ggsw_secret_encrpyt
  *
@@ -120,12 +122,15 @@ Test(ggsw_secret_encrypt, works)
 				if (!cond) big_error_count++;
 			}
 
-			/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
-			double proba = binomial_tail(NBASE, 0.0027);
+			/// Prob that the number of error grater than 3sigma is greater or equal than 0.0027*N
+			int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
+			double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
 
 			/// Asserts big_error_count <= 0.0027*N
-			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
-					(int)(0.0027 * NBASE), big_error_count, proba);
+			cr_assert(big_error_count <= max_fails,
+			          "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf "
+			          "chance, that happens.",
+			          max_fails, big_error_count, proba);
 		}
 		
 		// Fills each changed variable with 0s'
@@ -167,12 +172,15 @@ Test(ggsw_secret_encrypt, works)
 			if (!cond) big_error_count++;
 		}
 
-		/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
-		double proba = binomial_tail(NBASE, 0.0027);
+		/// Prob that the number of error grater than 3sigma is greater or equal than 0.0027*N
+		int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
+		double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
 
 		/// Asserts big_error_count <= 0.0027*N
-		cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
-	          (int)(0.0027 * NBASE), big_error_count, proba);
+		cr_assert(big_error_count <= max_fails,
+		          "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf "
+		          "chance, that happens.",
+		          max_fails, big_error_count, proba);
 	}
 
 	// Clean up
@@ -290,11 +298,14 @@ Test(ggsw_secret_encrypt_dft, works)
 			}
 
 			/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
-			double proba = binomial_tail(NBASE, 0.0027);
+			int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
+			double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
 
 			/// Asserts big_error_count <= 0.0027*N
-			cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
-	          		(int)(0.0027 * NBASE), big_error_count, proba);
+			cr_assert(big_error_count <= max_fails,
+			          "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf "
+			          "chance, that happens.",
+			          max_fails, big_error_count, proba);
 		}
 
 		// Fills each changed variable with 0s'
@@ -336,12 +347,14 @@ Test(ggsw_secret_encrypt_dft, works)
 			if (!cond) big_error_count++;
 		}
 
-		/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
-		double proba = binomial_tail(NBASE, 0.0027);
+		int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
+		double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
 
 		/// Asserts big_error_count <= 0.0027*N
-		cr_assert(big_error_count <= (int)(0.0027 * NBASE), "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf chance, that happens.",
-				(int)(0.0027 * NBASE), big_error_count, proba);
+		cr_assert(big_error_count <= max_fails,
+		          "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf "
+		          "chance, that happens.",
+		          max_fails, big_error_count, proba);
 	}
 
 	// Clean up
