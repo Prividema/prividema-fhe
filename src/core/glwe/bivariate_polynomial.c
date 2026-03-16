@@ -19,8 +19,10 @@ uint64_t poly_biv_coef_number(const GLWECtParams* params_glwe)
 PolyBiv* new_biv_poly(const GLWECtParams* params_glwe)
 {
 	PolyBiv* pol = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	if (log_is_null(pol, "pol's malloc failed in new_biv_poly") < 0) return 0;
+  CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
 	return pol;
+cleanup:
+  return NULL;
 }
 
 int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result)
@@ -89,9 +91,10 @@ uint64_t poly_biv_coef_number_dft(const GLWECtParams* params_glwe)
 PolyBivDFT* new_biv_poly_dft(const GLWECtParams* params_glwe)
 {
 	PolyBivDFT* pol_dft = calloc(poly_biv_coef_number_dft(params_glwe), 2 * sizeof(double));
-	if (log_is_null(pol_dft, "pol_dft's malloc failed in new_biv_poly") < 0) return 0;
-
+  CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
 	return pol_dft;
+cleanup:
+  return NULL;
 }
 
 int normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBivDFT* result_dft)

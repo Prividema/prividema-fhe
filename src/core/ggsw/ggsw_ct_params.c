@@ -1,14 +1,17 @@
 #include "ggsw_ct_params.h"
 
 #include <stdio.h>
+#include "utils.h"
+#include <assert.h>
 
 #include "logger.h"
 
 GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,
                                  uint64_t n_limbs_tilde)
 {
+  assert(params_glwe);
 	GGSWCtParams* params_ggsw = malloc(sizeof(GGSWCtParams));
-	if (log_is_null(params_ggsw, "malloc in new_ggsw_ct_params") < 0) return NULL;
+  CHECK_ALLOC(params_ggsw, "malloc in new_ggsw_ct_params");
 
 	params_ggsw->params_glwe   = params_glwe;
 	params_ggsw->k_tilde       = k_tilde;
@@ -16,7 +19,10 @@ GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params_glwe, uint64_t k_til
 	params_ggsw->n_limbs_tilde = n_limbs_tilde;
 
 	return params_ggsw;
+cleanup:
+  return NULL;
 }
+
 
 void delete_ggsw_ct_params(GGSWCtParams* params) { free(params); }
 

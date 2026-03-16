@@ -1,5 +1,6 @@
 #include "spqlios_alias.h"
 #include "logger.h"
+#include "utils.h"
 
 MODULE* new_module_info_p(uint64_t N) { return new_module_info(N, FFT64); }
 
@@ -30,12 +31,12 @@ int vec_znx_idft_p(const MODULE* module, int64_t* res, int64_t res_size, const d
 	if (module->module_type == NTT120)
 	{
 		tmp = malloc(ntt120_vec_znx_idft_tmp_bytes_avx(module));	
-		if(log_is_null(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p") < 0)
-			return -1;
+    CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
 	}
 
 	vec_znx_idft(module, (VEC_ZNX_BIG*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size, tmp);
 
+cleanup:
 	if (module->module_type == NTT120)
 		free(tmp);
 
@@ -74,15 +75,16 @@ double* new_vmp_pmat_p(const MODULE* module, uint64_t nrows, uint64_t ncols)
 
 int vmp_prepare_contiguous_p(const MODULE* module, double* pmat, const int64_t* mat, uint64_t nrows, uint64_t ncols)
 {
+  int status = -1;
 	uint8_t* tmp_space = malloc(vmp_prepare_contiguous_tmp_bytes(module, nrows, ncols));
-	if(log_is_null(tmp_space, "tmp_space's malloc failed in vmp_prepare_contiguous_p") < 0)
-		return -1;
+  CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vmp_prepare_contiguous_p");
 
 	vmp_prepare_contiguous(module, (VMP_PMAT*)pmat, mat, nrows, ncols, tmp_space);
 
+  status = 0;
+cleanup:
 	free(tmp_space);
-
-	return 0;
+	return status;
 }
 
 void delete_vmp_pmat_p(double* pmat) {
@@ -93,42 +95,45 @@ void delete_vmp_pmat_p(double* pmat) {
 int vmp_apply_dft_p(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
                      int64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols)
 {
+  int status = -1;
 	uint8_t* tmp_space = malloc(vmp_apply_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
-	if(log_is_null(tmp_space, "tmp_space's malloc failed in vmp_apply_dft_p") < 0)
-		return -1;
+  CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vmp_apply_dft_p");
 
 	vmp_apply_dft(module, (VEC_ZNX_DFT*)res, res_size, a, a_size, a_sl, (VMP_PMAT*)pmat, nrows, ncols, tmp_space);
 
+  status = 0;
+cleanup:
 	free(tmp_space);
-
-	return 0;
+	return status;
 }
 
 int vmp_apply_dft_to_dft_p(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
                             uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols)
 {
+  int status = -1;
 	uint8_t* tmp_space = malloc(vmp_apply_dft_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
-	if(log_is_null(tmp_space, "tmp_space's malloc failed in vmp_apply_dft_to_dft_p") < 0)
-		return -1;
+  CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vmp_apply_dft_to_dft_p");
 
 	vmp_apply_dft_to_dft(module, (VEC_ZNX_DFT*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size, (VMP_PMAT*)pmat, nrows,
 	                     ncols, tmp_space);
 
+  status = 0;
+cleanup:
 	free(tmp_space);
-
-	return 0;
+	return status;
 }
 
 int vec_znx_normalize_base2k_p(const MODULE* module, uint64_t log2_base2k, int64_t* res, int64_t res_size,
                                 int64_t res_sl, const int64_t* a, int64_t a_size, int64_t a_sl)
 {
+  int status = -1;
 	uint8_t* tmp_space = malloc(vec_znx_normalize_base2k_tmp_bytes(module));
-	if(log_is_null(tmp_space, "tmp_space's malloc failed in vec_znx_normalize_base2k_p") < 0)
-		return -1;
+  CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vec_znx_normalize_base2k_p");
 
 	vec_znx_normalize_base2k(module, log2_base2k, res, res_size, res_sl, a, a_size, a_sl, tmp_space);
 
+  status = 0;
+cleanup:
 	free(tmp_space);
-
-	return 0;
+	return status;
 }

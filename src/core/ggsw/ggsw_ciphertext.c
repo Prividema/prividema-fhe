@@ -19,19 +19,19 @@ GGSWCiphertext* new_ggsw(const GGSWCtParams* params_ggsw)
 {
 	// The bivGGSW does not own the GGSWCtParams
 	GGSWCiphertext* ggsw = malloc(sizeof(GGSWCiphertext));
-	if (log_is_null(ggsw, "malloc in new_ggsw") < 0) return NULL;
+  CHECK_ALLOC(ggsw, "malloc in new_ggsw");
 
 	ggsw->params = params_ggsw;
 
 	// Initialize the bivGGSW ciphertext with 0s'
 	ggsw->mat = calloc(ggsw_coef_number(params_ggsw), sizeof(int64_t));
-	if (log_is_null(ggsw->mat, "calloc in new_ggsw") < 0)
-	{
-		free(ggsw);
-		return NULL;
-	}
+  CHECK_ALLOC(ggsw->mat, "calloc in new_ggsw");
 
 	return ggsw;
+cleanup:
+
+  free(ggsw);
+  return NULL;
 }
 
 void delete_ggsw(GGSWCiphertext* ggsw)
@@ -160,19 +160,18 @@ uint64_t ggsw_coef_number_dft(const GGSWCtParams* params_ggsw)
 GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params_ggsw)
 {
 	GGSWCiphertextDFT* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextDFT));
-	if (log_is_null(ggsw_mat_dft, "malloc in new_ggsw_dft") < 0) return NULL;
+  CHECK_ALLOC(ggsw_mat_dft,"malloc in new_ggsw_dft");
 
 	ggsw_mat_dft->params = params_ggsw;
 
 	// Initializes  the bivGGSW ciphertext with Os'
 	ggsw_mat_dft->mat = calloc(2 * ggsw_coef_number_dft(params_ggsw), sizeof(double));
-	if (log_is_null(ggsw_mat_dft->mat, "calloc in new_ggsw_dft") < 0)
-	{
-		free(ggsw_mat_dft);
-		return NULL;
-	}
+  CHECK_ALLOC(ggsw_mat_dft->mat, "calloc in new_ggsw_dft");
 
 	return ggsw_mat_dft;
+cleanup:
+  free(ggsw_mat_dft);
+  return NULL;
 }
 
 void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)

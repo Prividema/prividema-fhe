@@ -106,19 +106,20 @@ GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params)
 {
 	// The bivGLWE ciphertext in the DFT domain
 	GLWECiphertextDFT* glwe_dft = malloc(sizeof(GLWECiphertextDFT));
-	if (log_is_null(glwe_dft, "glwe_dft's malloc failed in new_glwe_dft.") < 0) return NULL;
+  CHECK_ALLOC(glwe_dft, "glwe_dft's malloc failed in new_glwe_dft.");
 
 	// The bivGLWE parameters
 	glwe_dft->params = params;
 
 	// initialize the bivGLWE ciphertext with 0s'
 	glwe_dft->vec = calloc(glwe_coef_number_dft(params), 2 * sizeof(double));
-	if (log_is_null(glwe_dft->vec, "glwe_dft's calloc failed in new_glwe_dft.") < 0) {
-		free(glwe_dft);
-		return NULL;
-	}
+  CHECK_ALLOC(glwe_dft->vec, "glwe_dft's calloc failed in new_glwe_dft.");
 
 	return glwe_dft;
+
+cleanup:
+  free(glwe_dft);
+  return NULL;
 }
 
 void delete_glwe_dft(GLWECiphertextDFT* glwe)
