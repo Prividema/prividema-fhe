@@ -98,7 +98,7 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
  *                  It indicates how many elements must be skipped in memory to reach
  *                  the start of the next limb in `res`.
  * @param mu        The mean value of the distribution.
- * @param sigma     The variance of the distribution.
+ * @param sigma     The standard deviation of the distribution.
  *
  * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval • `0` otherwise.

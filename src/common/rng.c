@@ -114,20 +114,23 @@ double erfinv(double x)
 int rand_normal(double* result, double mu, double sigma)
 {
 	// Generate a uniform number in [0, 2^64]
-	int64_t uniform;
-	if (read_rand(&uniform) < 0) return -1;
+	uint64_t uniform;
+  CHECK_CALL(read_rand(&uniform), "Rng failed in rand_normal");
 
 	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
-	double U = ((uint64_t)uniform) / ((double)UINT64_MAX);
+	double U = ((double) uniform) / ((double)UINT64_MAX);
 
 	// Compute Z the inverse CDF of the normal distribution applied to U.
 	double Z = sqrt(2.0) * erfinv(2.0 * U - 1.0);
 
 	// Scale and Shift with mu and sigma.
-	// result follow a normal distribution in (0,1)
+	// Z follows a normal distribution in (0,1)
+  // Thus result will follow (mu, sigma)
 	*result = mu + sigma * Z;
 
 	return 0;
+cleanup:
+  return -1;
 }
 
 int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
@@ -182,7 +185,10 @@ int normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t 
 {
 	for (int i = 0; i < res_size; i++)
 		for (int j = 0; j < limb_len; j++)
-			if (rand_normal(res + (i * res_sl) + j, mu, sigma) < 0)
-				return log_message(LOG_ERROR, "normal_random_vec failed");
+				CHECK_CALL(rand_normal(res + (i * res_sl) + j, mu, sigma),
+               "normal_random_vec failed");
+
 	return 0;
+cleanup:
+  return -1;
 }
