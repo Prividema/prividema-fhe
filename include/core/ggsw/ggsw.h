@@ -6,7 +6,9 @@
 #include "spqlios_alias.h"
 
 /**
- * @brief Demasks the phase (message + noise).
+ * TODO: delete and use only the GLWE version
+ * @brief Demasks the ciphertext into the phase
+ * (message + noise).
  *
  * @param module      Additionnal information for backend.
  * @param params_glwe The GLWE parameters.
@@ -15,11 +17,12 @@
  * @param glwe_vec    The ciphertext.
  * 
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const VecBiv* glwe_vec);
 
 /**
+ * TODO: delete and use only the GLWE version
  * @brief Masks the phase (message + noise) and puts it in result.
  *
  * @param module      Additionnal information for backend.
@@ -29,7 +32,7 @@ int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* par
  * @param phase       message + noise.
  *
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, VecBiv* result, const GLWESecretKeyDFT* sk_dft,
                                  const PolyBiv* phase);
@@ -44,7 +47,7 @@ int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* param
  * @param m_univ      The message.
  *
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
                         const PolyUniv* m_univ);
@@ -58,7 +61,7 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
  * @param ggsw   The bivariate GGSW input ciphertext.
  * 
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int ggsw_external_product(const MODULE* module, GLWECiphertext* result,
                           const GLWECiphertext* glwe, const GGSWCiphertext* ggsw);
@@ -93,6 +96,7 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
 //! GGSW IN DFT PART (begin)
 
 /**
+ * TODO: delete and use only the GLWE version
  * @brief Demasks the phase (message + noise) in the DFT domain and computes it out of the DFT domain.
  *
  * @param module       Additionnal information for backend.
@@ -102,12 +106,13 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
  * @param glwe_vec_dft The ciphertext.
  * 
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
                                        const VecBivDFT* glwe_vec_dft);
 
 /**
+ * TODO: delete and use only the GLWE version
  * @brief Masks the phase (message + noise) in the DFT domain and puts it in result.
  *
  * @param module      Additionnal information for backend.
@@ -117,7 +122,7 @@ int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams*
  * @param phase_dft   message + error.
  *
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, VecBivDFT* result_dft, const GLWESecretKeyDFT* sk_dft,
                                      const PolyBivDFT* phase_dft);
@@ -133,7 +138,7 @@ int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* p
  * @param m_univ      The message.
  *
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertextDFT* result_dft,
                             const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ);
@@ -147,7 +152,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
  * @param ggsw_dft The bivariate GGSW input ciphertext in the DFT domain.
  * 
  * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise otherwise.
+ * @retval • `0` otherwise.
  */
 int ggsw_external_product_dft(const MODULE* module,
                               GLWECiphertextDFT* result_dft,     

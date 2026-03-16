@@ -32,7 +32,7 @@ int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @param phase message + noise.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  -`0` otherwise otherwise.
+ * @retval  -`0` othwerwise.
  */
 int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft, const PolyBiv* phase);
 
@@ -48,7 +48,8 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWE
 int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, VecBiv* glwe_vec, GLWESecretKeyDFT* sk_dft);
 
 /**
- * @brief Demasks the bivariate phase (message + noise) and puts it in result.
+ * @brief Demasks the ciphertext into the
+ * bivariate phase (message + noise) and puts it in result.
  *
  * @param module Additionnal information for backend.
  * @param result The bivariate phase.
@@ -56,7 +57,7 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @param glwe The bivGLWE ciphertext.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  -`0` otherwise otherwise.
+ * @retval  -`0` othwerwise.
  */
 int glwe_secret_demasking(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const GLWECiphertext* glwe);
 
@@ -70,7 +71,7 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* result, const GLWESecre
  * @param phase_dft message + noise in the DFT domain.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  -`0` otherwise otherwise.
+ * @retval  -`0` othwerwise.
  */
 int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWESecretKeyDFT* sk_dft, const PolyBivDFT* phase_dft);
 
@@ -82,7 +83,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
  *
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  -`0` otherwise otherwise.
+ * @retval  -`0` othwerwise.
  */
 int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const GLWECiphertextDFT* glwe_dft);
 
