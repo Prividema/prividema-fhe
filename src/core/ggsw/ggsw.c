@@ -38,15 +38,15 @@ cleanup:
 	return status;
 }
 
-int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertext* result,
-                        const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ)
+int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                        const PolyUniv* m_univ)
 {
-	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
-		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
-
 	int status = -1;
 
+	const GGSWCtParams* params_ggsw = result->params;
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
+		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
 
 	// bivGLWE parameters
 	uint64_t N       = params_glwe->N;
@@ -184,15 +184,15 @@ cleanup:
 
 //! bivGGSW IN DFT PART (begin)
 
-int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertextDFT* result_dft,
-                            const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ)
+int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GLWESecretKeyDFT* sk_dft,
+                            const PolyUniv* m_univ)
 {
-	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
-		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt_dft");
-
 	int status = -1;
 
+	const GGSWCtParams* params_ggsw = result_dft->params;
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
+		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt_dft");
 
 	// bivGLWE parameters
 	uint64_t N       = params_glwe->N;

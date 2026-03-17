@@ -6,10 +6,10 @@
 #include "spqlios_alias.h"
 
 /**
- * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params.
+ * @brief Encrypts the message m into bivGGSW ciphertext res with the
+ * parameters in the result object.
  *
  * @param module      Additionnal information for backend.
- * @param params_ggsw The encryption params.
  * @param result      The encrypted message.
  * @param sk_dft      The secret key.
  * @param m_univ      The message.
@@ -17,8 +17,8 @@
  * @retval • `-1` if an error occurs.
  * @retval • `0` otherwise.
  */
-int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertext* result,
-                        const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ);
+int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                        const PolyUniv* m_univ);
 
 /**
  * @brief Computes the external product between a bivGLWE and a bivGGSW.
@@ -63,10 +63,10 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
 //! GGSW IN DFT PART (begin)
 
 /**
- * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params in the DFT domain.
+ * @brief Encrypts the message m into bivGGSW ciphertext res with parameters
+ * according to the result object
  *
  * @param module      Additionnal information for backend.
- * @param params_ggsw The encryption params.
  * @param res_dft     The encrypted message.
  * @param sk_dft      The secret key.
  * @param m_univ      The message.
@@ -74,8 +74,8 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
  * @retval • `-1` if an error occurs.
  * @retval • `0` otherwise.
  */
-int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertextDFT* result_dft,
-                            const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ);
+int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GLWESecretKeyDFT* sk_dft,
+                            const PolyUniv* m_univ);
 
 /**
  * @brief Computes the external product between a bivGLWE and a biv bivGGSW.

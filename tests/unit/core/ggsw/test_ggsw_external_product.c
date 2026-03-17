@@ -86,7 +86,7 @@ Test(ggsw_external_product, without_error)
 	glwe_secret_masking(module, glwe_tilde, sk_glwe_dft, m);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
-	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_glwe_dft, u_univ);
+	ggsw_secret_encrypt(module, ggsw, sk_glwe_dft, u_univ);
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
@@ -199,7 +199,7 @@ Test(ggsw_external_product_dft, without_error)
 	glwe_secret_masking_dft(module, glwe_tilde_dft, sk_glwe_dft, m_dft);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
-	ggsw_secret_encrypt_dft(module, params_ggsw, ggsw_dft, sk_glwe_dft, u_univ);
+	ggsw_secret_encrypt_dft(module, ggsw_dft, sk_glwe_dft, u_univ);
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition

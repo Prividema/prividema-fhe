@@ -70,7 +70,7 @@ Test(ggsw_secret_encrypt, works)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, NBASE);
 
 	// Computes a bivGGSW(m)
-	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_dft, m_univ);
+	ggsw_secret_encrypt(module, ggsw, sk_dft, m_univ);
 
 	// Asserts the j-th row in the i-th PartialGGSW(m) in the ggsw is :
 	// - a bivGLWE(-m * sk_j / 2^{kappa_tilde * i})), for j < k
@@ -247,7 +247,7 @@ Test(ggsw_secret_encrypt_dft, works)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, NBASE);
 
 	// Computes a bivGGSW(m)
-	ggsw_secret_encrypt_dft(module, params_ggsw, ggsw_dft, sk_dft, m_univ);
+	ggsw_secret_encrypt_dft(module, ggsw_dft, sk_dft, m_univ);
 
 	for (uint64_t i = 1; i <= L_TILDEBASE; i++)
 	{
