@@ -9,6 +9,7 @@
 
 GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k)
 {
+	uint64_t j        = 0;
 	GLWESecretKey* sk = malloc(sizeof(GLWESecretKey));
 	CHECK_ALLOC(sk, "sk's malloc failed in alloc_glwe_secret_key");
 
@@ -18,7 +19,6 @@ GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k)
 	sk->values = calloc(k, sizeof(double*));
 	CHECK_ALLOC(sk->values, "values creation failed in glwe key generation");
 
-	uint64_t j = 0;
 	for (j = 0; j < k; j++)
 	{
 		sk->values[j] = calloc(N, sizeof(double));
@@ -59,6 +59,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 
 GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k)
 {
+	uint64_t j           = 0;
 	GLWESecretKeyDFT* sk = malloc(sizeof(GLWESecretKeyDFT));
 	CHECK_ALLOC(sk, "sk's malloc failed in new_glwe_secret_key.");
 	sk->N = N;
@@ -67,7 +68,6 @@ GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k)
 	sk->values = malloc(k * sizeof(PolyUnivDFT*));
 	CHECK_ALLOC(sk->values, "values' malloc failed in alloc_glwe_secret_key_dft");
 
-	uint64_t j = 0;
 	for (j = 0; j < k; j++)
 	{
 		sk->values[j] = calloc(N, sizeof(double));
