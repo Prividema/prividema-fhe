@@ -14,7 +14,8 @@ void set_log_flag(unsigned char flag) { LOG_FLAG = flag; }
 // Get string representation of log level
 const char* log_level_str(LogLevel level)
 {
-	switch (level) {
+	switch (level)
+	{
 		case LOG_DEBUG:
 			return "DEBUG";
 		case LOG_INFO:

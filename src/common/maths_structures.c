@@ -5,7 +5,8 @@
 void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l)
 {
 	printf("\n");
-	for (uint64_t i = 1; i <= l; i++) {
+	for (uint64_t i = 1; i <= l; i++)
+	{
 		printf("\nY^%ld : ", i);
 		for (uint64_t p = 0; p < N; p++)
 			printf((pol[(i - 1) * pol_sl + p] < 0) ? "%ld X^%ld " : "%ld X^%ld ", pol[(i - 1) * pol_sl + p], p);
@@ -15,7 +16,8 @@ void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t N, int64_t l)
 void printf_vec_poly_biv(VecBiv* pols, int64_t pols_nb, int64_t N, int64_t l)
 {
 	printf("\n");
-	for (uint64_t j = 0; j < pols_nb; j++) {
+	for (uint64_t j = 0; j < pols_nb; j++)
+	{
 		printf("\n%ld-th component : ", j);
 		printf_poly_biv(pols + j * N, pols_nb * N, N, l);
 		printf("\n");
@@ -37,7 +39,8 @@ void printf_poly_univ_RnX(double* pol, int64_t N)
 void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t N)
 {
 	printf("\n");
-	for (uint64_t j = 0; j < pols_size; j++) {
+	for (uint64_t j = 0; j < pols_size; j++)
+	{
 		printf("\n%ld-th component : ", j);
 		printf_poly_univ_ZnX(pols + j * N, N);
 		printf("\n");
@@ -47,7 +50,8 @@ void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t N)
 void printf_secret_key(PolyUniv** sk_values, int64_t N, int64_t k)
 {
 	printf("\n\nBegin Secret Key:\n");
-	for (uint64_t j = 0; j < k; j++) {
+	for (uint64_t j = 0; j < k; j++)
+	{
 		printf("\n%ld-th component", j);
 		printf_poly_univ_ZnX(sk_values[j], N);
 	}

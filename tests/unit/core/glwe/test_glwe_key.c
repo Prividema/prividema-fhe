@@ -12,7 +12,6 @@
 
 //! bivGLWE KEY PART (begin)
 
-
 /**
  * @brief Ensures new_glwe_secret_key returns a non-NULL pointer when values != NULL.
  */
@@ -47,4 +46,3 @@ Test(uniform_glwe_secret_key, values_not_null)
 	delete_module_info(module);
 	delete_glwe_secret_key(sk);
 }
-

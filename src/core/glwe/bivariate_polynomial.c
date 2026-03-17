@@ -19,10 +19,10 @@ uint64_t poly_biv_coef_number(const GLWECtParams* params_glwe)
 PolyBiv* new_biv_poly(const GLWECtParams* params_glwe)
 {
 	PolyBiv* pol = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-  CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
 	return pol;
 cleanup:
-  return NULL;
+	return NULL;
 }
 
 int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result)
@@ -45,7 +45,7 @@ int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result)
 		CHECK_CALL(rand_normal(rd_pol_univ + p, 0.0, params_glwe->sigma),
 		           "rand_normal failed in normal_random_biv_poly.");
 
-  univ_to_biv(params_glwe, result, rd_pol_univ);
+	univ_to_biv(params_glwe, result, rd_pol_univ);
 
 	status = 0;
 
@@ -62,7 +62,7 @@ int uniform_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result, in
 	for (uint64_t i = 1; i <= precision; i++)
 		for (uint64_t p = 0; p < params_glwe->N; p++)
 			CHECK_CALL(rand_uniform(result + (i - 1) * params_glwe->N + p, params_glwe->kappa),
-			    "rand_uniform failed in uniform_random_biv_poly.");
+			           "rand_uniform failed in uniform_random_biv_poly.");
 
 	status = 0;
 
@@ -75,8 +75,7 @@ void add_biv_poly(const GLWECtParams* params_glwe, PolyBiv* res, int64_t res_sl,
                   const PolyBiv* b, int64_t b_sl)
 {
 	for (uint64_t i = 0; i < poly_biv_size(params_glwe); i++)
-		for (uint64_t p = 0; p < params_glwe->N; p++)
-			res[p + i  * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
+		for (uint64_t p = 0; p < params_glwe->N; p++) res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
 }
 
 //! BIV POLY IN DFT PART (begin)
@@ -90,10 +89,10 @@ uint64_t poly_biv_coef_number_dft(const GLWECtParams* params_glwe)
 PolyBivDFT* new_biv_poly_dft(const GLWECtParams* params_glwe)
 {
 	PolyBivDFT* pol_dft = calloc(poly_biv_coef_number_dft(params_glwe), 2 * sizeof(double));
-  CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
 	return pol_dft;
 cleanup:
-  return NULL;
+	return NULL;
 }
 
 int normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBivDFT* result_dft)
@@ -106,11 +105,11 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params_
 	// Base-2Kappa normalized bivariate polynomial
 	rd_pol = malloc(poly_biv_bytes(params_glwe));
 	CHECK_ALLOC(rd_pol, "rd_pol malloc failed in normal_random_biv_poly_dft");
-	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol),
-	           "normal_random_biv_poly failed in normal_biv_poly_dft.");
+	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol), "normal_random_biv_poly failed in normal_biv_poly_dft.");
 
 	// Then compute in the DFT domain
-	pvda_vec_znx_dft(module, result_dft, poly_biv_size(params_glwe), rd_pol, poly_biv_size(params_glwe), params_glwe->N);
+	pvda_vec_znx_dft(module, result_dft, poly_biv_size(params_glwe), rd_pol, poly_biv_size(params_glwe),
+	                 params_glwe->N);
 
 	status = 0;
 
@@ -147,8 +146,7 @@ void add_biv_poly_dft(const GLWECtParams* params_glwe, PolyBivDFT* res, int64_t 
                       int64_t a_sl, const PolyBivDFT* b, int64_t b_sl)
 {
 	for (uint64_t i = 0; i < poly_biv_size(params_glwe); i++)
-		for (uint64_t p = 0; p < params_glwe->N; p++)
-			res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
+		for (uint64_t p = 0; p < params_glwe->N; p++) res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
 }
 
 //! COMMON PART (begin)
@@ -171,7 +169,7 @@ void biv_to_univ(const GLWECtParams* params_glwe, double* res_univ, const PolyBi
 	uint64_t l     = poly_biv_size(params_glwe);
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
-  // TODO: slow polynomial evaulation,
+	// TODO: slow polynomial evaulation,
 	for (uint64_t i = 1; i <= l; i++)
 		for (uint64_t p = 0; p < N; p++) res_univ[p] += ldexp((double)pol_biv[(i - 1) * N + p], -i * kappa);
 }
@@ -189,10 +187,12 @@ int univ_to_biv(const GLWECtParams* params_glwe, PolyBiv* res, const double* pol
 	// 1) - 1]
 	int64_t mask = (1LL << kappa) - 1;
 
-	for (uint64_t p = 0; p < N; p++) {
+	for (uint64_t p = 0; p < N; p++)
+	{
 		// For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to pol_univ[p]
 		double tmp = pol_univ[p];
-		for (uint64_t i = 1; i <= l; i++) {
+		for (uint64_t i = 1; i <= l; i++)
+		{
 			tmp += ldexp(1.0, kappa - 1 - kappa * i);
 		}
 

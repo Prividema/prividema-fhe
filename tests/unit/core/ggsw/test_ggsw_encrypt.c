@@ -37,7 +37,7 @@ Test(ggsw_secret_encrypt, works)
 
 	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
 	// chance
-	double err_length = ldexp(1.0, -LBASE* KAPPABASE) + 3 * sigma;
+	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
@@ -46,9 +46,9 @@ Test(ggsw_secret_encrypt, works)
 	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	GLWESecretKey* sk           = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	GGSWCiphertext* ggsw  = new_ggsw(params_ggsw);
+	GGSWCiphertext* ggsw     = new_ggsw(params_ggsw);
 	PolyUniv* m_univ         = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* m_univ_dft  = malloc(poly_univ_bytes(params_glwe));
 	// Variables to compute the phase of each ggsw's row
@@ -61,7 +61,7 @@ Test(ggsw_secret_encrypt, works)
 
 	// Draws uniformly in (Zn[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws uniformly in Zn[X] the message
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
@@ -90,8 +90,8 @@ Test(ggsw_secret_encrypt, works)
 			memcpy(glwe_vec_computed, ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
-      GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
-      glwe_secret_demasking(module, phase_computed, sk_dft,&glwe_ct);
+			GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+			glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
 			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -120,8 +120,8 @@ Test(ggsw_secret_encrypt, works)
 			// are only different by an error of approximation and a gaussian error
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-        double distance = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
-				int cond = distance < err_length;
+				double distance = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
+				int cond        = distance < err_length;
 
 				if (!cond) big_error_count++;
 			}
@@ -136,7 +136,7 @@ Test(ggsw_secret_encrypt, works)
 			          "chance, that happens.",
 			          max_fails, big_error_count, proba);
 		}
-		
+
 		// Fills each changed variable with 0s'
 		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
 		memset(phase_computed_univ_RnX, 0, poly_univ_bytes(params_glwe));
@@ -149,8 +149,8 @@ Test(ggsw_secret_encrypt, works)
 		memcpy(glwe_vec_computed, ggsw->mat + row_i_ktilde * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
 
 		// Computes the phase = m / 2^{kappa_tilde * i} + err
-    GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
-    glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
+		GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+		glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 		// Computes the phase in Tn[X]
 		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -168,7 +168,7 @@ Test(ggsw_secret_encrypt, works)
 		// are only different by an error of approximation and a gaussian error
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-      double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
+			double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 			int cond = diff < err_length;
 
@@ -238,11 +238,11 @@ Test(ggsw_secret_encrypt_dft, works)
 
 	// Draws uniformly in (Cm[X])^k the secret key in the DFT domain
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws uniformly in Zn[X] the message
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
-	
+
 	// Computes the message in the DFT domain
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, NBASE);
 
@@ -259,13 +259,14 @@ Test(ggsw_secret_encrypt_dft, works)
 			memset(m_skj_univ_dft, 0, poly_univ_bytes(params_glwe));
 			memset(m_skj_univ, 0, poly_univ_bytes(params_glwe));
 			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
-			
+
 			// The pointer to DFT(bivGLWE(-m * sk_j / 2^{kappa_tilde * i}))
-			memcpy(glwe_vec_computed_dft, ggsw_retreive_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i), glwe_bytes(params_glwe));
+			memcpy(glwe_vec_computed_dft, ggsw_retreive_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i),
+			       glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
-      GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
-      glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
+			GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+			glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
 			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -292,10 +293,10 @@ Test(ggsw_secret_encrypt_dft, works)
 
 			// Assures that the difference between the phase = msg / (2^kappa_tilde)^i and the computed phase,
 			// are only different by an error of approximation and a gaussian error
-			for (uint64_t p = 0; p < NBASE; p++) {
-
-        double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
-				int cond = diff < err_length;
+			for (uint64_t p = 0; p < NBASE; p++)
+			{
+				double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
+				int cond    = diff < err_length;
 
 				if (!cond) big_error_count++;
 			}
@@ -320,11 +321,12 @@ Test(ggsw_secret_encrypt_dft, works)
 		uint64_t row_i_ktilde = ((i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE);
 
 		// The pointer to bivGLWE(m / 2^{kappa_tilde * i})
-		memcpy(glwe_vec_computed_dft, ggsw_dft->mat + row_i_ktilde * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
+		memcpy(glwe_vec_computed_dft, ggsw_dft->mat + row_i_ktilde * glwe_coef_number(params_glwe),
+		       glwe_bytes(params_glwe));
 
 		// Computes the phase = m / 2^kappa_tilde + err
-    GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
-    glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
+		GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+		glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 		// Computes the phase in Rn[X]
 		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -342,8 +344,7 @@ Test(ggsw_secret_encrypt_dft, works)
 		// are only different by an error of approximation and a gaussian error
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			
-      double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
+			double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 			int cond = diff < err_length;
 

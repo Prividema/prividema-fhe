@@ -6,7 +6,6 @@
 #include "maths_structures.h"
 #include "spqlios_alias.h"
 
-
 // =============================================
 // |                                           |
 // |              Random Numbers               |
@@ -36,7 +35,6 @@ int rand_uniform(int64_t* result, uint64_t nb_bits);
  */
 int rand_normal(double* result, double mu, double sigma);
 
-
 // =============================================
 // |                                           |
 // |      Random Polynomials and Vectors       |
@@ -45,11 +43,11 @@ int rand_normal(double* result, double mu, double sigma);
 
 /**
  * @brief Generates a uniformly random Zn[X] polynomial.
- * 
+ *
  * @param res     The result uniformly drawn Zn[X] polynomial.
  * @param N       The degree of the cyclotomic polynomial.
  * @param nb_bits The exponent of the distribution range = [-2^nb_bits, 2^nb_bits).
- * 
+ *
  * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval • `0` otherwise.
  */
@@ -68,7 +66,7 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits);
  *
  * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval • `0` otherwise.
- * 
+ *
  * @note For each call to this function, we'll generate a new seed.
  */
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits);
@@ -83,7 +81,7 @@ int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_
  *
  * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval • `0` otherwise.
- * 
+ *
  * @note For each call to this function, we'll generate a new seed.
  */
 int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);

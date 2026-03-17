@@ -24,9 +24,9 @@
 
 //! bivGGSW PART (begin)
 
-void printf_glwe(GLWECiphertext* glwe){
-	for(int64_t j = 0 ; j < KBASE+1 ; j++ )
-		printf_poly_biv(glwe->vec+ j*NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
+void printf_glwe(GLWECiphertext* glwe)
+{
+	for (int64_t j = 0; j < KBASE + 1; j++) printf_poly_biv(glwe->vec + j * NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
 }
 
 void printf_glwe_dft(MODULE* module, GLWECiphertextDFT* glwe_dft)
@@ -34,8 +34,7 @@ void printf_glwe_dft(MODULE* module, GLWECiphertextDFT* glwe_dft)
 	VecBiv* glwe_vec = malloc(glwe_bytes(glwe_dft->params));
 	pvda_vec_znx_idft(module, glwe_vec, glwe_size(glwe_dft->params), glwe_dft->vec, glwe_size(glwe_dft->params));
 
-	for(int64_t j = 0 ; j < KBASE+1 ; j++ )
-		printf_poly_biv(glwe_vec + j*NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
+	for (int64_t j = 0; j < KBASE + 1; j++) printf_poly_biv(glwe_vec + j * NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
 
 	free(glwe_vec);
 }
@@ -46,7 +45,7 @@ Test(ggsw_external_product, without_error)
 	//! Variance of the error's normal distributions
 	double sigma       = 0;
 	double sigma_tilde = 0;
-	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
+	double err_length  = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
@@ -65,11 +64,11 @@ Test(ggsw_external_product, without_error)
 	PolyBiv* m                        = malloc(poly_biv_bytes(params_glwe_tilde));
 
 	//! Variables to compute the result phase of the external product
-	PolyBiv* phase_computed       = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyBiv* phase_computed           = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	PolyUnivRnX* um_computed_univ_RnX = calloc(NBASE, sizeof(double));
-	PolyUnivDFT* u_univ_dft       = malloc(NBASE * sizeof(double));
-	PolyBivDFT* um_dft            = malloc(poly_biv_bytes(params_glwe_tilde));
-	PolyBiv* um                   = malloc(poly_biv_bytes(params_glwe));
+	PolyUnivDFT* u_univ_dft           = malloc(NBASE * sizeof(double));
+	PolyBivDFT* um_dft                = malloc(poly_biv_bytes(params_glwe_tilde));
+	PolyBiv* um                       = malloc(poly_biv_bytes(params_glwe));
 	double* um_univ_RnX               = calloc(NBASE, sizeof(double));
 
 	// Define sk_ggsw = (1, 0, ... , 0)
@@ -119,9 +118,8 @@ Test(ggsw_external_product, without_error)
 	//! Asserts um_computed_univ(X) = u * m_univ
 	for (uint64_t p = 0; p < NBASE; p++)
 	{
-
-    double diff = torus_distance(um_univ_RnX[p], um_computed_univ_RnX[p]);
-    int cond = diff < err_length;
+		double diff = torus_distance(um_univ_RnX[p], um_computed_univ_RnX[p]);
+		int cond    = diff < err_length;
 
 		cr_assert(cond, "Equality failed with um_computed_univ_RnX[%ld] = %lf and  um_univ_RnX[%ld] = %lf", p, p,
 		          um_univ_RnX[p] - floor(um_univ_RnX[p]), p, um_computed_univ_RnX[p], err_length);
@@ -156,7 +154,7 @@ Test(ggsw_external_product_dft, without_error)
 	//! Variance of the error's normal distributions
 	double sigma       = 0;
 	double sigma_tilde = 0;
-	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
+	double err_length  = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
@@ -166,22 +164,22 @@ Test(ggsw_external_product_dft, without_error)
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	//! Variables
-	GLWESecretKey* sk_ggsw                = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_dft         = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk_ggsw                   = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_glwe_dft            = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertextDFT* ggsw_dft              = new_ggsw_dft(params_ggsw);
 	GLWECiphertextDFT* glwe_tilde_dft        = new_glwe_dft(params_glwe_tilde);
 	GLWECiphertextDFT* ext_prod_computed_dft = new_glwe_dft(params_glwe);
-	PolyUniv* u_univ                     = malloc(poly_univ_bytes(params_glwe));
-	PolyBiv* m                            = malloc(poly_biv_bytes(params_glwe_tilde));
-	PolyBivDFT* m_dft                     = malloc(poly_biv_bytes(params_glwe));
+	PolyUniv* u_univ                         = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* m                               = malloc(poly_biv_bytes(params_glwe_tilde));
+	PolyBivDFT* m_dft                        = malloc(poly_biv_bytes(params_glwe));
 
 	//! Variables to compute the result phase of the external product
-	PolyBiv* phase_computed       = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyBiv* phase_computed           = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	PolyUnivRnX* um_computed_univ_RnX = calloc(NBASE, sizeof(double));
-	PolyUnivDFT* u_univ_dft       = malloc(NBASE * sizeof(double));
-	PolyBivDFT* um_dft            = malloc(poly_biv_bytes(params_glwe_tilde));
-	PolyBiv* um                   = malloc(poly_biv_bytes(params_glwe));
-	PolyUnivRnX* um_univ_RnX               = calloc(NBASE, sizeof(double));
+	PolyUnivDFT* u_univ_dft           = malloc(NBASE * sizeof(double));
+	PolyBivDFT* um_dft                = malloc(poly_biv_bytes(params_glwe_tilde));
+	PolyBiv* um                       = malloc(poly_biv_bytes(params_glwe));
+	PolyUnivRnX* um_univ_RnX          = calloc(NBASE, sizeof(double));
 
 	// Define sk_ggsw = (1, 0, ... , 0)
 	sk_ggsw->values[0][0] = 2;
@@ -233,9 +231,8 @@ Test(ggsw_external_product_dft, without_error)
 	//! Asserts um_computed_univ(X) = u * m_univ
 	for (uint64_t p = 0; p < NBASE; p++)
 	{
-
-    double diff = torus_distance(um_univ_RnX[p], um_computed_univ_RnX[p]);
-    int cond = diff < err_length;
+		double diff = torus_distance(um_univ_RnX[p], um_computed_univ_RnX[p]);
+		int cond    = diff < err_length;
 
 		cr_assert(cond, "Equality failed with um_computed_univ_RnX[%ld] = %lf and  um_univ_RnX[%ld] = %lf", p, p,
 		          um_computed_univ_RnX[p], p, um_univ_RnX[p], err_length);

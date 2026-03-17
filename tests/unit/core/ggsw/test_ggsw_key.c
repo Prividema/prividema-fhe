@@ -18,4 +18,3 @@
 #define SIGMA_TILDEBASE  -3
 
 //! bivGGSW KEY PART (begin)
-

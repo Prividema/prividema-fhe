@@ -4,17 +4,17 @@
 
 #include "common/spqlios_alias.h"
 #include "core/glwe/glwe.h"
-#include "glwe_transform_key.h"
 #include "glwe_key.h"
+#include "glwe_transform_key.h"
 #include "rng.h"
 #include "utils.h"
 
-#define NBASE      1024
-#define KBASE      1
-#define KAPPABASE  4
-#define NLIMBSBASE (KBASE + 1) * 8
-#define LBASE      NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE  -(LBASE / 2 + 1) * KAPPABASE
+#define NBASE       1024
+#define KBASE       1
+#define KAPPABASE   4
+#define NLIMBSBASE  (KBASE + 1) * 8
+#define LBASE       NLIMBSBASE / (KBASE + 1)
+#define SIGMABASE   -(LBASE / 2 + 1) * KAPPABASE
 
 #define PROB_FACTOR 3
 
@@ -51,7 +51,7 @@ Test(glwe_secret_masking, small_error)
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// The input message uniformly drawn in Zn[X,Y]
 	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
@@ -80,8 +80,9 @@ Test(glwe_secret_masking, small_error)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++) {
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -141,7 +142,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ_RnX
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
@@ -170,8 +171,9 @@ Test(glwe_secret_masking, uniform_RnX_message)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++) {
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -234,7 +236,7 @@ Test(glwe_secret_masking_dft, small_error)
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// The input message uniformly drawn in Zn[X,Y]
 	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
@@ -266,8 +268,9 @@ Test(glwe_secret_masking_dft, small_error)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++) {
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -330,7 +333,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ_RnX
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
@@ -362,8 +365,9 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++) {
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 

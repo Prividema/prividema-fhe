@@ -3,7 +3,6 @@
 
 #include "glwe_key.h"
 
-
 //! bivGLWE PART (begin)
 /**
  * @brief Computes Sum_j{0,k-1}[sk_j * a_j]
@@ -12,7 +11,7 @@
  * @param result The bivariate polynomial result.
  * @param glwe The bivGLWE ciphertext
  * @param sk_dft The Secret key in the DFT domain.
- * @return int 
+ * @return int
  */
 int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, VecBiv* glwe, GLWESecretKeyDFT* sk_dft);
 
@@ -26,7 +25,8 @@ int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` othwerwise.
  */
-int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft, const PolyBiv* phase);
+int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                        const PolyBiv* phase);
 
 /**
  * @brief Computes -Sum_j{0,k-1}[sk_j * a_j]
@@ -37,7 +37,8 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWE
  * @param sk_dft The Secret key in the DFT domain.
  * @return int
  */
-int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, VecBiv* glwe_vec, GLWESecretKeyDFT* sk_dft);
+int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, VecBiv* glwe_vec,
+             GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Demasks the ciphertext into the
@@ -51,7 +52,8 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, 
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` othwerwise.
  */
-int glwe_secret_demasking(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const GLWECiphertext* glwe);
+int glwe_secret_demasking(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
+                          const GLWECiphertext* glwe);
 
 //! bivGLWE IN DFT PART (begin)
 
@@ -65,7 +67,8 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* result, const GLWESecre
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` othwerwise.
  */
-int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWESecretKeyDFT* sk_dft, const PolyBivDFT* phase_dft);
+int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWESecretKeyDFT* sk_dft,
+                            const PolyBivDFT* phase_dft);
 
 /**
  * @brief Demasks the bivariate phase (message + noise) and puts it in result.
@@ -77,6 +80,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
  * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  -`0` othwerwise.
  */
-int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const GLWECiphertextDFT* glwe_dft);
+int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
+                              const GLWECiphertextDFT* glwe_dft);
 
 #endif

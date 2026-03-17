@@ -9,7 +9,6 @@
 
 #include "ggsw_ciphertext.h"
 
-
 typedef struct ggsw_public_key
 {
 	uint32_t size;       // number of ciphertexts in public key

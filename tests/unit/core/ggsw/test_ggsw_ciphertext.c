@@ -490,7 +490,8 @@ Test(const_mult_ggsw_dft, without_normalization)
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
 	pvda_vec_znx_idft(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
-	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat,
+	                  ggsw_size(params_ggsw));
 
 	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
@@ -558,7 +559,8 @@ Test(const_mult_ggsw_dft, with_normalization)
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
 	pvda_vec_znx_idft(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
-	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat,
+	                  ggsw_size(params_ggsw));
 
 	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)

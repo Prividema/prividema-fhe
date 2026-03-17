@@ -4,11 +4,11 @@
 
 #include "core/ggsw/ggsw.h"
 #include "core/glwe/glwe.h"
+#include "core/glwe/glwe_transform_key.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "rng.h"
 #include "utils.h"
-#include "core/glwe/glwe_transform_key.h"
 
 #define NBASE            1024
 #define KBASE            8
@@ -58,7 +58,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// The input message uniformly drawn in Zn[X,Y]
 	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
@@ -74,11 +74,11 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the bivGLWE ciphertext
-  GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed };
-  glwe_secret_masking(module, &glwe_ct, sk_dft, phase);
+	GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+	glwe_secret_masking(module, &glwe_ct, sk_dft, phase);
 
 	// The computed phase in Rn[X]
-  glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
+	glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -87,8 +87,9 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	int big_error_count = 0;
 
 	// Compare both phase in Rn[X]
-	for (uint64_t p = 0; p < NBASE; p++) {
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -149,7 +150,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
@@ -165,11 +166,11 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the bivGLWE ciphertext
-  GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed };
-  glwe_secret_masking(module, &glwe_ct, sk_dft, phase);
+	GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+	glwe_secret_masking(module, &glwe_ct, sk_dft, phase);
 
 	// Computes the computed phase in Rn[X]
-  glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
+	glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -179,8 +180,9 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++) {
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -241,11 +243,10 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(double));
 
-
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// The input message uniformly drawn in Zn[X,Y]
 	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
@@ -264,11 +265,11 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
 	// Computes the bivGLWE ciphertext
-  GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
-  glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, phase_dft);
+	GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+	glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, phase_dft);
 
 	// The computed phase in Rn[X]
-  glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
+	glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -278,9 +279,9 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++) {
-
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -343,7 +344,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
-  transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ_RnX
 	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
@@ -362,11 +363,11 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
 	// Computes the bivGLWE ciphertext
-  GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
-  glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, phase_dft);
+	GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+	glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, phase_dft);
 
 	// Computes the computed phase in Rn[X]
-  glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
+	glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -376,9 +377,9 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++) {
-
-    double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 

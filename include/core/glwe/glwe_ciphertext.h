@@ -8,7 +8,7 @@
 typedef struct glwe_ciphertext
 {
 	const GLWECtParams* params;  // bivGLWE parameters
-	VecBiv* vec;           // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
+	VecBiv* vec;                 // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
 /**
@@ -40,7 +40,7 @@ void delete_glwe(GLWECiphertext* glwe);
  * @param module Additionnal information for backend.
  * @param result The result normalized bivGLWE ciphertext.
  * @param glwe The bivGLWE ciphertext.
- * 
+ *
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
@@ -63,18 +63,19 @@ void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECip
  * @param u The Zn[X] polynomial.
  * @param glwe The bivGLWE ciphertext.
  * @param do_normalization The function normalizes the bivGLWE ciphertext if and only if do_normalization = 1.
- * 
+ *
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe, int do_normalization);
+int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe,
+                    int do_normalization);
 
 //! bivGLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft
 {
 	const GLWECtParams* params;  // bivGLWE parameters
-	VecBivDFT* vec;        		 // Vector in the DFT 
+	VecBivDFT* vec;              // Vector in the DFT
 } GLWECiphertextDFT;
 
 /**
@@ -110,7 +111,7 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe);
  * @param module Additionnal information for backend.
  * @param result_dft The result normalized bivGLWE ciphertext in the DFT domain.
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
- * 
+ *
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
@@ -123,7 +124,8 @@ int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, cons
  * @param glwe_lhs_dft The left-hand side bivGLWE ciphertext in the DFT domain.
  * @param glwe_rhs_dft The right-hand side bivGLWE ciphertext in the DFT domain.
  */
-void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_dft, const GLWECiphertextDFT* glwe_rhs_dft);
+void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_dft,
+                  const GLWECiphertextDFT* glwe_rhs_dft);
 
 /**
  * @brief Multiply a bivGLWE ciphertext by a Zn[X] polynomial in the DFT domain.
@@ -133,12 +135,12 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
  * @param u The Zn[X] polynomial.
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
  * @param do_normalization the function normalizes the bivGLWE ciphertext if and only if do_normalization = 1.
- * 
+ *
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u, const GLWECiphertextDFT* glwe_dft,
-                        int do_normalization);
+int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
+                        const GLWECiphertextDFT* glwe_dft, int do_normalization);
 
 //! COMMON PART (begin)
 

@@ -35,10 +35,13 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 {
 	// Setup the max, min values
 	int64_t max, min;
-	if (nb_bits == 8 * sizeof(int64_t)) {
+	if (nb_bits == 8 * sizeof(int64_t))
+	{
 		max = INT64_MAX;
 		min = INT64_MIN;
-	} else {
+	}
+	else
+	{
 		max = (1 << (nb_bits - 1)) - 1;
 		min = -(1 << (nb_bits - 1));
 	}
@@ -49,7 +52,8 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 
 	// Fill the boxes
 	double step = ((double)max - (double)min) / (double)nb_boxes;
-	for (size_t i = 0; i < NB_SAMPLES; i++) {
+	for (size_t i = 0; i < NB_SAMPLES; i++)
+	{
 		int64_t sample = 0;
 		if (rand_uniform(&sample, nb_bits) < 0) return -1;
 
@@ -59,9 +63,12 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 		// But if a generated number is exactly max, a buffer overflow is thrown.
 		// To fix this we include the max value in the last box.
 		int j = 0;
-		for (double v = (double)min; v < (double)max; v += step) {
-			if (j != nb_boxes) {
-				if (sample < v + step) {
+		for (double v = (double)min; v < (double)max; v += step)
+		{
+			if (j != nb_boxes)
+			{
+				if (sample < v + step)
+				{
 					boxes[j]++;
 					break;
 				}
@@ -76,7 +83,8 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 	// Apply Chi squared test
 	double expected = (double)NB_SAMPLES / (double)nb_boxes;  // For a uniform distribution
 	double T        = 0.0;
-	for (int i = 0; i < nb_boxes; i++) {
+	for (int i = 0; i < nb_boxes; i++)
+	{
 		double num = (((double)boxes[i]) - expected);
 		T += (num * num) / expected;
 	}
@@ -91,7 +99,8 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 Test(rand_uniform_64, test_rand_uniform)
 {
 	int count = 0;
-	for (int i = 0; i < 100; i++) {
+	for (int i = 0; i < 100; i++)
+	{
 		int c;
 		if ((c = rand_uniform_aux(64, 100)) < 0) cr_fatal("Error occured during generation");
 		count += c;
@@ -136,7 +145,8 @@ double jarque_bera(const double* x, int n)
 
 	// Compute 2nd, 3rd, 4th moments
 	double m2 = 0.0, m3 = 0.0, m4 = 0.0;
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++)
+	{
 		double d  = x[i] - mean;
 		double d2 = d * d;
 		m2 += d2;
@@ -177,12 +187,14 @@ Test(normal_random_vec, basic)
 {
 	MODULE* module   = pvda_new_module_info(NBASE);
 	double* pol_univ = malloc(NBASE * KBASE * sizeof(double));
-	if (pol_univ == NULL) {
+	if (pol_univ == NULL)
+	{
 		log_perror("malloc");
 		cr_fail();
 	}
 
-	if (normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0) {
+	if (normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0)
+	{
 		log_message(LOG_ERROR, "new_normal_random_vec failedi.");
 		pvda_delete_module_info(module);
 		free(pol_univ);
@@ -197,12 +209,14 @@ Test(uniform_random_vec_dft, basic)
 {
 	MODULE* module       = pvda_new_module_info(NBASE);
 	PolyUnivDFT* res_dft = malloc(NBASE * KBASE * sizeof(double));
-	if (res_dft == NULL) {
+	if (res_dft == NULL)
+	{
 		log_perror("malloc");
 		cr_fail();
 	}
 
-	if (uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0) {
+	if (uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0)
+	{
 		log_message(LOG_ERROR, "uniform_random_vec_znx_dft failed.");
 		pvda_delete_module_info(module);
 		free(res_dft);
@@ -210,7 +224,8 @@ Test(uniform_random_vec_dft, basic)
 	}
 
 	PolyUniv* res = malloc(NBASE * KBASE * sizeof(int64_t));
-	if (res == NULL) {
+	if (res == NULL)
+	{
 		log_perror("malloc");
 		pvda_delete_module_info(module);
 		free(res_dft);

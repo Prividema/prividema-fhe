@@ -1,9 +1,8 @@
 #ifndef TFHE_H
 #define TFHE_H
 
-
-#include "glwe.h"
 #include "ggsw.h"
+#include "glwe.h"
 
 /*
     Implements a homomorphic selection (Mux) operation,
@@ -11,16 +10,9 @@
 
     TODO: finish
 */
-void tfhe_cmux( MODULE* module,
-                GLWECiphertext* res,
-                const GLWECiphertext* c0,
-                const GLWECiphertext* c1,
-                const GGSWCiphertext* sel);
+void tfhe_cmux(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+               const GGSWCiphertext* sel);
 
-void tfhe_blindrotate(  MODULE* module,
-                        GLWECiphertext* res,
-                        const GLWECiphertext*);
-
-
+void tfhe_blindrotate(MODULE* module, GLWECiphertext* res, const GLWECiphertext*);
 
 #endif

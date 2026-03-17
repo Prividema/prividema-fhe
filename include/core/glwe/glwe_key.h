@@ -6,7 +6,7 @@
 //! bivGLWE SECRET KEY STRUCTURES
 /**
  * @brief Structure that represents a bivGLWE secret key
- * 
+ *
  * @param N The degree of the chosen cyclotomic polynomial.
  */
 typedef struct glwe_secret_key
@@ -20,7 +20,7 @@ typedef struct glwe_prep_secret_key
 {
 	uint64_t N;
 	uint64_t k;
-	PolyUnivDFT** values; 
+	PolyUnivDFT** values;
 } GLWESecretKeyDFT;
 
 //! bivGLWE KEY PART (begin)
@@ -54,9 +54,7 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
  */
 void delete_glwe_secret_key(GLWESecretKey* sk);
 
-
 //! bivGLWE IN DFT SPACE PART (begin)
-
 
 /**
  * @brief Creates a GLWE Secret key in the DFT domain.
@@ -67,14 +65,12 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  */
 GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k);
 
-
 /**
  * @brief Delete the secret key that is in the DFT domain.
  *
  * @param sk_dft The secret key in the DFT domain.
  */
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
-
 
 typedef struct glwe_public_key
 {
@@ -83,6 +79,5 @@ typedef struct glwe_public_key
 	int64_t Y;
 	GLWECiphertext** pk;  // vector of Y element (A1,...,Ak, B)
 } GLWEPublicKey;
-
 
 #endif  // GLWE_KEY_H

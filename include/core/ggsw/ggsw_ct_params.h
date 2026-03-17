@@ -11,16 +11,16 @@
 
 /**
  * @struct GGSWCtParams
- * 
+ *
  * @brief GGSW parameters.
  */
 typedef struct ggsw_ct_params
 {
 	/// GLWE Parameters.
 	const GLWECtParams* params_glwe;
-	uint64_t k_tilde; 		// k_tilde = 1 for RGSW (by default k=k_tilde=1)
+	uint64_t k_tilde;  // k_tilde = 1 for RGSW (by default k=k_tilde=1)
 	uint64_t kappa_tilde;
-	uint64_t n_limbs_tilde; // n_limbs_tilde = (k_tilde + 1) * l_tilde.
+	uint64_t n_limbs_tilde;  // n_limbs_tilde = (k_tilde + 1) * l_tilde.
 } GGSWCtParams;
 
 /**
@@ -33,7 +33,8 @@ typedef struct ggsw_ct_params
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
-GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t n_limbs_tilde);
+GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params, uint64_t k_tilde, uint64_t kappa_tilde,
+                                 uint64_t n_limbs_tilde);
 
 /**
  * @brief Deletes a GGSW parameters.
@@ -46,7 +47,7 @@ void delete_ggsw_ct_params(GGSWCtParams* params);
  * @brief Gets the number of partialGGSW in a GGSW.
  *
  * @param params The GGSW parameters.
- * 
+ *
  * @return The number of partialGGSW in a GGSW.
  */
 uint64_t nb_partials(const GGSWCtParams* params);
@@ -55,22 +56,22 @@ uint64_t nb_partials(const GGSWCtParams* params);
  * @brief Gets the number of rows in a partialGGSW.
  *
  * @param params The GGSW parameters.
- * 
+ *
  * @return The number of rows in a partialGGSW.
  */
 uint64_t nb_rows_per_partial(const GGSWCtParams* params);
 
 /**
  * @struct PartialGGSWCtParams
- * 
+ *
  * @brief Partial GGSW Parameters.
  */
 typedef struct partialggsw_ct_params
 {
 	/// GLWE parameters.
-	GLWECtParams* params_glwe;  
-	uint64_t kappa_tilde;       // (2^kappa) = 2^-kappa_tilde.
-	uint64_t l_tilde;           // The precision.
+	GLWECtParams* params_glwe;
+	uint64_t kappa_tilde;  // (2^kappa) = 2^-kappa_tilde.
+	uint64_t l_tilde;      // The precision.
 } PartialGGSWCtParams;
 
 #endif  // bivGGSW_CT_PARAMS_H

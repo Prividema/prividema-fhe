@@ -1,12 +1,12 @@
 #include "ggsw.h"
-#include "glwe.h"
 
 #include <stdint.h>
 #include <string.h>
 
+#include "glwe.h"
 #include "glwe_ciphertext.h"
-#include "glwe_key.h"
 #include "glwe_ct_params.h"
+#include "glwe_key.h"
 #include "logger.h"
 #include "math.h"
 #include "rng.h"
@@ -19,12 +19,12 @@ int add_bivariate_error(const MODULE* module, const GLWECtParams* params_glwe, P
 {
 	int status = -1;
 
-	// Variables 
+	// Variables
 	PolyBiv* err = NULL;
 
 	// Draw a random error
 	err = new_biv_poly(params_glwe);
-    CHECK_ALLOC(err, "new_biv_poly failed in add_error");
+	CHECK_ALLOC(err, "new_biv_poly failed in add_error");
 	CHECK_CALL(normal_random_biv_poly(params_glwe, err), "normal_random_biv_poly failed in add_error");
 
 	// Add the error in the DFT domain
@@ -54,7 +54,7 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
-	PolyUnivDFT* m_univ_dft   = NULL;  // DFT(msg)
+	PolyUnivDFT* m_univ_dft     = NULL;  // DFT(msg)
 	PolyUnivDFT* m_skj_univ_dft = NULL;  // DFT(msg * sk_j)
 	PolyUniv* m_skj_univ        = NULL;  // -msg * sk_j
 
@@ -78,7 +78,7 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 
 	// Computes DFT(msg)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
-  
+
 	for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
 	{
 		for (uint64_t j = 0; j < k_tilde + 1; j++)
@@ -112,11 +112,11 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 				           "add_error failed in compute_phase_ij");
 			}
 			// Get the pointer for the result position
-			VecBiv* glwe_vec = ggsw_retreive_bivglwe(params_ggsw, result->mat, j, i);
-      GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
+			VecBiv* glwe_vec       = ggsw_retreive_bivglwe(params_ggsw, result->mat, j, i);
+			GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 			//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
-      CHECK_CALL(glwe_secret_masking(module, &glwe_ct, sk_dft, glwe_biv_msg),
+			CHECK_CALL(glwe_secret_masking(module, &glwe_ct, sk_dft, glwe_biv_msg),
 			           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
 		}
 	}
@@ -151,9 +151,9 @@ int ggsw_external_product(const MODULE* module,
 	uint64_t nrows = ggsw->params->n_limbs_tilde;
 	uint64_t ncols = ggsw->params->params_glwe->n_limbs;
 
-	// Variables 
-	MatBivDFT* ggsw_pmat = NULL; // Prepared bivGGSW ciphertext
-	VecBivDFT* result_dft = NULL; // ExternalProduct(glwe, ggsw)
+	// Variables
+	MatBivDFT* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
+	VecBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
 
 	ggsw_pmat = malloc(ggsw_bytes(ggsw->params));
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
@@ -162,16 +162,16 @@ int ggsw_external_product(const MODULE* module,
 	CHECK_ALLOC(result_dft, "result's malloc failed in ggsw_external_product");
 
 	// Prepares bivGGSW ciphertext
-	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols), 
-		"vmp_prepare_contiguous_p failed in ggsw_external_product");
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols),
+	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
 	// Computes ExternalProduct(glwe, ggsw)
 	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, nrows, N, ggsw_pmat, nrows, ncols),
-		"vmp_apply_dft_p failed in ggsw_external_product");
+	           "vmp_apply_dft_p failed in ggsw_external_product");
 
 	// Computes the bivGGSW ciphertext out of the DFT domain
-	CHECK_CALL(pvda_vec_znx_idft(module, result->vec, ncols, result_dft, ncols), 
-		"vec_znx_idft_p failed in ggsw_external_product");
+	CHECK_CALL(pvda_vec_znx_idft(module, result->vec, ncols, result_dft, ncols),
+	           "vec_znx_idft_p failed in ggsw_external_product");
 
 	status = 0;
 
@@ -200,13 +200,13 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
-	PolyUnivDFT* m_univ_dft = NULL;   // DFT(msg)
-	PolyUnivDFT* m_skj_univ_dft = NULL; // DFT(msg * sk_j)
-	PolyUniv* m_skj_univ = NULL;        // -m*sk_j
+	PolyUnivDFT* m_univ_dft     = NULL;  // DFT(msg)
+	PolyUnivDFT* m_skj_univ_dft = NULL;  // DFT(msg * sk_j)
+	PolyUniv* m_skj_univ        = NULL;  // -m*sk_j
 
-	double* msk_univ_RnX = NULL;  // Temp space for -m * sk_j / 2^{...} (as univariate)
-	PolyBiv* glwe_biv_msg = NULL; // Temp space for -m * sk_j / 2^{...} (as bivariate)
-	PolyBivDFT* glwe_biv_msg_dft = NULL; // We'll store DFT(-m * sk_j / 2^{kappa_tilde*i})
+	double* msk_univ_RnX         = NULL;  // Temp space for -m * sk_j / 2^{...} (as univariate)
+	PolyBiv* glwe_biv_msg        = NULL;  // Temp space for -m * sk_j / 2^{...} (as bivariate)
+	PolyBivDFT* glwe_biv_msg_dft = NULL;  // We'll store DFT(-m * sk_j / 2^{kappa_tilde*i})
 
 	m_univ_dft = malloc(poly_univ_bytes(params_glwe));
 	CHECK_ALLOC(m_univ_dft, "m_univ_dft's malloc failed");
@@ -232,42 +232,45 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
 			//           Dec_Kappa(m / 2^{kappa_tilde*i}) + err,         if j = k
 			// The precision of the decomposition is l
 
-      if (j < k)
-      {
-        // Computes DFT(msg * sk_j)
-        mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, m_univ_dft, 1);
+			if (j < k)
+			{
+				// Computes DFT(msg * sk_j)
+				mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, m_univ_dft, 1);
 
-        // Computes -DFT(msg * sk_j)
-        // TODO: study if accelerable using AVX, do we need it in spqlios?
-        for (uint64_t p = 0; p < N; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
+				// Computes -DFT(msg * sk_j)
+				// TODO: study if accelerable using AVX, do we need it in spqlios?
+				for (uint64_t p = 0; p < N; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 
-        // Inverse DFT to retreive -msg * sk_j
-        CHECK_CALL(pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1), "vec_znx_idft_p failed in compute_phase_ij_dft");
-      }
-      for (uint64_t p = 0; p < N; p++)
-        msk_univ_RnX[p] = ldexp( (j == k) ? (double)m_univ[p] : m_skj_univ[p], -params_ggsw->kappa_tilde * i);
+				// Inverse DFT to retreive -msg * sk_j
+				CHECK_CALL(pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1),
+				           "vec_znx_idft_p failed in compute_phase_ij_dft");
+			}
+			for (uint64_t p = 0; p < N; p++)
+				msk_univ_RnX[p] = ldexp((j == k) ? (double)m_univ[p] : m_skj_univ[p], -params_ggsw->kappa_tilde * i);
 
-      // Convert the result to a bivariate (base-2k) polynomial
-      CHECK_CALL(univ_to_biv(params_glwe, glwe_biv_msg, msk_univ_RnX), "univ_to_biv failed in compute_phase_ij_dft");
+			// Convert the result to a bivariate (base-2k) polynomial
+			CHECK_CALL(univ_to_biv(params_glwe, glwe_biv_msg, msk_univ_RnX),
+			           "univ_to_biv failed in compute_phase_ij_dft");
 
-      // Adds the error to get Dec_Kappa(m / 2^{kappa_tilde*}) + err
-      // or                    Dec_Kappa(-m * sk_j / 2^{kappa_tilde*i}) + err
-      CHECK_CALL(add_bivariate_error(module, params_glwe, glwe_biv_msg, glwe_biv_msg), "add_error failed in compute_phase_ij_dft");
+			// Adds the error to get Dec_Kappa(m / 2^{kappa_tilde*}) + err
+			// or                    Dec_Kappa(-m * sk_j / 2^{kappa_tilde*i}) + err
+			CHECK_CALL(add_bivariate_error(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+			           "add_error failed in compute_phase_ij_dft");
 
-      // Permorm DFT to get the result in the DFT domain
-      pvda_vec_znx_dft(module, glwe_biv_msg_dft, poly_biv_size(params_glwe), glwe_biv_msg, poly_biv_size(params_glwe), N);
+			// Permorm DFT to get the result in the DFT domain
+			pvda_vec_znx_dft(module, glwe_biv_msg_dft, poly_biv_size(params_glwe), glwe_biv_msg,
+			                 poly_biv_size(params_glwe), N);
 
-      // Result destination
-      VecBivDFT* glwe_vec_dft = ggsw_retreive_bivglwe_dft(params_ggsw, result_dft->mat, j, i);
+			// Result destination
+			VecBivDFT* glwe_vec_dft = ggsw_retreive_bivglwe_dft(params_ggsw, result_dft->mat, j, i);
 
-      // Finally, mask/encrypt the above result to get a bivGLWE
-      
-      GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_dft};
-      CHECK_CALL(glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, glwe_biv_msg_dft),
-            "glwe_secret_masking_dft failed in ggsw_secret_encrypt_dft");
+			// Finally, mask/encrypt the above result to get a bivGLWE
 
-        }
-      }
+			GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_dft};
+			CHECK_CALL(glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, glwe_biv_msg_dft),
+			           "glwe_secret_masking_dft failed in ggsw_secret_encrypt_dft");
+		}
+	}
 
 	status = 0;
 
@@ -301,27 +304,28 @@ int ggsw_external_product_dft(const MODULE* module,
 	uint64_t ncols = ggsw_dft->params->params_glwe->n_limbs;
 
 	// Variables
-	MatBiv* ggsw_mat = NULL;
+	MatBiv* ggsw_mat     = NULL;
 	MatBivDFT* ggsw_pmat = NULL;
 
 	// Point to the bivGGSW ciphertext out of the DFT domain
 	ggsw_mat = malloc(ggsw_bytes(ggsw_dft->params));
 	CHECK_ALLOC(ggsw_mat, "mat's malloc failed in ggsw_external_product_dft");
-	
+
 	// Computes the bivGGSW ciphertext out of the DFT domain
-	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, nrows * ncols, ggsw_dft->mat, nrows * ncols),"vec_znx_idft_p failed in ggsw_external_product_dft");
+	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, nrows * ncols, ggsw_dft->mat, nrows * ncols),
+	           "vec_znx_idft_p failed in ggsw_external_product_dft");
 
 	// Point to the bivGGSW ciphertext in the DFT domain
 	ggsw_pmat = malloc(ggsw_bytes(ggsw_dft->params));
 	CHECK_ALLOC(ggsw_pmat, "pmat's malloc failed in ggsw_external_product_dft");
 
 	// Prepares the bivGGSW ciphertext in the DFT domain
-	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw_mat, nrows, ncols), "vmp_prepare_contiguous_p failed in ggsw_external_product_dft");
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw_mat, nrows, ncols),
+	           "vmp_prepare_contiguous_p failed in ggsw_external_product_dft");
 
 	// Computes ExternalProduct(glwe, ggsw)
-	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols, glwe_dft->vec, nrows, ggsw_pmat, nrows, ncols), 
-			  "vmp_apply_dft_to_dft_p failed in ggsw_external_product_dft");
-
+	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols, glwe_dft->vec, nrows, ggsw_pmat, nrows, ncols),
+	           "vmp_apply_dft_to_dft_p failed in ggsw_external_product_dft");
 
 	status = 0;
 

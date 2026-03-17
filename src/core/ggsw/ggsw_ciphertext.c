@@ -4,8 +4,8 @@
 
 #include "glwe_ciphertext.h"
 #include "logger.h"
-#include "utils.h"
 #include "spqlios_alias.h"
+#include "utils.h"
 #include "vec_znx_arithmetic_private.h"
 
 //! bivGGSW Part (begin)
@@ -19,24 +19,24 @@ GGSWCiphertext* new_ggsw(const GGSWCtParams* params_ggsw)
 {
 	// The bivGGSW does not own the GGSWCtParams
 	GGSWCiphertext* ggsw = malloc(sizeof(GGSWCiphertext));
-  CHECK_ALLOC(ggsw, "malloc in new_ggsw");
+	CHECK_ALLOC(ggsw, "malloc in new_ggsw");
 
 	ggsw->params = params_ggsw;
 
 	// Initialize the bivGGSW ciphertext with 0s'
 	ggsw->mat = calloc(ggsw_coef_number(params_ggsw), sizeof(int64_t));
-  CHECK_ALLOC(ggsw->mat, "calloc in new_ggsw");
+	CHECK_ALLOC(ggsw->mat, "calloc in new_ggsw");
 
 	return ggsw;
 cleanup:
 
-  free(ggsw);
-  return NULL;
+	free(ggsw);
+	return NULL;
 }
 
 void delete_ggsw(GGSWCiphertext* ggsw)
 {
-  if (!ggsw) return;
+	if (!ggsw) return;
 	free(ggsw->mat);
 	free(ggsw);
 }
@@ -81,12 +81,13 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 			// The pointer to biGLWE(-m * sk_j * Y^i)
 			// VecBiv* res_glwe = ggsw_Sj_Yti(params_ggsw, res->mat, j, i);
 			VecBiv* result_glwe_vec = ggsw_retreive_bivglwe(params_ggsw, result->mat, j, i);
-			const VecBiv* ct_glwe = ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i);
+			const VecBiv* ct_glwe   = ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i);
 
 			// Normalize the k+1 bivGLWE's elements
 			for (uint64_t t = 0; t < k + 1; t++)
-				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result_glwe_vec + t * N, l, (k + 1) * N, result_glwe_vec + t * N, l,
-				                           (k + 1) * N), "vec_znx_normalize_base2k_p failed in normalize_ggsw");
+				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result_glwe_vec + t * N, l, (k + 1) * N,
+				                                         result_glwe_vec + t * N, l, (k + 1) * N),
+				           "vec_znx_normalize_base2k_p failed in normalize_ggsw");
 		}
 
 	status = 0;
@@ -98,8 +99,7 @@ cleanup:
 
 void add_ggsw(GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs)
 {
-	for (uint64_t t = 0; t < ggsw_coef_number(res->params); t++) 
-		res->mat[t] = ggsw_lhs->mat[t] + ggsw_rhs->mat[t];
+	for (uint64_t t = 0; t < ggsw_coef_number(res->params); t++) res->mat[t] = ggsw_lhs->mat[t] + ggsw_rhs->mat[t];
 }
 
 int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft,
@@ -128,7 +128,8 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	pvda_svp_apply_dft(module, ggsw_mat_dft, mat_size, u_dft, ggsw->mat, mat_size, N);
 
 	// Go back to Zn[X,Y]
-	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_mat_dft, mat_size), "vec_znx_idft_p failed in const_mult_ggsw");
+	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_mat_dft, mat_size),
+	           "vec_znx_idft_p failed in const_mult_ggsw");
 
 	// Normalization
 	if (do_normalization)
@@ -138,15 +139,16 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 				// The pointer to biGLWE(-m * sk_j / (2^{kappa_tilde}^i))
 				VecBiv* glwe_vec = ggsw_retreive_bivglwe(result->params, result->mat, j, i);
 				for (uint64_t t = 0; t < k + 1; t++)
-					CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, glwe_vec + t * N, l, N * (k + 1),
-					                           glwe_vec + t * N, l, N * (k + 1)), "vec_znx_normalize_base2k_p failed in const_mult_ggsw");
+					CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, glwe_vec + t * N, l,
+					                                         N * (k + 1), glwe_vec + t * N, l, N * (k + 1)),
+					           "vec_znx_normalize_base2k_p failed in const_mult_ggsw");
 			}
 
 	status = 0;
 
 cleanup:
 	free(ggsw_mat_dft);
-	
+
 	return status;
 }
 
@@ -160,23 +162,23 @@ uint64_t ggsw_coef_number_dft(const GGSWCtParams* params_ggsw)
 GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params_ggsw)
 {
 	GGSWCiphertextDFT* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextDFT));
-  CHECK_ALLOC(ggsw_mat_dft,"malloc in new_ggsw_dft");
+	CHECK_ALLOC(ggsw_mat_dft, "malloc in new_ggsw_dft");
 
 	ggsw_mat_dft->params = params_ggsw;
 
 	// Initializes  the bivGGSW ciphertext with Os'
 	ggsw_mat_dft->mat = calloc(2 * ggsw_coef_number_dft(params_ggsw), sizeof(double));
-  CHECK_ALLOC(ggsw_mat_dft->mat, "calloc in new_ggsw_dft");
+	CHECK_ALLOC(ggsw_mat_dft->mat, "calloc in new_ggsw_dft");
 
 	return ggsw_mat_dft;
 cleanup:
-  free(ggsw_mat_dft);
-  return NULL;
+	free(ggsw_mat_dft);
+	return NULL;
 }
 
 void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
 {
-  if (!ggsw_dft) return;
+	if (!ggsw_dft) return;
 	free(ggsw_dft->mat);
 	free(ggsw_dft);
 }
@@ -196,7 +198,7 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, cons
 {
 	int status = -1;
 
-	// Variables 
+	// Variables
 	MatBiv* ggsw_mat = NULL;
 
 	// bivGGSW parameters
@@ -221,8 +223,8 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, cons
 	CHECK_ALLOC(ggsw_mat, "malloc in normalize_ggsw_dft");
 
 	// Computes the bivGGSW ciphertext out of the DFT domain
-	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw)), 
-		"vec_znx_idft_p failed in noramlize_ggsw_dft");
+	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw)),
+	           "vec_znx_idft_p failed in noramlize_ggsw_dft");
 
 	// Normalization of the bivGGSW ciphertext
 	for (uint64_t i = 1; i <= nb_partial; i++)
@@ -233,8 +235,9 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, cons
 
 			// Normalize ct
 			for (uint64_t t = 0; t < k + 1; t++)
-				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, glwe_vec + t * N, l, (k + 1) * N, glwe_vec + t * N, l,
-				                           (k + 1) * N), "vec_normalize_base2k_p failed in normalize_ggsw_dft");
+				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, glwe_vec + t * N, l, (k + 1) * N,
+				                                         glwe_vec + t * N, l, (k + 1) * N),
+				           "vec_normalize_base2k_p failed in normalize_ggsw_dft");
 		}
 
 	// Computes the bivGGSW ciphertext's matrix in the DFT domain.
@@ -244,13 +247,14 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, cons
 
 cleanup:
 	free(ggsw_mat);
-	
+
 	return status;
 }
 
-void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_lhs_dft, const GGSWCiphertextDFT* ggsw_rhs_dft)
+void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_lhs_dft,
+                  const GGSWCiphertextDFT* ggsw_rhs_dft)
 {
-	for (uint64_t t = 0; t < ggsw_coef_number(result_dft->params); t++) 
+	for (uint64_t t = 0; t < ggsw_coef_number(result_dft->params); t++)
 		result_dft->mat[t] = ggsw_lhs_dft->mat[t] + ggsw_rhs_dft->mat[t];
 }
 
@@ -259,7 +263,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 {
 	int status = -1;
 
-	// Variables 
+	// Variables
 	MatBiv* ggsw_mat = NULL;
 
 	// bivGGSW & bivGLWEparams
@@ -276,8 +280,9 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	CHECK_ALLOC(ggsw_mat, "malloc in const_mult_ggsw_dft");
 
 	// Computes ggsw_mat = iDFT(ggsw_mat_dft). Then computes :
-	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, ggsw_dft->mat, mat_size), "vec_znx_idft_p failed in const_mult_ggsw_dft");
-	
+	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, ggsw_dft->mat, mat_size),
+	           "vec_znx_idft_p failed in const_mult_ggsw_dft");
+
 	// Computes result_mat_dft = DFT(u) * DFT(iDFT(ggsw_mat_dft))) = DFT(u) * ggsw_mat_dft
 	pvda_svp_apply_dft(module, result_dft->mat, mat_size, u_dft, ggsw_mat, mat_size, N);
 
@@ -285,7 +290,8 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	if (do_normalization)
 	{
 		// Computes ggsw_mat = u * iDFT(ggsw_mat_dft)
-		CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, result_dft->mat, mat_size), "vec_znx_idft_p failed in const_mult_ggsw_dft");
+		CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, result_dft->mat, mat_size),
+		           "vec_znx_idft_p failed in const_mult_ggsw_dft");
 
 		for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
 			for (uint64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++)
@@ -294,8 +300,9 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 				VecBiv* glwe_vec = ggsw_retreive_bivglwe(params_ggsw, ggsw_mat, j, i);
 				// Normalize the k+1 bivGLWE's elements
 				for (uint64_t t = 0; t < k + 1; t++)
-					CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, glwe_vec + t * N, l, N * (k + 1),
-					                           glwe_vec + t * N, l, N * (k + 1)), "vec_normalize_base2k_p failed in const_mult_ggsw_dft");
+					CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, glwe_vec + t * N, l,
+					                                         N * (k + 1), glwe_vec + t * N, l, N * (k + 1)),
+					           "vec_normalize_base2k_p failed in const_mult_ggsw_dft");
 			}
 		// Go back to the DFT domain
 		pvda_vec_znx_dft(module, result_dft->mat, mat_size, ggsw_mat, mat_size, N);
@@ -305,13 +312,16 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 
 cleanup:
 	free(ggsw_mat);
-	
+
 	return status;
 }
 
 //! COMMON PART (begin)
 
-uint64_t ggsw_size(const GGSWCtParams* params_ggsw) { return params_ggsw->n_limbs_tilde * params_ggsw->params_glwe->n_limbs; }
+uint64_t ggsw_size(const GGSWCtParams* params_ggsw)
+{
+	return params_ggsw->n_limbs_tilde * params_ggsw->params_glwe->n_limbs;
+}
 
 uint64_t ggsw_bytes(const GGSWCtParams* params_ggsw)
 {

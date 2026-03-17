@@ -4,9 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utils.h"
 #include "logger.h"
 #include "spqlios_alias.h"
+#include "utils.h"
 
 #ifdef _WIN32
 #define _USE_MATH_DEFINES
@@ -58,7 +58,7 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 	// As result points to an uint64_t  nb_bits shall not exceed its size
 	if (nb_bits > 8 * sizeof(int64_t))
 		return log_message(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits,
-		               8 * sizeof(int64_t));
+		                   8 * sizeof(int64_t));
 
 	// Generate a random int64_t
 	// r is in the interval [0, uint64_MAX]
@@ -72,7 +72,8 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 	// We bring r into the inteval [0, 2^nb_bits) with a modulo
 	// that is equivalent to truncating bits so we keep the cryptosafe property.
 	// Then we apply an offset to get a result in [-2^(nb_bits-1), 2^(nb_bits-1))
-	else {
+	else
+	{
 		// Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
 		// As r is still an unsigned int, it is now in [0, p)
 		uint64_t p = (1 << nb_bits);
@@ -116,29 +117,28 @@ int rand_normal(double* result, double mu, double sigma)
 {
 	// Generate a uniform number in [0, 2^64]
 	uint64_t uniform;
-  CHECK_CALL(read_rand(&uniform), "Rng failed in rand_normal");
+	CHECK_CALL(read_rand(&uniform), "Rng failed in rand_normal");
 
 	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
-	double U = ((double) uniform) / ((double)UINT64_MAX);
+	double U = ((double)uniform) / ((double)UINT64_MAX);
 
 	// Compute Z the inverse CDF of the normal distribution applied to U.
 	double Z = sqrt(2.0) * erfinv(2.0 * U - 1.0);
 
 	// Scale and Shift with mu and sigma.
 	// Z follows a normal distribution in (0,1)
-  // Thus result will follow (mu, sigma)
+	// Thus result will follow (mu, sigma)
 	*result = mu + sigma * Z;
 
 	return 0;
 cleanup:
-  return -1;
+	return -1;
 }
 
 int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
 {
-	for(uint64_t p = 0 ; p < N ; p++)
-		if(rand_uniform(res + p, nb_bits) < 0)
-			return log_message(LOG_ERROR, "uniform_random_pol_znx failed");
+	for (uint64_t p = 0; p < N; p++)
+		if (rand_uniform(res + p, nb_bits) < 0) return log_message(LOG_ERROR, "uniform_random_pol_znx failed");
 	return 0;
 }
 
@@ -146,7 +146,7 @@ int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
 		for (uint64_t j = 0; j < limb_len; j++)
-			if (rand_uniform(res + i * res_sl + j, nb_bits) < 0) 
+			if (rand_uniform(res + i * res_sl + j, nb_bits) < 0)
 				return log_message(LOG_ERROR, "uniform_random_vec failed");
 	return 0;
 }
@@ -161,19 +161,19 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 	// The degree of the cyclotomic polynomial
 	uint64_t N = module->nn;
 
-	// Pointer to a uniformly drawn Zn[X] vector of size = vec_size 
+	// Pointer to a uniformly drawn Zn[X] vector of size = vec_size
 	tmp_space = malloc(N * vec_size * sizeof(int64_t));
 	CHECK_ALLOC(tmp_space, "malloc in new_uniform_random_vec_znx_dft");
-	
+
 	// Draws uniformly in Zn[X] the vector elements
 	for (int i = 0; i < vec_size; i++)
 		for (int p = 0; p < N; p++)
-			CHECK_CALL(rand_uniform(tmp_space + i * N + p, nb_bits), 
-					  "rand_uniform failed in uniform_random_vec_znx_dft");
+			CHECK_CALL(rand_uniform(tmp_space + i * N + p, nb_bits),
+			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
 	pvda_vec_znx_dft(module, result_dft, vec_size, tmp_space, vec_size, N);
-	
+
 	status = 0;
 
 cleanup:
@@ -186,10 +186,9 @@ int normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t 
 {
 	for (int i = 0; i < res_size; i++)
 		for (int j = 0; j < limb_len; j++)
-				CHECK_CALL(rand_normal(res + (i * res_sl) + j, mu, sigma),
-               "normal_random_vec failed");
+			CHECK_CALL(rand_normal(res + (i * res_sl) + j, mu, sigma), "normal_random_vec failed");
 
 	return 0;
 cleanup:
-  return -1;
+	return -1;
 }
