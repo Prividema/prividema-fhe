@@ -153,7 +153,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ
-	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
+	normal_random_vec(m_univ_RnX, NBASE, 0.0, 0.1);
 
 	// Draws normaly the error
 	normal_random_biv_poly(params_glwe, err);
@@ -347,7 +347,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ_RnX
-	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
+	normal_random_vec(m_univ_RnX, NBASE, 0.0, 0.1);
 
 	// Draws normaly the error
 	normal_random_biv_poly(params_glwe, err);

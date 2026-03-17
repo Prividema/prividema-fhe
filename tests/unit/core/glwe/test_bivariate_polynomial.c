@@ -154,7 +154,7 @@ Test(univ_to_biv, basic)
 	PolyBiv* pol_computed = malloc(poly_biv_bytes(params_glwe));
 
 	// Draws normaly pol_univ in Rn[X]
-	normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+	normal_random_vec(pol_univ, NBASE, 0.0, 1e-2);
 
 	// Computes pol_univ's base-2KAPPABASE normalized decomposition
 	univ_to_biv(params_glwe, pol_computed, pol_univ);
@@ -197,7 +197,7 @@ Test(univ_to_biv, maths_test)
 	double* pol_univ_computed = calloc(poly_univ_bytes(params_glwe), 1);
 
 	// Draw pol_univ normaly in Rn[X]
-	normal_random_vec(NBASE, pol_univ, 1, NBASE, 0.0, 1e-2);
+	normal_random_vec(pol_univ, NBASE, 0.0, 1e-2);
 
 	// Computes pol_univ's base-2KAPPABASE decomposition
 	univ_to_biv(params_glwe, pol_computed, pol_univ);

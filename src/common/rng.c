@@ -182,11 +182,9 @@ cleanup:
 	return status;
 }
 
-int normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma)
+int normal_random_vec(double* res, int64_t res_size, double mu, double sigma)
 {
-	for (int i = 0; i < res_size; i++)
-		for (int j = 0; j < limb_len; j++)
-			CHECK_CALL(rand_normal(res + (i * res_sl) + j, mu, sigma), "normal_random_vec failed");
+	for (int i = 0; i < res_size; i++) CHECK_CALL(rand_normal(res + i, mu, sigma), "normal_random_vec failed");
 
 	return 0;
 cleanup:
