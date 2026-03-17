@@ -3,17 +3,6 @@
 
 #include "glwe_ciphertext.h"
 
-// TODO : To be Defined (spqlios).
-/**
- * @brief obtain a info for:
- *  - the dimension N (or the complex dimension m=N/2)
- *  - any moduleuted fft or ntt items
- *  - the hardware (avx, arm64, x86, ...)
- */
-typedef struct core
-{
-} Core;
-
 //! bivGLWE SECRET KEY STRUCTURES
 /**
  * @brief Structure that represents a bivGLWE secret key
@@ -95,10 +84,5 @@ typedef struct glwe_public_key
 	GLWECiphertext** pk;  // vector of Y element (A1,...,Ak, B)
 } GLWEPublicKey;
 
-// generation secret key
-void glwe_secret_key_gen(const Core* core, uint64_t lambda, GLWESecretKey* s);
-
-// generation public key
-void glwe_public_key_gen(const Core* core, uint64_t lambda, GLWESecretKey* s, GLWEPublicKey* pk);
 
 #endif  // GLWE_KEY_H

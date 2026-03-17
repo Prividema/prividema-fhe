@@ -3,14 +3,6 @@
 
 #include "glwe_key.h"
 
-// tnx element R[X] mod X^N+1 mod 1
-typedef struct tnx_element
-{
-	uint64_t N;
-	uint64_t kappa;
-	uint64_t nb_limbs;
-	double* coeffs;
-} TNXElement;
 
 //! bivGLWE PART (begin)
 /**
@@ -87,4 +79,4 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
  */
 int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const GLWECiphertextDFT* glwe_dft);
 
-#endif  // bivGLWE_H
+#endif

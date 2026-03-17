@@ -10,7 +10,7 @@
  * @brief Returns the number of coefficient in bivariate polynomial.
  *
  * @param params_glwe The bivGLWE parameters.
- * @return int64_t
+ * @return uint64_t
  *
  * @note The number of coefficient is the same in and out of the DFT domain.
  */
@@ -42,7 +42,7 @@ int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result);
  * @brief Computes a random uniform bivariate polynomial.
  *
  * By "random uniform" it is meant that the coefficients of the polynomial before 
- * the base-2k decomposition have been sampled from a  distribution according
+ * the base-2k decomposition have been sampled from a distribution according
  * to the parameters
  *
  * @param params_glwe The bivGLWE parameters.
@@ -73,7 +73,7 @@ void add_biv_poly(const GLWECtParams* params_glwe, PolyBiv* res, int64_t res_sl,
  * @brief The number of coefficient in bivariate polynomial.
  *
  * @param params_glwe The bivGLWE parameters.
- * @return int64_t
+ * @return uint64_t
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
@@ -137,9 +137,7 @@ void add_biv_poly_dft(const GLWECtParams* params_glwe, PolyBivDFT* res_dft, int6
  */
 uint64_t poly_biv_bytes(const GLWECtParams* params_glwe);
 
-// TODO modifie size partout
 /**
- *
  * @brief Returns the size - the number l of Zn[X] coefficients - for a bivariate polynomial.
  *
  * @param params_glwe
