@@ -61,9 +61,8 @@ int uniform_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result, in
 
 	for (uint64_t i = 1; i <= precision; i++)
 		for (uint64_t p = 0; p < params_glwe->N; p++)
-			if (rand_uniform(result + (i - 1) * params_glwe->N + p, params_glwe->kappa),
-			    "rand_uniform failed in uniform_random_biv_poly.")
-				;
+			CHECK_CALL(rand_uniform(result + (i - 1) * params_glwe->N + p, params_glwe->kappa),
+			    "rand_uniform failed in uniform_random_biv_poly.");
 
 	status = 0;
 
