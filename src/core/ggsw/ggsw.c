@@ -38,25 +38,6 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result,
-                                   const GLWESecretKeyDFT* sk_dft, const VecBiv* glwe_vec)
-{
-  GLWECiphertext ct;
-  ct.params = params_glwe;
-  ct.vec = glwe_vec;
-  return glwe_secret_demasking(module, result, sk_dft, &ct);
-}
-
-int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, VecBiv* result,
-                                 const GLWESecretKeyDFT* sk_dft, const PolyBiv* phase)
-{
-  GLWECiphertext ct;
-  ct.params = params_glwe;
-  ct.vec = result;
-  return glwe_secret_masking(module, &ct, sk_dft, phase);
-}
-
-
 int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertext* result,
                         const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ)
 {
@@ -97,7 +78,7 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 
 	// Computes DFT(msg)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
-
+  
 	for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
 	{
 		for (uint64_t j = 0; j < k_tilde + 1; j++)
@@ -132,9 +113,10 @@ int ggsw_secret_encrypt(const MODULE* module, const GGSWCtParams* params_ggsw, G
 			}
 			// Get the pointer for the result position
 			VecBiv* glwe_vec = ggsw_retreive_bivglwe(params_ggsw, result->mat, j, i);
+      GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 			//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
-			CHECK_CALL(glwe_secret_masking_ggsw_lib(module, params_glwe, glwe_vec, sk_dft, glwe_biv_msg),
+      CHECK_CALL(glwe_secret_masking(module, &glwe_ct, sk_dft, glwe_biv_msg),
 			           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
 		}
 	}
@@ -203,40 +185,6 @@ cleanup:
 }
 
 //! bivGGSW IN DFT PART (begin)
-
-int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result,
-                                       const GLWESecretKeyDFT* sk_dft, const VecBivDFT* glwe_vec_dft)
-{
-	int status = -1;
-
-	// Point to the bivGLWE ciphertext out of the DFT domain
-	VecBiv* glwe_vec = malloc(glwe_bytes(params_glwe));
-	CHECK_ALLOC(glwe_vec, "glwe_vec's malloc failed in glwe_secret_demasking_ggsw_lib_dft");
-
-	// Computes the bivGLWE ciphertext out of the DFT domain
-	CHECK_CALL(pvda_vec_znx_idft(module, glwe_vec, glwe_size(params_glwe), glwe_vec_dft, glwe_size(params_glwe)),
-		"vec_znx_idft_p failed in glwe_secret_demasking_ggsw_lib_dft");
-
-	// Computes the phase in Zn[X,Y]
-	CHECK_CALL(glwe_secret_demasking_ggsw_lib(module, params_glwe, result, sk_dft, glwe_vec), 
-		"glwe_secret_demasking_ggsw_lib failed glwe_secret_demasking_ggsw_lib_dft");
-
-	status = 0;
-
-cleanup:
-	free(glwe_vec);
-	
-	return 0;
-}
-
-int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, VecBivDFT* result_dft,
-                                     const GLWESecretKeyDFT* sk_dft, const PolyBivDFT* phase_dft)
-{
-  GLWECiphertextDFT ct;
-  ct.params = params_glwe;
-  ct.vec = result_dft;
-  return glwe_secret_masking_dft(module, &ct, sk_dft,phase_dft);
-}
 
 int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggsw, GGSWCiphertextDFT* result_dft,
                             const GLWESecretKeyDFT* sk_dft, const PolyUniv* m_univ)
@@ -315,8 +263,11 @@ int ggsw_secret_encrypt_dft(const MODULE* module, const GGSWCtParams* params_ggs
       VecBivDFT* glwe_vec_dft = ggsw_retreive_bivglwe_dft(params_ggsw, result_dft->mat, j, i);
 
       // Finally, mask/encrypt the above result to get a bivGLWE
-      CHECK_CALL(glwe_secret_masking_ggsw_lib_dft(module, params_glwe, glwe_vec_dft, sk_dft, glwe_biv_msg_dft),
-            "glwe_secret_masking_ggsw_lib_dft failed in ggsw_secret_encrypt_dft");
+      
+      GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_dft};
+      CHECK_CALL(glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, glwe_biv_msg_dft),
+            "glwe_secret_masking_dft failed in ggsw_secret_encrypt_dft");
+
         }
       }
 

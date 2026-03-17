@@ -3,7 +3,9 @@
 #include <stdio.h>
 
 #include "core/ggsw/ggsw.h"
+#include "core/glwe/glwe.h"
 #include "ggsw_ciphertext.h"
+#include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
@@ -88,7 +90,8 @@ Test(ggsw_secret_encrypt, works)
 			memcpy(glwe_vec_computed, ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
-			glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed);
+      GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+      glwe_secret_demasking(module, phase_computed, sk_dft,&glwe_ct);
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
 			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -146,7 +149,8 @@ Test(ggsw_secret_encrypt, works)
 		memcpy(glwe_vec_computed, ggsw->mat + row_i_ktilde * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
 
 		// Computes the phase = m / 2^{kappa_tilde * i} + err
-		glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed);
+    GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+    glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 		// Computes the phase in Tn[X]
 		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -260,7 +264,8 @@ Test(ggsw_secret_encrypt_dft, works)
 			memcpy(glwe_vec_computed_dft, ggsw_retreive_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
-			glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed_dft);
+      GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+      glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
 			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -318,7 +323,8 @@ Test(ggsw_secret_encrypt_dft, works)
 		memcpy(glwe_vec_computed_dft, ggsw_dft->mat + row_i_ktilde * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
 
 		// Computes the phase = m / 2^kappa_tilde + err
-		glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed_dft);
+    GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+    glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 		// Computes the phase in Rn[X]
 		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);

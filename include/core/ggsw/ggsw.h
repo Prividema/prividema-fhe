@@ -5,37 +5,7 @@
 #include "glwe_key.h"
 #include "spqlios_alias.h"
 
-/**
- * TODO: delete and use only the GLWE version
- * @brief Demasks the ciphertext into the phase
- * (message + noise).
- *
- * @param module      Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
- * @param result      The result phase in \f$\mathbb{Z}_n[X,Y]\f$.
- * @param sk_dft      The secret key in the DFT domain.
- * @param glwe_vec    The ciphertext.
- * 
- * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise.
- */
-int glwe_secret_demasking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const GLWESecretKeyDFT* sk_dft, const VecBiv* glwe_vec);
 
-/**
- * TODO: delete and use only the GLWE version
- * @brief Masks the phase (message + noise) and puts it in result.
- *
- * @param module      Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
- * @param result      The result bivariate ciphertext.
- * @param sk_dft      The secret key in the DFT domain.
- * @param phase       message + noise.
- *
- * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise.
- */
-int glwe_secret_masking_ggsw_lib(const MODULE* module, const GLWECtParams* params_glwe, VecBiv* result, const GLWESecretKeyDFT* sk_dft,
-                                 const PolyBiv* phase);
 
 /**
  * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params.
@@ -94,39 +64,6 @@ void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
 
 
 //! GGSW IN DFT PART (begin)
-
-/**
- * TODO: delete and use only the GLWE version
- * @brief Demasks the phase (message + noise) in the DFT domain and computes it out of the DFT domain.
- *
- * @param module       Additionnal information for backend.
- * @param params_glwe  The GLWE parameters.
- * @param result       The result phase in \f$\mathbb{Z}_n[X,Y]\f$.
- * @param sk_dft       The secret key in the DFT domain.
- * @param glwe_vec_dft The ciphertext.
- * 
- * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise.
- */
-int glwe_secret_demasking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
-                                       const VecBivDFT* glwe_vec_dft);
-
-/**
- * TODO: delete and use only the GLWE version
- * @brief Masks the phase (message + noise) in the DFT domain and puts it in result.
- *
- * @param module      Additionnal information for backend.
- * @param params_glwe The GLWE parameters.
- * @param result_dft  The result ciphertext in the DFT domain.
- * @param sk_dft      The secret key in the DFT domain.
- * @param phase_dft   message + error.
- *
- * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise.
- */
-int glwe_secret_masking_ggsw_lib_dft(const MODULE* module, const GLWECtParams* params_glwe, VecBivDFT* result_dft, const GLWESecretKeyDFT* sk_dft,
-                                     const PolyBivDFT* phase_dft);
-
 
 /**
  * @brief Encrypts the message m into bivGGSW ciphertext res with parameters params in the DFT domain.

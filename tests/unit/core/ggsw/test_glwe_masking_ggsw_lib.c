@@ -3,6 +3,8 @@
 #include <stdio.h>
 
 #include "core/ggsw/ggsw.h"
+#include "core/glwe/glwe.h"
+#include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "rng.h"
 #include "utils.h"
@@ -72,10 +74,11 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the bivGLWE ciphertext
-	glwe_secret_masking_ggsw_lib(module, params_glwe, glwe_vec_computed, sk_dft, phase);
+  GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed };
+  glwe_secret_masking(module, &glwe_ct, sk_dft, phase);
 
 	// The computed phase in Rn[X]
-	glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed);
+  glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -162,10 +165,11 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the bivGLWE ciphertext
-	glwe_secret_masking_ggsw_lib(module, params_glwe, glwe_vec_computed, sk_dft, phase);
+  GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed };
+  glwe_secret_masking(module, &glwe_ct, sk_dft, phase);
 
 	// Computes the computed phase in Rn[X]
-	glwe_secret_demasking_ggsw_lib(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed);
+  glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -260,10 +264,11 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
 	// Computes the bivGLWE ciphertext
-	glwe_secret_masking_ggsw_lib_dft(module, params_glwe, glwe_vec_computed_dft, sk_dft, phase_dft);
+  GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+  glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, phase_dft);
 
 	// The computed phase in Rn[X]
-	glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed_dft);
+  glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
@@ -357,10 +362,11 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
 	// Computes the bivGLWE ciphertext
-	glwe_secret_masking_ggsw_lib_dft(module, params_glwe, glwe_vec_computed_dft, sk_dft, phase_dft);
+  GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+  glwe_secret_masking_dft(module, &glwe_dft_ct, sk_dft, phase_dft);
 
 	// Computes the computed phase in Rn[X]
-	glwe_secret_demasking_ggsw_lib_dft(module, params_glwe, phase_computed, sk_dft, glwe_vec_computed_dft);
+  glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 	// The computed phase in Rn[X]
 	biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
