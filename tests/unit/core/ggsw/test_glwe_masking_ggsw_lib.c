@@ -93,7 +93,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	}
 
 	int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-	double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+	double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 	/// Asserts big_error_count <= 0.0027*N
 	cr_assert(big_error_count <= max_fails,
@@ -184,7 +184,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	}
 
 	int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-	double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+	double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 	/// Asserts big_error_count <= 0.0027*N
 	cr_assert(big_error_count <= max_fails,
@@ -283,7 +283,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	}
 
 	int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-	double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+	double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 	/// Asserts big_error_count <= 0.0027*N
 	cr_assert(big_error_count <= max_fails,
@@ -380,7 +380,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	}
 
 	int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-	double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+	double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 	/// Asserts big_error_count <= 0.0027*N
 	cr_assert(big_error_count <= max_fails,

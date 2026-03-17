@@ -125,7 +125,7 @@ Test(ggsw_secret_encrypt, works)
 
 			/// Prob that the number of error grater than 3sigma is greater or equal than 0.0027*N
 			int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-			double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+			double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 			/// Asserts big_error_count <= 0.0027*N
 			cr_assert(big_error_count <= max_fails,
@@ -173,7 +173,7 @@ Test(ggsw_secret_encrypt, works)
 
 		/// Prob that the number of error grater than 3sigma is greater or equal than 0.0027*N
 		int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-		double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+		double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 		/// Asserts big_error_count <= 0.0027*N
 		cr_assert(big_error_count <= max_fails,
@@ -297,7 +297,7 @@ Test(ggsw_secret_encrypt_dft, works)
 
 			/// Proba that the number of error grater than 3sigma is greater or equal than 0.0027*N
 			int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-			double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+			double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 			/// Asserts big_error_count <= 0.0027*N
 			cr_assert(big_error_count <= max_fails,
@@ -345,7 +345,7 @@ Test(ggsw_secret_encrypt_dft, works)
 		}
 
 		int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-		double proba  = binomial_tail(NBASE, PROB_FACTOR * 0.0027);
+		double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
 
 		/// Asserts big_error_count <= 0.0027*N
 		cr_assert(big_error_count <= max_fails,

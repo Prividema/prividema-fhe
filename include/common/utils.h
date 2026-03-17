@@ -3,7 +3,6 @@
 
 #include "logger.h"
 
-#include <math.h>
 #include <stdint.h>
 
 /**
@@ -56,5 +55,5 @@
 */
 double torus_distance(double a, double b);
 
-double binomial_tail(uint64_t N, double p);
+double binomial_tail(uint64_t N, double p, int k);
 #endif  // UTILS_H
