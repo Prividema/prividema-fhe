@@ -249,6 +249,7 @@ void mult_vec_znx_dft(const MODULE* module, double* result_dft, int64_t result_s
 {
 	uint64_t N = module->nn;
 
+  // TODO: we SHOULD offload this to spqlios. 
 	if (c_size <= d_size) {
 		int64_t smin = c_size < result_size ? c_size : result_size;
 

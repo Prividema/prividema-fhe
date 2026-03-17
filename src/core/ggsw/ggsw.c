@@ -152,20 +152,18 @@ int ggsw_external_product(const MODULE* module,
 	uint64_t ncols = ggsw->params->params_glwe->n_limbs;
 
 	// Variables 
-	MatBivDFT* ggsw_pmat = NULL;
-	VecBivDFT* result_dft = NULL;
+	MatBivDFT* ggsw_pmat = NULL; // Prepared bivGGSW ciphertext
+	VecBivDFT* result_dft = NULL; // ExternalProduct(glwe, ggsw)
 
-	// Point to the bivGGSW ciphertext prepared in the DFT domain
 	ggsw_pmat = malloc(ggsw_bytes(ggsw->params));
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
 
-	// Prepares bivGGSW ciphertext prepared in the DFT domain 
-	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols), 
-		"vmp_prepare_contiguous_p failed in ggsw_external_product");
-
-	// The pointer to ExternalProduct(glwe, ggsw)
 	result_dft = malloc(glwe_bytes(ggsw->params->params_glwe));
 	CHECK_ALLOC(result_dft, "result's malloc failed in ggsw_external_product");
+
+	// Prepares bivGGSW ciphertext
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols), 
+		"vmp_prepare_contiguous_p failed in ggsw_external_product");
 
 	// Computes ExternalProduct(glwe, ggsw)
 	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, nrows, N, ggsw_pmat, nrows, ncols),
