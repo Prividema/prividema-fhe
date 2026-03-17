@@ -111,7 +111,7 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params_
 	           "normal_random_biv_poly failed in normal_biv_poly_dft.");
 
 	// Then compute in the DFT domain
-	vec_znx_dft_p(module, result_dft, poly_biv_size(params_glwe), rd_pol, poly_biv_size(params_glwe), params_glwe->N);
+	pvda_vec_znx_dft(module, result_dft, poly_biv_size(params_glwe), rd_pol, poly_biv_size(params_glwe), params_glwe->N);
 
 	status = 0;
 
@@ -134,7 +134,7 @@ int uniform_random_biv_poly_dft(const MODULE* module, const GLWECtParams* params
 	           "pol's malloc failed in uniform_random_biv_poly_dft.");
 
 	// Computes bivariate polynomial in the DFT domain
-	vec_znx_dft_p(module, result_dft, poly_biv_size(params_glwe), pol, poly_biv_size(params_glwe), params_glwe->N);
+	pvda_vec_znx_dft(module, result_dft, poly_biv_size(params_glwe), pol, poly_biv_size(params_glwe), params_glwe->N);
 
 	status = 0;
 

@@ -175,7 +175,7 @@ Test(rand_normal, test_rand_normal)
 
 Test(normal_random_vec, basic)
 {
-	MODULE* module   = new_module_info_p(NBASE);
+	MODULE* module   = pvda_new_module_info(NBASE);
 	double* pol_univ = malloc(NBASE * KBASE * sizeof(double));
 	if (pol_univ == NULL) {
 		log_perror("malloc");
@@ -184,18 +184,18 @@ Test(normal_random_vec, basic)
 
 	if (normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0) {
 		log_message(LOG_ERROR, "new_normal_random_vec failedi.");
-		delete_module_info_p(module);
+		pvda_delete_module_info(module);
 		free(pol_univ);
 		cr_fail();
 	}
 
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 	free(pol_univ);
 }
 
 Test(uniform_random_vec_dft, basic)
 {
-	MODULE* module       = new_module_info_p(NBASE);
+	MODULE* module       = pvda_new_module_info(NBASE);
 	PolyUnivDFT* res_dft = malloc(NBASE * KBASE * sizeof(double));
 	if (res_dft == NULL) {
 		log_perror("malloc");
@@ -204,7 +204,7 @@ Test(uniform_random_vec_dft, basic)
 
 	if (uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0) {
 		log_message(LOG_ERROR, "uniform_random_vec_znx_dft failed.");
-		delete_module_info_p(module);
+		pvda_delete_module_info(module);
 		free(res_dft);
 		cr_fail();
 	}
@@ -212,14 +212,14 @@ Test(uniform_random_vec_dft, basic)
 	PolyUniv* res = malloc(NBASE * KBASE * sizeof(int64_t));
 	if (res == NULL) {
 		log_perror("malloc");
-		delete_module_info_p(module);
+		pvda_delete_module_info(module);
 		free(res_dft);
 		cr_fail();
 	}
 
-	vec_znx_dft_p(module, res_dft, KBASE, res, KBASE, NBASE);
+	pvda_vec_znx_dft(module, res_dft, KBASE, res, KBASE, NBASE);
 
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 	free(res_dft);
 	free(res);
 }

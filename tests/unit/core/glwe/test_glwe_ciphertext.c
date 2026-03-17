@@ -68,14 +68,14 @@ Test(mult_vec_znx_dft, size_equal_one)
 	uniform_random_pol_znx(pol_lhs, NBASE, 14);
 
 	// Computes in the DFT pol_lhs and pol_rhs
-	vec_znx_dft_p(module, pol_lhs_dft, 1, pol_lhs, 1, NBASE);
-	vec_znx_dft_p(module, pol_rhs_dft, 1, pol_rhs, 1, NBASE);
+	pvda_vec_znx_dft(module, pol_lhs_dft, 1, pol_lhs, 1, NBASE);
+	pvda_vec_znx_dft(module, pol_rhs_dft, 1, pol_rhs, 1, NBASE);
 
 	// prod_computed_dft = DFT(pol_lhs ⊙ pol_rhs)
 	mult_vec_znx_dft(module, prod_computed_dft, 1, pol_lhs_dft, 1, pol_rhs_dft, 1);
 
 	// prod_computed = pol_lhs ⊙ pol_rhs
-	vec_znx_idft_p(module, prod_computed, 1, prod_computed_dft, 1);
+	pvda_vec_znx_idft(module, prod_computed, 1, prod_computed_dft, 1);
 
 	// Compare the real coefficient res_p for each p in [0, NBASE -1] with the res_p mult_vec_znx_dft computed
 	// coefficient.
@@ -133,14 +133,14 @@ Test(mult_vec_znx_dft, random_size)
 	uniform_random_vec(NBASE, vec_rhs, size, NBASE, 14);
 
 	// Computes in the DFT vec_lhs and vec_rhs
-	vec_znx_dft_p(module, vec_lhs_dft, size, vec_lhs, size, NBASE);
-	vec_znx_dft_p(module, vec_rhs_dft, size, vec_rhs, size, NBASE);
+	pvda_vec_znx_dft(module, vec_lhs_dft, size, vec_lhs, size, NBASE);
+	pvda_vec_znx_dft(module, vec_rhs_dft, size, vec_rhs, size, NBASE);
 
 	// Computes component_wise_mult_dft = DFT(vec_lhs) ⊙ DFT(vec_rhs)
 	mult_vec_znx_dft(module, component_wise_mult_dft, size, vec_lhs_dft, size, vec_rhs_dft, size);
 
 	// component_wise_mult = vec_lhs ⊙ vec_rhs
-	vec_znx_idft_p(module, component_wise_mult, size, component_wise_mult_dft, size);
+	pvda_vec_znx_idft(module, component_wise_mult, size, component_wise_mult_dft, size);
 
 	// Compare the real coefficient component_wise_mult_p for each p in [0, NBASE -1] with the component_wise_mult_p mult_vec_znx_dft computed
 	// coefficient.
@@ -258,7 +258,7 @@ Test(const_mult_glwe, without_normalization)
 	uniform_random_pol_znx(u, NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
-	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
 
 	// Computes u * glwe
 	const_mult_glwe(module, prod_computed, u_dft, glwe, 0);
@@ -314,7 +314,7 @@ Test(const_mult_glwe, with_normalization)
 	uniform_random_pol_znx(u, NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
-	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
 
 	// Computes u * glwe
 	const_mult_glwe(module, prod_computed, u_dft, glwe, 1);
@@ -455,16 +455,16 @@ Test(const_mult_glwe_dft, without_normalization)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	vec_znx_idft_p(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
+	pvda_vec_znx_idft(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
 
 	// Computes u in the DFT domain
-	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
 
 	// Computes DFT(u * glwe)
 	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft, 0);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	vec_znx_idft_p(module, prod_computed_vec, glwe_size(params_glwe), prod_computed_dft->vec, glwe_size(params_glwe));
+	pvda_vec_znx_idft(module, prod_computed_vec, glwe_size(params_glwe), prod_computed_dft->vec, glwe_size(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
 	for (uint64_t i = 1; i <= LBASE; i++)
@@ -523,16 +523,16 @@ Test(const_mult_glwe_dft, with_normalization)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	vec_znx_idft_p(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
+	pvda_vec_znx_idft(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
 
 	// Computes u in the DFT domain
-	vec_znx_dft_p(module, u_dft, 1, u, 1, NBASE);
+	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
 
 	// Computes DFT(u * glwe)
 	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft, 1);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	vec_znx_idft_p(module, prod_computed_vec, glwe_size(params_glwe), prod_computed_dft->vec, glwe_size(params_glwe));
+	pvda_vec_znx_idft(module, prod_computed_vec, glwe_size(params_glwe), prod_computed_dft->vec, glwe_size(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
 	for (uint64_t j = 0; j < KBASE + 1; j++)

@@ -39,7 +39,7 @@ Test(ggsw_secret_encrypt, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module            = new_module_info_p(NBASE);
+	MODULE* module            = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
@@ -65,7 +65,7 @@ Test(ggsw_secret_encrypt, works)
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
 
 	// Computes the message in the DFT domain
-	vec_znx_dft_p(module, m_univ_dft, 1, m_univ, 1, NBASE);
+	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, NBASE);
 
 	// Computes a bivGGSW(m)
 	ggsw_secret_encrypt(module, params_ggsw, ggsw, sk_dft, m_univ);
@@ -102,7 +102,7 @@ Test(ggsw_secret_encrypt, works)
 			{
 				m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 			}
-			vec_znx_idft_p(module, m_skj_univ, 1, m_skj_univ_dft, 1);
+			pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1);
 
 			// Computes -m * sk_j / 2^{kappa_tilde * i}
 			for (uint64_t p = 0; p < NBASE; p++)
@@ -195,7 +195,7 @@ Test(ggsw_secret_encrypt, works)
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -213,7 +213,7 @@ Test(ggsw_secret_encrypt_dft, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module            = new_module_info_p(NBASE);
+	MODULE* module            = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
@@ -240,7 +240,7 @@ Test(ggsw_secret_encrypt_dft, works)
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
 	
 	// Computes the message in the DFT domain
-	vec_znx_dft_p(module, m_univ_dft, 1, m_univ, 1, NBASE);
+	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, NBASE);
 
 	// Computes a bivGGSW(m)
 	ggsw_secret_encrypt_dft(module, params_ggsw, ggsw_dft, sk_dft, m_univ);
@@ -274,7 +274,7 @@ Test(ggsw_secret_encrypt_dft, works)
 			{
 				m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 			}
-			vec_znx_idft_p(module, m_skj_univ, 1, m_skj_univ_dft, 1);
+			pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1);
 
 			// Computes -m * sk_j / 2^{kappa_tilde * i}
 			for (uint64_t p = 0; p < NBASE; p++)
@@ -367,5 +367,5 @@ Test(ggsw_secret_encrypt_dft, works)
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }

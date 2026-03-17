@@ -34,7 +34,7 @@ Test(glwe_secret_masking, small_error)
 	double err_length = 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = new_module_info_p(NBASE);
+	MODULE* module            = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
@@ -107,7 +107,7 @@ Test(glwe_secret_masking, small_error)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -124,7 +124,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = new_module_info_p(NBASE);
+	MODULE* module            = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
@@ -198,7 +198,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 //! bivGLWE IN DFT PART (begin)
@@ -216,7 +216,7 @@ Test(glwe_secret_masking_dft, small_error)
 	double err_length = 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = new_module_info_p(NBASE);
+	MODULE* module            = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
@@ -250,7 +250,7 @@ Test(glwe_secret_masking_dft, small_error)
 	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the phase in the DFT domain
-	vec_znx_dft_p(module, phase_dft, LBASE, phase, LBASE, NBASE);
+	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
 	// Computes the bivGLWE ciphertext
 	glwe_secret_masking_dft(module, glwe_computed_dft, sk_dft, phase_dft);
@@ -292,7 +292,7 @@ Test(glwe_secret_masking_dft, small_error)
 	free(phase_computed);
 	free(phase_computed_univ_RnX);
 	delete_glwe_dft(glwe_computed_dft);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 	delete_glwe_ct_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
@@ -312,7 +312,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = new_module_info_p(NBASE);
+	MODULE* module            = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
@@ -346,7 +346,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
 	// Computes the phase in the DFT domain
-	vec_znx_dft_p(module, phase_dft, LBASE, phase, LBASE, NBASE);
+	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
 
 	// Computes the bivGLWE ciphertext
 	glwe_secret_masking_dft(module, glwe_computed_dft, sk_dft, phase_dft);
@@ -390,5 +390,5 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }

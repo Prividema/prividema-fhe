@@ -32,7 +32,7 @@ void printf_glwe(GLWECiphertext* glwe){
 void printf_glwe_dft(MODULE* module, GLWECiphertextDFT* glwe_dft)
 {
 	VecBiv* glwe_vec = malloc(glwe_bytes(glwe_dft->params));
-	vec_znx_idft_p(module, glwe_vec, glwe_size(glwe_dft->params), glwe_dft->vec, glwe_size(glwe_dft->params));
+	pvda_vec_znx_idft(module, glwe_vec, glwe_size(glwe_dft->params), glwe_dft->vec, glwe_size(glwe_dft->params));
 
 	for(int64_t j = 0 ; j < KBASE+1 ; j++ )
 		printf_poly_biv(glwe_vec + j*NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
@@ -102,16 +102,16 @@ Test(ggsw_external_product, without_error)
 
 	//! Computation by hand
 	// Computes DFT(m)
-	vec_znx_dft_p(module, u_univ_dft, 1, u_univ, 1, NBASE);
+	pvda_vec_znx_dft(module, u_univ_dft, 1, u_univ, 1, NBASE);
 
 	// Computes DFT(u*m)
-	svp_apply_dft_p(module, um_dft, L_TILDEBASE, u_univ_dft, m, L_TILDEBASE, NBASE);
+	pvda_svp_apply_dft(module, um_dft, L_TILDEBASE, u_univ_dft, m, L_TILDEBASE, NBASE);
 
 	// Computes u*m in ZN[X,Y]
-	vec_znx_idft_p(module, um, L_TILDEBASE, um_dft, L_TILDEBASE);
+	pvda_vec_znx_idft(module, um, L_TILDEBASE, um_dft, L_TILDEBASE);
 
 	// Normalizes u*m with the base-2Kappa_tilde
-	vec_znx_normalize_base2k_p(module, KAPPA_TILDEBASE, um, L_TILDEBASE, NBASE, um, L_TILDEBASE, NBASE);
+	pvda_vec_znx_normalize_base2k(module, KAPPA_TILDEBASE, um, L_TILDEBASE, NBASE, um, L_TILDEBASE, NBASE);
 
 	// Computes u*m in Tn[X]
 	biv_to_univ(params_glwe_tilde, um_univ_RnX, um);
@@ -146,7 +146,7 @@ Test(ggsw_external_product, without_error)
 	delete_glwe_ct_params(params_glwe);
 	delete_glwe_ct_params(params_glwe_tilde);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 //! bivGGSW PART in the DFT domain (begin)
@@ -194,7 +194,7 @@ Test(ggsw_external_product_dft, without_error)
 	uniform_random_biv_poly(params_glwe_tilde, m, 1);
 
 	// Computes m in the DFT space
-	vec_znx_dft_p(module, m_dft, 1, m, 1, NBASE);
+	pvda_vec_znx_dft(module, m_dft, 1, m, 1, NBASE);
 
 	//! Computation with function
 	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
@@ -216,16 +216,16 @@ Test(ggsw_external_product_dft, without_error)
 
 	//! Computation by hand
 	// Computes DFT(m)
-	vec_znx_dft_p(module, u_univ_dft, 1, u_univ, 1, NBASE);
+	pvda_vec_znx_dft(module, u_univ_dft, 1, u_univ, 1, NBASE);
 
 	// Computes DFT(u*m)
-	svp_apply_dft_p(module, um_dft, L_TILDEBASE, u_univ_dft, m, L_TILDEBASE, NBASE);
+	pvda_svp_apply_dft(module, um_dft, L_TILDEBASE, u_univ_dft, m, L_TILDEBASE, NBASE);
 
 	// Computes u*m in ZN[X,Y]
-	vec_znx_idft_p(module, um, L_TILDEBASE, um_dft, L_TILDEBASE);
+	pvda_vec_znx_idft(module, um, L_TILDEBASE, um_dft, L_TILDEBASE);
 
 	// Normalizes u*m with the base-2Kappa_tilde
-	vec_znx_normalize_base2k_p(module, KAPPA_TILDEBASE, um, L_TILDEBASE, NBASE, um, L_TILDEBASE, NBASE);
+	pvda_vec_znx_normalize_base2k(module, KAPPA_TILDEBASE, um, L_TILDEBASE, NBASE, um, L_TILDEBASE, NBASE);
 
 	// Computes u*m in Tn[X]
 	biv_to_univ(params_glwe_tilde, um_univ_RnX, um);
@@ -261,5 +261,5 @@ Test(ggsw_external_product_dft, without_error)
 	delete_glwe_ct_params(params_glwe);
 	delete_glwe_ct_params(params_glwe_tilde);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }

@@ -78,7 +78,7 @@ Test(biv_to_univ, runs)
 {
 	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module            = new_module_info_p(NBASE);
+	MODULE* module            = pvda_new_module_info(NBASE);
 
 	// Variables
 	PolyBiv* pol                  	   = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
@@ -101,7 +101,7 @@ Test(biv_to_univ, runs)
 	free(pol);
 	free(pol_univ_computed);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -111,7 +111,7 @@ Test(univ_to_biv, one_test)
 {
 	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module       = new_module_info_p(NBASE);
+	MODULE* module       = pvda_new_module_info(NBASE);
 
 	// Variables
 	double* pol_univ      = calloc(poly_univ_bytes(params_glwe), 1);
@@ -140,7 +140,7 @@ Test(univ_to_biv, one_test)
 	free(pol_univ);
 	free(pol_computed);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -181,7 +181,7 @@ Test(univ_to_biv, basic)
 	free(pol_univ);
 	free(pol_computed);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -191,7 +191,7 @@ Test(univ_to_biv, maths_test)
 {
 	// Parameters
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module       = new_module_info_p(NBASE);
+	MODULE* module       = pvda_new_module_info(NBASE);
 
 	// Variables 
 	double* pol_univ = malloc(poly_univ_bytes(params_glwe));
@@ -221,7 +221,7 @@ Test(univ_to_biv, maths_test)
 	free(pol_computed);
 	free(pol_univ_computed);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 //! BIV POLY PART (begin)
@@ -251,7 +251,7 @@ Test(poly_biv_coef_number, classic_params)
 Test(normal_random_biv_poly, basic)
 {
 	// Parameters
-	MODULE* module       = new_module_info_p(NBASE);
+	MODULE* module       = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	
 	// Variables
@@ -266,7 +266,7 @@ Test(normal_random_biv_poly, basic)
 	// Clean up
 	free(pol);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -276,7 +276,7 @@ Test(normal_random_biv_poly, basic)
 Test(normal_random_biv_poly, is_it_working)
 {
 	// Parameters
-	MODULE* module       = new_module_info_p(NBASE);
+	MODULE* module       = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	
 	// Variables 
@@ -299,7 +299,7 @@ Test(normal_random_biv_poly, is_it_working)
 	// Clean up
 	free(pol);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -308,7 +308,7 @@ Test(normal_random_biv_poly, is_it_working)
 Test(add_biv_poly, basic)
 {
 	// Parameters
-	MODULE* module       = new_module_info_p(NBASE);
+	MODULE* module       = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables 
@@ -339,7 +339,7 @@ Test(add_biv_poly, basic)
 	free(pol_rhs);
 	free(sum_computed);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 //! BIV POLY IN DFT PART (begin)
@@ -352,7 +352,7 @@ Test(add_biv_poly, basic)
 Test(normal_random_biv_poly_dft, is_it_working)
 {
 	// Parameters
-	MODULE* module        = new_module_info_p(NBASE);
+	MODULE* module        = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
@@ -364,10 +364,10 @@ Test(normal_random_biv_poly_dft, is_it_working)
 	normal_random_biv_poly_dft(module, params_glwe, pol_dft);
 
 	// Computes pol_dft out of the DFT domain
-	vec_znx_idft_p(module, pol, LBASE, pol_dft, LBASE);
+	pvda_vec_znx_idft(module, pol, LBASE, pol_dft, LBASE);
 
 	// Normalize pol
-	vec_znx_normalize_base2k_p(module, KAPPABASE, pol_normalized, LBASE, NBASE, pol, LBASE, NBASE);
+	pvda_vec_znx_normalize_base2k(module, KAPPABASE, pol_normalized, LBASE, NBASE, pol, LBASE, NBASE);
 
 	for (uint64_t i = 1; i <= LBASE; i++) {
 		for (uint64_t p = 0; p < params_glwe->N; p++) {
@@ -383,7 +383,7 @@ Test(normal_random_biv_poly_dft, is_it_working)
 	free(pol);
 	free(pol_normalized);
 	delete_glwe_ct_params(params_glwe);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 }
 
 /**
@@ -392,7 +392,7 @@ Test(normal_random_biv_poly_dft, is_it_working)
 Test(add_biv_poly_dft, basic)
 {
 	// Parameters
-	MODULE* module       = new_module_info_p(NBASE);
+	MODULE* module       = pvda_new_module_info(NBASE);
 	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables 
@@ -418,6 +418,6 @@ Test(add_biv_poly_dft, basic)
 	free(pol_lhs_dft);
 	free(pol_rhs_dft);
 	free(sum_computed_dft);
-	delete_module_info_p(module);
+	pvda_delete_module_info(module);
 	delete_glwe_ct_params(params_glwe);
 }

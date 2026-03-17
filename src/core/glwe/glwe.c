@@ -30,10 +30,10 @@ int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, Vec
 		PolyBiv* a_j               = glwe + j * N;
 
 		// Computes DFT(sk_j * a_j)
-		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
+		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
 
 		// Invert DFT to get sk_j * a_j
-		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in add_mult");
+		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in add_mult");
 
 		// Computes acc = acc - sk_j * a_j
 		for (uint64_t p = 0; p < N * l; p++)
@@ -71,10 +71,10 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, Vec
 		PolyBiv* a_j               = ct + j * N;
 
 		// Computes DFT(sk_j * a_j)
-		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
+		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
 
 		// Invert DFT to get sk_j * a_j
-		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in add_mult");
+		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in add_mult");
 
 		// Computes acc = acc - sk_j * a_j
 		for (uint64_t p = 0; p < N * l; p++) {
@@ -129,10 +129,10 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 		PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
 
 		// Computes DFT(sk_j) * DFT(a_j)
-		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, result + j * N, l, (k + 1) * N);
+		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, result + j * N, l, (k + 1) * N);
 
 		// Undo DFT to retreive sk_j * a_j
-		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l),
+		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l),
 		           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
 
 		// Add it all to the accumulator
@@ -146,7 +146,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 	PolyBiv* b_0 = result + k * N;
 
 	// Normalize acc (B) and put it in the result variable
-	CHECK_CALL(vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k + 1) * N, acc, l, N),
+	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, b_0, l, (k + 1) * N, acc, l, N),
 	           "vec_znx_normalize_base2k_p failed in glwe_secret_masking_ggsw_lib");
 
 	status = 0;
@@ -194,10 +194,10 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKe
 		const PolyUniv* a_j        = glwe_vec + j * N;
 
 		// Computes DFT(sk_j * a_j)
-		svp_apply_dft_p(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
+		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
 
 		// Computes sk_j * a_j by inverting the DFT
-		CHECK_CALL(vec_znx_idft_p(module, as_j, l, as_j_dft, l),
+		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l),
 		           "vec_znx_idft_p failed in glwe_secret_demasking_ggsw_lib");
 
 		// And subs it to acc
@@ -211,7 +211,7 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKe
 	add_biv_poly(params, acc, N, acc, N, b, (k + 1) * N);
 
 	//normalize acc into result
-	CHECK_CALL(vec_znx_normalize_base2k_p(module, params->kappa, res, l, N, acc, l, N),
+	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params->kappa, res, l, N, acc, l, N),
 	           "vec_znx_normalize_base2k_p failed in glwe_secret_demasking_ggsw_lib");
 
 	status = 0;
@@ -256,11 +256,11 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* glwe_dft, c
 	PolyBiv* b_0 = glwe_vec + k * N;
 
 	// For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
-	CHECK_CALL(vec_znx_normalize_base2k_p(module, kappa, b_0, l, (k + 1) * N, acc, l, N),
+	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, b_0, l, (k + 1) * N, acc, l, N),
      "vec_znx_normalize_base2k_p failed in glwe_secret_masking_dft");
 
 	// Computes the bivGLWE ciphertext in the DFT domain
-	vec_znx_dft_p(module, glwe_dft->vec, (k + 1) * l, glwe_vec, (k + 1) * l, N);
+	pvda_vec_znx_dft(module, glwe_dft->vec, (k + 1) * l, glwe_vec, (k + 1) * l, N);
 
 	// Add the phase to the result ciphertext's b
 	for (uint64_t i = 0; i < l; i++) {
@@ -295,7 +295,7 @@ int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, const GLWESecr
   acc = calloc(N * l, sizeof(int64_t));
   CHECK_ALLOC(acc, "calloc failed in glwe_secret_masking_dft");
 
-	CHECK_CALL(vec_znx_idft_p(module, glwe, glwe_size(params), glwe_dft->vec, glwe_size(params)),
+	CHECK_CALL(pvda_vec_znx_idft(module, glwe, glwe_size(params), glwe_dft->vec, glwe_size(params)),
             "idft failed in glwe_secret_demasking_dft");
 
 	CHECK_CALL(sub_mult(module, params, acc, glwe, sk_dft), "sub_mult failed in glwe_secret_masking_dft");
@@ -305,7 +305,7 @@ int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, const GLWESecr
 	add_biv_poly(params, acc, N, b, (k + 1) * N, acc, N);
 
 	// The phase in Zn[X,Y]
-	CHECK_CALL(vec_znx_normalize_base2k_p(module, params->kappa, res, l, N, acc, l, N),
+	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params->kappa, res, l, N, acc, l, N),
             "normalization failed in glwe_secret_demasking_dft");
 
   status = 0;
