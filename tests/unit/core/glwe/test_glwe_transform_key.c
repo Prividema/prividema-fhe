@@ -10,35 +10,6 @@
 #define LBASE      NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE  -12
 
-//! bivGLWE KEY PART (begin)
-
-/**
- * @brief Tests wether transform_glwe_secret_key_dft_to_not_dft transforms the secret key in the DFT domain, out of DFT
- * space.
- */
-Test(transform_glwe_secret_key_dft_to_not_dft, basic)
-{
-	// Parameters
-	MODULE* module = new_module_info(NBASE, FFT64);
-
-	// Create a bivGLWE secret key
-	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
-
-	// Compute the bivGLWE secret key out of DFT space
-	int status = transform_glwe_secret_key_dft_to_not_dft(module, sk, sk_dft);
-
-	// Asserts transform_glwe_secret_key_dft_to_not_dft succeed
-	cr_assert(eq(int, status, 0), "transform_glwe_secret_key_dft_to_not_dft failed.");
-
-	// Clean up
-	delete_module_info(module);
-	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_secret_key(sk);
-}
-
-//! bivGLWE KEY PART IN DFT SPACE (begin)
-
 /**
  * @brief Tests wether transform_glwe_secret_key_not_dft_to_dft transforms the secret key out of the DFT domain, in DFT
  * space.
