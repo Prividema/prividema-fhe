@@ -42,7 +42,7 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 }
 
 // TODO: add inline qualifier
-VecBiv* ggsw_retreive_bivglwe(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i)
+VecBiv* ggsw_retrieve_bivglwe(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
@@ -80,8 +80,8 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 		{
 			// The pointer to biGLWE(-m * sk_j * Y^i)
 			// VecBiv* res_glwe = ggsw_Sj_Yti(params_ggsw, res->mat, j, i);
-			VecBiv* result_glwe_vec = ggsw_retreive_bivglwe(params_ggsw, result->mat, j, i);
-			const VecBiv* ct_glwe   = ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i);
+			VecBiv* result_glwe_vec = ggsw_retrieve_bivglwe(params_ggsw, result->mat, j, i);
+			const VecBiv* ct_glwe   = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i);
 
 			// Normalize the k+1 bivGLWE's elements
 			for (uint64_t t = 0; t < k + 1; t++)
@@ -137,7 +137,7 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 			for (uint64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++)
 			{
 				// The pointer to biGLWE(-m * sk_j / (2^{kappa_tilde}^i))
-				VecBiv* glwe_vec = ggsw_retreive_bivglwe(result->params, result->mat, j, i);
+				VecBiv* glwe_vec = ggsw_retrieve_bivglwe(result->params, result->mat, j, i);
 				for (uint64_t t = 0; t < k + 1; t++)
 					CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, glwe_vec + t * N, l,
 					                                         N * (k + 1), glwe_vec + t * N, l, N * (k + 1)),
@@ -183,7 +183,7 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
 	free(ggsw_dft);
 }
 
-VecBivDFT* ggsw_retreive_bivglwe_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
+VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
 	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
@@ -231,7 +231,7 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, cons
 		for (uint64_t j = 0; j < nb_rows_per_partial; j++)
 		{
 			// The pointer to biGLWE(-m * sk_j * Y^i)
-			VecBiv* glwe_vec = ggsw_retreive_bivglwe(params_ggsw, ggsw_mat, j, i);
+			VecBiv* glwe_vec = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, j, i);
 
 			// Normalize ct
 			for (uint64_t t = 0; t < k + 1; t++)
@@ -297,7 +297,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 			for (uint64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++)
 			{
 				// The pointer to biGLWE(-m * sk_j * Y^i)
-				VecBiv* glwe_vec = ggsw_retreive_bivglwe(params_ggsw, ggsw_mat, j, i);
+				VecBiv* glwe_vec = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, j, i);
 				// Normalize the k+1 bivGLWE's elements
 				for (uint64_t t = 0; t < k + 1; t++)
 					CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, glwe_vec + t * N, l,

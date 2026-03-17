@@ -112,7 +112,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 				           "add_error failed in compute_phase_ij");
 			}
 			// Get the pointer for the result position
-			VecBiv* glwe_vec       = ggsw_retreive_bivglwe(params_ggsw, result->mat, j, i);
+			VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(params_ggsw, result->mat, j, i);
 			GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 			//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
@@ -262,7 +262,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 			                 poly_biv_size(params_glwe), N);
 
 			// Result destination
-			VecBivDFT* glwe_vec_dft = ggsw_retreive_bivglwe_dft(params_ggsw, result_dft->mat, j, i);
+			VecBivDFT* glwe_vec_dft = ggsw_retrieve_bivglwe_dft(params_ggsw, result_dft->mat, j, i);
 
 			// Finally, mask/encrypt the above result to get a bivGLWE
 

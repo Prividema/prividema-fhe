@@ -87,7 +87,7 @@ Test(ggsw_secret_encrypt, works)
 			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
 
 			// Copy bivGLWE(-m * sk_j / 2^{kappa_tilde * i}) in glwe_vec
-			memcpy(glwe_vec_computed, ggsw_retreive_bivglwe(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
+			memcpy(glwe_vec_computed, ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
 			GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
@@ -261,7 +261,7 @@ Test(ggsw_secret_encrypt_dft, works)
 			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
 
 			// The pointer to DFT(bivGLWE(-m * sk_j / 2^{kappa_tilde * i}))
-			memcpy(glwe_vec_computed_dft, ggsw_retreive_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i),
+			memcpy(glwe_vec_computed_dft, ggsw_retrieve_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i),
 			       glwe_bytes(params_glwe));
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
