@@ -6,7 +6,8 @@
 #include "utils.h"
 
 //! bivGLWE PART (begin)
-int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* glwe, GLWESecretKeyDFT* sk_dft)
+int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, const VecBiv* glwe,
+             const GLWESecretKeyDFT* sk_dft)
 {
 	int status = -1;
 	// GLWE parameters
@@ -27,7 +28,7 @@ int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, Vec
 	{
 		// The j-th component of resp. the secret key and the bivGLWE ciphertext
 		PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
-		PolyBiv* a_j               = glwe + j * N;
+		const PolyBiv* a_j         = glwe + j * N;
 
 		// Computes DFT(sk_j * a_j)
 		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
@@ -47,7 +48,8 @@ cleanup:
 	return status;
 }
 
-int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, VecBiv* ct, GLWESecretKeyDFT* sk_dft)
+int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, const VecBiv* ct,
+             const GLWESecretKeyDFT* sk_dft)
 {
 	int status = -1;
 	// GLWE parameters
@@ -68,13 +70,13 @@ int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, Vec
 	{
 		// The j-th component of resp. the secret key and the bivGLWE ciphertext
 		PolyUnivDFT* sk_j_univ_dft = sk_dft->values[j];
-		PolyBiv* a_j               = ct + j * N;
+		const PolyBiv* a_j         = ct + j * N;
 
 		// Computes DFT(sk_j * a_j)
 		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * N);
 
 		// Invert DFT to get sk_j * a_j
-		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in add_mult");
+		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l), "vec_znx_idft_p failed in sub_mult");
 
 		// Computes acc = acc - sk_j * a_j
 		for (uint64_t p = 0; p < N * l; p++)

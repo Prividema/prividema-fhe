@@ -13,7 +13,8 @@
  * @param sk_dft The Secret key in the DFT domain.
  * @return int
  */
-int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, VecBiv* glwe, GLWESecretKeyDFT* sk_dft);
+int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const VecBiv* glwe,
+             const GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Masks the phase (message + noise) and puts it in result.
@@ -37,8 +38,8 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWE
  * @param sk_dft The Secret key in the DFT domain.
  * @return int
  */
-int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, VecBiv* glwe_vec,
-             GLWESecretKeyDFT* sk_dft);
+int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* result, const VecBiv* glwe_vec,
+             const GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Demasks the ciphertext into the
