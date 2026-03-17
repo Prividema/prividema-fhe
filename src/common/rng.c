@@ -182,6 +182,20 @@ cleanup:
 	return status;
 }
 
+int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma)
+{
+	for (int i = 0; i < vec_size; i++)
+	{
+		double tmp;
+		CHECK_CALL(rand_normal(&tmp, mu, sigma), "add_normal_random_vec failed");
+		res[i] = vec[i] + tmp;
+	}
+
+	return 0;
+cleanup:
+	return -1;
+}
+
 int normal_random_vec(double* res, int64_t res_size, double mu, double sigma)
 {
 	for (int i = 0; i < res_size; i++) CHECK_CALL(rand_normal(res + i, mu, sigma), "normal_random_vec failed");

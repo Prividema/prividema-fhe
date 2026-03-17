@@ -40,10 +40,8 @@ int normal_random_biv_poly(const GLWECtParams* params_glwe, PolyBiv* result)
 	// Draws a random univariate polynomial P(X) in Rn[X]
 	rd_pol_univ = malloc(poly_univ_bytes(params_glwe));
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
-
-	for (uint64_t p = 0; p < N; p++)
-		CHECK_CALL(rand_normal(rd_pol_univ + p, 0.0, params_glwe->sigma),
-		           "rand_normal failed in normal_random_biv_poly.");
+	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->N, 0.0, params_glwe->sigma),
+	           "random normal vec generation failed");
 
 	univ_to_biv(params_glwe, result, rd_pol_univ);
 
