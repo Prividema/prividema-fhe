@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "logger.h"
 #include "spqlios_alias.h"
@@ -56,32 +57,20 @@ VecBiv* ggsw_retrieve_bivglwe(const GGSWParams* params_ggsw, MatBiv* ggsw_mat, i
 int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw)
 {
 	int status = -1;
-
-	// bivGGSW parameters
+	// TODO: assert input and output have equal params
 	const GGSWParams* params_ggsw = result->params;
-	uint64_t k_tilde              = params_ggsw->k_tilde;
-	uint64_t n_limbs_tilde        = params_ggsw->n_limbs_tilde;
-
-	// bivGLWE parameters
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 	uint64_t N                    = params_glwe->N;
 	uint64_t k                    = params_glwe->k;
-	uint64_t n_limbs              = params_glwe->n_limbs;
 	uint64_t kappa                = params_glwe->kappa;
 	uint64_t l                    = poly_biv_size(params_glwe);
 
-	// Matrix parameters
-	uint64_t nb_partial          = n_limbs_tilde / (k_tilde + 1);
-	uint64_t nb_rows_per_partial = k_tilde + 1;
-
 	// Normalization of the bivGGSW ciphertext
-	for (uint64_t i = 1; i <= nb_partial; i++)
-		for (uint64_t j = 0; j < nb_rows_per_partial; j++)
+	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
+		for (uint64_t j = 0; j < ggsw_num_rows_per_pggsw(params_ggsw); j++)
 		{
 			// The pointer to biGLWE(-m * sk_j * Y^i)
-			// VecBiv* res_glwe = ggsw_Sj_Yti(params_ggsw, res->mat, j, i);
 			VecBiv* result_glwe_vec = ggsw_retrieve_bivglwe(params_ggsw, result->mat, j, i);
-			const VecBiv* ct_glwe   = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i);
 
 			// Normalize the k+1 bivGLWE's elements
 			for (uint64_t t = 0; t < k + 1; t++)
@@ -197,57 +186,28 @@ VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWParams* params_ggsw, MatBivDFT* g
 
 int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft)
 {
+	//TODO: this function is untested and it is unclear that we actually want it implemented
 	int status = -1;
 
 	// Variables
-	MatBiv* ggsw_mat = NULL;
-
-	// bivGGSW parameters
-	const GGSWParams* params_ggsw = ggsw_dft->params;
-	uint64_t k_tilde              = params_ggsw->k_tilde;
-	uint64_t n_limbs_tilde        = params_ggsw->n_limbs_tilde;
-
-	// bivGLWE parameters
-	const GLWEParams* params_glwe = params_ggsw->params_glwe;
-	uint64_t N                    = params_glwe->N;
-	uint64_t k                    = params_glwe->k;
-	uint64_t l                    = poly_biv_size(params_glwe);
-	uint64_t n_limbs              = params_glwe->n_limbs;
-	uint64_t kappa                = params_glwe->kappa;
-
-	// Matrix parameters
-	uint64_t nb_partial          = n_limbs_tilde / (k_tilde + 1);
-	uint64_t nb_rows_per_partial = k_tilde + 1;
-
-	// Points to the bivGGSW ciphertext out of the DFT domain
-	ggsw_mat = malloc(ggsw_bytes(params_ggsw));
-	CHECK_ALLOC(ggsw_mat, "malloc in normalize_ggsw_dft");
+	GGSWCiphertext* ggsw_ct = new_ggsw(ggsw_dft->params);
+	CHECK_ALLOC(ggsw_ct, "Malloc failed in DFT GGSW normalization");
 
 	// Computes the bivGGSW ciphertext out of the DFT domain
-	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw)),
+	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(result_dft->params), ggsw_dft->mat,
+	                             ggsw_size(result_dft->params)),
 	           "vec_znx_idft_p failed in noramlize_ggsw_dft");
 
-	// Normalization of the bivGGSW ciphertext
-	for (uint64_t i = 1; i <= nb_partial; i++)
-		for (uint64_t j = 0; j < nb_rows_per_partial; j++)
-		{
-			// The pointer to biGLWE(-m * sk_j * Y^i)
-			VecBiv* glwe_vec = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, j, i);
-
-			// Normalize ct
-			for (uint64_t t = 0; t < k + 1; t++)
-				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, glwe_vec + t * N, l, (k + 1) * N,
-				                                         glwe_vec + t * N, l, (k + 1) * N),
-				           "vec_normalize_base2k_p failed in normalize_ggsw_dft");
-		}
+	CHECK_CALL(normalize_ggsw(module, ggsw_ct, ggsw_ct), "Non-DFT GGSW normalization failed inside DFT normalization");
 
 	// Computes the bivGGSW ciphertext's matrix in the DFT domain.
-	pvda_vec_znx_dft(module, result_dft->mat, ggsw_size(params_ggsw), ggsw_mat, ggsw_size(params_ggsw), N);
+	pvda_vec_znx_dft(module, result_dft->mat, ggsw_size(result_dft->params), ggsw_ct->mat,
+	                 ggsw_size(result_dft->params), result_dft->params->params_glwe->N);
 
 	status = 0;
 
 cleanup:
-	free(ggsw_mat);
+	delete_ggsw(ggsw_ct);
 
 	return status;
 }
