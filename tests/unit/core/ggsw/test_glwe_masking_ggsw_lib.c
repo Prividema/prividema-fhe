@@ -41,8 +41,8 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	double err_length = 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -115,7 +115,7 @@ Test(glwe_secret_masking_ggsw_lib, small_error)
 	free(m);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
 }
 
@@ -133,8 +133,8 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -208,7 +208,7 @@ Test(glwe_secret_masking_ggsw_lib, uniform_RnX_message)
 	free(m_univ_RnX);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
 }
 
@@ -228,8 +228,8 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	double err_length = 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -308,7 +308,7 @@ Test(glwe_secret_masking_ggsw_lib_dft, small_error)
 	free(m);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
 }
 
@@ -326,8 +326,8 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -406,6 +406,6 @@ Test(glwe_secret_masking_ggsw_lib_dft, uniform_RnX_message)
 	free(m_univ_RnX);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
 }

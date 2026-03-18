@@ -24,13 +24,13 @@ typedef struct glwe_ct_params
  * @param sigma The standard deviation of the error distribution.
  * @return GLWEParams*
  */
-GLWEParams* new_glwe_ct_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma);
+GLWEParams* new_glwe_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma);
 
 /**
  * @brief Deletes the set of bivGLWE parameters.
  *
  * @param params The bivGLWE parameters.
  */
-void delete_glwe_ct_params(GLWEParams* params);
+void delete_glwe_params(GLWEParams* params);
 
 #endif  // bivGLWE_CT_PARAMS_H

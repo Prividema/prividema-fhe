@@ -22,14 +22,14 @@
 Test(ggsw_size, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_size returns NLIMBS_TILDEBASE * NLIMBSBASE
 	cr_assert(eq(i64, ggsw_size(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
@@ -37,14 +37,14 @@ Test(ggsw_size, basic)
 Test(ggsw_bytes, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_bytes returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE * sizeof(int64_t)
 	cr_assert(eq(i64, ggsw_bytes(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE * sizeof(int64_t)));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
@@ -54,14 +54,14 @@ Test(ggsw_bytes, basic)
 Test(ggsw_coef_number, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_coeff_number returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE
 	cr_assert(eq(i64, ggsw_coef_number(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
@@ -69,7 +69,7 @@ Test(ggsw_coef_number, basic)
 Test(new_ggsw, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -81,7 +81,7 @@ Test(new_ggsw, basic)
 
 	// Clean up
 	delete_ggsw(ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
@@ -89,7 +89,7 @@ Test(new_ggsw, basic)
 Test(ggsw_Sj_Yti, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -112,7 +112,7 @@ Test(ggsw_Sj_Yti, basic)
 
 	// Clean up
 	delete_ggsw(ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
@@ -120,8 +120,8 @@ Test(ggsw_Sj_Yti, basic)
 Test(normalize_ggsw, basic)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -138,14 +138,14 @@ Test(normalize_ggsw, basic)
 	delete_ggsw(ggsw);
 	delete_ggsw(res);
 	delete_module_info(module);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
 Test(add_ggsw, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -182,14 +182,14 @@ Test(add_ggsw, basic)
 	delete_ggsw(ggsw_rhs);
 	delete_ggsw(sum_computed);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 Test(const_mult_ggsw, without_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -243,15 +243,15 @@ Test(const_mult_ggsw, without_normalization)
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
 
 Test(const_mult_ggsw, with_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -318,7 +318,7 @@ Test(const_mult_ggsw, with_normalization)
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
 
@@ -328,7 +328,7 @@ Test(const_mult_ggsw, with_normalization)
 Test(ggsw_coef_number_dft, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_coef_number_dft returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE / 2
@@ -336,14 +336,14 @@ Test(ggsw_coef_number_dft, basic)
 
 	// Clean up
 	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 // Test new_ggsw
 Test(new_ggsw_dft, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -355,7 +355,7 @@ Test(new_ggsw_dft, basic)
 
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
@@ -363,7 +363,7 @@ Test(new_ggsw_dft, basic)
 Test(ggsw_Sj_Yti_dft, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -388,7 +388,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
@@ -396,8 +396,8 @@ Test(ggsw_Sj_Yti_dft, basic)
 Test(normalize_ggsw_dft, basic)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -414,15 +414,15 @@ Test(normalize_ggsw_dft, basic)
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(res_dft);
 	delete_module_info(module);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 }
 
 Test(add_ggsw_dft, basic)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -460,14 +460,14 @@ Test(add_ggsw_dft, basic)
 	delete_ggsw_dft(sum_computed_dft);
 	delete_module_info(module);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 Test(const_mult_ggsw_dft, without_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -528,15 +528,15 @@ Test(const_mult_ggsw_dft, without_normalization)
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
 
 Test(const_mult_ggsw_dft, with_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -609,6 +609,6 @@ Test(const_mult_ggsw_dft, with_normalization)
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
 	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }

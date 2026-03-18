@@ -22,13 +22,13 @@
 Test(glwe_size, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_size returns NLIMBSBASE
 	cr_assert(eq(i64, glwe_size(params_glwe), NLIMBSBASE));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -37,13 +37,13 @@ Test(glwe_size, basic)
 Test(glwe_bytes, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_bytes returns NLIMBSBASE * NBASE * sizeof(int64_t)
 	cr_assert(eq(i64, glwe_bytes(params_glwe), NLIMBSBASE * NBASE * sizeof(int64_t)));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -52,8 +52,8 @@ Test(glwe_bytes, basic)
 Test(mult_vec_znx_dft, size_equal_one)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	// Variables
 	int64_t* prod_computed    = calloc(poly_univ_bytes(params_glwe), 1);
@@ -100,7 +100,7 @@ Test(mult_vec_znx_dft, size_equal_one)
 	free(pol_rhs);
 	free(pol_rhs_dft);
 	delete_module_info(module);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -110,8 +110,8 @@ Test(mult_vec_znx_dft, size_equal_one)
  */
 Test(mult_vec_znx_dft, random_size)
 {
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	int64_t size = 0;
 
@@ -168,7 +168,7 @@ Test(mult_vec_znx_dft, random_size)
 	free(vec_rhs);
 	free(vec_rhs_dft);
 	delete_module_info(module);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 //! bivGLWE PART (begin)
@@ -179,13 +179,13 @@ Test(mult_vec_znx_dft, random_size)
 Test(glwe_coef_number, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_coef_number returns NLIMBSBASE * NBASE
 	cr_assert(eq(i64, glwe_coef_number(params_glwe), NLIMBSBASE * NBASE));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -194,15 +194,15 @@ Test(glwe_coef_number, basic)
 Test(new_glwe, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GLWECiphertext* glwe      = new_glwe(params_glwe);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECiphertext* glwe    = new_glwe(params_glwe);
 
 	// Asserts new_glwe allocates a non-NULL glwe
 	cr_assert(eq(int, (glwe != NULL) && (glwe->vec != NULL), 1));
 
 	// Clean up
 	delete_glwe(glwe);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -211,7 +211,7 @@ Test(new_glwe, basic)
 Test(add_glwe, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Variables
 	GLWECiphertext* glwe_lhs     = new_glwe(params_glwe);
@@ -233,7 +233,7 @@ Test(add_glwe, basic)
 	delete_glwe(glwe_lhs);
 	delete_glwe(glwe_rhs);
 	delete_glwe(sum_computed);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -242,8 +242,8 @@ Test(add_glwe, basic)
 Test(const_mult_glwe, without_normalization)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	// Variables
 	GLWECiphertext* prod_computed = new_glwe(params_glwe);
@@ -289,7 +289,7 @@ Test(const_mult_glwe, without_normalization)
 	delete_module_info(module);
 	delete_glwe(glwe);
 	delete_glwe(prod_computed);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -298,8 +298,8 @@ Test(const_mult_glwe, without_normalization)
 Test(const_mult_glwe, with_normalization)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	// Variables
 	GLWECiphertext* prod_computed = new_glwe(params_glwe);
@@ -358,7 +358,7 @@ Test(const_mult_glwe, with_normalization)
 	delete_module_info(module);
 	delete_glwe(glwe);
 	delete_glwe(prod_computed);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 //! bivGLWE IN DFT PART (begin)
@@ -369,13 +369,13 @@ Test(const_mult_glwe, with_normalization)
 Test(glwe_coef_number_dft, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_coef_number_dft returns NLIMBSBASE * NBASE / 2
 	cr_assert(eq(i64, glwe_coef_number_dft(params_glwe), NLIMBSBASE * NBASE / 2));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -384,22 +384,22 @@ Test(glwe_coef_number_dft, basic)
 Test(new_glwe_dft, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GLWECiphertextDFT* glwe   = new_glwe_dft(params_glwe);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWECiphertextDFT* glwe = new_glwe_dft(params_glwe);
 
 	// Asserts new_glwe_dft allocates a non-NULL glwe
 	cr_assert(eq(int, (glwe != NULL) && (glwe->vec != NULL), 1));
 
 	// Clean up
 	delete_glwe_dft(glwe);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 Test(add_glwe_dft, basic)
 {
 	// Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	// Variables
 	GLWECiphertextDFT* glwe_lhs_dft     = new_glwe_dft(params_glwe);
@@ -426,7 +426,7 @@ Test(add_glwe_dft, basic)
 	delete_glwe_dft(glwe_lhs_dft);
 	delete_glwe_dft(glwe_rhs_dft);
 	delete_glwe_dft(sum_computed_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -435,8 +435,8 @@ Test(add_glwe_dft, basic)
 Test(const_mult_glwe_dft, without_normalization)
 {
 	//! Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	//! Variables
 	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(params_glwe);
@@ -494,7 +494,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	free(prod_computed_vec);
 	delete_glwe_dft(glwe_dft);
 	delete_glwe_dft(prod_computed_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
 
@@ -504,8 +504,8 @@ Test(const_mult_glwe_dft, without_normalization)
 Test(const_mult_glwe_dft, with_normalization)
 {
 	//! Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	//! Variables
 	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(params_glwe);
@@ -577,5 +577,5 @@ Test(const_mult_glwe_dft, with_normalization)
 	delete_module_info(module);
 	delete_glwe_dft(glwe_dft);
 	delete_glwe_dft(prod_computed_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 }

@@ -48,11 +48,11 @@ Test(ggsw_external_product, without_error)
 	double err_length  = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GLWEParams* params_glwe_tilde =
-	    new_glwe_ct_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
+	    new_glwe_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	//! Variables
 	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(NBASE, KBASE);
@@ -141,8 +141,8 @@ Test(ggsw_external_product, without_error)
 
 	delete_glwe_secret_key(sk_ggsw);
 	delete_glwe_secret_key_dft(sk_glwe_dft);
-	delete_glwe_ct_params(params_glwe);
-	delete_glwe_ct_params(params_glwe_tilde);
+	delete_glwe_params(params_glwe);
+	delete_glwe_params(params_glwe_tilde);
 	delete_ggsw_ct_params(params_ggsw);
 	pvda_delete_module_info(module);
 }
@@ -157,11 +157,11 @@ Test(ggsw_external_product_dft, without_error)
 	double err_length  = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GLWEParams* params_glwe_tilde =
-	    new_glwe_ct_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
+	    new_glwe_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module            = new_module_info(NBASE, FFT64);
+	MODULE* module          = new_module_info(NBASE, FFT64);
 
 	//! Variables
 	GLWESecretKey* sk_ggsw                   = alloc_glwe_secret_key(NBASE, KBASE);
@@ -255,8 +255,8 @@ Test(ggsw_external_product_dft, without_error)
 	delete_glwe_secret_key(sk_ggsw);
 	delete_glwe_secret_key_dft(sk_glwe_dft);
 
-	delete_glwe_ct_params(params_glwe);
-	delete_glwe_ct_params(params_glwe_tilde);
+	delete_glwe_params(params_glwe);
+	delete_glwe_params(params_glwe_tilde);
 	delete_ggsw_ct_params(params_ggsw);
 	pvda_delete_module_info(module);
 }

@@ -42,8 +42,8 @@ Test(ggsw_secret_encrypt, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -195,7 +195,7 @@ Test(ggsw_secret_encrypt, works)
 	free(m_univ_dft);
 	delete_ggsw(ggsw);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 	pvda_delete_module_info(module);
 }
@@ -215,8 +215,8 @@ Test(ggsw_secret_encrypt_dft, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
@@ -362,7 +362,7 @@ Test(ggsw_secret_encrypt_dft, works)
 	free(m_univ_dft);
 	delete_ggsw_dft(ggsw_dft);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_ggsw_ct_params(params_ggsw);
 	pvda_delete_module_info(module);
 }
