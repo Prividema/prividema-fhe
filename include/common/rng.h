@@ -89,20 +89,32 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 /**
  * @brief Generates a Random Vector following a normal distribution.
  *
- * @param limb_len  The size of each limb. N for TGLWE and TGGSW.
  * @param res       The result.
- * @param res_size  The number of limbs.
- * @param res_sl    The stride (in elements) between two consecutive result limbs.
- *                  It indicates how many elements must be skipped in memory to reach
- *                  the start of the next limb in `res`.
+ * @param res_size  The number of elements in the vector.
  * @param mu        The mean value of the distribution.
  * @param sigma     The standard deviation of the distribution.
  *
  * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval • `0` otherwise.
- *
- * @note For each call to this function, we'll generate a new seed.
+
  */
-int normal_random_vec(uint64_t limb_len, double* res, int64_t res_size, int64_t res_sl, double mu, double sigma);
+int normal_random_vec(double* res, int64_t res_size, double mu, double sigma);
+
+/**
+ * @brief Adds a random number to each element of vec that follows a normal
+ * distribuition.
+ *
+ * res and vec can be the same vector for in-place addition
+ *
+ * @param res       The result.
+ * @param res_size  The number of elements in the vectors.
+ * @param vec       The input vector
+ * @param mu        The mean value of the distribution.
+ * @param sigma     The standard deviation of the distribution.
+ * @retval • `-1` if an error occurs.
+ * @retval • `0` otherwise.
+ *
+ */
+int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma);
 
 #endif  // RNG_H

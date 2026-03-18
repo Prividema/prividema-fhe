@@ -1,7 +1,7 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 
-#include "ggsw_ct_params.h"
+#include "ggsw_params.h"
 
 #define NBASE            1024
 #define KBASE            8
@@ -20,13 +20,13 @@
 //! bivGGSW Part (begin)
 
 // Test normalize_ggsw
-Test(new_ggsw_ct_params, basic)
+Test(new_ggsw_params, basic)
 {
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	cr_assert(params_ggsw != NULL);
 
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }

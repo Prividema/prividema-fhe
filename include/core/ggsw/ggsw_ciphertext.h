@@ -16,14 +16,14 @@
 // =============================================
 
 /**
- * @struct GGSWCtParams
+ * @struct GGSWParams
  *
  * @brief GGSW Ciphertext in the iDFT space.
  */
 typedef struct ggsw_ciphertext
 {
 	/// GGSW parameters.
-	const GGSWCtParams* params;
+	const GGSWParams* params;
 
 	/// A matrix of size \f$n\_limbs\_tilde \times n\_limbs\f$ with coefficients that are in \f$\mathbb{Z}_n[X]\f$.
 	MatBiv* mat;
@@ -37,7 +37,7 @@ typedef struct ggsw_ciphertext
  *
  * @return The number of coefficients in a GGSW ciphertext.
  */
-uint64_t ggsw_coef_number(const GGSWCtParams* params_ggsw);
+uint64_t ggsw_coef_number(const GGSWParams* params_ggsw);
 
 /**
  * @brief Creates a Bivariate GGSW ciphertext filled with 0.
@@ -47,7 +47,7 @@ uint64_t ggsw_coef_number(const GGSWCtParams* params_ggsw);
  * @retval • `NULL` if malloc failed inside the function.
  * @retval • The Allocated GGSW ciphertext filled with 0 otherwise.
  */
-GGSWCiphertext* new_ggsw(const GGSWCtParams* params_ggsw);
+GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw);
 
 /**
  * @brief Deletes a GGSW ciphertext.
@@ -73,7 +73,7 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  *
  * @return A Pointer to the associated Bivariate GLWE.
  */
-VecBiv* ggsw_retrieve_bivglwe(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i);
+VecBiv* ggsw_retrieve_bivglwe(const GGSWParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i);
 
 /**
  * @brief Normalizes a GGSW ciphertext.
@@ -122,14 +122,14 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 // =============================================
 
 /**
- * @struct GGSWCtParams
+ * @struct GGSWParams
  *
  * @brief GGSW Ciphertext in the DFT space.
  */
 typedef struct ggsw_ciphertext_dft
 {
 	/// GGSW parameters.
-	const GGSWCtParams* params;
+	const GGSWParams* params;
 
 	/// A matrix of size \f$n\_limbs\_tilde \times n\_limbs\f$ with coefficients that are in \f$\mathbb{C}_n[X]\f$.
 	MatBivDFT* mat;
@@ -146,7 +146,7 @@ typedef struct ggsw_ciphertext_dft
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * \f$\mathbb{Z}_n[X]\f$, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t ggsw_coef_number_dft(const GGSWCtParams* params_ggsw);
+uint64_t ggsw_coef_number_dft(const GGSWParams* params_ggsw);
 
 /**
  * @brief Creates a Bivariate GGSW ciphertext in the DFT space filled with 0.
@@ -156,7 +156,7 @@ uint64_t ggsw_coef_number_dft(const GGSWCtParams* params_ggsw);
  * @retval • `NULL` if malloc failed inside the function.
  * @retval • The Allocated GGSW ciphertext filled with 0 otherwise.
  */
-GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params_ggsw);
+GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw);
 
 /**
  * @brief Deletes a GGSW ciphertext in the DFT space.
@@ -182,7 +182,7 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
  *
  * @return A Pointer to the associated Bivariate GLWE in the DFT space.
  */
-VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i);
+VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i);
 
 /**
  * @brief Normalizes a GGSW ciphertext in the DFT space.
@@ -236,7 +236,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
  *
  * @note The size is the same in DFT and iDFT domains.
  */
-uint64_t ggsw_size(const GGSWCtParams* params_ggsw);
+uint64_t ggsw_size(const GGSWParams* params_ggsw);
 
 /**
  * @brief Gets the number of bytes needed to store a GGSW ciphertext.
@@ -247,6 +247,6 @@ uint64_t ggsw_size(const GGSWCtParams* params_ggsw);
  *
  * @note This function works in both DFT and iDFT domains.
  */
-uint64_t ggsw_bytes(const GGSWCtParams* params_ggsw);
+uint64_t ggsw_bytes(const GGSWParams* params_ggsw);
 
 #endif  // bivGGSW_CIPHERTEXT_H

@@ -22,30 +22,30 @@
 Test(ggsw_size, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_size returns NLIMBS_TILDEBASE * NLIMBSBASE
 	cr_assert(eq(i64, ggsw_size(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test ggsw_bytes
 Test(ggsw_bytes, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_bytes returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE * sizeof(int64_t)
 	cr_assert(eq(i64, ggsw_bytes(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE * sizeof(int64_t)));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 //! bivGGSW Part (begin)
@@ -54,23 +54,23 @@ Test(ggsw_bytes, basic)
 Test(ggsw_coef_number, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_coeff_number returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE
 	cr_assert(eq(i64, ggsw_coef_number(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE));
 
 	// Clean up
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test new_ggsw
 Test(new_ggsw, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
@@ -81,22 +81,22 @@ Test(new_ggsw, basic)
 
 	// Clean up
 	delete_ggsw(ggsw);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test ggsw_Sj_Yti
 Test(ggsw_Sj_Yti, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
 	// asserts ggsw_Sj_Yti returns the right pointer
-	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
 			VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i);
@@ -112,17 +112,17 @@ Test(ggsw_Sj_Yti, basic)
 
 	// Clean up
 	delete_ggsw(ggsw);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test normalize_ggsw
 Test(normalize_ggsw, basic)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
@@ -138,15 +138,15 @@ Test(normalize_ggsw, basic)
 	delete_ggsw(ggsw);
 	delete_ggsw(res);
 	delete_module_info(module);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 Test(add_ggsw, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertext* ggsw_lhs     = new_ggsw(params_ggsw);
@@ -181,16 +181,16 @@ Test(add_ggsw, basic)
 	delete_ggsw(ggsw_lhs);
 	delete_ggsw(ggsw_rhs);
 	delete_ggsw(sum_computed);
-	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+	delete_glwe_params(params_glwe);
 }
 
 Test(const_mult_ggsw, without_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	PolyUniv* u                      = malloc(NBASE * sizeof(int64_t));
@@ -211,7 +211,7 @@ Test(const_mult_ggsw, without_normalization)
 	const_mult_ggsw(module, product_computed, ggsw, u_dft, 0);
 
 	// Asserts product_computed = u * ggsw
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, jj, ii);
@@ -242,17 +242,17 @@ Test(const_mult_ggsw, without_normalization)
 	free(u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
-	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
 
 Test(const_mult_ggsw, with_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	PolyUniv* u                      = malloc(NBASE * sizeof(int64_t));
@@ -272,7 +272,7 @@ Test(const_mult_ggsw, with_normalization)
 	// Computes u * ggsw
 	const_mult_ggsw(module, product_computed, ggsw, u_dft, 1);
 
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, jj, ii);
@@ -317,8 +317,8 @@ Test(const_mult_ggsw, with_normalization)
 	free(u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
-	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
 
@@ -328,23 +328,23 @@ Test(const_mult_ggsw, with_normalization)
 Test(ggsw_coef_number_dft, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_coef_number_dft returns NLIMBS_TILDEBASE * NLIMBSBASE * NBASE / 2
 	cr_assert(eq(i64, ggsw_coef_number_dft(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE / 2));
 
 	// Clean up
-	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+	delete_glwe_params(params_glwe);
 }
 
 // Test new_ggsw
 Test(new_ggsw_dft, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
@@ -355,22 +355,22 @@ Test(new_ggsw_dft, basic)
 
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test ggsw_Sj_Yti_dft
 Test(ggsw_Sj_Yti_dft, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
 	// Asserts ggsw_Sj_Yti_dft returns the right pointer
-	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
 			VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i);
@@ -388,17 +388,17 @@ Test(ggsw_Sj_Yti_dft, basic)
 
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test normalize_ggsw
 Test(normalize_ggsw_dft, basic)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertextDFT* res_dft  = new_ggsw_dft(params_ggsw);
@@ -414,16 +414,16 @@ Test(normalize_ggsw_dft, basic)
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(res_dft);
 	delete_module_info(module);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 Test(add_ggsw_dft, basic)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_lhs_dft     = new_ggsw_dft(params_ggsw);
@@ -459,16 +459,16 @@ Test(add_ggsw_dft, basic)
 	delete_ggsw_dft(ggsw_rhs_dft);
 	delete_ggsw_dft(sum_computed_dft);
 	delete_module_info(module);
-	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+	delete_glwe_params(params_glwe);
 }
 
 Test(const_mult_ggsw_dft, without_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(double));
@@ -494,7 +494,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	                  ggsw_size(params_ggsw));
 
 	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, jj, ii);
@@ -527,17 +527,17 @@ Test(const_mult_ggsw_dft, without_normalization)
 	free(prod_computed_mat);
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
-	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
 
 Test(const_mult_ggsw_dft, with_normalization)
 {
 	// Parameters
-	MODULE* module            = new_module_info(NBASE, FFT64);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = new_module_info(NBASE, FFT64);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(double));
@@ -562,7 +562,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat,
 	                  ggsw_size(params_ggsw));
 
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, jj, ii);
@@ -608,7 +608,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	free(prod_computed_mat);
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
-	delete_ggsw_ct_params(params_ggsw);
-	delete_glwe_ct_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }

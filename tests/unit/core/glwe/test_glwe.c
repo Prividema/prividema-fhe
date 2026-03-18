@@ -34,8 +34,8 @@ Test(glwe_secret_masking, small_error)
 	double err_length = 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -107,7 +107,7 @@ Test(glwe_secret_masking, small_error)
 	free(m);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
 }
 
@@ -125,8 +125,8 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -145,7 +145,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ_RnX
-	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
+	normal_random_vec(m_univ_RnX, NBASE, 0.0, 0.1);
 
 	// Draws normaly the error
 	normal_random_biv_poly(params_glwe, err);
@@ -199,7 +199,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	free(m_univ_RnX);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
 }
 
@@ -218,8 +218,8 @@ Test(glwe_secret_masking_dft, small_error)
 	double err_length = 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -296,7 +296,7 @@ Test(glwe_secret_masking_dft, small_error)
 	free(phase_computed_univ_RnX);
 	delete_glwe_dft(glwe_computed_dft);
 	pvda_delete_module_info(module);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
 }
@@ -315,8 +315,8 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
 
 	//! Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
@@ -336,7 +336,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ_RnX
-	normal_random_vec(NBASE, m_univ_RnX, 1, NBASE, 0.0, 0.1);
+	normal_random_vec(m_univ_RnX, NBASE, 0.0, 0.1);
 
 	// Draws normaly the error
 	normal_random_biv_poly(params_glwe, err);
@@ -393,6 +393,6 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	free(err);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
+	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
 }

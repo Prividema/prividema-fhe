@@ -1,12 +1,12 @@
 #include "glwe.h"
 
-#include "glwe_ct_params.h"
+#include "glwe_params.h"
 #include "logger.h"
 #include "rng.h"
 #include "utils.h"
 
 //! bivGLWE PART (begin)
-int add_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, const VecBiv* glwe,
+int add_mult(const MODULE* module, const GLWEParams* params, PolyBiv* res, const VecBiv* glwe,
              const GLWESecretKeyDFT* sk_dft)
 {
 	int status = -1;
@@ -48,7 +48,7 @@ cleanup:
 	return status;
 }
 
-int sub_mult(const MODULE* module, const GLWECtParams* params, PolyBiv* res, const VecBiv* ct,
+int sub_mult(const MODULE* module, const GLWEParams* params, PolyBiv* res, const VecBiv* ct,
              const GLWESecretKeyDFT* sk_dft)
 {
 	int status = -1;
@@ -98,8 +98,8 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 {
 	int status = -1;
 
-	const GLWECtParams* params = (const GLWECtParams*)glwe->params;
-	VecBiv* result             = glwe->vec;
+	const GLWEParams* params = (const GLWEParams*)glwe->params;
+	VecBiv* result           = glwe->vec;
 	// GLWE parameters
 	uint64_t N       = params->N;
 	uint64_t k       = params->k;
@@ -167,8 +167,8 @@ cleanup:
 int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKeyDFT* sk_dft,
                           const GLWECiphertext* glwe)
 {
-	const GLWECtParams* params = glwe->params;
-	const VecBiv* glwe_vec     = glwe->vec;
+	const GLWEParams* params = glwe->params;
+	const VecBiv* glwe_vec   = glwe->vec;
 
 	int status = -1;
 
@@ -236,11 +236,11 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* glwe_dft, c
 {
 	int status = -1;
 	// GLWE parameters
-	const GLWECtParams* params = glwe_dft->params;
-	uint64_t k                 = params->k;
-	uint64_t N                 = params->N;
-	uint64_t kappa             = params->kappa;
-	uint64_t l                 = poly_biv_size(params);
+	const GLWEParams* params = glwe_dft->params;
+	uint64_t k               = params->k;
+	uint64_t N               = params->N;
+	uint64_t kappa           = params->kappa;
+	uint64_t l               = poly_biv_size(params);
 
 	VecBiv* glwe_vec = NULL;
 	// acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
@@ -267,6 +267,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* glwe_dft, c
 	pvda_vec_znx_dft(module, glwe_dft->vec, (k + 1) * l, glwe_vec, (k + 1) * l, N);
 
 	// Add the phase to the result ciphertext's b
+	// TODO:: vec_add
 	for (uint64_t i = 0; i < l; i++)
 	{
 		for (uint64_t p = 0; p < N; p++)
@@ -288,10 +289,10 @@ int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, const GLWESecr
 {
 	int status = -1;
 	// GLWE parameters
-	const GLWECtParams* params = glwe_dft->params;
-	uint64_t N                 = params->N;
-	uint64_t k                 = params->k;
-	uint64_t l                 = poly_biv_size(params);
+	const GLWEParams* params = glwe_dft->params;
+	uint64_t N               = params->N;
+	uint64_t k               = params->k;
+	uint64_t l               = poly_biv_size(params);
 
 	// Computes the input ciphertext out of the DFT domain
 	VecBiv* glwe = NULL;

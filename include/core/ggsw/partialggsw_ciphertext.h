@@ -1,7 +1,7 @@
 #ifndef PARTIALGGSW_CIPHERTEXT_H
 #define PARTIALGGSW_CIPHERTEXT_H
 
-#include "ggsw_ct_params.h"
+#include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 
 typedef struct partialggsw_ciphertext

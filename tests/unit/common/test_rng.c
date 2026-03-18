@@ -193,7 +193,7 @@ Test(normal_random_vec, basic)
 		cr_fail();
 	}
 
-	if (normal_random_vec(NBASE, pol_univ, KBASE, 2, 0.0, 0.001) < 0)
+	if (normal_random_vec(pol_univ, NBASE * KBASE, 0.0, 0.001) < 0)
 	{
 		log_message(LOG_ERROR, "new_normal_random_vec failedi.");
 		pvda_delete_module_info(module);

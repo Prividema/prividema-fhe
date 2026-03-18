@@ -2,6 +2,7 @@
 #include <criterion/new/assert.h>
 #include <stdio.h>
 
+#include "bivariate_polynomial.h"
 #include "core/ggsw/ggsw.h"
 #include "core/glwe/glwe.h"
 #include "ggsw_ciphertext.h"
@@ -41,9 +42,9 @@ Test(ggsw_secret_encrypt, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
@@ -52,7 +53,6 @@ Test(ggsw_secret_encrypt, works)
 	PolyUniv* m_univ         = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* m_univ_dft  = malloc(poly_univ_bytes(params_glwe));
 	// Variables to compute the phase of each ggsw's row
-	VecBiv* glwe_vec_computed            = calloc(glwe_coef_number(params_glwe), sizeof(int64_t));
 	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(int64_t));
 	PolyUnivRnX* phase_univ_RnX          = calloc(NBASE, sizeof(int64_t));
@@ -77,6 +77,7 @@ Test(ggsw_secret_encrypt, works)
 	// - a bivGLWE(m / 2^{kappa_tilde * i}))        , for j = k
 	for (uint64_t i = 1; i <= L_TILDEBASE; i++)
 	{
+		// For j from 0 to k-1 (ie, the -m*sk values)
 		for (uint64_t j = 0; j < K_TILDEBASE; j++)
 		{
 			// Fills each changed variable with 0s'
@@ -86,21 +87,16 @@ Test(ggsw_secret_encrypt, works)
 			memset(m_skj_univ, 0, poly_univ_bytes(params_glwe));
 			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
 
-			// Copy bivGLWE(-m * sk_j / 2^{kappa_tilde * i}) in glwe_vec
-			memcpy(glwe_vec_computed, ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i), glwe_bytes(params_glwe));
-
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
-			GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+			GLWECiphertext glwe_ct = {params_glwe, ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i)};
 			glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
-
-			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
 			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
 
-			//! Computes by hand the phase = -m * sk_j / 2^{kappa_tilde*i}
 			// Computes DFT(m * sk_j)
 			mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, m_univ_dft, 1);
 
-			// Computes -m * sk_j
+			// Computes DFT(-m * sk_j)
+			// TODO: znx negate
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
 				m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
@@ -137,6 +133,8 @@ Test(ggsw_secret_encrypt, works)
 			          max_fails, big_error_count, proba);
 		}
 
+		// Final row (k/k+1, ie, the b in (a0, a1, ..., ak-1, b))
+
 		// Fills each changed variable with 0s'
 		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
 		memset(phase_computed_univ_RnX, 0, poly_univ_bytes(params_glwe));
@@ -146,10 +144,11 @@ Test(ggsw_secret_encrypt, works)
 		uint64_t row_i_ktilde = (i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE;
 
 		// Point to bivGLWE(m / 2^{kappa_tilde * i})
-		memcpy(glwe_vec_computed, ggsw->mat + row_i_ktilde * glwe_coef_number(params_glwe), glwe_bytes(params_glwe));
+
+		VecBiv* glwe_vec_ptr = ggsw->mat + row_i_ktilde * glwe_coef_number(params_glwe);
 
 		// Computes the phase = m / 2^{kappa_tilde * i} + err
-		GLWECiphertext glwe_ct = {params_glwe, glwe_vec_computed};
+		GLWECiphertext glwe_ct = {params_glwe, glwe_vec_ptr};
 		glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
 
 		// Computes the phase in Tn[X]
@@ -190,15 +189,14 @@ Test(ggsw_secret_encrypt, works)
 	free(phase_computed_univ_RnX);
 	free(m_skj_univ_dft);
 	free(m_skj_univ);
-	free(glwe_vec_computed);
 	free(phase_computed);
 	free(phase_univ_RnX);
 	free(m_univ);
 	free(m_univ_dft);
 	delete_ggsw(ggsw);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 	pvda_delete_module_info(module);
 }
 
@@ -217,9 +215,9 @@ Test(ggsw_secret_encrypt_dft, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
-	GGSWCtParams* params_ggsw = new_ggsw_ct_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
@@ -229,7 +227,6 @@ Test(ggsw_secret_encrypt_dft, works)
 	PolyUnivDFT* m_univ_dft     = malloc(poly_univ_bytes(params_glwe));
 
 	// Variables to compute the phase of each ggsw's row
-	VecBivDFT* glwe_vec_computed_dft     = calloc(glwe_coef_number(params_glwe), sizeof(int64_t));
 	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
 	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(int64_t));
 	PolyUnivRnX* phase_univ_RnX          = calloc(NBASE, sizeof(int64_t));
@@ -260,12 +257,8 @@ Test(ggsw_secret_encrypt_dft, works)
 			memset(m_skj_univ, 0, poly_univ_bytes(params_glwe));
 			memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
 
-			// The pointer to DFT(bivGLWE(-m * sk_j / 2^{kappa_tilde * i}))
-			memcpy(glwe_vec_computed_dft, ggsw_retrieve_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i),
-			       glwe_bytes(params_glwe));
-
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
-			GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+			GLWECiphertextDFT glwe_dft_ct = {params_glwe, ggsw_retrieve_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i)};
 			glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i} + err in RnX
@@ -320,12 +313,10 @@ Test(ggsw_secret_encrypt_dft, works)
 		// The bivGGSW row correponding to bivGLWE(m / 2^{kappa_tilde * i})
 		uint64_t row_i_ktilde = ((i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE);
 
-		// The pointer to bivGLWE(m / 2^{kappa_tilde * i})
-		memcpy(glwe_vec_computed_dft, ggsw_dft->mat + row_i_ktilde * glwe_coef_number(params_glwe),
-		       glwe_bytes(params_glwe));
+		VecBivDFT* row_i_ktilde_ptr = ggsw_dft->mat + row_i_ktilde * glwe_coef_number(params_glwe);
 
 		// Computes the phase = m / 2^kappa_tilde + err
-		GLWECiphertextDFT glwe_dft_ct = {params_glwe, glwe_vec_computed_dft};
+		GLWECiphertextDFT glwe_dft_ct = {params_glwe, row_i_ktilde_ptr};
 		glwe_secret_demasking_dft(module, phase_computed, sk_dft, &glwe_dft_ct);
 
 		// Computes the phase in Rn[X]
@@ -365,14 +356,13 @@ Test(ggsw_secret_encrypt_dft, works)
 	free(phase_computed_univ_RnX);
 	free(m_skj_univ_dft);
 	free(m_skj_univ);
-	free(glwe_vec_computed_dft);
 	free(phase_computed);
 	free(phase_univ_RnX);
 	free(m_univ);
 	free(m_univ_dft);
 	delete_ggsw_dft(ggsw_dft);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_ct_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 	pvda_delete_module_info(module);
 }

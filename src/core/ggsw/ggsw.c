@@ -5,8 +5,8 @@
 
 #include "glwe.h"
 #include "glwe_ciphertext.h"
-#include "glwe_ct_params.h"
 #include "glwe_key.h"
+#include "glwe_params.h"
 #include "logger.h"
 #include "math.h"
 #include "rng.h"
@@ -15,36 +15,13 @@
 
 //! bivGGSW PART (begin)
 
-int add_bivariate_error(const MODULE* module, const GLWECtParams* params_glwe, PolyBiv* result, const PolyBiv* pol)
-{
-	int status = -1;
-
-	// Variables
-	PolyBiv* err = NULL;
-
-	// Draw a random error
-	err = new_biv_poly(params_glwe);
-	CHECK_ALLOC(err, "new_biv_poly failed in add_error");
-	CHECK_CALL(normal_random_biv_poly(params_glwe, err), "normal_random_biv_poly failed in add_error");
-
-	// Add the error in the DFT domain
-	add_biv_poly(params_glwe, result, params_glwe->N, pol, params_glwe->N, err, params_glwe->N);
-
-	status = 0;
-
-cleanup:
-	free(err);
-
-	return status;
-}
-
 int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
                         const PolyUniv* m_univ)
 {
 	int status = -1;
 
-	const GGSWCtParams* params_ggsw = result->params;
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWParams* params_ggsw = result->params;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
 
@@ -79,7 +56,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	// Computes DFT(msg)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
 
-	for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
 	{
 		for (uint64_t j = 0; j < k_tilde + 1; j++)
 		{
@@ -104,12 +81,11 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 					tmp_sp1[p] =
 					    ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->kappa_tilde * i);
 
+				CHECK_CALL(add_normal_random_vec(tmp_sp1, N, tmp_sp1, 0.0, params_glwe->sigma),
+				           "error addition failed in ggsw encryption");
+
 				// Compute the base-2^kappa decomposition of tmp_sp1
 				CHECK_CALL(univ_to_biv(params_glwe, glwe_biv_msg, tmp_sp1), "univ_to_biv failed in compute_phase_ij");
-
-				// Computes Dec_Kappa(val / 2^{kappa_tilde*i}) + err
-				CHECK_CALL(add_bivariate_error(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
-				           "add_error failed in compute_phase_ij");
 			}
 			// Get the pointer for the result position
 			VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(params_ggsw, result->mat, j, i);
@@ -189,8 +165,8 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 {
 	int status = -1;
 
-	const GGSWCtParams* params_ggsw = result_dft->params;
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWParams* params_ggsw = result_dft->params;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt_dft");
 
@@ -224,7 +200,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 	// Computes DFT(m)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
 
-	for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
 	{
 		for (uint64_t j = 0; j < k_tilde + 1; j++)
 		{
@@ -248,14 +224,13 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 			for (uint64_t p = 0; p < N; p++)
 				msk_univ_RnX[p] = ldexp((j == k) ? (double)m_univ[p] : m_skj_univ[p], -params_ggsw->kappa_tilde * i);
 
+			// Add the error
+			CHECK_CALL(add_normal_random_vec(msk_univ_RnX, N, msk_univ_RnX, 0.0, params_glwe->sigma),
+			           "error addition failed in ggsw_dft encryption");
+
 			// Convert the result to a bivariate (base-2k) polynomial
 			CHECK_CALL(univ_to_biv(params_glwe, glwe_biv_msg, msk_univ_RnX),
 			           "univ_to_biv failed in compute_phase_ij_dft");
-
-			// Adds the error to get Dec_Kappa(m / 2^{kappa_tilde*}) + err
-			// or                    Dec_Kappa(-m * sk_j / 2^{kappa_tilde*i}) + err
-			CHECK_CALL(add_bivariate_error(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
-			           "add_error failed in compute_phase_ij_dft");
 
 			// Permorm DFT to get the result in the DFT domain
 			pvda_vec_znx_dft(module, glwe_biv_msg_dft, poly_biv_size(params_glwe), glwe_biv_msg,
