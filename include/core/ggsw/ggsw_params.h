@@ -33,15 +33,14 @@ typedef struct ggsw_ct_params
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
-GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t kappa_tilde,
-                                 uint64_t n_limbs_tilde);
+GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t n_limbs_tilde);
 
 /**
  * @brief Deletes a GGSW parameters.
  *
  * @param params A Pointer to the GGSW parameters.
  */
-void delete_ggsw_ct_params(GGSWParams* params);
+void delete_ggsw_params(GGSWParams* params);
 
 /**
  * @brief Gets the number of partialGGSW in a GGSW.

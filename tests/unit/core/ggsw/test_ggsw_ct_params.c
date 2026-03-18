@@ -28,5 +28,5 @@ Test(new_ggsw_params, basic)
 	cr_assert(params_ggsw != NULL);
 
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }

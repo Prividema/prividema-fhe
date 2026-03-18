@@ -23,7 +23,7 @@ cleanup:
 	return NULL;
 }
 
-void delete_ggsw_ct_params(GGSWParams* params) { free(params); }
+void delete_ggsw_params(GGSWParams* params) { free(params); }
 
 uint64_t nb_partials(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
 

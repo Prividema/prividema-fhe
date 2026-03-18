@@ -143,7 +143,7 @@ Test(ggsw_external_product, without_error)
 	delete_glwe_secret_key_dft(sk_glwe_dft);
 	delete_glwe_params(params_glwe);
 	delete_glwe_params(params_glwe_tilde);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	pvda_delete_module_info(module);
 }
 
@@ -257,6 +257,6 @@ Test(ggsw_external_product_dft, without_error)
 
 	delete_glwe_params(params_glwe);
 	delete_glwe_params(params_glwe_tilde);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	pvda_delete_module_info(module);
 }

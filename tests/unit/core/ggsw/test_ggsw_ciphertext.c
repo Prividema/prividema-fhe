@@ -30,7 +30,7 @@ Test(ggsw_size, basic)
 
 	// Clean up
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test ggsw_bytes
@@ -45,7 +45,7 @@ Test(ggsw_bytes, basic)
 
 	// Clean up
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 //! bivGGSW Part (begin)
@@ -62,7 +62,7 @@ Test(ggsw_coef_number, basic)
 
 	// Clean up
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test new_ggsw
@@ -82,7 +82,7 @@ Test(new_ggsw, basic)
 	// Clean up
 	delete_ggsw(ggsw);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test ggsw_Sj_Yti
@@ -113,7 +113,7 @@ Test(ggsw_Sj_Yti, basic)
 	// Clean up
 	delete_ggsw(ggsw);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test normalize_ggsw
@@ -139,7 +139,7 @@ Test(normalize_ggsw, basic)
 	delete_ggsw(res);
 	delete_module_info(module);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 Test(add_ggsw, basic)
@@ -181,7 +181,7 @@ Test(add_ggsw, basic)
 	delete_ggsw(ggsw_lhs);
 	delete_ggsw(ggsw_rhs);
 	delete_ggsw(sum_computed);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 }
 
@@ -242,7 +242,7 @@ Test(const_mult_ggsw, without_normalization)
 	free(u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
@@ -317,7 +317,7 @@ Test(const_mult_ggsw, with_normalization)
 	free(u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
@@ -335,7 +335,7 @@ Test(ggsw_coef_number_dft, basic)
 	cr_assert(eq(i64, ggsw_coef_number_dft(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * NBASE / 2));
 
 	// Clean up
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 }
 
@@ -356,7 +356,7 @@ Test(new_ggsw_dft, basic)
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test ggsw_Sj_Yti_dft
@@ -389,7 +389,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 // Test normalize_ggsw
@@ -415,7 +415,7 @@ Test(normalize_ggsw_dft, basic)
 	delete_ggsw_dft(res_dft);
 	delete_module_info(module);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 }
 
 Test(add_ggsw_dft, basic)
@@ -459,7 +459,7 @@ Test(add_ggsw_dft, basic)
 	delete_ggsw_dft(ggsw_rhs_dft);
 	delete_ggsw_dft(sum_computed_dft);
 	delete_module_info(module);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 }
 
@@ -527,7 +527,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	free(prod_computed_mat);
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }
@@ -608,7 +608,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	free(prod_computed_mat);
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 	delete_module_info(module);
 }

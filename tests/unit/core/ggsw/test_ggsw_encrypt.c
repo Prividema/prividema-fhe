@@ -196,7 +196,7 @@ Test(ggsw_secret_encrypt, works)
 	delete_ggsw(ggsw);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	pvda_delete_module_info(module);
 }
 
@@ -363,6 +363,6 @@ Test(ggsw_secret_encrypt_dft, works)
 	delete_ggsw_dft(ggsw_dft);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_params(params_glwe);
-	delete_ggsw_ct_params(params_ggsw);
+	delete_ggsw_params(params_ggsw);
 	pvda_delete_module_info(module);
 }
