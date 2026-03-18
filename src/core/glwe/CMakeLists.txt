@@ -5,7 +5,7 @@
 # Source files for GLWE
 set(GLWE_SRCS
     glwe.c
-    glwe_ct_params.c
+    glwe_params.c
     glwe_ciphertext.c
     glwe_key.c
     glwe_transform_key.c

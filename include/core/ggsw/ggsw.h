@@ -42,7 +42,7 @@ int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GL
 void ggsw_public_encrypt(GGSWCiphertext* result,     // result
                          const GLWEPublicKey* pk,    // secret key
                          const int64_t* m,           // message
-                         const GGSWCtParams* params  // parameters
+                         const GGSWParams* params  // parameters
 );
 
 // PartialGGSWCiphertext is a struct encapsulating ciphertext values and params.
@@ -50,14 +50,14 @@ void ggsw_public_encrypt(GGSWCiphertext* result,     // result
 void halfggsw_secret_encrypt(PartialGGSWCiphertext* result,  // result
                              const GLWESecretKey* sk,        // secret key
                              const int64_t* m,               // message
-                             const GGSWCtParams* params      // parameters
+                             const GGSWParams* params      // parameters
 );
 
 /* Encrypts message m into halfGGSW ciphertext res with parameters params */
 void halfggsw_public_encrypt(PartialGGSWCiphertext* result,  // result
                              const GLWEPublicKey* pk,        // public key
                              const int64_t* m,               // message
-                             const GGSWCtParams* params      // parameters
+                             const GGSWParams* params      // parameters
 );
 
 //! GGSW IN DFT PART (begin)

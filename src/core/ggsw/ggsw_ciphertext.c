@@ -10,14 +10,14 @@
 
 //! bivGGSW Part (begin)
 
-uint64_t ggsw_coef_number(const GGSWCtParams* params_ggsw)
+uint64_t ggsw_coef_number(const GGSWParams* params_ggsw)
 {
 	return params_ggsw->n_limbs_tilde * glwe_coef_number(params_ggsw->params_glwe);
 }
 
-GGSWCiphertext* new_ggsw(const GGSWCtParams* params_ggsw)
+GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw)
 {
-	// The bivGGSW does not own the GGSWCtParams
+	// The bivGGSW does not own the GGSWParams
 	GGSWCiphertext* ggsw = malloc(sizeof(GGSWCiphertext));
 	CHECK_ALLOC(ggsw, "malloc in new_ggsw");
 
@@ -42,10 +42,10 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 }
 
 // TODO: add inline qualifier
-VecBiv* ggsw_retrieve_bivglwe(const GGSWCtParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i)
+VecBiv* ggsw_retrieve_bivglwe(const GGSWParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
 	// bivGGSW parameters
 	uint64_t k_tilde = params_ggsw->k_tilde;
@@ -58,17 +58,17 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 	int status = -1;
 
 	// bivGGSW parameters
-	const GGSWCtParams* params_ggsw = result->params;
-	uint64_t k_tilde                = params_ggsw->k_tilde;
-	uint64_t n_limbs_tilde          = params_ggsw->n_limbs_tilde;
+	const GGSWParams* params_ggsw = result->params;
+	uint64_t k_tilde              = params_ggsw->k_tilde;
+	uint64_t n_limbs_tilde        = params_ggsw->n_limbs_tilde;
 
 	// bivGLWE parameters
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
-	uint64_t N                      = params_glwe->N;
-	uint64_t k                      = params_glwe->k;
-	uint64_t n_limbs                = params_glwe->n_limbs;
-	uint64_t kappa                  = params_glwe->kappa;
-	uint64_t l                      = poly_biv_size(params_glwe);
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
+	uint64_t N                    = params_glwe->N;
+	uint64_t k                    = params_glwe->k;
+	uint64_t n_limbs              = params_glwe->n_limbs;
+	uint64_t kappa                = params_glwe->kappa;
+	uint64_t l                    = poly_biv_size(params_glwe);
 
 	// Matrix parameters
 	uint64_t nb_partial          = n_limbs_tilde / (k_tilde + 1);
@@ -111,8 +111,8 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	MatBivDFT* ggsw_mat_dft = NULL;
 
 	// bivGGSW & bivGLWE set of parameters
-	const GGSWCtParams* params_ggsw = result->params;
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWParams* params_ggsw = result->params;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
 	uint64_t N       = params_glwe->N;
 	uint64_t k       = params_glwe->k;
@@ -154,12 +154,12 @@ cleanup:
 
 //! bivGGSW DFT PART (begin)
 
-uint64_t ggsw_coef_number_dft(const GGSWCtParams* params_ggsw)
+uint64_t ggsw_coef_number_dft(const GGSWParams* params_ggsw)
 {
 	return (params_ggsw->n_limbs_tilde * glwe_coef_number(params_ggsw->params_glwe)) / 2;
 }
 
-GGSWCiphertextDFT* new_ggsw_dft(const GGSWCtParams* params_ggsw)
+GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw)
 {
 	GGSWCiphertextDFT* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextDFT));
 	CHECK_ALLOC(ggsw_mat_dft, "malloc in new_ggsw_dft");
@@ -183,10 +183,10 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
 	free(ggsw_dft);
 }
 
-VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWCtParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
+VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
 	// bivGGSW parameters
 	uint64_t k_tilde = params_ggsw->k_tilde;
@@ -202,17 +202,17 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, cons
 	MatBiv* ggsw_mat = NULL;
 
 	// bivGGSW parameters
-	const GGSWCtParams* params_ggsw = ggsw_dft->params;
-	uint64_t k_tilde                = params_ggsw->k_tilde;
-	uint64_t n_limbs_tilde          = params_ggsw->n_limbs_tilde;
+	const GGSWParams* params_ggsw = ggsw_dft->params;
+	uint64_t k_tilde              = params_ggsw->k_tilde;
+	uint64_t n_limbs_tilde        = params_ggsw->n_limbs_tilde;
 
 	// bivGLWE parameters
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
-	uint64_t N                      = params_glwe->N;
-	uint64_t k                      = params_glwe->k;
-	uint64_t l                      = poly_biv_size(params_glwe);
-	uint64_t n_limbs                = params_glwe->n_limbs;
-	uint64_t kappa                  = params_glwe->kappa;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
+	uint64_t N                    = params_glwe->N;
+	uint64_t k                    = params_glwe->k;
+	uint64_t l                    = poly_biv_size(params_glwe);
+	uint64_t n_limbs              = params_glwe->n_limbs;
+	uint64_t kappa                = params_glwe->kappa;
 
 	// Matrix parameters
 	uint64_t nb_partial          = n_limbs_tilde / (k_tilde + 1);
@@ -267,8 +267,8 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	MatBiv* ggsw_mat = NULL;
 
 	// bivGGSW & bivGLWEparams
-	const GGSWCtParams* params_ggsw = result_dft->params;
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWParams* params_ggsw = result_dft->params;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
 	uint64_t N       = params_glwe->N;
 	uint64_t k       = params_glwe->k;
@@ -318,12 +318,12 @@ cleanup:
 
 //! COMMON PART (begin)
 
-uint64_t ggsw_size(const GGSWCtParams* params_ggsw)
+uint64_t ggsw_size(const GGSWParams* params_ggsw)
 {
 	return params_ggsw->n_limbs_tilde * params_ggsw->params_glwe->n_limbs;
 }
 
-uint64_t ggsw_bytes(const GGSWCtParams* params_ggsw)
+uint64_t ggsw_bytes(const GGSWParams* params_ggsw)
 {
 	int64_t N = params_ggsw->params_glwe->N;
 	return ggsw_size(params_ggsw) * N * sizeof(int64_t);

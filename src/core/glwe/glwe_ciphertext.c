@@ -7,11 +7,11 @@
 
 //! bivGLWE PART (begin)
 
-uint64_t glwe_coef_number(const GLWECtParams* params) { return glwe_size(params) * params->N; }
+uint64_t glwe_coef_number(const GLWEParams* params) { return glwe_size(params) * params->N; }
 
-GLWECiphertext* new_glwe(const GLWECtParams* params)
+GLWECiphertext* new_glwe(const GLWEParams* params)
 {
-	// The bivGLWE does not own the GLWECtParams
+	// The bivGLWE does not own the GLWEParams
 	GLWECiphertext* glwe = malloc(sizeof(GLWECiphertext));
 	CHECK_ALLOC(glwe, "glwe's malloc failed in new_glwe");
 
@@ -105,9 +105,9 @@ cleanup:
 
 //! bivGLWE IN DFT PART (begin)
 
-uint64_t glwe_coef_number_dft(const GLWECtParams* params) { return glwe_size(params) * params->N / 2; }
+uint64_t glwe_coef_number_dft(const GLWEParams* params) { return glwe_size(params) * params->N / 2; }
 
-GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params)
+GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params)
 {
 	// The bivGLWE ciphertext in the DFT domain
 	GLWECiphertextDFT* glwe_dft = malloc(sizeof(GLWECiphertextDFT));
@@ -142,11 +142,11 @@ int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, cons
 	VecBiv* glwe_vec = NULL;
 
 	// bivGLWE parameters
-	const GLWECtParams* params_glwe = result_dft->params;
-	uint64_t N                      = params_glwe->N;
-	uint64_t k                      = params_glwe->k;
-	uint64_t kappa                  = params_glwe->kappa;
-	uint64_t l                      = poly_biv_size(params_glwe);
+	const GLWEParams* params_glwe = result_dft->params;
+	uint64_t N                    = params_glwe->N;
+	uint64_t k                    = params_glwe->k;
+	uint64_t kappa                = params_glwe->kappa;
+	uint64_t l                    = poly_biv_size(params_glwe);
 
 	// Point to the bivGLWE ciphertext out of the DFT domain
 	glwe_vec = malloc(glwe_bytes(params_glwe));
@@ -190,7 +190,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	VecBiv* result_vec_normalized = NULL;
 
 	// bivGLWE set of parameters
-	const GLWECtParams* params = result_dft->params;
+	const GLWEParams* params = result_dft->params;
 
 	// bivGLWE parameters
 	uint64_t N = params->N;
@@ -244,9 +244,9 @@ cleanup:
 
 //! COMMON PART (begin)
 
-uint64_t glwe_size(const GLWECtParams* params) { return params->n_limbs; }
+uint64_t glwe_size(const GLWEParams* params) { return params->n_limbs; }
 
-uint64_t glwe_bytes(const GLWECtParams* params)
+uint64_t glwe_bytes(const GLWEParams* params)
 {
 	uint64_t N = params->N;
 	return glwe_size(params) * N * sizeof(int64_t);

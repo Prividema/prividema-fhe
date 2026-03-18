@@ -7,7 +7,7 @@
  * In this header, we define the structure representing bivGGSW parameters.
  */
 
-#include "glwe_ct_params.h"
+#include "glwe_params.h"
 
 /**
  * @struct GGSWCtParams
@@ -17,11 +17,11 @@
 typedef struct ggsw_ct_params
 {
 	/// GLWE Parameters.
-	const GLWECtParams* params_glwe;
+	const GLWEParams* params_glwe;
 	uint64_t k_tilde;  // k_tilde = 1 for RGSW (by default k=k_tilde=1)
 	uint64_t kappa_tilde;
 	uint64_t n_limbs_tilde;  // n_limbs_tilde = (k_tilde + 1) * l_tilde.
-} GGSWCtParams;
+} GGSWParams;
 
 /**
  * @brief Creates a set of GGSW Parameters.
@@ -33,7 +33,7 @@ typedef struct ggsw_ct_params
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
-GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params, uint64_t k_tilde, uint64_t kappa_tilde,
+GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t kappa_tilde,
                                  uint64_t n_limbs_tilde);
 
 /**
@@ -41,7 +41,7 @@ GGSWCtParams* new_ggsw_ct_params(const GLWECtParams* params, uint64_t k_tilde, u
  *
  * @param params A Pointer to the GGSW parameters.
  */
-void delete_ggsw_ct_params(GGSWCtParams* params);
+void delete_ggsw_ct_params(GGSWParams* params);
 
 /**
  * @brief Gets the number of partialGGSW in a GGSW.
@@ -50,7 +50,7 @@ void delete_ggsw_ct_params(GGSWCtParams* params);
  *
  * @return The number of partialGGSW in a GGSW.
  */
-uint64_t nb_partials(const GGSWCtParams* params);
+uint64_t nb_partials(const GGSWParams* params);
 
 /**
  * @brief Gets the number of rows in a partialGGSW.
@@ -59,7 +59,7 @@ uint64_t nb_partials(const GGSWCtParams* params);
  *
  * @return The number of rows in a partialGGSW.
  */
-uint64_t nb_rows_per_partial(const GGSWCtParams* params);
+uint64_t nb_rows_per_partial(const GGSWParams* params);
 
 /**
  * @struct PartialGGSWCtParams
@@ -69,7 +69,7 @@ uint64_t nb_rows_per_partial(const GGSWCtParams* params);
 typedef struct partialggsw_ct_params
 {
 	/// GLWE parameters.
-	GLWECtParams* params_glwe;
+	GLWEParams* params_glwe;
 	uint64_t kappa_tilde;  // (2^kappa) = 2^-kappa_tilde.
 	uint64_t l_tilde;      // The precision.
 } PartialGGSWCtParams;

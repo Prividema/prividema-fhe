@@ -27,7 +27,7 @@
 Test(poly_biv_size, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Asserts poly_biv_size returns LBASE
 	cr_assert(eq(i64, poly_biv_size(params_glwe), LBASE, "poly_biv_size failed: got %" PRId64 ", expected %" PRId64,
@@ -43,7 +43,7 @@ Test(poly_biv_size, basic)
 Test(poly_univ_bytes, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Asserts poly_univ_bytes returns NBASE * sizeof(int64_t)
 	cr_assert(eq(i64, poly_univ_bytes(params_glwe), NBASE * sizeof(int64_t),
@@ -60,7 +60,7 @@ Test(poly_univ_bytes, basic)
 Test(poly_biv_bytes, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Asserts poly_biv_bytes returns NBASE * LBASE * sizeof(int64_t)
 	cr_assert(eq(i64, poly_biv_bytes(params_glwe), NBASE * LBASE * sizeof(int64_t),
@@ -77,7 +77,7 @@ Test(poly_biv_bytes, basic)
 Test(biv_to_univ, runs)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	MODULE* module            = pvda_new_module_info(NBASE);
 
 	// Variables
@@ -109,7 +109,7 @@ Test(biv_to_univ, runs)
 Test(univ_to_biv, one_test)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	MODULE* module            = pvda_new_module_info(NBASE);
 
 	// Variables
@@ -146,7 +146,7 @@ Test(univ_to_biv, one_test)
 Test(univ_to_biv, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	// Variables
@@ -188,7 +188,7 @@ Test(univ_to_biv, basic)
 Test(univ_to_biv, maths_test)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	MODULE* module            = pvda_new_module_info(NBASE);
 
 	// Variables
@@ -230,7 +230,7 @@ Test(univ_to_biv, maths_test)
 Test(poly_biv_coef_number, classic_params)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Asserts poly_biv_coef_number returns NBASE * LBASE
 	cr_assert(eq(i64, poly_biv_coef_number(params_glwe), NBASE * LBASE,
@@ -249,7 +249,7 @@ Test(normal_random_biv_poly, basic)
 {
 	// Parameters
 	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
 	PolyBiv* pol = malloc(poly_biv_bytes(params_glwe));
@@ -275,7 +275,7 @@ Test(normal_random_biv_poly, is_it_working)
 {
 	// Parameters
 	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
 	PolyBiv* pol = malloc(poly_biv_bytes(params_glwe));
@@ -310,7 +310,7 @@ Test(add_biv_poly, basic)
 {
 	// Parameters
 	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
 	PolyBiv* pol_lhs = malloc(poly_biv_bytes(params_glwe));
@@ -357,7 +357,7 @@ Test(normal_random_biv_poly_dft, is_it_working)
 {
 	// Parameters
 	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
 	PolyBivDFT* pol_dft = malloc(poly_biv_bytes(params_glwe));
@@ -400,7 +400,7 @@ Test(add_biv_poly_dft, basic)
 {
 	// Parameters
 	MODULE* module            = pvda_new_module_info(NBASE);
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
 	PolyBivDFT* pol_lhs_dft = malloc(poly_biv_bytes(params_glwe));

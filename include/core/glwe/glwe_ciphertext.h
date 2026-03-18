@@ -7,7 +7,7 @@
 
 typedef struct glwe_ciphertext
 {
-	const GLWECtParams* params;  // bivGLWE parameters
+	const GLWEParams* params;  // bivGLWE parameters
 	VecBiv* vec;                 // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
@@ -17,7 +17,7 @@ typedef struct glwe_ciphertext
  * @param params_glwe The bivGLWE parameters.
  * @return int64_t
  */
-uint64_t glwe_coef_number(const GLWECtParams* params_glwe);
+uint64_t glwe_coef_number(const GLWEParams* params_glwe);
 
 /**
  * @brief Creates a bivGLWE, filled with 0.
@@ -25,7 +25,7 @@ uint64_t glwe_coef_number(const GLWECtParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  * @return GLWECiphertext*
  */
-GLWECiphertext* new_glwe(const GLWECtParams* params_glwe);
+GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 
 /**
  * @brief Deletes a bivGLWE ciphertext, but the bivGLWE parameters.
@@ -74,7 +74,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT
 
 typedef struct glwe_ciphertext_dft
 {
-	const GLWECtParams* params;  // bivGLWE parameters
+	const GLWEParams* params;  // bivGLWE parameters
 	VecBivDFT* vec;              // Vector in the DFT
 } GLWECiphertextDFT;
 
@@ -87,7 +87,7 @@ typedef struct glwe_ciphertext_dft
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t glwe_coef_number_dft(const GLWECtParams* params_glwe);
+uint64_t glwe_coef_number_dft(const GLWEParams* params_glwe);
 
 /**
  * @brief Creates a new empty bivGLWE ciphertext.
@@ -95,7 +95,7 @@ uint64_t glwe_coef_number_dft(const GLWECtParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  * @return GLWECiphertextDFT*
  */
-GLWECiphertextDFT* new_glwe_dft(const GLWECtParams* params_glwe);
+GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params_glwe);
 
 /**
  * @brief Deletes a bivGLWE ciphertext, but not the parameters.
@@ -152,7 +152,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const 
  *
  * @note The size of a bivGLWE ciphertext is the same in and out of the DFT domain.
  */
-uint64_t glwe_size(const GLWECtParams* params_glwe);
+uint64_t glwe_size(const GLWEParams* params_glwe);
 
 /**
  * @brief The number of bytes needed to store a bivGLWE ciphertext.
@@ -162,7 +162,7 @@ uint64_t glwe_size(const GLWECtParams* params_glwe);
  *
  * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of the DFT domain.
  */
-uint64_t glwe_bytes(const GLWECtParams* params_glwe);
+uint64_t glwe_bytes(const GLWEParams* params_glwe);
 
 /**
  * @brief Compute the polynomial product of c and d, component-wise in the DFT domain.

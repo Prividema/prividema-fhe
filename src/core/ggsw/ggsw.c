@@ -5,7 +5,7 @@
 
 #include "glwe.h"
 #include "glwe_ciphertext.h"
-#include "glwe_ct_params.h"
+#include "glwe_params.h"
 #include "glwe_key.h"
 #include "logger.h"
 #include "math.h"
@@ -20,8 +20,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 {
 	int status = -1;
 
-	const GGSWCtParams* params_ggsw = result->params;
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWParams* params_ggsw = result->params;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
 
@@ -165,8 +165,8 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 {
 	int status = -1;
 
-	const GGSWCtParams* params_ggsw = result_dft->params;
-	const GLWECtParams* params_glwe = params_ggsw->params_glwe;
+	const GGSWParams* params_ggsw = result_dft->params;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt_dft");
 

@@ -1,13 +1,13 @@
-#include "glwe_ct_params.h"
+#include "glwe_params.h"
 
 #include <stdlib.h>
 
 #include "logger.h"
 #include "utils.h"
 
-GLWECtParams* new_glwe_ct_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma)
+GLWEParams* new_glwe_ct_params(uint64_t N, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma)
 {
-	GLWECtParams* params = malloc(sizeof(GLWECtParams));
+	GLWEParams* params = malloc(sizeof(GLWEParams));
 	CHECK_ALLOC(params, "params' malloc failed in new_glwe_ct_params");
 
 	params->N       = N;
@@ -21,4 +21,4 @@ cleanup:
 	return NULL;
 }
 
-void delete_glwe_ct_params(GLWECtParams* params) { free(params); }
+void delete_glwe_ct_params(GLWEParams* params) { free(params); }

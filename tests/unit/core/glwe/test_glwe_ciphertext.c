@@ -22,7 +22,7 @@
 Test(glwe_size, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_size returns NLIMBSBASE
 	cr_assert(eq(i64, glwe_size(params_glwe), NLIMBSBASE));
@@ -37,7 +37,7 @@ Test(glwe_size, basic)
 Test(glwe_bytes, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_bytes returns NLIMBSBASE * NBASE * sizeof(int64_t)
 	cr_assert(eq(i64, glwe_bytes(params_glwe), NLIMBSBASE * NBASE * sizeof(int64_t)));
@@ -52,7 +52,7 @@ Test(glwe_bytes, basic)
 Test(mult_vec_znx_dft, size_equal_one)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	// Variables
@@ -110,7 +110,7 @@ Test(mult_vec_znx_dft, size_equal_one)
  */
 Test(mult_vec_znx_dft, random_size)
 {
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	int64_t size = 0;
@@ -179,7 +179,7 @@ Test(mult_vec_znx_dft, random_size)
 Test(glwe_coef_number, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_coef_number returns NLIMBSBASE * NBASE
 	cr_assert(eq(i64, glwe_coef_number(params_glwe), NLIMBSBASE * NBASE));
@@ -194,7 +194,7 @@ Test(glwe_coef_number, basic)
 Test(new_glwe, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GLWECiphertext* glwe      = new_glwe(params_glwe);
 
 	// Asserts new_glwe allocates a non-NULL glwe
@@ -211,7 +211,7 @@ Test(new_glwe, basic)
 Test(add_glwe, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Variables
 	GLWECiphertext* glwe_lhs     = new_glwe(params_glwe);
@@ -242,7 +242,7 @@ Test(add_glwe, basic)
 Test(const_mult_glwe, without_normalization)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	// Variables
@@ -298,7 +298,7 @@ Test(const_mult_glwe, without_normalization)
 Test(const_mult_glwe, with_normalization)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	// Variables
@@ -369,7 +369,7 @@ Test(const_mult_glwe, with_normalization)
 Test(glwe_coef_number_dft, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
 	// Asserts glwe_coef_number_dft returns NLIMBSBASE * NBASE / 2
 	cr_assert(eq(i64, glwe_coef_number_dft(params_glwe), NLIMBSBASE * NBASE / 2));
@@ -384,7 +384,7 @@ Test(glwe_coef_number_dft, basic)
 Test(new_glwe_dft, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GLWECiphertextDFT* glwe   = new_glwe_dft(params_glwe);
 
 	// Asserts new_glwe_dft allocates a non-NULL glwe
@@ -398,7 +398,7 @@ Test(new_glwe_dft, basic)
 Test(add_glwe_dft, basic)
 {
 	// Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	// Variables
@@ -435,7 +435,7 @@ Test(add_glwe_dft, basic)
 Test(const_mult_glwe_dft, without_normalization)
 {
 	//! Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	//! Variables
@@ -504,7 +504,7 @@ Test(const_mult_glwe_dft, without_normalization)
 Test(const_mult_glwe_dft, with_normalization)
 {
 	//! Parameters
-	GLWECtParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_ct_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	MODULE* module            = new_module_info(NBASE, FFT64);
 
 	//! Variables
