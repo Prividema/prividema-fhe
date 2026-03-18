@@ -43,13 +43,13 @@ GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t
 void delete_ggsw_params(GGSWParams* params);
 
 /**
- * @brief Gets the number of partialGGSW in a GGSW.
+ * @brief Gets the number of partialGGSWs in a GGSW.
  *
  * @param params The GGSW parameters.
  *
  * @return The number of partialGGSW in a GGSW.
  */
-uint64_t nb_partials(const GGSWParams* params);
+uint64_t ggsw_num_pggsw(const GGSWParams* params);
 
 /**
  * @brief Gets the number of rows in a partialGGSW.
@@ -58,7 +58,7 @@ uint64_t nb_partials(const GGSWParams* params);
  *
  * @return The number of rows in a partialGGSW.
  */
-uint64_t nb_rows_per_partial(const GGSWParams* params);
+uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params);
 
 /**
  * @struct PartialGGSWCtParams

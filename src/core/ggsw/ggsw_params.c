@@ -25,6 +25,6 @@ cleanup:
 
 void delete_ggsw_params(GGSWParams* params) { free(params); }
 
-uint64_t nb_partials(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
+uint64_t ggsw_num_pggsw(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
 
-uint64_t nb_rows_per_partial(const GGSWParams* params) { return params->k_tilde + 1; }
+uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params) { return params->k_tilde + 1; }

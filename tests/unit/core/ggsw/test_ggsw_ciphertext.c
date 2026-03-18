@@ -96,7 +96,7 @@ Test(ggsw_Sj_Yti, basic)
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
 	// asserts ggsw_Sj_Yti returns the right pointer
-	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
 			VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i);
@@ -211,7 +211,7 @@ Test(const_mult_ggsw, without_normalization)
 	const_mult_ggsw(module, product_computed, ggsw, u_dft, 0);
 
 	// Asserts product_computed = u * ggsw
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, jj, ii);
@@ -272,7 +272,7 @@ Test(const_mult_ggsw, with_normalization)
 	// Computes u * ggsw
 	const_mult_ggsw(module, product_computed, ggsw, u_dft, 1);
 
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, jj, ii);
@@ -370,7 +370,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
 	// Asserts ggsw_Sj_Yti_dft returns the right pointer
-	for (uint64_t i = 1; i < nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
 			VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i);
@@ -494,7 +494,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	                  ggsw_size(params_ggsw));
 
 	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, jj, ii);
@@ -562,7 +562,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat,
 	                  ggsw_size(params_ggsw));
 
-	for (uint64_t ii = 1; ii <= nb_partials(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, jj, ii);

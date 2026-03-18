@@ -134,8 +134,8 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 
 	// Normalization
 	if (do_normalization)
-		for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
-			for (uint64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++)
+		for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
+			for (uint64_t j = 0; j < ggsw_num_rows_per_pggsw(params_ggsw); j++)
 			{
 				// The pointer to biGLWE(-m * sk_j / (2^{kappa_tilde}^i))
 				VecBiv* glwe_vec = ggsw_retrieve_bivglwe(result->params, result->mat, j, i);
@@ -294,8 +294,8 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 		CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, result_dft->mat, mat_size),
 		           "vec_znx_idft_p failed in const_mult_ggsw_dft");
 
-		for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
-			for (uint64_t j = 0; j < nb_rows_per_partial(params_ggsw); j++)
+		for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
+			for (uint64_t j = 0; j < ggsw_num_rows_per_pggsw(params_ggsw); j++)
 			{
 				// The pointer to biGLWE(-m * sk_j * Y^i)
 				VecBiv* glwe_vec = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, j, i);

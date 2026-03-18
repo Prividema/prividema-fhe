@@ -5,8 +5,8 @@
 
 #include "glwe.h"
 #include "glwe_ciphertext.h"
-#include "glwe_params.h"
 #include "glwe_key.h"
+#include "glwe_params.h"
 #include "logger.h"
 #include "math.h"
 #include "rng.h"
@@ -56,7 +56,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	// Computes DFT(msg)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
 
-	for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
 	{
 		for (uint64_t j = 0; j < k_tilde + 1; j++)
 		{
@@ -200,7 +200,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 	// Computes DFT(m)
 	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
 
-	for (uint64_t i = 1; i <= nb_partials(params_ggsw); i++)
+	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
 	{
 		for (uint64_t j = 0; j < k_tilde + 1; j++)
 		{
