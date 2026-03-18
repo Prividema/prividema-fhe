@@ -43,15 +43,15 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 }
 
 // TODO: add inline qualifier
-VecBiv* ggsw_retrieve_bivglwe(const GGSWParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i)
+VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
-	const GLWEParams* params_glwe = params_ggsw->params_glwe;
+	const GLWEParams* params_glwe = ggsw_ct->params->params_glwe;
 
 	// bivGGSW parameters
-	uint64_t k_tilde = params_ggsw->k_tilde;
+	uint64_t k_tilde = ggsw_ct->params->k_tilde;
 
-	return ggsw_mat + ((i - 1) * (k_tilde + 1) + j) * glwe_coef_number(params_glwe);
+	return ggsw_ct->mat + ((i - 1) * (k_tilde + 1) + j) * glwe_coef_number(params_glwe);
 }
 
 int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw)
@@ -70,7 +70,7 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 		for (uint64_t j = 0; j < ggsw_num_rows_per_pggsw(params_ggsw); j++)
 		{
 			// The pointer to biGLWE(-m * sk_j * Y^i)
-			VecBiv* result_glwe_vec = ggsw_retrieve_bivglwe(params_ggsw, result->mat, j, i);
+			VecBiv* result_glwe_vec = ggsw_retrieve_bivglwe(result, j, i);
 
 			// Normalize the k+1 bivGLWE's elements
 			for (uint64_t t = 0; t < k + 1; t++)
@@ -161,15 +161,15 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
 	free(ggsw_dft);
 }
 
-VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i)
+VecBivDFT* ggsw_retrieve_bivglwe_dft(GGSWCiphertextDFT* ggsw_dft_ct, int64_t j, int64_t i)
 {
 	// bivGLWE parameters
-	const GLWEParams* params_glwe = params_ggsw->params_glwe;
+	const GLWEParams* params_glwe = ggsw_dft_ct->params->params_glwe;
 
 	// bivGGSW parameters
-	uint64_t k_tilde = params_ggsw->k_tilde;
+	uint64_t k_tilde = ggsw_dft_ct->params->k_tilde;
 
-	return ggsw_mat_dft + ((i - 1) * (k_tilde + 1) + j) * 2 * glwe_coef_number_dft(params_glwe);
+	return ggsw_dft_ct->mat + ((i - 1) * (k_tilde + 1) + j) * 2 * glwe_coef_number_dft(params_glwe);
 }
 
 int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft)

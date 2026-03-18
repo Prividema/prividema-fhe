@@ -99,7 +99,7 @@ Test(ggsw_Sj_Yti, basic)
 	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
-			VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, j, i);
+			VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(ggsw, j, i);
 
 			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 			ct_mat_ij[0] = 1;
@@ -214,8 +214,8 @@ Test(const_mult_ggsw, without_normalization)
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(params_ggsw, product_computed->mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
 					for (uint64_t i = 1; i <= LBASE; i++)
@@ -275,8 +275,8 @@ Test(const_mult_ggsw, with_normalization)
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw->mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(params_ggsw, product_computed->mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
 
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
@@ -373,7 +373,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
-			VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(params_ggsw, ggsw_dft->mat, j, i);
+			VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(ggsw_dft, j, i);
 
 			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 			ct_mat_ij[0] = 0.1;
@@ -475,8 +475,8 @@ Test(const_mult_ggsw_dft, without_normalization)
 	GGSWCiphertextDFT* ggsw_dft          = new_ggsw_dft(params_ggsw);
 	GGSWCiphertextDFT* prod_computed_dft = new_ggsw_dft(params_ggsw);
 	PolyUniv* u                          = malloc(NBASE * sizeof(double));
-	MatBiv* ggsw_mat                     = malloc(ggsw_bytes(params_ggsw));
-	MatBiv* prod_computed_mat            = malloc(ggsw_bytes(params_ggsw));
+	GGSWCiphertext* ggsw_ct              = new_ggsw(params_ggsw);
+	GGSWCiphertext* prod_comp            = new_ggsw(params_ggsw);
 
 	// Draws uniformly the Zn[X] polynomial in the DFT domain
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
@@ -489,16 +489,15 @@ Test(const_mult_ggsw_dft, without_normalization)
 
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
-	pvda_vec_znx_idft(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
-	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat,
-	                  ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
 
 	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(params_ggsw, prod_computed_mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
 					for (uint64_t i = 1; i <= LBASE; i++)
@@ -523,8 +522,8 @@ Test(const_mult_ggsw_dft, without_normalization)
 	// Clean up
 	free(u);
 	free(u_dft);
-	free(ggsw_mat);
-	free(prod_computed_mat);
+	delete_ggsw(ggsw_ct);
+	delete_ggsw(prod_comp);
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
 	delete_ggsw_params(params_ggsw);
@@ -544,8 +543,8 @@ Test(const_mult_ggsw_dft, with_normalization)
 	GGSWCiphertextDFT* ggsw_dft          = new_ggsw_dft(params_ggsw);
 	GGSWCiphertextDFT* prod_computed_dft = new_ggsw_dft(params_ggsw);
 	PolyUniv* u                          = malloc(NBASE * sizeof(double));
-	MatBiv* ggsw_mat                     = malloc(ggsw_bytes(params_ggsw));
-	MatBiv* prod_computed_mat            = malloc(ggsw_bytes(params_ggsw));
+	GGSWCiphertext* ggsw_ct              = new_ggsw(params_ggsw);
+	GGSWCiphertext* prod_comp            = new_ggsw(params_ggsw);
 
 	// Draws uniformly the Zn[X] polynomial in the DFT domain
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
@@ -558,15 +557,14 @@ Test(const_mult_ggsw_dft, with_normalization)
 
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
-	pvda_vec_znx_idft(module, ggsw_mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
-	pvda_vec_znx_idft(module, prod_computed_mat, ggsw_size(params_ggsw), prod_computed_dft->mat,
-	                  ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
 
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(params_ggsw, ggsw_mat, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(params_ggsw, prod_computed_mat, jj, ii);
+			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
+			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
 				for (uint64_t p = 0; p < NBASE; p++)
 				{
@@ -604,8 +602,8 @@ Test(const_mult_ggsw_dft, with_normalization)
 	// Clean up
 	free(u);
 	free(u_dft);
-	free(ggsw_mat);
-	free(prod_computed_mat);
+	delete_ggsw(ggsw_ct);
+	delete_ggsw(prod_comp);
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(prod_computed_dft);
 	delete_ggsw_params(params_ggsw);
