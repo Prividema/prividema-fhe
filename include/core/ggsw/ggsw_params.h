@@ -49,7 +49,7 @@ void delete_ggsw_params(GGSWParams* params);
  *
  * @return The number of partialGGSW in a GGSW.
  */
-uint64_t ggsw_num_pggsw(const GGSWParams* params);
+uint64_t ggsw_num_glwegad(const GGSWParams* params);
 
 /**
  * @brief Gets the number of rows in a partialGGSW.
@@ -58,7 +58,7 @@ uint64_t ggsw_num_pggsw(const GGSWParams* params);
  *
  * @return The number of rows in a partialGGSW.
  */
-uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params);
+uint64_t ggsw_num_rows_per_glwegad(const GGSWParams* params);
 
 /**
  * @struct PartialGGSWCtParams
@@ -68,9 +68,22 @@ uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params);
 typedef struct partialggsw_ct_params
 {
 	/// GLWE parameters.
-	GLWEParams* params_glwe;
+	const GLWEParams* params_glwe;
 	uint64_t kappa_tilde;  // (2^kappa) = 2^-kappa_tilde.
 	uint64_t l_tilde;      // The precision.
-} PartialGGSWCtParams;
+} GLWEGadParams;
+
+/**
+ * @brief Creates a set of GGSW Parameters.
+ *
+ * @param params_glwe 	The GLWE parameters.
+ * @param kappa_tilde 	The 2-exponent of the base (2^kappa_tilde).
+ * @param l_tilde
+ *
+ * @return A Pointer to the set of GGSW Parameters.
+ */
+GLWEGadParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde);
+
+void* delete_glwegad_params(GLWEGadParams* params);
 
 #endif  // bivGGSW_CT_PARAMS_H

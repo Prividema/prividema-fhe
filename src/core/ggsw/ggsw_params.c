@@ -25,6 +25,23 @@ cleanup:
 
 void delete_ggsw_params(GGSWParams* params) { free(params); }
 
-uint64_t ggsw_num_pggsw(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
+uint64_t ggsw_num_glwegad(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
 
-uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params) { return params->k_tilde + 1; }
+uint64_t ggsw_num_rows_per_glwegad(const GGSWParams* params) { return params->k_tilde + 1; }
+
+GLWEGadParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde)
+{
+	assert(params);
+	GLWEGadParams* params_glwegad = malloc(sizeof(GLWEGadParams));
+	CHECK_ALLOC(params_glwegad, "malloc failed in new_ggsw_ct_params");
+
+	params_glwegad->params_glwe = params;
+	params_glwegad->kappa_tilde = kappa_tilde;
+	params_glwegad->l_tilde     = l_tilde;
+
+	return params_glwegad;
+cleanup:
+	return NULL;
+}
+
+void* delete_glwegad_params(GLWEGadParams* params) { free(params); }

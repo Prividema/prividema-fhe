@@ -7,7 +7,7 @@
  * In this header file, we define the structure representing bivariate GGSW ciphertext in both DFT and iDFT forms.
  */
 
-#include "partialggsw_ciphertext.h"
+#include "glwegad_ciphertext.h"
 
 // =============================================
 // |                                           |
