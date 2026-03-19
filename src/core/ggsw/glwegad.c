@@ -1,6 +1,9 @@
 #include "glwegad.h"
 
+#include <stdint.h>
+
 #include "glwe.h"
+#include "glwe_ciphertext.h"
 #include "glwegad_ciphertext.h"
 #include "rng.h"
 #include "utils.h"
@@ -61,6 +64,29 @@ int glwegad_secret_encrypt(const MODULE* module, GLWEGadCiphertext* result, cons
 cleanup:
 	free(glwe_biv_msg);
 	free(tmp_sp1);
+
+	return status;
+}
+
+int glwegad_half_prod(const MODULE* module, GLWEGadCiphertext* result, const GLWEGadCiphertextPrep* glwegad_prep_ct,
+                      const PolyBiv* a)
+{
+	int status = -1;
+
+	//TODO: assert size compatibility
+	size_t nrows = glwegad_prep_ct->params->l_tilde;
+	uint64_t N   = glwegad_prep_ct->params->params_glwe->N;
+	size_t ncols = glwegad_prep_ct->params->params_glwe->n_limbs;
+
+	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params->params_glwe);
+
+	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, N, glwegad_prep_ct->mat, nrows, ncols),
+	           "vmp apply falied in half product");
+
+	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, ncols, glwe_dft->vec, ncols), "iDFT failed in half product");
+
+cleanup:
+	delete_glwe_dft(glwe_dft);
 
 	return status;
 }
