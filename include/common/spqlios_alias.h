@@ -1,0 +1,85 @@
+#include "maths_structures.h"
+#include "vec_znx_arithmetic_private.h"
+
+// =============================================
+// |                                           |
+// |      Aliases for spqlios structures       |
+// |                                           |
+// =============================================
+
+typedef enum module_type_t MODULE_TYPE;
+
+/// @brief Opaque structure that describe the modules (\f$\mathbb{Z}_n[X]\f$, \f$\mathbb{T}_n[X]\f$) and the hardware.
+typedef struct module_info_t MODULE;
+
+/// @brief Opaque type that represents a prepared matrix.
+typedef struct vmp_pmat_t VMP_PMAT;
+
+/// @brief Opaque type that represents a vector of \f$\mathbb{Z}_n[X]\f$ in the DFT domain.
+typedef struct vec_znx_dft_t VEC_ZNX_DFT;
+
+/// @brief Opaque type that represents a vector of \f$\mathbb{Z}_n[X]\f$ in large coeffs space.
+typedef struct vec_znx_bigcoeff_t VEC_ZNX_BIG;
+
+/// @brief Opaque type that represents a prepared scalar vector product.
+typedef struct svp_ppol_t SVP_PPOL;
+
+/// @brief Opaque type that represents a prepared left convolution vector product.
+typedef struct cnv_pvec_l_t CNV_PVEC_L;
+
+/// @brief Opaque type that represents a prepared right convolution vector product.
+typedef struct cnv_pvec_r_t CNV_PVEC_R;
+
+// =============================================
+// |                                           |
+// |             spqlios Functions             |
+// |                                           |
+// |       The following function are all      |
+// |      named pvda_f where f is the name of  |
+// |           a function in sqplios.          |
+// |                                           |
+// |  We additionnally allocate the memory of  |
+// |                the structures.            |
+// |                                           |
+// =============================================
+
+MODULE* pvda_new_module_info(uint64_t N);
+
+void pvda_delete_module_info(MODULE* module);
+
+double* pvda_new_vec_znx_dft(const MODULE* module, int64_t size);
+
+void pvda_vec_znx_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
+                      int64_t a_sl);
+
+void pvda_delete_vec_znx_dft(double* res);
+
+int64_t* pvda_new_vec_znx_big(const MODULE* module, int64_t size);
+
+int pvda_vec_znx_idft(const MODULE* module, int64_t* res, int64_t res_size, const double* a_dft, int64_t a_size);
+
+void pvda_delete_vec_znx_big(int64_t* res);
+
+double* pvda_new_svp_ppol(const MODULE* module);
+
+void pvda_svp_prepare(const MODULE* module, PolyUnivDFT* prepared_pol, const int64_t* pol);
+
+void pvda_svp_apply_dft(const MODULE* module, const double* res, int64_t res_size, const PolyUnivDFT* prepared_pol,
+                        const int64_t* a, int64_t a_size, int64_t a_sl);
+
+void pvda_delete_svp_ppol(double* res);
+
+double* pvda_new_vmp_pmat(const MODULE* module, uint64_t nrows, uint64_t ncols);
+
+int pvda_vmp_prepare_contiguous(const MODULE* module, double* pmat, const int64_t* mat, uint64_t nrows, uint64_t ncols);
+
+int pvda_vmp_apply_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
+                       int64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols);
+
+int pvda_vmp_apply_dft_to_dft(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
+                              uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols);
+
+void pvda_delete_vmp_pmat(double* pmat);
+
+int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, int64_t* res, int64_t res_size,
+                                  int64_t res_sl, const int64_t* a, int64_t a_size, int64_t a_sl);

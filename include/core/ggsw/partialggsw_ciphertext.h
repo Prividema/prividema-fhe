@@ -1,18 +1,18 @@
 #ifndef PARTIALGGSW_CIPHERTEXT_H
 #define PARTIALGGSW_CIPHERTEXT_H
 
-#include "ggsw_encrypt_params.h"
+#include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 
-typedef struct partialggsw_ciphertext {
-  PartialGGSWEncryptParams* params;
-  int64_t* ct;  // matrix of size n_limbs x l_tilde
+typedef struct partialggsw_ciphertext
+{
+	PartialGGSWCtParams* params;
+	int64_t* ct;  // matrix of size n_limbs x l_tilde
 } PartialGGSWCiphertext;
 
-// GLWE (M/bg)
-// GLWE (M/bg²)
+// bivGLWE (M/(2^kappa))
+// bivGLWE (M/(2^kappa)²)
 //...
-// GLWE (M/bg^l_tilde)
-
+// bivGLWE (M/(2^kappa)^l_tilde)
 
 #endif  // PARTIALGGSW_CIPHERTEXT_H

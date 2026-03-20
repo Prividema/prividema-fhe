@@ -1,7 +1,51 @@
+# Key Characteristics of Google style
+# - 2-space indentation
+# - Braces attached (K&R style)
+# - Short functions allowed on one line
+# - Pointers bind to the type (int* ptr)
+# - 80 column limit
 BasedOnStyle: Google
+
+# Change column limit to 120 as some names are too long for 80 columns.
+ColumnLimit: 120
+
+# Clang-format 3.7
+# If true, analyze the formatted file for the most common alignment of & and *.
+# Pointer and reference alignment styles are going to be updated according to the preferences found in the file. 
+# PointerAlignment is then used only as fallback.
 DerivePointerAlignment: false
 PointerAlignment: Left
 
+# For tabulations
+IndentWidth: 4
+TabWidth: 4
+UseTab: ForIndentation
+
+# Self explanatory
+AlignConsecutiveMacros : AcrossEmptyLines
+AlignConsecutiveAssignments: Consecutive
+AlignTrailingComments: Always
+AlignOperands: AlignAfterOperator
+
+# Align arguments after an open bracket. e.g parameters of a long function
+AlignAfterOpenBracket: true
+
+# Arrange qualifiers (e.g const or volatile) to the Left
 QualifierAlignment: Left
+
+# Sort the include Blocks
 SortIncludes: true
 IncludeBlocks: Regroup
+
+# Braces after functions and structs will be on a single line. 
+BreakBeforeBraces: Custom
+BraceWrapping:
+    AfterFunction: true
+    AfterStruct: true
+    AfterControlStatement: true
+    BeforeElse: true
+
+
+# Make the comments respect the Column Limit.
+ReflowComments: true
+CommentPragmas: '^!|^\\*|^/\\*\\*'

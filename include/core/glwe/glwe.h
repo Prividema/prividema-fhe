@@ -1,52 +1,87 @@
-#ifndef GLWE_H
-#define GLWE_H
+#ifndef bivGLWE_H
+#define bivGLWE_H
 
 #include "glwe_key.h"
 
-// tnx element R[X] mod X^N+1 mod 1
-typedef struct tnx_element {
-  uint64_t N;
-  uint64_t kappa;
-  uint64_t nb_limbs;
-  int64_t* coeffs;
-} TNXElement;
+//! bivGLWE PART (begin)
+/**
+ * @brief Computes Sum_j{0,k-1}[sk_j * a_j]
+ *
+ * @param module Additionnal information for backend.
+ * @param result The bivariate polynomial result.
+ * @param glwe The bivGLWE ciphertext
+ * @param sk_dft The Secret key in the DFT domain.
+ * @return int
+ */
+int add_mult(const MODULE* module, const GLWEParams* params, PolyBiv* result, const VecBiv* glwe,
+             const GLWESecretKeyDFT* sk_dft);
 
-// secret key encrypt
-void glwe_encrypt_priv(const Core* core,    // all params of the library: is fft
-                                            // or ntt, all N that are used
-                       GLWECiphertext* ct,  // ciphertext
-                       GLWEPreparedSK* s,   // secret key: vec of size k
-                       TNXElement* phase    // message + noise
-);
+/**
+ * @brief Masks the phase (message + noise) and puts it in result.
+ *
+ * @param result The result bivariate ciphertext.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param phase message + noise.
+ *
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  -`0` othwerwise.
+ */
+int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                        const PolyBiv* phase);
 
-// secret key decrypt (compute the phase)
-void glwe_phase_priv(const Core* core,   // all params of the library: is fft or
-                                         // ntt, all N that are used
-                     TNXElement* phase,  // decrypted phase
-                     GLWEPreparedSK* s,  // secret key
-                     GLWECiphertext* ct  // ciphertext
-);
+/**
+ * @brief Computes -Sum_j{0,k-1}[sk_j * a_j]
+ *
+ * @param module Additionnal information for backend.
+ * @param result The bivariate result.
+ * @param glwe The bivGLWE ciphertext
+ * @param sk_dft The Secret key in the DFT domain.
+ * @return int
+ */
+int sub_mult(const MODULE* module, const GLWEParams* params, PolyBiv* result, const VecBiv* glwe_vec,
+             const GLWESecretKeyDFT* sk_dft);
 
-// add noise message
+/**
+ * @brief Demasks the ciphertext into the
+ * bivariate phase (message + noise) and puts it in result.
+ *
+ * @param module Additionnal information for backend.
+ * @param result The bivariate phase.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param glwe The bivGLWE ciphertext.
+ *
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  -`0` othwerwise.
+ */
+int glwe_secret_demasking(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
+                          const GLWECiphertext* glwe);
 
-// public key encrypt
-void glwe_encrypt_pub(const Core* core,  // all params of the library: is fft or
-                                         // ntt, all N that are used
-                      GLWECiphertext* ct,  // ciphertext
-                      GLWEPublicKey* pk,   // public key
-                      TNXElement* phase    // message + noise
-);
+//! bivGLWE IN DFT PART (begin)
 
-// public key decrypt
-void glwe_phase_pub(const Core* core,    // all params of the library: is fft or
-                                         // ntt, all N that are used
-                    GLWECiphertext* ct,  // ciphertext
-                    GLWEPreparedSK* s,   // secret key: vec of size k
-                    TNXElement* phase    // message + noise
-);
+/**
+ * @brief Masks the phase (message + noise) in the DFT domain.
+ *
+ * @param result_dft The result bivariate bivGLWE ciphertext in the DFT domain..
+ * @param sk_dft The secret key in the DFT domain.
+ * @param phase_dft message + noise in the DFT domain.
+ *
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  -`0` othwerwise.
+ */
+int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWESecretKeyDFT* sk_dft,
+                            const PolyBivDFT* phase_dft);
 
-// addition 2 glwe
-void glwe_addition(const Core* core, GLWECiphertext* ct_out,
-                   GLWECiphertext* ct_in1, GLWECiphertext* ct_in2);
+/**
+ * @brief Demasks the bivariate phase (message + noise) and puts it in result.
+ *
+ * @param result The bivariate phase.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
+ *
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  -`0` othwerwise.
+ */
+int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
+                              const GLWECiphertextDFT* glwe_dft);
 
-#endif  // GLWE_H
+#endif

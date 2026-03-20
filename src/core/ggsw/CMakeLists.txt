@@ -1,13 +1,29 @@
-# Create one shared lib for GGSW.
+# ----------------------------------------
+# Build GGSW shared library
+# ----------------------------------------
+
+# Source files for GGSW
 set(GGSW_SRCS
     ggsw.c
+    ggsw_ciphertext.c
+    ggsw_params.c
+    ggsw_key.c
 )
+
+# Create a shared library named GGSW
 add_library(GGSW SHARED ${GGSW_SRCS})
 
+# Set the output library name explicitly
 set_target_properties(GGSW PROPERTIES OUTPUT_NAME ggsw)
 
-# As GGSW requires GLWE we have to link libglwe to the libggsw.
-target_link_libraries(GGSW PRIVATE GLWE)
+# Link dependencies: bivGGSW depends on GLWE, libspqlios, and COMMON
+target_link_libraries(GGSW PRIVATE GLWE libspqlios COMMON)
 
-target_include_directories(GGSW PUBLIC ${PROJECT_SOURCE_DIR}/include/core/ggsw)
-
+# Include directories
+target_include_directories(GGSW
+    PUBLIC
+        ${PROJECT_SOURCE_DIR}/include/core/ggsw    
+        ${PROJECT_SOURCE_DIR}/include/common/
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/  # Internal headers only
+)

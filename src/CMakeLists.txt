@@ -1,13 +1,15 @@
-cmake_minimum_required(VERSION 3.10)
+# ----------------------------------------
+# Build project libraries
+# ----------------------------------------
 
-# Build backend library : 
+# Backend library
 add_subdirectory(backend)
 
-# Build common library :
+# Common library
 add_subdirectory(common)
 
-# Build core library : The library will be an interface that contains glwe and ggsw.
+# Core library (interface library containing bivGLWE and bivGGSW modules)
 add_subdirectory(core)
 
-# Build schemes library :
+# Schemes library
 add_subdirectory(schemes)
