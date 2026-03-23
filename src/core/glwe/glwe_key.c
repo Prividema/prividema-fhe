@@ -1,5 +1,6 @@
 #include "glwe_key.h"
 
+#include <assert.h>
 #include <stdint.h>
 
 #include "logger.h"
@@ -16,18 +17,11 @@ GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k)
 	sk->N = N;
 	sk->k = k;
 
-	sk->values = calloc(k, sizeof(double*));
+	sk->values = calloc(N * k, sizeof(double));
 	CHECK_ALLOC(sk->values, "values creation failed in glwe key generation");
-
-	for (j = 0; j < k; j++)
-	{
-		sk->values[j] = calloc(N, sizeof(double));
-		CHECK_ALLOC(sk->values[j], "values elements' calloc failed in alloc_glwe_secret_key");
-	}
 
 	return sk;
 cleanup:
-	for (uint64_t t = 0; t < j; t++) free(sk->values[t]);
 	if (sk) free(sk->values);
 	free(sk);
 	return NULL;
@@ -40,7 +34,8 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
 	// Uniform random generation of k Zn[X] polynomials.
 	for (uint64_t j = 0; j < sk->k; j++)
 	{
-		CHECK_CALL(uniform_random_vec(N, sk->values[j], 1, N, nb_bits),
+		// TODO: should we forgo the loop and make it a single call to uniform_random_vec?
+		CHECK_CALL(uniform_random_vec(N, glwe_sk_retrieve_vec_pos(sk, j), 1, N, nb_bits),
 		           "random vector generation failed in key generation");
 	}
 
@@ -49,10 +44,15 @@ cleanup:
 	return -1;
 }
 
+PolyUniv* glwe_sk_retrieve_vec_pos(GLWESecretKey* sk, uint64_t pos)
+{
+	assert(pos >= 0 && pos < sk->k);
+	return sk->values + sk->N * pos;
+}
+
 void delete_glwe_secret_key(GLWESecretKey* sk)
 {
 	if (!sk) return;
-	for (uint64_t j = 0; j < sk->k; j++) free(sk->values[j]);
 	free(sk->values);
 	free(sk);
 }
@@ -65,29 +65,27 @@ GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k)
 	sk->N = N;
 	sk->k = k;
 
-	sk->values = malloc(k * sizeof(PolyUnivDFT*));
+	sk->values = malloc(N * k * sizeof(PolyUnivDFT));
 	CHECK_ALLOC(sk->values, "values' malloc failed in alloc_glwe_secret_key_dft");
-
-	for (j = 0; j < k; j++)
-	{
-		sk->values[j] = calloc(N, sizeof(double));
-		CHECK_ALLOC(sk->values[j], "values elements' calloc failed in alloc_glwe_secret_key_dft");
-	}
 
 	return sk;
 cleanup:
 
-	for (uint64_t t = 0; t < j; t++) free(sk->values[t]);
 	if (sk) free(sk->values);
 	free(sk);
 	return NULL;
+}
+
+PolyUnivDFT* glwe_sk_dft_retrieve_vec_pos(const GLWESecretKeyDFT* sk_dft, uint64_t pos)
+{
+	assert(pos >= 0 && pos < sk_dft->k);
+	return sk_dft->values + sk_dft->N * pos;
 }
 
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft)
 {
 	if (!sk_dft) return;
 
-	for (uint64_t j = 0; j < sk_dft->k; j++) free(sk_dft->values[j]);
 	free(sk_dft->values);
 	free(sk_dft);
 }
