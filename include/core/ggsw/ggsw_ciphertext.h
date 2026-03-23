@@ -66,14 +66,13 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  *
  * The function takes j and i and get the associated bivGLWE.
  *
- * @param params_ggsw A Pointer to the GGSW parameters. Contains `kappa_tilde`.
- * @param ggsw_mat    A Pointer to The GGSW ciphertext's matrix.
+ * @param ggsw_ct    A Pointer to The GGSW ciphertext
  * @param j 		  The j-th component of the secret key.
  * @param i 		  The i in -m * sk_j / 2^{kappa_tilde * i}.
  *
  * @return A Pointer to the associated Bivariate GLWE.
  */
-VecBiv* ggsw_retrieve_bivglwe(const GGSWParams* params_ggsw, MatBiv* ggsw_mat, int64_t j, int64_t i);
+VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i);
 
 /**
  * @brief Normalizes a GGSW ciphertext.
@@ -175,14 +174,13 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
  *
  * The function takes j and i and get the associated bivGLWE.
  *
- * @param params_ggsw A Pointer to the GGSW parameters. Contains `kappa_tilde`.
- * @param ggsw_mat    A Pointer to The GGSW ciphertext's matrix.
+ * @param ggsw_dft_ct    A Pointer to The GGSW ciphertext
  * @param j 		  The j-th component of the secret key.
  * @param i 		  The i in -m * sk_j / 2^{kappa_tilde * i}.
  *
  * @return A Pointer to the associated Bivariate GLWE in the DFT space.
  */
-VecBivDFT* ggsw_retrieve_bivglwe_dft(const GGSWParams* params_ggsw, MatBivDFT* ggsw_mat_dft, int64_t j, int64_t i);
+VecBivDFT* ggsw_retrieve_bivglwe_dft(GGSWCiphertextDFT* ggsw_dft_ct, int64_t j, int64_t i);
 
 /**
  * @brief Normalizes a GGSW ciphertext in the DFT space.
