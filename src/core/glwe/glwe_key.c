@@ -35,7 +35,7 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
 	for (uint64_t j = 0; j < sk->k; j++)
 	{
 		// TODO: should we forgo the loop and make it a single call to uniform_random_vec?
-		CHECK_CALL(uniform_random_vec(N, glwe_sk_retrieve_vec_pos(sk, j), 1, N, nb_bits),
+		CHECK_CALL(uniform_random_vec(N, glwe_sk_extract_poly(sk, j), 1, N, nb_bits),
 		           "random vector generation failed in key generation");
 	}
 
@@ -44,7 +44,7 @@ cleanup:
 	return -1;
 }
 
-PolyUniv* glwe_sk_retrieve_vec_pos(GLWESecretKey* sk, uint64_t pos)
+PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos)
 {
 	assert(pos >= 0 && pos < sk->k);
 	return sk->values + sk->N * pos;
@@ -76,7 +76,7 @@ cleanup:
 	return NULL;
 }
 
-PolyUnivDFT* glwe_sk_dft_retrieve_vec_pos(const GLWESecretKeyDFT* sk_dft, uint64_t pos)
+PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos)
 {
 	assert(pos >= 0 && pos < sk_dft->k);
 	return sk_dft->values + sk_dft->N * pos;
