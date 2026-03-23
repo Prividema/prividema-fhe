@@ -1,6 +1,9 @@
 #include "spqlios_alias.h"
 
+#include <stdint.h>
+
 #include "utils.h"
+#include "vec_znx_arithmetic.h"
 
 MODULE* pvda_new_module_info(uint64_t N) { return new_module_info(N, FFT64); }
 
@@ -132,6 +135,20 @@ int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, in
 	CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vec_znx_normalize_base2k_p");
 
 	vec_znx_normalize_base2k(module, log2_base2k, res, res_size, res_sl, a, a_size, a_sl, tmp_space);
+
+	status = 0;
+cleanup:
+	free(tmp_space);
+	return status;
+}
+
+int pvda_znx_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b)
+{
+	int status         = -1;
+	size_t tmp_size    = znx_small_single_product_tmp_bytes(module);
+	uint8_t* tmp_space = malloc(tmp_size);
+	if (tmp_size) CHECK_ALLOC(tmp_space, "failed temp space alloc for polynomial multiplication");
+	znx_small_single_product(module, res, a, b, tmp_space);
 
 	status = 0;
 cleanup:

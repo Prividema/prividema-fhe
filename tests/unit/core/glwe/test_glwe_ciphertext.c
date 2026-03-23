@@ -1,11 +1,11 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+#include <stdlib.h>
 
+#include "bivariate_polynomial.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "rng.h"
 #include "spqlios_alias.h"
-#include "utils.h"
-#include "vec_znx_arithmetic_private.h"
 
 #define NBASE      1024
 #define KBASE      1
@@ -62,6 +62,7 @@ Test(mult_vec_znx_dft, size_equal_one)
 	double* prod_computed_dft = calloc(poly_univ_bytes(params_glwe), 1);
 	double* pol_lhs_dft       = calloc(poly_univ_bytes(params_glwe), 1);
 	double* pol_rhs_dft       = calloc(poly_univ_bytes(params_glwe), 1);
+	int64_t* prod_expected    = calloc(poly_univ_bytes(params_glwe), 1);
 
 	// Draws uniformly in Zn[X]
 	uniform_random_pol_znx(pol_lhs, NBASE, 14);
@@ -79,22 +80,16 @@ Test(mult_vec_znx_dft, size_equal_one)
 
 	// Compare the real coefficient res_p for each p in [0, NBASE -1] with the res_p mult_vec_znx_dft computed
 	// coefficient.
+	pvda_znx_product(module, prod_expected, pol_lhs, pol_rhs);
+
 	for (uint64_t p = 0; p < NBASE; p++)
 	{
-		int64_t acc = 0;
-		for (uint64_t k = 0; k <= p; k++)
-		{
-			acc += pol_lhs[k] * pol_rhs[p - k];
-		}
-		for (uint64_t k = p + 1; k < NBASE; k++)
-		{
-			acc += -pol_lhs[k] * pol_rhs[NBASE + p - k];
-		}
-		cr_assert(eq(i64, prod_computed[p], acc));
+		cr_assert(eq(i64, prod_computed[p], prod_expected[p]));
 	}
 
 	free(prod_computed);
 	free(prod_computed_dft);
+	free(prod_expected);
 	free(pol_lhs);
 	free(pol_lhs_dft);
 	free(pol_rhs);
@@ -127,6 +122,7 @@ Test(mult_vec_znx_dft, random_size)
 	double* component_wise_mult_dft = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	double* vec_lhs_dft             = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	double* vec_rhs_dft             = calloc(poly_univ_bytes(params_glwe) * size, 1);
+	int64_t* prod_expected          = calloc(poly_univ_bytes(params_glwe), 1);
 
 	// Draws uniformly in (Zn[X])^size vec_lhs and vec_rhs
 	uniform_random_vec(NBASE, vec_lhs, size, NBASE, 14);
@@ -146,18 +142,10 @@ Test(mult_vec_znx_dft, random_size)
 	// coefficient.
 	for (uint64_t i = 0; i < size; i++)
 	{
+		pvda_znx_product(module, prod_expected, vec_lhs + i * NBASE, vec_rhs + i * NBASE);
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			int64_t acc = 0;
-			for (uint64_t k = 0; k <= p; k++)
-			{
-				acc += vec_lhs[i * NBASE + k] * vec_rhs[i * NBASE + p - k];
-			}
-			for (uint64_t k = p + 1; k < NBASE; k++)
-			{
-				acc += -vec_lhs[i * NBASE + k] * vec_rhs[i * NBASE + NBASE + p - k];
-			}
-			cr_assert(eq(i64, component_wise_mult[i * NBASE + p], acc));
+			cr_assert(eq(i64, component_wise_mult[i * NBASE + p], prod_expected[p]));
 		}
 	}
 
@@ -167,6 +155,7 @@ Test(mult_vec_znx_dft, random_size)
 	free(vec_lhs_dft);
 	free(vec_rhs);
 	free(vec_rhs_dft);
+	free(prod_expected);
 	delete_module_info(module);
 	delete_glwe_params(params_glwe);
 }
@@ -250,6 +239,7 @@ Test(const_mult_glwe, without_normalization)
 	GLWECiphertext* glwe          = new_glwe(params_glwe);
 	PolyUniv* u                   = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* u_dft            = malloc(poly_univ_bytes(params_glwe));
+	int64_t* prod_expected        = malloc(poly_univ_bytes(params_glwe));
 
 	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
 	uniform_random_vec(NBASE, glwe->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
@@ -268,18 +258,10 @@ Test(const_mult_glwe, without_normalization)
 		for (uint64_t j = 0; j < KBASE + 1; j++)
 		{
 			PolyUniv* glwe_ij = glwe->vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
+			pvda_znx_product(module, prod_expected, u, glwe_ij);
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-				int64_t acc = 0;
-				for (uint64_t k = 0; k <= p; k++)
-				{
-					acc += u[k] * glwe_ij[p - k];
-				}
-				for (uint64_t k = p + 1; k < NBASE; k++)
-				{
-					acc += -u[k] * glwe_ij[NBASE + p - k];
-				}
-				cr_assert(eq(i64, prod_computed->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], acc));
+				cr_assert(eq(i64, prod_computed->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], prod_expected[p]));
 			}
 		}
 
@@ -289,6 +271,7 @@ Test(const_mult_glwe, without_normalization)
 	delete_module_info(module);
 	delete_glwe(glwe);
 	delete_glwe(prod_computed);
+	free(prod_expected);
 	delete_glwe_params(params_glwe);
 }
 
@@ -328,8 +311,7 @@ Test(const_mult_glwe, with_normalization)
 				for (uint64_t i = LBASE; i >= 1; i--)
 				{
 					PolyUniv* glwe_ij = glwe->vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-
-					int64_t acc = 0;
+					int64_t acc       = 0;
 					for (uint64_t k = 0; k <= p; k++)
 					{
 						acc += u[k] * glwe_ij[p - k];
