@@ -65,7 +65,7 @@ Test(mult_vec_znx_dft, size_equal_one)
 
 	// Draws uniformly in Zn[X]
 	uniform_random_pol_znx(pol_lhs, NBASE, 14);
-	uniform_random_pol_znx(pol_lhs, NBASE, 14);
+	uniform_random_pol_znx(pol_rhs, NBASE, 14);
 
 	// Computes in the DFT pol_lhs and pol_rhs
 	pvda_vec_znx_dft(module, pol_lhs_dft, 1, pol_lhs, 1, NBASE);
