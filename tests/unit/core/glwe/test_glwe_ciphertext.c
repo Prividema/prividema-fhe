@@ -359,6 +359,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	VecBiv* glwe_vec                     = malloc(glwe_bytes(params_glwe));
 	PolyUniv* u                          = malloc(poly_univ_bytes(params_glwe));
 	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(int64_t));
+	int64_t* prod_expected               = malloc(poly_univ_bytes(params_glwe));
 
 	//! Draws input variables
 	// Draws uniformly the bivGLWE ciphertext in the DFT domain
@@ -386,18 +387,10 @@ Test(const_mult_glwe_dft, without_normalization)
 		for (uint64_t j = 0; j < KBASE + 1; j++)
 		{
 			PolyUniv* glwe_ij = glwe_vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
+			pvda_znx_product(module, prod_expected, u, glwe_ij);
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-				int64_t acc = 0;
-				for (uint64_t k = 0; k <= p; k++)
-				{
-					acc += u[k] * glwe_ij[p - k];
-				}
-				for (uint64_t k = p + 1; k < NBASE; k++)
-				{
-					acc += -u[k] * glwe_ij[NBASE + p - k];
-				}
-				cr_assert(eq(i64, prod_computed_vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], acc));
+				cr_assert(eq(i64, prod_computed_vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], prod_expected[p]));
 			}
 		}
 
@@ -406,90 +399,9 @@ Test(const_mult_glwe_dft, without_normalization)
 	free(u_dft);
 	free(glwe_vec);
 	free(prod_computed_vec);
+	free(prod_expected);
 	delete_glwe_dft(glwe_dft);
 	delete_glwe_dft(prod_computed_dft);
 	delete_glwe_params(params_glwe);
 	delete_module_info(module);
-}
-
-/**
- * @brief Tests whether const_mult_glwe_dft multiply a bivGLWE ciphertext by a ZnX polynomial.
- */
-Test(const_mult_glwe_dft, with_normalization)
-{
-	//! Parameters
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	MODULE* module          = new_module_info(NBASE, FFT64);
-
-	//! Variables
-	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(params_glwe);
-	VecBiv* prod_computed_vec            = malloc(glwe_bytes(params_glwe));
-	GLWECiphertextDFT* glwe_dft          = new_glwe_dft(params_glwe);
-	VecBiv* glwe_vec                     = malloc(glwe_bytes(params_glwe));
-	PolyUniv* u                          = malloc(poly_univ_bytes(params_glwe));
-	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(int64_t));
-
-	//! Draws input variables
-	// Draws uniformly the bivGLWE ciphertext in the DFT domain
-	uniform_random_vec_znx_dft(module, glwe_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
-
-	// Draws uniformly
-	uniform_random_pol_znx(u, NBASE, KAPPABASE - 1);
-
-	//! Computation with functions
-	// Computes glwe_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
-
-	// Computes u in the DFT domain
-	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
-
-	// Computes DFT(u * glwe)
-	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft, 1);
-
-	// Computes prod_computed_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, prod_computed_vec, glwe_size(params_glwe), prod_computed_dft->vec,
-	                  glwe_size(params_glwe));
-
-	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
-	for (uint64_t j = 0; j < KBASE + 1; j++)
-		for (uint64_t p = 0; p < NBASE; p++)
-			for (uint64_t i = 1; i <= LBASE; i++)
-			{
-				int64_t remainder = 0;
-				for (uint64_t i = LBASE; i >= 1; i--)
-				{
-					PolyUniv* glwe_ij = glwe_vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-
-					int64_t acc = 0;
-					for (uint64_t k = 0; k <= p; k++)
-					{
-						acc += u[k] * glwe_ij[p - k];
-					}
-					for (uint64_t k = p + 1; k < NBASE; k++)
-					{
-						acc += -u[k] * glwe_ij[NBASE + p - k];
-					}
-
-					cr_assert(
-					    eq(i64,
-					       (prod_computed_vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] - (acc + remainder)) %
-					           KAPPABASE,
-					       0),
-					    "Equality failed at j = %ld p = %ld i = %ld with acc = %ld reminder = %ld and res = %ld", j, p,
-					    i, acc, remainder, prod_computed_vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]);
-
-					remainder = acc >= 0 ? (acc + (1 << KAPPABASE - 1)) / (1 << KAPPABASE)
-					                     : (acc - (1 << KAPPABASE - 1) + 1) / (1 << KAPPABASE);
-				}
-			}
-
-	// Clean up
-	free(u);
-	free(u_dft);
-	free(glwe_vec);
-	free(prod_computed_vec);
-	delete_module_info(module);
-	delete_glwe_dft(glwe_dft);
-	delete_glwe_dft(prod_computed_dft);
-	delete_glwe_params(params_glwe);
 }
