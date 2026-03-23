@@ -1,6 +1,7 @@
 #ifndef bivGLWE_KEY_H
 #define bivGLWE_KEY_H
 
+#include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
 
 //! bivGLWE SECRET KEY STRUCTURES
@@ -13,14 +14,14 @@ typedef struct glwe_secret_key
 {
 	uint64_t N;
 	uint64_t k;
-	PolyUniv** values;
+	PolyUniv* values;
 } GLWESecretKey;
 
 typedef struct glwe_prep_secret_key
 {
 	uint64_t N;
 	uint64_t k;
-	PolyUnivDFT** values;
+	PolyUnivDFT* values;
 } GLWESecretKeyDFT;
 
 //! bivGLWE KEY PART (begin)
@@ -48,6 +49,17 @@ GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k);
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits);
 
 /**
+ * Returns a pointer to the k'th polynomial in the secret key
+ *
+ *
+ * @param sk  The secret key
+ * @param pos The position to retrieve (from 0 to k-1)
+ *
+ * @return    A pointer to the beggining of the pos-th polynomial in the key
+ */
+PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
+
+/**
  * @brief Delete the secret key.
  *
  * @param sk The secret key.
@@ -64,6 +76,17 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  * @return GLWESecretKeyDFT*
  */
 GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k);
+
+/**
+ * Returns a pointer to the k'th polynomial in the secret key
+ *
+ *
+ * @param sk  The secret key
+ * @param pos The position to retrieve (from 0 to k-1)
+ *
+ * @return    A pointer to the beggining of the pos-th polynomial in the key
+ */
+PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos);
 
 /**
  * @brief Delete the secret key that is in the DFT domain.

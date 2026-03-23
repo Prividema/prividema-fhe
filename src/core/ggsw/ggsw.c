@@ -66,7 +66,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 				if (j < params_glwe->k)
 				{
 					// Computes DFT(msg * sk_j)
-					mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, m_univ_dft, 1);
+					mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
 
 					// Computes -DFT(msg * sk_j)
 					for (uint64_t p = 0; p < N; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
@@ -211,7 +211,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 			if (j < k)
 			{
 				// Computes DFT(msg * sk_j)
-				mult_vec_znx_dft(module, m_skj_univ_dft, 1, sk_dft->values[j], 1, m_univ_dft, 1);
+				mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
 
 				// Computes -DFT(msg * sk_j)
 				// TODO: study if accelerable using AVX, do we need it in spqlios?
