@@ -57,7 +57,7 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
  *
  * @return    A pointer to the beggining of the pos-th polynomial in the key
  */
-PolyUniv* glwe_sk_retrieve_vec_pos(GLWESecretKey* sk, uint64_t pos);
+PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
 
 /**
  * @brief Delete the secret key.
@@ -86,7 +86,7 @@ GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k);
  *
  * @return    A pointer to the beggining of the pos-th polynomial in the key
  */
-PolyUnivDFT* glwe_sk_dft_retrieve_vec_pos(const GLWESecretKeyDFT* sk_dft, uint64_t pos);
+PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos);
 
 /**
  * @brief Delete the secret key that is in the DFT domain.

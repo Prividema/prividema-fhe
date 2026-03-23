@@ -93,7 +93,7 @@ Test(ggsw_secret_encrypt, works)
 			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
 
 			// Computes DFT(m * sk_j)
-			mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_dft_retrieve_vec_pos(sk_dft, j), 1, m_univ_dft, 1);
+			mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
 
 			// Computes DFT(-m * sk_j)
 			// TODO: znx negate
@@ -266,7 +266,7 @@ Test(ggsw_secret_encrypt_dft, works)
 
 			//! Computes by hand the phase = -m * sk_j / 2^{kappa_tilde*i}
 			// Computes DFT(m * sk_j)
-			mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_dft_retrieve_vec_pos(sk_dft, j), 1, m_univ_dft, 1);
+			mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
 
 			// Computes -m * sk_j
 			for (uint64_t p = 0; p < NBASE; p++)

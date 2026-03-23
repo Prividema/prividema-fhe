@@ -28,7 +28,7 @@ int add_mult(const MODULE* module, const GLWEParams* params, PolyBiv* res, const
 	for (uint64_t j = 0; j < k; j++)
 	{
 		// The j-th component of resp. the secret key and the bivGLWE ciphertext
-		PolyUnivDFT* sk_j_univ_dft = glwe_sk_dft_retrieve_vec_pos(sk_dft, j);
+		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
 
 		const PolyBiv* a_j = glwe + j * N;
 
@@ -71,7 +71,7 @@ int sub_mult(const MODULE* module, const GLWEParams* params, PolyBiv* res, const
 	for (uint64_t j = 0; j < k; j++)
 	{
 		// The j-th component of resp. the secret key and the bivGLWE ciphertext
-		PolyUnivDFT* sk_j_univ_dft = glwe_sk_dft_retrieve_vec_pos(sk_dft, j);
+		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
 		const PolyBiv* a_j         = ct + j * N;
 
 		// Computes DFT(sk_j * a_j)
@@ -133,7 +133,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 	for (uint64_t j = 0; j < k; j++)
 	{
 		// The j-th component of the DFT encoding of the secret key
-		PolyUnivDFT* sk_j_univ_dft = glwe_sk_dft_retrieve_vec_pos(sk_dft, j);
+		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
 
 		// Computes DFT(sk_j) * DFT(a_j)
 		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, result + j * N, l, (k + 1) * N);
@@ -197,7 +197,7 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKe
 	for (uint64_t j = 0; j < k; j++)
 	{
 		// The j-th component of the secret key in DFT form and the bivGLWE/GLW ciphertext respectively
-		PolyUnivDFT* sk_j_univ_dft = glwe_sk_dft_retrieve_vec_pos(sk_dft, j);
+		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
 		const PolyUniv* a_j        = glwe_vec + j * N;
 
 		// Computes DFT(sk_j * a_j)
