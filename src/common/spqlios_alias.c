@@ -5,7 +5,6 @@
 
 #include "utils.h"
 #include "vec_znx_arithmetic.h"
-#include "vec_znx_arithmetic_private.h"
 
 MODULE* pvda_new_module_info(uint64_t N) { return new_module_info(N, FFT64); }
 
@@ -162,7 +161,7 @@ int pvda_vec_znx_negate(const MODULE* module, int64_t* res, uint64_t res_size, u
 	return 1;
 }
 
-uint64_t pvda_module_extract_nn(const MODULE* module) { return module->nn; }
+uint64_t pvda_module_extract_nn(const MODULE* module) { return module_get_n(module); }
 /*
 int pvda_vec_rnx_negate(const MODULE* module, double* res, uint64_t res_size, uint64_t res_sl, const double* a,
                         uint64_t a_size, uint64_t a_sl)

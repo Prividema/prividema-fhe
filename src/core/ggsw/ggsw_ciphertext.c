@@ -7,7 +7,6 @@
 #include "logger.h"
 #include "spqlios_alias.h"
 #include "utils.h"
-#include "vec_znx_arithmetic_private.h"
 
 //! bivGGSW Part (begin)
 
