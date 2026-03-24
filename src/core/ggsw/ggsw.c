@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "bivariate_polynomial.h"
 #include "glwe.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
@@ -11,6 +12,7 @@
 #include "math.h"
 #include "rng.h"
 #include "spqlios_alias.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 //! bivGGSW PART (begin)
@@ -37,24 +39,24 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 
 	// compute_phase_ij requires some extra temp space
 	// TODO: find out why it is being set to poly_univ_bytes even though it is a different data type
-	double* tmp_sp1 = NULL;
+	PolyUnivRnX* tmp_sp1 = NULL;
 
 	// Temp space for -m * sk * 2^{-kappa_tilde}
 	PolyBiv* glwe_biv_msg = NULL;
 
-	m_univ_dft = malloc(poly_univ_bytes(params_glwe));
+	m_univ_dft = new_univ_dft(module);
 	CHECK_ALLOC(m_univ_dft, "malloc failed in ggsw_secret_encrypt");
-	m_skj_univ_dft = malloc(poly_univ_bytes(params_glwe));
+	m_skj_univ_dft = new_univ_dft(module);
 	CHECK_ALLOC(m_skj_univ_dft, "malloc failed in ggsw_secret_encrypt");
-	m_skj_univ = malloc(poly_univ_bytes(params_glwe));
+	m_skj_univ = new_univ(params_glwe);
 	CHECK_ALLOC(m_skj_univ, "malloc failed in ggsw_secret_encrypt");
-	tmp_sp1 = malloc(poly_univ_bytes(params_glwe));
+	tmp_sp1 = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(tmp_sp1, "malloc failed in ggsw_secret_encrypt");
-	glwe_biv_msg = malloc(poly_biv_bytes(params_glwe));
+	glwe_biv_msg = new_biv_poly(params_glwe);
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)
-	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, nn);
+	univ_coefs_to_dft(module, m_univ_dft, m_univ);
 
 	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
 	{
@@ -72,7 +74,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 					for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 
 					// Invert the DFT to get -msg * sk_j
-					CHECK_CALL(pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1),
+					CHECK_CALL(univ_dft_to_coefs(module, m_skj_univ, m_skj_univ_dft),
 					           "vec_znx_idft_p failed in compute_phase_ij");
 				}
 
@@ -101,10 +103,10 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 
 cleanup:
 	free(glwe_biv_msg);
-	free(tmp_sp1);
-	free(m_skj_univ_dft);
-	free(m_skj_univ);
-	free(m_univ_dft);
+	delete_univ_rnx(tmp_sp1);
+	delete_univ_dft(m_skj_univ_dft);
+	delete_univ(m_skj_univ);
+	delete_univ_dft(m_univ_dft);
 
 	return status;
 }

@@ -2,11 +2,13 @@
 #include <criterion/new/assert.h>
 #include <stdio.h>
 
+#include "bivariate_polynomial.h"
 #include "core/ggsw/ggsw.h"
 #include "core/glwe/glwe.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "core/glwe/glwe_transform_key.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 #define NBASE            8
@@ -60,16 +62,16 @@ Test(ggsw_external_product, without_error)
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde        = new_glwe(params_glwe_tilde);
 	GLWECiphertext* ext_prod_computed = new_glwe(params_glwe);
-	PolyUniv* u_univ                  = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* u_univ                  = new_univ(params_glwe);
 	PolyBiv* m                        = malloc(poly_biv_bytes(params_glwe_tilde));
 
 	//! Variables to compute the result phase of the external product
-	PolyBiv* phase_computed           = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* um_computed_univ_RnX = calloc(NBASE, sizeof(double));
-	PolyUnivDFT* u_univ_dft           = malloc(NBASE * sizeof(double));
-	PolyBivDFT* um_dft                = malloc(poly_biv_bytes(params_glwe_tilde));
-	PolyBiv* um                       = malloc(poly_biv_bytes(params_glwe));
-	double* um_univ_RnX               = calloc(NBASE, sizeof(double));
+	PolyBiv* phase_computed           = new_biv_poly(params_glwe);
+	PolyUnivRnX* um_computed_univ_RnX = new_univ_rnx(params_glwe);
+	PolyUnivDFT* u_univ_dft           = new_univ_dft(module);
+	PolyBivDFT* um_dft                = new_biv_poly_dft(params_glwe);
+	PolyBiv* um                       = new_biv_poly(params_glwe);
+	PolyUnivRnX* um_univ_RnX          = new_univ_rnx(params_glwe);
 
 	// Define sk_ggsw = (1, 0, ... , 0)
 	// TODO: WHY?
@@ -102,7 +104,7 @@ Test(ggsw_external_product, without_error)
 
 	//! Computation by hand
 	// Computes DFT(m)
-	pvda_vec_znx_dft(module, u_univ_dft, 1, u_univ, 1, NBASE);
+	univ_coefs_to_dft(module, u_univ_dft, u_univ);
 
 	// Computes DFT(u*m)
 	pvda_svp_apply_dft(module, um_dft, L_TILDEBASE, u_univ_dft, m, L_TILDEBASE, NBASE);
@@ -128,13 +130,13 @@ Test(ggsw_external_product, without_error)
 
 	// Clean up
 	free(m);
-	free(u_univ);
-	free(u_univ_dft);
+	delete_univ(u_univ);
+	delete_univ_dft(u_univ_dft);
 	free(phase_computed);
 	free(um);
-	free(um_univ_RnX);
+	delete_univ_rnx(um_univ_RnX);
 	free(um_dft);
-	free(um_computed_univ_RnX);
+	delete_univ_rnx(um_computed_univ_RnX);
 
 	delete_glwe(ext_prod_computed);
 	delete_glwe(glwe_tilde);

@@ -1,11 +1,9 @@
 #include "bivariate_polynomial.h"
 
 #include <math.h>
-#include <stdio.h>
-#include <string.h>
 
-#include "logger.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 //! BIV POLY PART (begin)
@@ -30,7 +28,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	int status = -1;
 
 	// Variables
-	double* rd_pol_univ = NULL;
+	PolyUnivRnX* rd_pol_univ = NULL;
 
 	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
@@ -38,7 +36,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	uint64_t l     = params_glwe->n_limbs / (params_glwe->k + 1);
 
 	// Draws a random univariate polynomial P(X) in Rn[X]
-	rd_pol_univ = malloc(poly_univ_bytes(params_glwe));
+	rd_pol_univ = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
@@ -101,7 +99,7 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_gl
 	PolyBiv* rd_pol = NULL;
 
 	// Base-2Kappa normalized bivariate polynomial
-	rd_pol = malloc(poly_biv_bytes(params_glwe));
+	rd_pol = new_biv_poly(params_glwe);
 	CHECK_ALLOC(rd_pol, "rd_pol malloc failed in normal_random_biv_poly_dft");
 	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol), "normal_random_biv_poly failed in normal_biv_poly_dft.");
 
@@ -152,12 +150,6 @@ void add_biv_poly_dft(const GLWEParams* params_glwe, PolyBivDFT* res, int64_t re
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
 
 uint64_t poly_biv_size(const GLWEParams* params_glwe) { return params_glwe->n_limbs / (params_glwe->k + 1); }
-
-uint64_t poly_univ_bytes(const GLWEParams* params_glwe)
-{
-	uint64_t nn = params_glwe->nn;
-	return nn * sizeof(int64_t);
-}
 
 void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {

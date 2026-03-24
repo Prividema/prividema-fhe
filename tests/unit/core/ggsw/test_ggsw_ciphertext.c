@@ -5,6 +5,7 @@
 #include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 
 #define NBASE            1024
 #define KBASE            1
@@ -189,11 +190,11 @@ Test(const_mult_ggsw, without_normalization)
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	PolyUniv* u                      = malloc(NBASE * sizeof(int64_t));
-	PolyUnivDFT* u_dft               = malloc(NBASE * sizeof(double));
+	PolyUniv* u                      = new_univ(params_glwe);
+	PolyUnivDFT* u_dft               = new_univ_dft(module);
 	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
 	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
-	PolyUniv* prod_expected          = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* prod_expected          = new_univ(params_glwe);
 
 	// Draws uniformly the Zn[X] constant
 	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
@@ -202,7 +203,7 @@ Test(const_mult_ggsw, without_normalization)
 	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
-	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
+	univ_coefs_to_dft(module, u_dft, u);
 
 	// Computes u * ggsw
 	const_mult_ggsw(module, product_computed, ggsw, u_dft, 0);
@@ -227,9 +228,9 @@ Test(const_mult_ggsw, without_normalization)
 		}
 
 	// Clean up
-	free(u);
-	free(prod_expected);
-	free(u_dft);
+	delete_univ(u);
+	delete_univ(prod_expected);
+	delete_univ_dft(u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 	delete_ggsw_params(params_ggsw);
@@ -380,13 +381,13 @@ Test(const_mult_ggsw_dft, without_normalization)
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(double));
+	PolyUnivDFT* u_dft                   = new_univ_dft(module);
 	GGSWCiphertextDFT* ggsw_dft          = new_ggsw_dft(params_ggsw);
 	GGSWCiphertextDFT* prod_computed_dft = new_ggsw_dft(params_ggsw);
-	PolyUniv* u                          = malloc(NBASE * sizeof(double));
+	PolyUniv* u                          = new_univ(params_glwe);
 	GGSWCiphertext* ggsw_ct              = new_ggsw(params_ggsw);
 	GGSWCiphertext* prod_comp            = new_ggsw(params_ggsw);
-	PolyUniv* prod_expected              = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* prod_expected              = new_univ(params_glwe);
 
 	// Draws uniformly the Zn[X] polynomial in the DFT domain
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
@@ -421,9 +422,9 @@ Test(const_mult_ggsw_dft, without_normalization)
 		}
 
 	// Clean up
-	free(u);
-	free(u_dft);
-	free(prod_expected);
+	delete_univ(u);
+	delete_univ_dft(u_dft);
+	delete_univ(prod_expected);
 	delete_ggsw(ggsw_ct);
 	delete_ggsw(prod_comp);
 	delete_ggsw_dft(ggsw_dft);

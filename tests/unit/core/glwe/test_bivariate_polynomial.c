@@ -11,6 +11,7 @@
 #include "common/rng.h"
 #include "common/spqlios_alias.h"
 #include "core/glwe/glwe.h"
+#include "univariate_polynomial.h"
 
 #define NBASE      1024
 #define KBASE      1
@@ -32,23 +33,6 @@ Test(poly_biv_size, basic)
 	// Asserts poly_biv_size returns LBASE
 	cr_assert(eq(i64, poly_biv_size(params_glwe), LBASE, "poly_biv_size failed: got %" PRId64 ", expected %" PRId64,
 	             poly_biv_size(params_glwe), LBASE));
-
-	// Clean up
-	delete_glwe_params(params_glwe);
-}
-
-/**
- * @brief Test poly_biv_bytes
- */
-Test(poly_univ_bytes, basic)
-{
-	// Parameters
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-
-	// Asserts poly_univ_bytes returns NBASE * sizeof(int64_t)
-	cr_assert(eq(i64, poly_univ_bytes(params_glwe), NBASE * sizeof(int64_t),
-	             "poly_univ_bytes failed: got %" PRId64 ", expected %" PRId64, poly_univ_bytes(params_glwe),
-	             NBASE * sizeof(int64_t)));
 
 	// Clean up
 	delete_glwe_params(params_glwe);
@@ -81,8 +65,8 @@ Test(biv_to_univ, runs)
 	MODULE* module          = pvda_new_module_info(NBASE);
 
 	// Variables
-	PolyBiv* pol                   = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* pol_univ_computed = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* pol                   = new_biv_poly(params_glwe);
+	PolyUnivRnX* pol_univ_computed = new_univ_rnx(params_glwe);
 
 	// Define pol_biv = Y
 	pol[0] = 1;
@@ -113,8 +97,8 @@ Test(univ_to_biv, one_test)
 	MODULE* module          = pvda_new_module_info(NBASE);
 
 	// Variables
-	double* pol_univ      = calloc(poly_univ_bytes(params_glwe), 1);
-	PolyBiv* pol_computed = malloc(poly_biv_bytes(params_glwe));
+	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
+	PolyBiv* pol_computed = new_biv_poly(params_glwe);
 
 	// Define pol_univ(X) = 2^{-KAPPABASE} , i.e. in Zn[X,Y] pol(X,Y) = Y
 	pol_univ[0] = ldexp(1.0, -KAPPABASE);
@@ -134,7 +118,7 @@ Test(univ_to_biv, one_test)
 			          pol_computed[(i - 1) * NBASE + p]);
 
 	// Clean up
-	free(pol_univ);
+	delete_univ_rnx(pol_univ);
 	free(pol_computed);
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
@@ -150,8 +134,8 @@ Test(univ_to_biv, basic)
 	MODULE* module          = pvda_new_module_info(NBASE);
 
 	// Variables
-	double* pol_univ      = malloc(poly_univ_bytes(params_glwe));
-	PolyBiv* pol_computed = malloc(poly_biv_bytes(params_glwe));
+	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
+	PolyBiv* pol_computed = new_biv_poly(params_glwe);
 
 	// Draws normaly pol_univ in Rn[X]
 	normal_random_vec(pol_univ, NBASE, 0.0, 1e-2);
@@ -176,7 +160,7 @@ Test(univ_to_biv, basic)
 	}
 
 	// Clean up
-	free(pol_univ);
+	delete_univ_rnx(pol_univ);
 	free(pol_computed);
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);

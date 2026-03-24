@@ -6,6 +6,7 @@
 #include "core/glwe/glwe_ciphertext.h"
 #include "rng.h"
 #include "spqlios_alias.h"
+#include "univariate_polynomial.h"
 
 #define NBASE      1024
 #define KBASE      1
@@ -69,14 +70,13 @@ Test(mult_vec_znx_dft, size_equal_one)
 	uniform_random_pol_znx(pol_rhs, NBASE, 14);
 
 	// Computes in the DFT pol_lhs and pol_rhs
-	pvda_vec_znx_dft(module, pol_lhs_dft, 1, pol_lhs, 1, NBASE);
-	pvda_vec_znx_dft(module, pol_rhs_dft, 1, pol_rhs, 1, NBASE);
+	univ_coefs_to_dft(module, pol_lhs_dft, pol_lhs);
+	univ_coefs_to_dft(module, pol_rhs_dft, pol_rhs);
 
 	// prod_computed_dft = DFT(pol_lhs ⊙ pol_rhs)
 	mult_vec_znx_dft(module, prod_computed_dft, 1, pol_lhs_dft, 1, pol_rhs_dft, 1);
 
-	// prod_computed = pol_lhs ⊙ pol_rhs
-	pvda_vec_znx_idft(module, prod_computed, 1, prod_computed_dft, 1);
+	univ_dft_to_coefs(module, prod_computed, prod_computed_dft);
 
 	// Compare the real coefficient res_p for each p in [0, NBASE -1] with the res_p mult_vec_znx_dft computed
 	// coefficient.
@@ -248,7 +248,7 @@ Test(const_mult_glwe, without_normalization)
 	uniform_random_pol_znx(u, NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
-	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
+	univ_coefs_to_dft(module, u_dft, u);
 
 	// Computes u * glwe
 	const_mult_glwe(module, prod_computed, u_dft, glwe, 0);
@@ -373,7 +373,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	pvda_vec_znx_idft(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
 
 	// Computes u in the DFT domain
-	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
+	univ_coefs_to_dft(module, u_dft, u);
 
 	// Computes DFT(u * glwe)
 	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft, 0);

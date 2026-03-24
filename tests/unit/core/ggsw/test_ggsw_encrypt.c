@@ -10,6 +10,7 @@
 #include "glwe_key.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 #define NBASE            1024
@@ -50,14 +51,14 @@ Test(ggsw_secret_encrypt, works)
 	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GGSWCiphertext* ggsw     = new_ggsw(params_ggsw);
-	PolyUniv* m_univ         = malloc(poly_univ_bytes(params_glwe));
-	PolyUnivDFT* m_univ_dft  = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* m_univ         = new_univ(params_glwe);
+	PolyUnivDFT* m_univ_dft  = new_univ_dft(module);
 	// Variables to compute the phase of each ggsw's row
-	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(int64_t));
-	PolyUnivRnX* phase_univ_RnX          = calloc(NBASE, sizeof(int64_t));
-	PolyUnivDFT* m_skj_univ_dft          = malloc(poly_univ_bytes(params_glwe));
-	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
+	PolyUnivRnX* phase_computed_univ_RnX = new_univ_rnx(params_glwe);
+	PolyUnivRnX* phase_univ_RnX          = new_univ_rnx(params_glwe);
+	PolyUnivDFT* m_skj_univ_dft          = new_univ_dft(module);
+	PolyUniv* m_skj_univ                 = new_univ(params_glwe);
 
 	// Draws uniformly in (Zn[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
@@ -67,7 +68,7 @@ Test(ggsw_secret_encrypt, works)
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
 
 	// Computes the message in the DFT domain
-	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, NBASE);
+	univ_coefs_to_dft(module, m_univ_dft, m_univ);
 
 	// Computes a bivGGSW(m)
 	ggsw_secret_encrypt(module, ggsw, sk_dft, m_univ);
@@ -186,13 +187,13 @@ Test(ggsw_secret_encrypt, works)
 	}
 
 	// Clean up
-	free(phase_computed_univ_RnX);
-	free(m_skj_univ_dft);
-	free(m_skj_univ);
-	free(phase_computed);
-	free(phase_univ_RnX);
-	free(m_univ);
-	free(m_univ_dft);
+	delete_univ_rnx(phase_computed_univ_RnX);
+	delete_univ_dft(m_skj_univ_dft);
+	delete_univ(m_skj_univ);
+	delete_univ(phase_computed);
+	delete_univ_rnx(phase_univ_RnX);
+	delete_univ(m_univ);
+	delete_univ_dft(m_univ_dft);
 	delete_ggsw(ggsw);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_params(params_glwe);
