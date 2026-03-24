@@ -1,9 +1,11 @@
 #include "spqlios_alias.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "utils.h"
 #include "vec_znx_arithmetic.h"
+#include "vec_znx_arithmetic_private.h"
 
 MODULE* pvda_new_module_info(uint64_t N) { return new_module_info(N, FFT64); }
 
@@ -31,17 +33,14 @@ int64_t* pvda_new_vec_znx_big(const MODULE* module, int64_t size) { return (int6
 
 int pvda_vec_znx_idft(const MODULE* module, int64_t* res, int64_t res_size, const double* a_dft, int64_t a_size)
 {
-	uint8_t* tmp = NULL;
-	if (module->module_type == NTT120)
-	{
-		tmp = malloc(ntt120_vec_znx_idft_tmp_bytes_avx(module));
-		CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
-	}
+	size_t tmp_bytes = vec_znx_idft_tmp_bytes(module);
+	uint8_t* tmp     = malloc(tmp_bytes);
+	if (tmp_bytes) CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
 
 	vec_znx_idft(module, (VEC_ZNX_BIG*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size, tmp);
 
 cleanup:
-	if (module->module_type == NTT120) free(tmp);
+	free(tmp);
 
 	return 0;
 }
@@ -155,3 +154,19 @@ cleanup:
 	free(tmp_space);
 	return status;
 }
+
+int pvda_vec_znx_negate(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
+                        uint64_t a_size, uint64_t a_sl)
+{
+	vec_znx_negate(module, res, res_size, res_sl, a, a_size, a_sl);
+	return 1;
+}
+
+uint64_t pvda_module_extract_nn(const MODULE* module) { return module->nn; }
+/*
+int pvda_vec_rnx_negate(const MODULE* module, double* res, uint64_t res_size, uint64_t res_sl, const double* a,
+                        uint64_t a_size, uint64_t a_sl)
+{
+    vec_rnx_negate(module, res, res_size, res_sl, a, a_size, a_sl);
+    return 1;
+}*/

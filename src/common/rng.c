@@ -159,20 +159,20 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 	int64_t* tmp_space = NULL;
 
 	// The degree of the cyclotomic polynomial
-	uint64_t N = module->nn;
+	uint64_t nn = pvda_module_extract_nn(module);
 
 	// Pointer to a uniformly drawn Zn[X] vector of size = vec_size
-	tmp_space = malloc(N * vec_size * sizeof(int64_t));
+	tmp_space = malloc(nn * vec_size * sizeof(int64_t));
 	CHECK_ALLOC(tmp_space, "malloc in new_uniform_random_vec_znx_dft");
 
 	// Draws uniformly in Zn[X] the vector elements
 	for (int i = 0; i < vec_size; i++)
-		for (int p = 0; p < N; p++)
-			CHECK_CALL(rand_uniform(tmp_space + i * N + p, nb_bits),
+		for (int p = 0; p < nn; p++)
+			CHECK_CALL(rand_uniform(tmp_space + i * nn + p, nb_bits),
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	pvda_vec_znx_dft(module, result_dft, vec_size, tmp_space, vec_size, N);
+	pvda_vec_znx_dft(module, result_dft, vec_size, tmp_space, vec_size, nn);
 
 	status = 0;
 

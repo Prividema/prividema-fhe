@@ -17,7 +17,7 @@
 Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 {
 	// Parameters
-	MODULE* module = new_module_info(NBASE, FFT64);
+	MODULE* module = pvda_new_module_info(NBASE);
 
 	// Variables
 	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
@@ -30,7 +30,7 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Clean up
-	delete_module_info(module);
+	pvda_delete_module_info(module);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
 }

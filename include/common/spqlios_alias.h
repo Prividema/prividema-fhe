@@ -1,5 +1,6 @@
+#include <stdint.h>
+
 #include "maths_structures.h"
-#include "vec_znx_arithmetic_private.h"
 
 // =============================================
 // |                                           |
@@ -88,3 +89,8 @@ int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, in
                                   int64_t res_sl, const int64_t* a, int64_t a_size, int64_t a_sl);
 
 int pvda_znx_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b);
+
+int pvda_vec_znx_negate(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
+                        uint64_t a_size, uint64_t a_sl);
+
+uint64_t pvda_module_extract_nn(const MODULE* module);

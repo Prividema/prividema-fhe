@@ -122,7 +122,7 @@ Test(ggsw_Sj_Yti, basic)
 Test(normalize_ggsw, basic)
 {
 	// Parameters
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
@@ -139,7 +139,7 @@ Test(normalize_ggsw, basic)
 	// Clean up
 	delete_ggsw(ggsw);
 	delete_ggsw(res);
-	delete_module_info(module);
+	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 }
@@ -184,7 +184,7 @@ Test(add_ggsw, basic)
 Test(const_mult_ggsw, without_normalization)
 {
 	// Parameters
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
@@ -234,7 +234,7 @@ Test(const_mult_ggsw, without_normalization)
 	delete_ggsw(product_computed);
 	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
-	delete_module_info(module);
+	pvda_delete_module_info(module);
 }
 
 //! bivGGSW IN DFT SPACE Part (begin)
@@ -311,7 +311,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 Test(normalize_ggsw_dft, basic)
 {
 	// Parameters
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
@@ -328,7 +328,7 @@ Test(normalize_ggsw_dft, basic)
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
 	delete_ggsw_dft(res_dft);
-	delete_module_info(module);
+	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 }
@@ -336,7 +336,7 @@ Test(normalize_ggsw_dft, basic)
 Test(add_ggsw_dft, basic)
 {
 	// Parameters
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
@@ -367,7 +367,7 @@ Test(add_ggsw_dft, basic)
 	delete_ggsw_dft(ggsw_lhs_dft);
 	delete_ggsw_dft(ggsw_rhs_dft);
 	delete_ggsw_dft(sum_computed_dft);
-	delete_module_info(module);
+	pvda_delete_module_info(module);
 	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
 }
@@ -375,7 +375,7 @@ Test(add_ggsw_dft, basic)
 Test(const_mult_ggsw_dft, without_normalization)
 {
 	// Parameters
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
@@ -430,5 +430,5 @@ Test(const_mult_ggsw_dft, without_normalization)
 	delete_ggsw_dft(prod_computed_dft);
 	delete_ggsw_params(params_ggsw);
 	delete_glwe_params(params_glwe);
-	delete_module_info(module);
+	pvda_delete_module_info(module);
 }

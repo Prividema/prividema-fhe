@@ -29,13 +29,13 @@ cleanup:
 
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits)
 {
-	uint64_t N = module->nn;
+	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
 	for (uint64_t j = 0; j < sk->k; j++)
 	{
 		// TODO: should we forgo the loop and make it a single call to uniform_random_vec?
-		CHECK_CALL(uniform_random_vec(N, glwe_sk_extract_poly(sk, j), 1, N, nb_bits),
+		CHECK_CALL(uniform_random_vec(nn, glwe_sk_extract_poly(sk, j), 1, nn, nb_bits),
 		           "random vector generation failed in key generation");
 	}
 
