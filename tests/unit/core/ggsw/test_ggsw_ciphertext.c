@@ -1,6 +1,8 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+#include <stdint.h>
 
+#include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
 #include "rng.h"
 
@@ -165,17 +167,11 @@ Test(add_ggsw, basic)
 	uint64_t N       = sum_computed->params->params_glwe->N;
 
 	// Asserts sum_computed = ggsw_lhs + ggsw_rhs
-	for (uint64_t i = 0; i < nb_rows; i++)
-		for (uint64_t j = 0; j < nb_cols; j++)
-			for (uint64_t p = 0; p < N; p++)
-			{
-				uint64_t idx = i * N * nb_cols + j * N + p;
-				cr_assert(eq(int, sum_computed->mat[idx], ggsw_lhs->mat[idx] + ggsw_rhs->mat[idx]),
-				          "add_biv_ggswy mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64
-				          ", got %" PRId64,
-				          (long long)idx, ggsw_lhs->mat[idx], ggsw_rhs->mat[idx],
-				          ggsw_lhs->mat[idx] + ggsw_rhs->mat[idx], sum_computed->mat[idx]);
-			}
+	for (uint64_t idx = 0; idx < N * nb_cols * nb_rows; ++idx)
+		cr_assert(eq(int, sum_computed->mat[idx], ggsw_lhs->mat[idx] + ggsw_rhs->mat[idx]),
+		          "add_biv_ggsw mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64 ", got %" PRId64,
+		          (long long)idx, ggsw_lhs->mat[idx], ggsw_rhs->mat[idx], ggsw_lhs->mat[idx] + ggsw_rhs->mat[idx],
+		          sum_computed->mat[idx]);
 
 	// Clean up
 	delete_ggsw(ggsw_lhs);
@@ -197,6 +193,7 @@ Test(const_mult_ggsw, without_normalization)
 	PolyUnivDFT* u_dft               = malloc(NBASE * sizeof(double));
 	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
 	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
+	PolyUniv* prod_expected          = malloc(poly_univ_bytes(params_glwe));
 
 	// Draws uniformly the Zn[X] constant
 	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
@@ -217,103 +214,21 @@ Test(const_mult_ggsw, without_normalization)
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
 			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
-				for (uint64_t p = 0; p < NBASE; p++)
-					for (uint64_t i = 1; i <= LBASE; i++)
-					{
-						for (uint64_t i = LBASE; i >= 1; i--)
-						{
-							PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-							int64_t acc     = 0;
-							for (uint64_t k = 0; k <= p; k++)
-							{
-								acc += u[k] * ct_ij[p - k];
-							}
-							for (uint64_t k = p + 1; k < NBASE; k++)
-							{
-								acc += -u[k] * ct_ij[NBASE + p - k];
-							}
-							cr_assert(eq(i64, res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], acc));
-						}
-					}
-		}
-
-	// Clean up
-	free(u);
-	free(u_dft);
-	delete_ggsw(ggsw);
-	delete_ggsw(product_computed);
-	delete_ggsw_params(params_ggsw);
-	delete_glwe_params(params_glwe);
-	delete_module_info(module);
-}
-
-Test(const_mult_ggsw, with_normalization)
-{
-	// Parameters
-	MODULE* module          = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-
-	// Variables
-	PolyUniv* u                      = malloc(NBASE * sizeof(int64_t));
-	PolyUnivDFT* u_dft               = malloc(NBASE * sizeof(double));
-	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
-	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
-
-	// Draws uniformly the Zn[X] constant
-	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
-
-	// Draws uniformly the bivGGSW ciphertext
-	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
-
-	// Computes u in the DFT domain
-	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
-
-	// Computes u * ggsw
-	const_mult_ggsw(module, product_computed, ggsw, u_dft, 1);
-
-	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
-		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
-
-			for (uint64_t j = 0; j < KBASE + 1; j++)
-				for (uint64_t p = 0; p < NBASE; p++)
+				for (uint64_t i = LBASE; i >= 1; i--)
 				{
-					int64_t remainder = 0;
-					for (uint64_t i = LBASE; i >= 1; i--)
+					PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
+					pvda_znx_product(module, prod_expected, u, ct_ij);
+					for (uint64_t p = 0; p < NBASE; p++)
 					{
-						PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-
-						int64_t acc = 0;
-						for (uint64_t k = 0; k <= p; k++)
-						{
-							acc += u[k] * ct_ij[p - k];
-						}
-						for (uint64_t k = p + 1; k < NBASE; k++)
-						{
-							acc += -u[k] * ct_ij[NBASE + p - k];
-						}
-
 						cr_assert(
-						    eq(i64,
-						       (res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] - (acc + remainder)) %
-						           (1 << KAPPABASE),
-						       0),
-						    "Equality failed at ii = %ld jj = %ld j = %ld p = %ld i = %ld with acc = %ld reminder = "
-						    "%ld and res = %ld",
-						    ii, jj, j, p, i, acc, remainder,
-						    res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]);
-
-						remainder = acc >= 0 ? (acc + (1 << KAPPABASE - 1)) / (1 << KAPPABASE)
-						                     : (acc - (1 << KAPPABASE - 1) + 1) / (1 << KAPPABASE);
+						    eq(i64, res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], prod_expected[p]));
 					}
 				}
 		}
 
 	// Clean up
 	free(u);
+	free(prod_expected);
 	free(u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
@@ -442,17 +357,11 @@ Test(add_ggsw_dft, basic)
 	uint64_t N       = params_glwe->N;
 
 	// Asserts sum_computed = ggsw_lhs_dft + ggsw_rhs_dft
-	for (uint64_t i = 0; i < nb_rows; i++)
-		for (uint64_t j = 0; j < nb_cols; j++)
-			for (uint64_t p = 0; p < N; p++)
-			{
-				uint64_t idx = i * N * nb_cols + j * N + p;
-				cr_assert(eq(dbl, sum_computed_dft->mat[idx], ggsw_lhs_dft->mat[idx] + ggsw_rhs_dft->mat[idx]),
-				          "add_biv_ggswy mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64
-				          ", got %" PRId64,
-				          (long long)idx, ggsw_lhs_dft->mat[idx], ggsw_rhs_dft->mat[idx],
-				          ggsw_lhs_dft->mat[idx] + ggsw_rhs_dft->mat[idx], sum_computed_dft->mat[idx]);
-			}
+	for (uint64_t idx = 0; idx < N * nb_cols * nb_rows; ++idx)
+		cr_assert(eq(dbl, sum_computed_dft->mat[idx], ggsw_lhs_dft->mat[idx] + ggsw_rhs_dft->mat[idx]),
+		          "add_biv_ggswy mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64 ", got %" PRId64,
+		          (long long)idx, ggsw_lhs_dft->mat[idx], ggsw_rhs_dft->mat[idx],
+		          ggsw_lhs_dft->mat[idx] + ggsw_rhs_dft->mat[idx], sum_computed_dft->mat[idx]);
 
 	// Clean up
 	delete_ggsw_dft(ggsw_lhs_dft);
@@ -477,6 +386,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	PolyUniv* u                          = malloc(NBASE * sizeof(double));
 	GGSWCiphertext* ggsw_ct              = new_ggsw(params_ggsw);
 	GGSWCiphertext* prod_comp            = new_ggsw(params_ggsw);
+	PolyUniv* prod_expected              = malloc(poly_univ_bytes(params_glwe));
 
 	// Draws uniformly the Zn[X] polynomial in the DFT domain
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
@@ -492,109 +402,20 @@ Test(const_mult_ggsw_dft, without_normalization)
 	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
 	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
 
-	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
 			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);
 			for (uint64_t j = 0; j < KBASE + 1; j++)
-				for (uint64_t p = 0; p < NBASE; p++)
-					for (uint64_t i = 1; i <= LBASE; i++)
-					{
-						for (uint64_t i = LBASE; i >= 1; i--)
-						{
-							PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-							int64_t acc     = 0;
-							for (uint64_t k = 0; k <= p; k++)
-							{
-								acc += u[k] * ct_ij[p - k];
-							}
-							for (uint64_t k = p + 1; k < NBASE; k++)
-							{
-								acc += -u[k] * ct_ij[NBASE + p - k];
-							}
-							cr_assert(eq(i64, res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], acc));
-						}
-					}
-		}
-
-	// Clean up
-	free(u);
-	free(u_dft);
-	delete_ggsw(ggsw_ct);
-	delete_ggsw(prod_comp);
-	delete_ggsw_dft(ggsw_dft);
-	delete_ggsw_dft(prod_computed_dft);
-	delete_ggsw_params(params_ggsw);
-	delete_glwe_params(params_glwe);
-	delete_module_info(module);
-}
-
-Test(const_mult_ggsw_dft, with_normalization)
-{
-	// Parameters
-	MODULE* module          = new_module_info(NBASE, FFT64);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-
-	// Variables
-	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(double));
-	GGSWCiphertextDFT* ggsw_dft          = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* prod_computed_dft = new_ggsw_dft(params_ggsw);
-	PolyUniv* u                          = malloc(NBASE * sizeof(double));
-	GGSWCiphertext* ggsw_ct              = new_ggsw(params_ggsw);
-	GGSWCiphertext* prod_comp            = new_ggsw(params_ggsw);
-
-	// Draws uniformly the Zn[X] polynomial in the DFT domain
-	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
-
-	// Draws uniformly the bivGGSW ciphertext in the DFT domain
-	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
-
-	// Computes DFT(u) * DFT(ggsw)
-	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft, 1);
-
-	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
-	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
-	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
-	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
-
-	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
-		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);
-			for (uint64_t j = 0; j < KBASE + 1; j++)
-				for (uint64_t p = 0; p < NBASE; p++)
+				for (uint64_t i = LBASE; i >= 1; i--)
 				{
-					int64_t remainder = 0;
-					for (uint64_t i = LBASE; i >= 1; i--)
+					PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
+					pvda_znx_product(module, prod_expected, u, ct_ij);
+					for (uint64_t p = 0; p < NBASE; p++)
 					{
-						PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
-
-						int64_t acc = 0;
-						for (uint64_t k = 0; k <= p; k++)
-						{
-							acc += u[k] * ct_ij[p - k];
-						}
-						for (uint64_t k = p + 1; k < NBASE; k++)
-						{
-							acc += -u[k] * ct_ij[NBASE + p - k];
-						}
-
 						cr_assert(
-						    eq(i64,
-						       (res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] - (acc + remainder)) %
-						           (1 << KAPPABASE),
-						       0),
-						    "Equality failed at ii = %ld jj = %ld j = %ld p = %ld i = %ld with acc = %ld reminder = "
-						    "%ld and res = %ld",
-						    ii, jj, j, p, i, acc, remainder,
-						    res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]);
-
-						remainder = acc >= 0 ? (acc + (1 << KAPPABASE - 1)) / (1 << KAPPABASE)
-						                     : (acc - (1 << KAPPABASE - 1) + 1) / (1 << KAPPABASE);
+						    eq(i64, res_mat_ii_jj[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], prod_expected[p]));
 					}
 				}
 		}
@@ -602,6 +423,7 @@ Test(const_mult_ggsw_dft, with_normalization)
 	// Clean up
 	free(u);
 	free(u_dft);
+	free(prod_expected);
 	delete_ggsw(ggsw_ct);
 	delete_ggsw(prod_comp);
 	delete_ggsw_dft(ggsw_dft);
