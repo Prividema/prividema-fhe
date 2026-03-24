@@ -3,10 +3,10 @@
 #include <math.h>
 #include <stdint.h>
 
-double binomial_tail(uint64_t N, double p, int k)
+double binomial_tail(uint64_t nn, double p, int k)
 {
-	double mu    = N * p;
-	double sigma = sqrt(N * p * (1.0 - p));
+	double mu    = nn * p;
+	double sigma = sqrt(nn * p * (1.0 - p));
 
 	double r = ceil(mu * k);
 

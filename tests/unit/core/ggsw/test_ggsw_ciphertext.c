@@ -164,7 +164,7 @@ Test(add_ggsw, basic)
 
 	uint64_t nb_rows = sum_computed->params->n_limbs_tilde;
 	uint64_t nb_cols = sum_computed->params->params_glwe->n_limbs;
-	uint64_t N       = sum_computed->params->params_glwe->N;
+	uint64_t N       = sum_computed->params->params_glwe->nn;
 
 	// Asserts sum_computed = ggsw_lhs + ggsw_rhs
 	for (uint64_t idx = 0; idx < N * nb_cols * nb_rows; ++idx)
@@ -354,7 +354,7 @@ Test(add_ggsw_dft, basic)
 
 	uint64_t nb_rows = params_ggsw->n_limbs_tilde;
 	uint64_t nb_cols = params_glwe->n_limbs;
-	uint64_t N       = params_glwe->N;
+	uint64_t N       = params_glwe->nn;
 
 	// Asserts sum_computed = ggsw_lhs_dft + ggsw_rhs_dft
 	for (uint64_t idx = 0; idx < N * nb_cols * nb_rows; ++idx)

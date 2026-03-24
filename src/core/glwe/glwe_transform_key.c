@@ -6,5 +6,5 @@ void transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, GLWESecretKe
                                               const GLWESecretKey* sk)
 {
 	for (uint64_t j = 0; j < sk->k; j++)
-		pvda_vec_znx_dft(module, glwe_sk_extract_poly_dft(result_dft, j), 1, glwe_sk_extract_poly(sk, j), 1, sk->N);
+		pvda_vec_znx_dft(module, glwe_sk_extract_poly_dft(result_dft, j), 1, glwe_sk_extract_poly(sk, j), 1, sk->nn);
 }

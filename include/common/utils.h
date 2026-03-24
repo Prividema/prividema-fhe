@@ -54,5 +54,5 @@
  */
 double torus_distance(double a, double b);
 
-double binomial_tail(uint64_t N, double p, int k);
+double binomial_tail(uint64_t nn, double p, int k);
 #endif  // UTILS_H

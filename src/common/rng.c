@@ -120,15 +120,15 @@ int rand_normal(double* result, double mu, double sigma)
 	CHECK_CALL(read_rand(&uniform), "Rng failed in rand_normal");
 
 	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
-	double U = ((double)uniform) / ((double)UINT64_MAX);
+	double uu = ((double)uniform) / ((double)UINT64_MAX);
 
 	// Compute Z the inverse CDF of the normal distribution applied to U.
-	double Z = sqrt(2.0) * erfinv(2.0 * U - 1.0);
+	double zz = sqrt(2.0) * erfinv(2.0 * uu - 1.0);
 
 	// Scale and Shift with mu and sigma.
 	// Z follows a normal distribution in (0,1)
 	// Thus result will follow (mu, sigma)
-	*result = mu + sigma * Z;
+	*result = mu + sigma * zz;
 
 	return 0;
 cleanup:

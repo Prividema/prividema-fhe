@@ -8,18 +8,18 @@
 /**
  * @brief Structure that represents a bivGLWE secret key
  *
- * @param N The degree of the chosen cyclotomic polynomial.
+ * @param nn The degree of the chosen cyclotomic polynomial.
  */
 typedef struct glwe_secret_key
 {
-	uint64_t N;
+	uint64_t nn;
 	uint64_t k;
 	PolyUniv* values;
 } GLWESecretKey;
 
 typedef struct glwe_prep_secret_key
 {
-	uint64_t N;
+	uint64_t nn;
 	uint64_t k;
 	PolyUnivDFT* values;
 } GLWESecretKeyDFT;
@@ -29,11 +29,11 @@ typedef struct glwe_prep_secret_key
 /**
  * @brief Creates a GLWE Secret key.
  *
- * @param N The degree of the chosen cyclotomic polynomial.
+ * @param nn The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k);
+GLWESecretKey* alloc_glwe_secret_key(uint64_t nn, uint64_t k);
 
 /**
  * @brief Draws a secret key uniformly.
@@ -71,11 +71,11 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
 /**
  * @brief Creates a GLWE Secret key in the DFT domain.
  *
- * @param N The degree of the chosen cyclotomic polynomial.
+ * @param nn The degree of the chosen cyclotomic polynomial.
  * @param k The number of Zn[X] polynomial in the secret key.
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k);
+GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t nn, uint64_t k);
 
 /**
  * Returns a pointer to the k'th polynomial in the secret key
@@ -97,9 +97,9 @@ void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
 typedef struct glwe_public_key
 {
-	uint64_t N;
+	uint64_t nn;
 	uint64_t k;
-	int64_t Y;
+	int64_t yy;
 	GLWECiphertext** pk;  // vector of Y element (A1,...,Ak, B)
 } GLWEPublicKey;
 

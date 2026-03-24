@@ -26,7 +26,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
 
 	// bivGLWE parameters
-	uint64_t N       = params_glwe->N;
+	uint64_t nn      = params_glwe->nn;
 	uint64_t k       = params_glwe->k;
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
@@ -54,7 +54,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)
-	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
+	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, nn);
 
 	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
 	{
@@ -69,7 +69,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 					mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
 
 					// Computes -DFT(msg * sk_j)
-					for (uint64_t p = 0; p < N; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
+					for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 
 					// Invert the DFT to get -msg * sk_j
 					CHECK_CALL(pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1),
@@ -77,11 +77,11 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 				}
 
 				// Computes m_skj_univ / 2^{kappa_tilde*i}
-				for (uint64_t p = 0; p < N; p++)
+				for (uint64_t p = 0; p < nn; p++)
 					tmp_sp1[p] =
 					    ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->kappa_tilde * i);
 
-				CHECK_CALL(add_normal_random_vec(tmp_sp1, N, tmp_sp1, 0.0, params_glwe->sigma),
+				CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
 				           "error addition failed in ggsw encryption");
 
 				// Compute the base-2^kappa decomposition of tmp_sp1
@@ -118,7 +118,7 @@ int ggsw_external_product(const MODULE* module,
 	int status = -1;
 
 	// Degree of chosen cyclotomic polynomial
-	uint64_t N = result->params->N;
+	uint64_t nn = result->params->nn;
 
 	// The bivGGSW ciphertext ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs
 	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
@@ -142,7 +142,7 @@ int ggsw_external_product(const MODULE* module,
 	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
 	// Computes ExternalProduct(glwe, ggsw)
-	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, nrows, N, ggsw_pmat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, nrows, nn, ggsw_pmat, nrows, ncols),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
 	// Computes the bivGGSW ciphertext out of the DFT domain
@@ -171,7 +171,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt_dft");
 
 	// bivGLWE parameters
-	uint64_t N       = params_glwe->N;
+	uint64_t nn      = params_glwe->nn;
 	uint64_t k       = params_glwe->k;
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
@@ -198,7 +198,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 	CHECK_ALLOC(glwe_biv_msg_dft, "phase_dft's malloc failed");
 
 	// Computes DFT(m)
-	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, N);
+	pvda_vec_znx_dft(module, m_univ_dft, 1, m_univ, 1, nn);
 
 	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
 	{
@@ -215,17 +215,17 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 
 				// Computes -DFT(msg * sk_j)
 				// TODO: study if accelerable using AVX, do we need it in spqlios?
-				for (uint64_t p = 0; p < N; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
+				for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 
 				// Inverse DFT to retreive -msg * sk_j
 				CHECK_CALL(pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1),
 				           "vec_znx_idft_p failed in compute_phase_ij_dft");
 			}
-			for (uint64_t p = 0; p < N; p++)
+			for (uint64_t p = 0; p < nn; p++)
 				msk_univ_RnX[p] = ldexp((j == k) ? (double)m_univ[p] : m_skj_univ[p], -params_ggsw->kappa_tilde * i);
 
 			// Add the error
-			CHECK_CALL(add_normal_random_vec(msk_univ_RnX, N, msk_univ_RnX, 0.0, params_glwe->sigma),
+			CHECK_CALL(add_normal_random_vec(msk_univ_RnX, nn, msk_univ_RnX, 0.0, params_glwe->sigma),
 			           "error addition failed in ggsw_dft encryption");
 
 			// Convert the result to a bivariate (base-2k) polynomial
@@ -234,7 +234,7 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 
 			// Permorm DFT to get the result in the DFT domain
 			pvda_vec_znx_dft(module, glwe_biv_msg_dft, poly_biv_size(params_glwe), glwe_biv_msg,
-			                 poly_biv_size(params_glwe), N);
+			                 poly_biv_size(params_glwe), nn);
 
 			// Result destination
 			VecBivDFT* glwe_vec_dft = ggsw_retrieve_bivglwe_dft(result_dft, j, i);
@@ -269,7 +269,7 @@ int ggsw_external_product_dft(const MODULE* module,
 	int status = -1;
 
 	// Degree of chosen cyclotomic polynomial
-	uint64_t N = result_dft->params->N;
+	uint64_t nn = result_dft->params->nn;
 
 	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
 	// The bivGGSW ciphertext ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs
