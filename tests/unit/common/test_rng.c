@@ -82,15 +82,15 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 
 	// Apply Chi squared test
 	double expected = (double)NB_SAMPLES / (double)nb_boxes;  // For a uniform distribution
-	double T        = 0.0;
+	double tt       = 0.0;
 	for (int i = 0; i < nb_boxes; i++)
 	{
 		double num = (((double)boxes[i]) - expected);
-		T += (num * num) / expected;
+		tt += (num * num) / expected;
 	}
 
 	// The test has 5% chance of failing
-	if (T < chi_critical_05[nb_boxes - 2]) return 0;
+	if (tt < chi_critical_05[nb_boxes - 2]) return 0;
 	return 1;
 }
 
@@ -158,11 +158,11 @@ double jarque_bera(const double* x, int n)
 	m4 /= n;
 
 	// Skewness and kurtosis
-	double S = m3 / pow(m2, 1.5);
-	double K = m4 / (m2 * m2);
+	double ss = m3 / pow(m2, 1.5);
+	double kk = m4 / (m2 * m2);
 
 	// Jarque-Bera statistic
-	return (n / 6.0) * (S * S + ((K - 3.0) * (K - 3.0)) / 4.0);
+	return (n / 6.0) * (ss * ss + ((kk - 3.0) * (kk - 3.0)) / 4.0);
 }
 
 // Test rand_normal with Jarque-Bera test
@@ -172,8 +172,8 @@ Test(rand_normal, test_rand_normal)
 	for (int i = 0; i < NB_SAMPLES; i++)
 		if (rand_normal(data + i, 0, 1) < 0) cr_fail("rand_normal failed");
 
-	double JB = jarque_bera(data, NB_SAMPLES);
-	cr_assert(lt(dbl, JB, chi_critical_05[1]), "Expect %f < %f\n", JB, chi_critical_05[1]);
+	double jjbb = jarque_bera(data, NB_SAMPLES);
+	cr_assert(lt(dbl, jjbb, chi_critical_05[1]), "Expect %f < %f\n", jjbb, chi_critical_05[1]);
 }
 
 //---------------------------------------------
