@@ -31,7 +31,7 @@ Test(new_glwe_secret_key, values_not_null)
 Test(uniform_glwe_secret_key, values_not_null)
 {
 	// Parameters
-	MODULE* module = new_module_info(NBASE, FFT64);
+	MODULE* module = pvda_new_module_info(NBASE);
 
 	// Create a bivGLWE secret key
 	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
@@ -43,6 +43,6 @@ Test(uniform_glwe_secret_key, values_not_null)
 	cr_assert(eq(int, status, 0), "uniform_glwe_secret_key failed.");
 
 	// Clean up
-	delete_module_info(module);
+	pvda_delete_module_info(module);
 	delete_glwe_secret_key(sk);
 }

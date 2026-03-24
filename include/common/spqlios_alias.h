@@ -1,5 +1,6 @@
+#include <stdint.h>
+
 #include "maths_structures.h"
-#include "vec_znx_arithmetic_private.h"
 
 // =============================================
 // |                                           |
@@ -36,7 +37,10 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
 // |                                           |
 // |       The following function are all      |
 // |      named pvda_f where f is the name of  |
-// |           a function in sqplios.          |
+// |           a function as it might exist    |
+// |      in spqlios. Sometimes it does not    |
+// |      exist and we have a temporary        |
+// |                implementation.            |
 // |                                           |
 // |  We additionnally allocate the memory of  |
 // |                the structures.            |
@@ -83,3 +87,10 @@ void pvda_delete_vmp_pmat(double* pmat);
 
 int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, int64_t* res, int64_t res_size,
                                   int64_t res_sl, const int64_t* a, int64_t a_size, int64_t a_sl);
+
+int pvda_znx_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b);
+
+int pvda_vec_znx_negate(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
+                        uint64_t a_size, uint64_t a_sl);
+
+uint64_t pvda_module_extract_nn(const MODULE* module);

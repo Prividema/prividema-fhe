@@ -52,7 +52,7 @@ Test(ggsw_external_product, without_error)
 	GLWEParams* params_glwe_tilde =
 	    new_glwe_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 
 	//! Variables
 	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(NBASE, KBASE);
@@ -72,7 +72,8 @@ Test(ggsw_external_product, without_error)
 	double* um_univ_RnX               = calloc(NBASE, sizeof(double));
 
 	// Define sk_ggsw = (1, 0, ... , 0)
-	sk_ggsw->values[0][0] = 1;
+	// TODO: WHY?
+	sk_ggsw->values[0] = 1;
 
 	// Computes the bivGGSW secret key out of the DFT domain
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_glwe_dft, sk_ggsw);
@@ -161,7 +162,7 @@ Test(ggsw_external_product_dft, without_error)
 	GLWEParams* params_glwe_tilde =
 	    new_glwe_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 
 	//! Variables
 	GLWESecretKey* sk_ggsw                   = alloc_glwe_secret_key(NBASE, KBASE);
@@ -181,8 +182,9 @@ Test(ggsw_external_product_dft, without_error)
 	PolyBiv* um                       = malloc(poly_biv_bytes(params_glwe));
 	PolyUnivRnX* um_univ_RnX          = calloc(NBASE, sizeof(double));
 
-	// Define sk_ggsw = (1, 0, ... , 0)
-	sk_ggsw->values[0][0] = 2;
+	// Define sk_ggsw = (2, 0, ... , 0)
+	// TODO: why?
+	sk_ggsw->values[0] = 2;
 
 	// Computes the bivGGSW secret key out of the DFT domain
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_glwe_dft, sk_ggsw);

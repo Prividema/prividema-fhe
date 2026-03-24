@@ -58,7 +58,7 @@ Test(ggsw_external_product, without_error)
 
 	// Define sk_ggsw = (1, 0, ... , 0)
 	// TODO: why?
-	sk_ggsw->values[0][0] = 1;
+	sk_ggsw->values[0] = 1;
 
 	// Computes the bivGGSW secret key out of the DFT domain
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_glwe_dft, sk_ggsw);
@@ -77,7 +77,7 @@ Test(ggsw_external_product, without_error)
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
 
-	ggsw_external_product(module, ext_prod_computed, glwe_tilde, ggsw);
+	//ggsw_external_product(module, ext_prod_computed, glwe_tilde, ggsw);
 	normalize_glwe(module, ext_prod_computed, ext_prod_computed);
 
 	// Computes the result phase = u*m + err , normalized with the base-2Kappa

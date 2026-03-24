@@ -1,5 +1,6 @@
 #include "glwegad.h"
 
+#include <math.h>
 #include <stdint.h>
 
 #include "glwe.h"
@@ -26,8 +27,8 @@ int glwegad_secret_encrypt(const MODULE* module, GLWEGadCiphertext* result, cons
 	const GLWEParams* params_glwe = params_glwegad->params_glwe;
 
 	// bivGLWE parameters
-	uint64_t N = params_glwe->N;
-	uint64_t k = params_glwe->k;
+	uint64_t nn = params_glwe->nn;
+	uint64_t k  = params_glwe->k;
 
 	// TODO: find out why it is being set to poly_univ_bytes even though it is a different data type
 	double* tmp_sp1 = NULL;
@@ -42,10 +43,10 @@ int glwegad_secret_encrypt(const MODULE* module, GLWEGadCiphertext* result, cons
 	for (uint64_t i = 1; i <= params_glwegad->l_tilde; i++)
 	{
 		// Computes m_univ / 2^{kappa_tilde*i}
-		for (uint64_t p = 0; p < N; p++) tmp_sp1[p] = ldexp((double)m_univ[p], -params_glwegad->kappa_tilde * i);
+		for (uint64_t p = 0; p < nn; p++) tmp_sp1[p] = ldexp((double)m_univ[p], -params_glwegad->kappa_tilde * i);
 
 		// Adds the error
-		CHECK_CALL(add_normal_random_vec(tmp_sp1, N, tmp_sp1, 0.0, params_glwe->sigma),
+		CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
 		           "Error addition failed in partialGGSW encryption");
 		// Compute the base-2^kappa decomposition
 		CHECK_CALL(univ_to_biv(params_glwe, glwe_biv_msg, tmp_sp1), "univ_to_biv failed in compute_phase_ij");
@@ -75,12 +76,12 @@ int glwegad_half_prod(const MODULE* module, GLWEGadCiphertext* result, const GLW
 
 	//TODO: assert size compatibility
 	size_t nrows = glwegad_prep_ct->params->l_tilde;
-	uint64_t N   = glwegad_prep_ct->params->params_glwe->N;
+	uint64_t nn  = glwegad_prep_ct->params->params_glwe->nn;
 	size_t ncols = glwegad_prep_ct->params->params_glwe->n_limbs;
 
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params->params_glwe);
 
-	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, N, glwegad_prep_ct->mat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, nn, glwegad_prep_ct->mat, nrows, ncols),
 	           "vmp apply falied in half product");
 
 	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, ncols, glwe_dft->vec, ncols), "iDFT failed in half product");
