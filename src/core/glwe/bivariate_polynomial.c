@@ -168,8 +168,11 @@ void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv*
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	// TODO: slow polynomial evaulation,
-	for (uint64_t i = 1; i <= l; i++)
-		for (uint64_t p = 0; p < nn; p++) res_univ[p] += ldexp((double)pol_biv[(i - 1) * nn + p], -i * kappa);
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		res_univ[p] = 0;
+		for (uint64_t i = 1; i <= l; i++) res_univ[p] += ldexp((double)pol_biv[(i - 1) * nn + p], -i * kappa);
+	}
 }
 
 int univ_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const double* pol_univ)
