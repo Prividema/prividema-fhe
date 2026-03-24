@@ -60,7 +60,7 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 	// TODO: assert input and output have equal params
 	const GGSWParams* params_ggsw = result->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
-	uint64_t N                    = params_glwe->N;
+	uint64_t nn                   = params_glwe->nn;
 	uint64_t k                    = params_glwe->k;
 	uint64_t kappa                = params_glwe->kappa;
 	uint64_t l                    = poly_biv_size(params_glwe);
@@ -74,8 +74,8 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 
 			// Normalize the k+1 bivGLWE's elements
 			for (uint64_t t = 0; t < k + 1; t++)
-				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result_glwe_vec + t * N, l, (k + 1) * N,
-				                                         result_glwe_vec + t * N, l, (k + 1) * N),
+				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result_glwe_vec + t * nn, l, (k + 1) * nn,
+				                                         result_glwe_vec + t * nn, l, (k + 1) * nn),
 				           "vec_znx_normalize_base2k_p failed in normalize_ggsw");
 		}
 
@@ -104,7 +104,7 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	const GGSWParams* params_ggsw = result->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
-	uint64_t N       = params_glwe->N;
+	uint64_t N       = params_glwe->nn;
 	int64_t mat_size = ggsw_size(params_ggsw);
 
 	// The ciphertext in the DFT domain
@@ -190,7 +190,7 @@ int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, cons
 
 	// Computes the bivGGSW ciphertext's matrix in the DFT domain.
 	pvda_vec_znx_dft(module, result_dft->mat, ggsw_size(result_dft->params), ggsw_ct->mat,
-	                 ggsw_size(result_dft->params), result_dft->params->params_glwe->N);
+	                 ggsw_size(result_dft->params), result_dft->params->params_glwe->nn);
 
 	status = 0;
 
@@ -219,7 +219,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	const GGSWParams* params_ggsw = result_dft->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
-	uint64_t N       = params_glwe->N;
+	uint64_t N       = params_glwe->nn;
 	int64_t mat_size = ggsw_size(params_ggsw);
 
 	// Temporary bivGGSW ciphertext
@@ -254,6 +254,6 @@ uint64_t ggsw_size(const GGSWParams* params_ggsw)
 
 uint64_t ggsw_bytes(const GGSWParams* params_ggsw)
 {
-	int64_t N = params_ggsw->params_glwe->N;
+	int64_t N = params_ggsw->params_glwe->nn;
 	return ggsw_size(params_ggsw) * N * sizeof(int64_t);
 }

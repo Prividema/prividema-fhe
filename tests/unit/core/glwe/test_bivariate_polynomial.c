@@ -288,7 +288,7 @@ Test(normal_random_biv_poly, is_it_working)
 	// I.e. that each coefficient is between -2^(KAPPABASE-1) and 2^(KAPPABASE-1)
 	for (uint64_t i = 1; i <= LBASE; i++)
 	{
-		for (uint64_t p = 0; p < params_glwe->N; p++)
+		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{
 			cr_assert(le(i64, pol[(i - 1) * NBASE + p], (1 << (KAPPABASE - 1)),
 			             "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
@@ -324,14 +324,14 @@ Test(add_biv_poly, basic)
 	normal_random_biv_poly(params_glwe, pol_rhs);
 
 	// Computes pol_lhs + pol_rhs
-	add_biv_poly(params_glwe, sum_computed, params_glwe->N, pol_lhs, params_glwe->N, pol_rhs, params_glwe->N);
+	add_biv_poly(params_glwe, sum_computed, params_glwe->nn, pol_lhs, params_glwe->nn, pol_rhs, params_glwe->nn);
 
 	// Asserts sum_computed = pol_lhs + pol_rhs
 	for (uint64_t i = 1; i <= LBASE; i++)
 	{
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			int64_t idx = p + (i - 1) * params_glwe->N;
+			int64_t idx = p + (i - 1) * params_glwe->nn;
 			cr_assert(eq(dbl, sum_computed[idx], pol_lhs[idx] + pol_rhs[idx]),
 			          "add_biv_poly mismatch at index %" PRId64 ": %" PRId64 " + %" PRId64 " = %" PRId64
 			          ", got %" PRId64,
@@ -376,7 +376,7 @@ Test(normal_random_biv_poly_dft, is_it_working)
 
 	for (uint64_t i = 1; i <= LBASE; i++)
 	{
-		for (uint64_t p = 0; p < params_glwe->N; p++)
+		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{
 			cr_assert(le(i64, pol_normalized[(i - 1) * NBASE + p], (1 << (KAPPABASE - 1)),
 			             "The coefficient of a(X^p, Y^i) is greater than 2^(kappa-1)."));
@@ -413,14 +413,14 @@ Test(add_biv_poly_dft, basic)
 	normal_random_biv_poly_dft(module, params_glwe, pol_lhs_dft);
 	normal_random_biv_poly_dft(module, params_glwe, pol_rhs_dft);
 
-	add_biv_poly_dft(params_glwe, sum_computed_dft, params_glwe->N, pol_lhs_dft, params_glwe->N, pol_rhs_dft,
-	                 params_glwe->N);
+	add_biv_poly_dft(params_glwe, sum_computed_dft, params_glwe->nn, pol_lhs_dft, params_glwe->nn, pol_rhs_dft,
+	                 params_glwe->nn);
 
 	for (uint64_t i = 1; i <= LBASE; i++)
 	{
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			int64_t idx = p + (i - 1) * params_glwe->N;
+			int64_t idx = p + (i - 1) * params_glwe->nn;
 			cr_assert(epsilon_eq(dbl, sum_computed_dft[idx], pol_lhs_dft[idx] + pol_rhs_dft[idx], 1e-9),
 			          "add_biv_poly_dft mismatch at index %" PRId64 ": %f + %f = %f, got %f", (long long)idx,
 			          pol_lhs_dft[idx], pol_rhs_dft[idx], pol_lhs_dft[idx] + pol_rhs_dft[idx], sum_computed_dft[idx]);

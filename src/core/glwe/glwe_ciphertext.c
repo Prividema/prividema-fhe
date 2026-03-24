@@ -7,7 +7,7 @@
 
 //! bivGLWE PART (begin)
 
-uint64_t glwe_coef_number(const GLWEParams* params) { return glwe_size(params) * params->N; }
+uint64_t glwe_coef_number(const GLWEParams* params) { return glwe_size(params) * params->nn; }
 
 GLWECiphertext* new_glwe(const GLWEParams* params)
 {
@@ -40,14 +40,14 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphe
 	int status = -1;
 
 	// bivGLWE parameters
-	uint64_t N     = result->params->N;
+	uint64_t nn    = result->params->nn;
 	uint64_t k     = result->params->k;
 	uint64_t kappa = result->params->kappa;
 	uint64_t l     = poly_biv_size(result->params);
 
 	for (uint64_t j = 0; j < k + 1; j++)
-		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result->vec + j * N, l, (k + 1) * N, glwe->vec + j * N,
-		                                         l, (k + 1) * N),
+		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result->vec + j * nn, l, (k + 1) * nn,
+		                                         glwe->vec + j * nn, l, (k + 1) * nn),
 		           "vec_znx_normalize_base2k_p failed in normalize_glwe");
 
 	status = 0;
@@ -72,9 +72,9 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 	VecBivDFT* u_glwe_vec_dft = NULL;
 
 	// bivGLWE parameters
-	uint64_t N = result->params->N;
-	uint64_t k = result->params->k;
-	uint64_t l = poly_biv_size(result->params);
+	uint64_t nn = result->params->nn;
+	uint64_t k  = result->params->k;
+	uint64_t l  = poly_biv_size(result->params);
 
 	// The pointer to DFT(u * glwe)
 	u_glwe_vec_dft = malloc(glwe_bytes(result->params));
@@ -82,7 +82,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 
 	// Computes DFT(u * glwe)
 	pvda_svp_apply_dft(module, u_glwe_vec_dft, glwe_size(result->params), u_dft, glwe->vec, glwe_size(result->params),
-	                   N);
+	                   nn);
 
 	// Computes it out of the DFT domain
 	CHECK_CALL(
@@ -91,8 +91,8 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 
 	if (do_normalization)
 		for (uint64_t j = 0; j < k + 1; j++)
-			CHECK_CALL(pvda_vec_znx_normalize_base2k(module, result->params->kappa, result->vec + j * N, l, (k + 1) * N,
-			                                         result->vec + j * N, l, (k + 1) * N),
+			CHECK_CALL(pvda_vec_znx_normalize_base2k(module, result->params->kappa, result->vec + j * nn, l,
+			                                         (k + 1) * nn, result->vec + j * nn, l, (k + 1) * nn),
 			           "vec_znx_normalize_base2k_p failed in const_mult_glwe");
 
 	status = 0;
@@ -105,7 +105,7 @@ cleanup:
 
 //! bivGLWE IN DFT PART (begin)
 
-uint64_t glwe_coef_number_dft(const GLWEParams* params) { return glwe_size(params) * params->N / 2; }
+uint64_t glwe_coef_number_dft(const GLWEParams* params) { return glwe_size(params) * params->nn / 2; }
 
 GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params)
 {
@@ -143,7 +143,7 @@ int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, cons
 
 	// bivGLWE parameters
 	const GLWEParams* params_glwe = result_dft->params;
-	uint64_t N                    = params_glwe->N;
+	uint64_t nn                   = params_glwe->nn;
 	uint64_t k                    = params_glwe->k;
 	uint64_t kappa                = params_glwe->kappa;
 	uint64_t l                    = poly_biv_size(params_glwe);
@@ -157,12 +157,12 @@ int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, cons
 
 	// Normalize the k+1 bivGLWE' elements
 	for (uint64_t j = 0; j < k + 1; j++)
-		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, glwe_vec + j * N, l, (k + 1) * N, glwe_vec + j * N, l,
-		                                         (k + 1) * N),
+		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, glwe_vec + j * nn, l, (k + 1) * nn, glwe_vec + j * nn,
+		                                         l, (k + 1) * nn),
 		           "vec_znx_normalize_base2k_p failed in normalize_glwe_dft");
 
 	// Computes the bivGLWE ciphertext in the DFT domain
-	pvda_vec_znx_dft(module, result_dft->vec, glwe_size(params_glwe), glwe_vec, glwe_size(params_glwe), N);
+	pvda_vec_znx_dft(module, result_dft->vec, glwe_size(params_glwe), glwe_vec, glwe_size(params_glwe), nn);
 
 	status = 0;
 
@@ -193,9 +193,9 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	const GLWEParams* params = result_dft->params;
 
 	// bivGLWE parameters
-	uint64_t N = params->N;
-	uint64_t k = params->k;
-	uint64_t l = poly_biv_size(params);
+	uint64_t nn = params->nn;
+	uint64_t k  = params->k;
+	uint64_t l  = poly_biv_size(params);
 
 	// Point to DFT(u * glwe)
 	u_glwe_vec_dft = malloc(glwe_bytes(params));
@@ -209,7 +209,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	           "vec_znx_idft_p failed in const_mult_glwe_dft");
 
 	// Computes DFT(u * glwe)
-	pvda_svp_apply_dft(module, result_dft->vec, glwe_size(params), u_dft, glwe_vec, glwe_size(params), N);
+	pvda_svp_apply_dft(module, result_dft->vec, glwe_size(params), u_dft, glwe_vec, glwe_size(params), nn);
 
 	if (do_normalization)
 	{
@@ -224,12 +224,12 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 
 		// Normalizes each of the k+1 bivariate polynomials
 		for (uint64_t j = 0; j < k + 1; j++)
-			CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params->kappa, result_vec_normalized + j * N, l,
-			                                         (k + 1) * N, result_vec_normalized + j * N, l, (k + 1) * N),
+			CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params->kappa, result_vec_normalized + j * nn, l,
+			                                         (k + 1) * nn, result_vec_normalized + j * nn, l, (k + 1) * nn),
 			           "vec_znx_normalize_base2k_p failed in const_mult_glwe_dft");
 
 		// Computes the bivGLWE ciphertext in the DFT domain
-		pvda_vec_znx_dft(module, result_dft->vec, glwe_size(params), result_vec_normalized, glwe_size(params), N);
+		pvda_vec_znx_dft(module, result_dft->vec, glwe_size(params), result_vec_normalized, glwe_size(params), nn);
 	}
 
 	status = 0;
@@ -248,14 +248,14 @@ uint64_t glwe_size(const GLWEParams* params) { return params->n_limbs; }
 
 uint64_t glwe_bytes(const GLWEParams* params)
 {
-	uint64_t N = params->N;
-	return glwe_size(params) * N * sizeof(int64_t);
+	uint64_t nn = params->nn;
+	return glwe_size(params) * nn * sizeof(int64_t);
 }
 
 void mult_vec_znx_dft(const MODULE* module, double* result_dft, int64_t result_size, const double* c_dft,
                       int64_t c_size, const double* d_dft, int64_t d_size)
 {
-	uint64_t N = module->nn;
+	uint64_t nn = module->nn;
 
 	// TODO: we SHOULD offload this to spqlios.
 	if (c_size <= d_size)
@@ -264,24 +264,24 @@ void mult_vec_znx_dft(const MODULE* module, double* result_dft, int64_t result_s
 
 		for (uint64_t i = 0; i < smin; i++)
 		{
-			for (uint64_t j = 0; j < N / 2; j++)
+			for (uint64_t j = 0; j < nn / 2; j++)
 			{
 				// i*N + j corresultponds to the j-th coefficient's index of Re[DFT(c_i)] and Re[DFT(d_i)]
-				double c_re = c_dft[i * N + j];
-				double d_re = d_dft[i * N + j];
+				double c_re = c_dft[i * nn + j];
+				double d_re = d_dft[i * nn + j];
 
 				// i*N + j + N/2 corresultponds to the j-th coefficient's index of Im[DFT(c_i)] & Im[DFT(d_i)]
-				double c_im = c_dft[i * N + j + N / 2];
-				double d_im = d_dft[i * N + j + N / 2];
+				double c_im = c_dft[i * nn + j + nn / 2];
+				double d_im = d_dft[i * nn + j + nn / 2];
 
-				result_dft[i * N + j]         = c_re * d_re - c_im * d_im;
-				result_dft[i * N + j + N / 2] = c_re * d_im + c_im * d_re;
+				result_dft[i * nn + j]          = c_re * d_re - c_im * d_im;
+				result_dft[i * nn + j + nn / 2] = c_re * d_im + c_im * d_re;
 			}
 		}
 
 		// fill up remaining part with 0's
 		double* const dresult_dft = (double*)result_dft;
-		memset(dresult_dft + smin * N, 0, (result_size - smin) * N * sizeof(double));
+		memset(dresult_dft + smin * nn, 0, (result_size - smin) * nn * sizeof(double));
 	}
 	else
 		mult_vec_znx_dft(module, result_dft, result_size, d_dft, d_size, c_dft, c_size);

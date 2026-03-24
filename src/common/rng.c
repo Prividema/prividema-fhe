@@ -120,15 +120,15 @@ int rand_normal(double* result, double mu, double sigma)
 	CHECK_CALL(read_rand(&uniform), "Rng failed in rand_normal");
 
 	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
-	double U = ((double)uniform) / ((double)UINT64_MAX);
+	double uu = ((double)uniform) / ((double)UINT64_MAX);
 
 	// Compute Z the inverse CDF of the normal distribution applied to U.
-	double Z = sqrt(2.0) * erfinv(2.0 * U - 1.0);
+	double zz = sqrt(2.0) * erfinv(2.0 * uu - 1.0);
 
 	// Scale and Shift with mu and sigma.
 	// Z follows a normal distribution in (0,1)
 	// Thus result will follow (mu, sigma)
-	*result = mu + sigma * Z;
+	*result = mu + sigma * zz;
 
 	return 0;
 cleanup:
@@ -159,20 +159,20 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 	int64_t* tmp_space = NULL;
 
 	// The degree of the cyclotomic polynomial
-	uint64_t N = module->nn;
+	uint64_t nn = module->nn;
 
 	// Pointer to a uniformly drawn Zn[X] vector of size = vec_size
-	tmp_space = malloc(N * vec_size * sizeof(int64_t));
+	tmp_space = malloc(nn * vec_size * sizeof(int64_t));
 	CHECK_ALLOC(tmp_space, "malloc in new_uniform_random_vec_znx_dft");
 
 	// Draws uniformly in Zn[X] the vector elements
 	for (int i = 0; i < vec_size; i++)
-		for (int p = 0; p < N; p++)
-			CHECK_CALL(rand_uniform(tmp_space + i * N + p, nb_bits),
+		for (int p = 0; p < nn; p++)
+			CHECK_CALL(rand_uniform(tmp_space + i * nn + p, nb_bits),
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	pvda_vec_znx_dft(module, result_dft, vec_size, tmp_space, vec_size, N);
+	pvda_vec_znx_dft(module, result_dft, vec_size, tmp_space, vec_size, nn);
 
 	status = 0;
 

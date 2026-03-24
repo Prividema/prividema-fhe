@@ -8,16 +8,16 @@
 #include "spqlios_alias.h"
 #include "utils.h"
 
-GLWESecretKey* alloc_glwe_secret_key(uint64_t N, uint64_t k)
+GLWESecretKey* alloc_glwe_secret_key(uint64_t nn, uint64_t k)
 {
 	uint64_t j        = 0;
 	GLWESecretKey* sk = malloc(sizeof(GLWESecretKey));
 	CHECK_ALLOC(sk, "sk's malloc failed in alloc_glwe_secret_key");
 
-	sk->N = N;
-	sk->k = k;
+	sk->nn = nn;
+	sk->k  = k;
 
-	sk->values = calloc(N * k, sizeof(double));
+	sk->values = calloc(nn * k, sizeof(double));
 	CHECK_ALLOC(sk->values, "values creation failed in glwe key generation");
 
 	return sk;
@@ -29,13 +29,13 @@ cleanup:
 
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits)
 {
-	uint64_t N = module->nn;
+	uint64_t nn = module->nn;
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
 	for (uint64_t j = 0; j < sk->k; j++)
 	{
 		// TODO: should we forgo the loop and make it a single call to uniform_random_vec?
-		CHECK_CALL(uniform_random_vec(N, glwe_sk_extract_poly(sk, j), 1, N, nb_bits),
+		CHECK_CALL(uniform_random_vec(nn, glwe_sk_extract_poly(sk, j), 1, nn, nb_bits),
 		           "random vector generation failed in key generation");
 	}
 
@@ -47,7 +47,7 @@ cleanup:
 PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos)
 {
 	assert(pos >= 0 && pos < sk->k);
-	return sk->values + sk->N * pos;
+	return sk->values + sk->nn * pos;
 }
 
 void delete_glwe_secret_key(GLWESecretKey* sk)
@@ -57,15 +57,15 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 	free(sk);
 }
 
-GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t N, uint64_t k)
+GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t nn, uint64_t k)
 {
 	uint64_t j           = 0;
 	GLWESecretKeyDFT* sk = malloc(sizeof(GLWESecretKeyDFT));
 	CHECK_ALLOC(sk, "sk's malloc failed in new_glwe_secret_key.");
-	sk->N = N;
-	sk->k = k;
+	sk->nn = nn;
+	sk->k  = k;
 
-	sk->values = malloc(N * k * sizeof(PolyUnivDFT));
+	sk->values = malloc(nn * k * sizeof(PolyUnivDFT));
 	CHECK_ALLOC(sk->values, "values' malloc failed in alloc_glwe_secret_key_dft");
 
 	return sk;
@@ -79,7 +79,7 @@ cleanup:
 PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos)
 {
 	assert(pos >= 0 && pos < sk_dft->k);
-	return sk_dft->values + sk_dft->N * pos;
+	return sk_dft->values + sk_dft->nn * pos;
 }
 
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft)
