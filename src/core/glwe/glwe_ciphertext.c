@@ -255,7 +255,7 @@ uint64_t glwe_bytes(const GLWEParams* params)
 void mult_vec_znx_dft(const MODULE* module, double* result_dft, int64_t result_size, const double* c_dft,
                       int64_t c_size, const double* d_dft, int64_t d_size)
 {
-	uint64_t nn = module->nn;
+	uint64_t nn = pvda_module_extract_nn(module);
 
 	// TODO: we SHOULD offload this to spqlios.
 	if (c_size <= d_size)

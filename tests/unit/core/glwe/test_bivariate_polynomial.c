@@ -147,7 +147,7 @@ Test(univ_to_biv, basic)
 {
 	// Parameters
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 
 	// Variables
 	double* pol_univ      = malloc(poly_univ_bytes(params_glwe));

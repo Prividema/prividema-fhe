@@ -159,7 +159,7 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 	int64_t* tmp_space = NULL;
 
 	// The degree of the cyclotomic polynomial
-	uint64_t nn = module->nn;
+	uint64_t nn = pvda_module_extract_nn(module);
 
 	// Pointer to a uniformly drawn Zn[X] vector of size = vec_size
 	tmp_space = malloc(nn * vec_size * sizeof(int64_t));

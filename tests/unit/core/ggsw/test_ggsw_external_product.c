@@ -52,7 +52,7 @@ Test(ggsw_external_product, without_error)
 	GLWEParams* params_glwe_tilde =
 	    new_glwe_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 
 	//! Variables
 	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(NBASE, KBASE);
@@ -162,7 +162,7 @@ Test(ggsw_external_product_dft, without_error)
 	GLWEParams* params_glwe_tilde =
 	    new_glwe_params(NBASE, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE, SIGMA_TILDEBASE);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-	MODULE* module          = new_module_info(NBASE, FFT64);
+	MODULE* module          = pvda_new_module_info(NBASE);
 
 	//! Variables
 	GLWESecretKey* sk_ggsw                   = alloc_glwe_secret_key(NBASE, KBASE);
