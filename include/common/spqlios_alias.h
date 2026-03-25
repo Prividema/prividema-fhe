@@ -51,7 +51,7 @@ MODULE* pvda_new_module_info(uint64_t N);
 
 void pvda_delete_module_info(MODULE* module);
 
-double* pvda_new_vec_znx_dft(const MODULE* module, int64_t size);
+VecUnivDFT* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size);
 
 void pvda_vec_znx_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
                       int64_t a_sl);
@@ -77,16 +77,16 @@ double* pvda_new_vmp_pmat(const MODULE* module, uint64_t nrows, uint64_t ncols);
 
 int pvda_vmp_prepare_contiguous(const MODULE* module, double* pmat, const int64_t* mat, uint64_t nrows, uint64_t ncols);
 
-int pvda_vmp_apply_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
-                       int64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols);
+int pvda_vmp_apply_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
+                       uint64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols);
 
 int pvda_vmp_apply_dft_to_dft(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
                               uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols);
 
 void pvda_delete_vmp_pmat(double* pmat);
 
-int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, int64_t* res, int64_t res_size,
-                                  int64_t res_sl, const int64_t* a, int64_t a_size, int64_t a_sl);
+int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, int64_t* res, uint64_t res_size,
+                                  uint64_t res_sl, const int64_t* a, uint64_t a_size, uint64_t a_sl);
 
 int pvda_znx_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b);
 
