@@ -323,14 +323,15 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	PolyUnivRnX* m_univ_RnX              = malloc(poly_univ_bytes(params_glwe));
-	PolyBiv* err                         = malloc(poly_biv_bytes(params_glwe));
-	PolyBiv* m                           = malloc(poly_biv_bytes(params_glwe));
-	PolyBiv* phase                       = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyBivDFT* phase_dft                = malloc(poly_biv_bytes(params_glwe));
+	PolyBiv* m                           = new_biv_poly(params_glwe);
+	PolyBiv* err                         = new_biv_poly(params_glwe);
+	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
+	PolyBiv* phase                       = new_biv_poly(params_glwe);
+	GLWECiphertext* glwe_computed        = new_glwe(params_glwe);
+	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
+	PolyUnivRnX* phase_computed_univ_RnX = new_univ_rnx(params_glwe);
+	PolyBivDFT* phase_dft                = new_biv_poly_dft(params_glwe);
 	GLWECiphertextDFT* glwe_computed_dft = new_glwe_dft(params_glwe);
-	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(double));
 
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
