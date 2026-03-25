@@ -28,16 +28,14 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	int status = -1;
 
 	// Variables
-	PolyUnivRnX* rd_pol_univ = NULL;
-
+	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
+	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = params_glwe->n_limbs / (params_glwe->k + 1);
 
 	// Draws a random univariate polynomial P(X) in Rn[X]
-	rd_pol_univ = new_univ_rnx(params_glwe);
-	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
 
@@ -46,7 +44,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	status = 0;
 
 cleanup:
-	free(rd_pol_univ);
+	delete_univ_rnx(rd_pol_univ);
 
 	return status;
 }
