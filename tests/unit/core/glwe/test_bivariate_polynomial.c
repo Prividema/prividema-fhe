@@ -69,6 +69,7 @@ Test(biv_to_univ, runs)
 	PolyUnivRnX* pol_univ_computed = new_univ_rnx(params_glwe);
 
 	// Define pol_biv = Y
+	memset(pol, 0, poly_biv_bytes(params_glwe));
 	pol[0] = 1;
 
 	// Computes the bivariate polynomial in the Tn[X]
@@ -101,6 +102,7 @@ Test(univ_to_biv, one_test)
 	PolyBiv* pol_computed = new_biv_poly(params_glwe);
 
 	// Define pol_univ(X) = 2^{-KAPPABASE} , i.e. in Zn[X,Y] pol(X,Y) = Y
+	memset(pol_univ, 0, poly_univ_rnx_bytes(params_glwe));
 	pol_univ[0] = ldexp(1.0, -KAPPABASE);
 
 	// Compute pol_univ's base-2KAPPABASE normalized decomposition
