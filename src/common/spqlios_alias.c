@@ -15,7 +15,7 @@ void pvda_delete_module_info(MODULE* module)
 	delete_module_info(module);
 }
 
-VecUnivDFT* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size) { return new_vec_znx_dft(module, size); }
+VecUnivDFT* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size) { return (double*)new_vec_znx_dft(module, size); }
 
 void pvda_vec_znx_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
                       int64_t a_sl)
