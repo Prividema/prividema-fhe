@@ -63,42 +63,32 @@ void add_glwe(GLWECiphertext* result, const GLWECiphertext* glwe_lhs, const GLWE
 		result->vec[p] = glwe_lhs->vec[p] + glwe_rhs->vec[p];
 }
 
-int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUnivDFT* u_dft, const GLWECiphertext* glwe,
-                    int do_normalization)
+int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUnivDFT* u_dft, const GLWECiphertext* glwe)
 {
 	int status = -1;
 
 	// Variables
-	VecBivDFT* u_glwe_vec_dft = NULL;
 
+	GLWECiphertextDFT* u_glwe_dft = new_glwe_dft(glwe->params);
 	// bivGLWE parameters
 	uint64_t nn = result->params->nn;
-	uint64_t k  = result->params->k;
-	uint64_t l  = poly_biv_size(result->params);
 
 	// The pointer to DFT(u * glwe)
-	u_glwe_vec_dft = malloc(glwe_bytes(result->params));
-	CHECK_ALLOC(u_glwe_vec_dft, "u_glwe_dft's malloc failed in const_mult_glwe.");
+	CHECK_ALLOC(u_glwe_dft, "u_glwe_dft's malloc failed in const_mult_glwe.");
 
 	// Computes DFT(u * glwe)
-	pvda_svp_apply_dft(module, u_glwe_vec_dft, glwe_size(result->params), u_dft, glwe->vec, glwe_size(result->params),
+	pvda_svp_apply_dft(module, u_glwe_dft->vec, glwe_size(result->params), u_dft, glwe->vec, glwe_size(result->params),
 	                   nn);
 
 	// Computes it out of the DFT domain
 	CHECK_CALL(
-	    pvda_vec_znx_idft(module, result->vec, glwe_size(result->params), u_glwe_vec_dft, glwe_size(result->params)),
+	    pvda_vec_znx_idft(module, result->vec, glwe_size(result->params), u_glwe_dft->vec, glwe_size(result->params)),
 	    "vec_znx_idft_p failed in const_mult_glwe");
-
-	if (do_normalization)
-		for (uint64_t j = 0; j < k + 1; j++)
-			CHECK_CALL(pvda_vec_znx_normalize_base2k(module, result->params->kappa, result->vec + j * nn, l,
-			                                         (k + 1) * nn, result->vec + j * nn, l, (k + 1) * nn),
-			           "vec_znx_normalize_base2k_p failed in const_mult_glwe");
 
 	status = 0;
 
 cleanup:
-	free(u_glwe_vec_dft);
+	delete_glwe_dft(u_glwe_dft);
 
 	return status;
 }
@@ -142,7 +132,7 @@ void add_glwe_dft(GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_l
 }
 
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const PolyUnivDFT* u_dft,
-                        const GLWECiphertextDFT* glwe_dft, int do_normalization)
+                        const GLWECiphertextDFT* glwe_dft)
 {
 	int status = -1;
 
@@ -172,27 +162,6 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 
 	// Computes DFT(u * glwe)
 	pvda_svp_apply_dft(module, result_dft->vec, glwe_size(params), u_dft, glwe_vec, glwe_size(params), nn);
-
-	if (do_normalization)
-	{
-		// Point to the bivGLWE ciphertext out of the DFT domain
-		result_vec_normalized = malloc(glwe_bytes(params));
-		CHECK_ALLOC(result_vec_normalized, "result_normalized's malloc failed in const_mult_glwe_dft.");
-
-		// Computes the bivGLWE ciphertext out of the DFT domain
-		CHECK_CALL(
-		    pvda_vec_znx_idft(module, result_vec_normalized, glwe_size(params), result_dft->vec, glwe_size(params)),
-		    "vec_znx_idft_p failed in const_mult_glwe_dft");
-
-		// Normalizes each of the k+1 bivariate polynomials
-		for (uint64_t j = 0; j < k + 1; j++)
-			CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params->kappa, result_vec_normalized + j * nn, l,
-			                                         (k + 1) * nn, result_vec_normalized + j * nn, l, (k + 1) * nn),
-			           "vec_znx_normalize_base2k_p failed in const_mult_glwe_dft");
-
-		// Computes the bivGLWE ciphertext in the DFT domain
-		pvda_vec_znx_dft(module, result_dft->vec, glwe_size(params), result_vec_normalized, glwe_size(params), nn);
-	}
 
 	status = 0;
 

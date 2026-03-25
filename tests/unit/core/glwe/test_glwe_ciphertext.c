@@ -253,7 +253,7 @@ Test(const_mult_glwe, without_normalization)
 	univ_coefs_to_dft(module, u_dft, u);
 
 	// Computes u * glwe
-	const_mult_glwe(module, prod_computed, u_dft, glwe, 0);
+	const_mult_glwe(module, prod_computed, u_dft, glwe);
 
 	// Asserts prod_computed = u * glwe
 	for (uint64_t i = 1; i <= LBASE; i++)
@@ -379,7 +379,7 @@ Test(const_mult_glwe_dft, without_normalization)
 	univ_coefs_to_dft(module, u_dft, u);
 
 	// Computes DFT(u * glwe)
-	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft, 0);
+	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
 	pvda_vec_znx_idft(module, prod->vec, glwe_size(params_glwe), prod_computed_dft->vec, glwe_size(params_glwe));
