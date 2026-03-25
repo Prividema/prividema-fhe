@@ -91,8 +91,8 @@ void add_ggsw(GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCip
 	for (uint64_t t = 0; t < ggsw_coef_number(res->params); t++) res->mat[t] = ggsw_lhs->mat[t] + ggsw_rhs->mat[t];
 }
 
-int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft,
-                    int do_normalization)
+int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft)
+
 {
 	int status = -1;
 
@@ -102,23 +102,20 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	const GGSWParams* params_ggsw = result->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
-	uint64_t N                      = params_glwe->nn;
+	uint64_t nn                     = params_glwe->nn;
 	int64_t mat_size                = ggsw_size(params_ggsw);
 	GGSWCiphertextDFT* ggsw_tmp_dft = new_ggsw_dft(params_ggsw);
 
 	CHECK_ALLOC(ggsw_tmp_dft, "alloc in const_mult_ggsw");
 
 	//TODO: redundant logic?
-	pvda_vec_znx_dft(module, ggsw_tmp_dft->mat, mat_size, ggsw->mat, mat_size, N);
+	pvda_vec_znx_dft(module, ggsw_tmp_dft->mat, mat_size, ggsw->mat, mat_size, nn);
 
-	pvda_svp_apply_dft(module, ggsw_tmp_dft->mat, mat_size, u_dft, ggsw->mat, mat_size, N);
+	pvda_svp_apply_dft(module, ggsw_tmp_dft->mat, mat_size, u_dft, ggsw->mat, mat_size, nn);
 
 	// Go back to Zn[X,Y]
 	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_tmp_dft->mat, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw");
-
-	// Normalization
-	if (do_normalization) normalize_ggsw(module, result, result);
 
 	status = 0;
 
@@ -170,34 +167,6 @@ VecBivDFT* ggsw_retrieve_bivglwe_dft(GGSWCiphertextDFT* ggsw_dft_ct, int64_t j, 
 	return ggsw_dft_ct->mat + ((i - 1) * (k_tilde + 1) + j) * 2 * glwe_coef_number_dft(params_glwe);
 }
 
-int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft)
-{
-	//TODO: this function is untested and it is unclear that we actually want it implemented
-	int status = -1;
-
-	// Variables
-	GGSWCiphertext* ggsw_ct = new_ggsw(ggsw_dft->params);
-	CHECK_ALLOC(ggsw_ct, "Malloc failed in DFT GGSW normalization");
-
-	// Computes the bivGGSW ciphertext out of the DFT domain
-	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(result_dft->params), ggsw_dft->mat,
-	                             ggsw_size(result_dft->params)),
-	           "vec_znx_idft_p failed in noramlize_ggsw_dft");
-
-	CHECK_CALL(normalize_ggsw(module, ggsw_ct, ggsw_ct), "Non-DFT GGSW normalization failed inside DFT normalization");
-
-	// Computes the bivGGSW ciphertext's matrix in the DFT domain.
-	pvda_vec_znx_dft(module, result_dft->mat, ggsw_size(result_dft->params), ggsw_ct->mat,
-	                 ggsw_size(result_dft->params), result_dft->params->params_glwe->nn);
-
-	status = 0;
-
-cleanup:
-	delete_ggsw(ggsw_ct);
-
-	return status;
-}
-
 void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_lhs_dft,
                   const GGSWCiphertextDFT* ggsw_rhs_dft)
 {
@@ -206,7 +175,7 @@ void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_l
 }
 
 int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
-                        const PolyUnivDFT* u_dft, int do_normalization)
+                        const PolyUnivDFT* u_dft)
 {
 	int status = -1;
 
@@ -217,7 +186,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	const GGSWParams* params_ggsw = result_dft->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
-	uint64_t N       = params_glwe->nn;
+	uint64_t nn      = params_glwe->nn;
 	int64_t mat_size = ggsw_size(params_ggsw);
 
 	// Temporary bivGGSW ciphertext
@@ -230,10 +199,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 
 	//TODO: check this, it is quite strange
 	// Computes result_mat_dft = DFT(u) * DFT(iDFT(ggsw_mat_dft))) = DFT(u) * ggsw_mat_dft
-	pvda_svp_apply_dft(module, result_dft->mat, mat_size, u_dft, ggsw_mat, mat_size, N);
-
-	// Normalization of u * iDFT(ggsw_mat_dft)
-	if (do_normalization) normalize_ggsw_dft(module, result_dft, result_dft);
+	pvda_svp_apply_dft(module, result_dft->mat, mat_size, u_dft, ggsw_mat, mat_size, nn);
 
 	status = 0;
 

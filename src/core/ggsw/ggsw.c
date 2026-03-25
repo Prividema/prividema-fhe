@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "bivariate_polynomial.h"
+#include "ggsw_ciphertext.h"
 #include "glwe.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
@@ -124,7 +125,7 @@ int ggsw_external_product(const MODULE* module,
 	// Variables
 	MatBivDFT* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
 	VecBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
-
+	                               //
 	ggsw_pmat = malloc(ggsw_bytes(ggsw->params));
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
 

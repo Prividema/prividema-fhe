@@ -134,44 +134,6 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe)
 	free(glwe);
 }
 
-int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_dft)
-{
-	int status = -1;
-
-	// Variables
-	VecBiv* glwe_vec = NULL;
-
-	// bivGLWE parameters
-	const GLWEParams* params_glwe = result_dft->params;
-	uint64_t nn                   = params_glwe->nn;
-	uint64_t k                    = params_glwe->k;
-	uint64_t kappa                = params_glwe->kappa;
-	uint64_t l                    = poly_biv_size(params_glwe);
-
-	// Point to the bivGLWE ciphertext out of the DFT domain
-	glwe_vec = malloc(glwe_bytes(params_glwe));
-
-	// Computes the bivGLWE ciphertext out of the DFT domain
-	CHECK_CALL(pvda_vec_znx_idft(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe)),
-	           "vec_znx_idft_p failed in normalize_glwe_dft");
-
-	// Normalize the k+1 bivGLWE' elements
-	for (uint64_t j = 0; j < k + 1; j++)
-		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, glwe_vec + j * nn, l, (k + 1) * nn, glwe_vec + j * nn,
-		                                         l, (k + 1) * nn),
-		           "vec_znx_normalize_base2k_p failed in normalize_glwe_dft");
-
-	// Computes the bivGLWE ciphertext in the DFT domain
-	pvda_vec_znx_dft(module, result_dft->vec, glwe_size(params_glwe), glwe_vec, glwe_size(params_glwe), nn);
-
-	status = 0;
-
-cleanup:
-	free(glwe_vec);
-
-	return status;
-}
-
 void add_glwe_dft(GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_lhs_dft,
                   const GLWECiphertextDFT* glwe_rhs_dft)
 {

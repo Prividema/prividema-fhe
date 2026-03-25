@@ -102,13 +102,11 @@ void add_ggsw(GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs, const GGSW
  * @param result    A Pointer to store the result. Must be a GGSWCiphertext.
  * @param ggsw      A Pointer to the GGSW ciphertext.
  * @param cte       The constant in \f$\mathbb{Z}_n[X]\f$.
- * @param normalize Whether to normalize (1) or not (0) the resulting GGSW ciphertext *
  *
  * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
  * @retval • `0` otherwise.
  */
-int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* cte,
-                    int normalize);
+int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* cte);
 
 // =============================================
 // |                                           |
@@ -183,18 +181,6 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
 VecBivDFT* ggsw_retrieve_bivglwe_dft(GGSWCiphertextDFT* ggsw_dft_ct, int64_t j, int64_t i);
 
 /**
- * @brief Normalizes a GGSW ciphertext in the DFT space.
- *
- * @param module Additionnal information for backend.
- * @param result A Pointer to store the normalized GGSW ciphertext.
- * @param ggsw   A Pointer to the GGSW ciphertext to normalize.
- *
- * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
- * @retval • `0` otherwise.
- */
-int normalize_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft);
-
-/**
  * @brief Adds two GGSW ciphertexts in the DFT space with same parameters.
  *
  * @param result   A Pointer to store the result.
@@ -211,13 +197,12 @@ void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_l
  * @param result    A Pointer to store the result. Must be a GGSWCiphertext.
  * @param ggsw      A Pointer to the GGSW ciphertext.
  * @param cte       The constant in \f$\mathbb{Z}_n[X]\f$. Must be in the DFT space.
- * @param normalize A boolean that tells to normalize the result.
  *
  * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
  * @retval • `0` otherwise.
  */
 int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
-                        const PolyUnivDFT* u_dft, int do_normalization);
+                        const PolyUnivDFT* u_dft);
 
 // =============================================
 // |                                           |

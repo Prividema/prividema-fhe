@@ -8,7 +8,7 @@
 typedef struct glwe_ciphertext
 {
 	const GLWEParams* params;  // bivGLWE parameters
-	VecBiv* vec;                 // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
+	VecBiv* vec;               // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
 /**
@@ -75,7 +75,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT
 typedef struct glwe_ciphertext_dft
 {
 	const GLWEParams* params;  // bivGLWE parameters
-	VecBivDFT* vec;              // Vector in the DFT
+	VecBivDFT* vec;            // Vector in the DFT
 } GLWECiphertextDFT;
 
 /**
@@ -103,19 +103,6 @@ GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params_glwe);
  * @param glwe The bivGLWE ciphertext.
  */
 void delete_glwe_dft(GLWECiphertextDFT* glwe);
-
-// TODO test normalize_glwe_dft
-/**
- * @brief Normalizes a bivGLWE ciphertext in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param result_dft The result normalized bivGLWE ciphertext in the DFT domain.
- * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
- *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
- */
-int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_dft);
 
 /**
  * @brief Adds two bivGLWE ciphertext.

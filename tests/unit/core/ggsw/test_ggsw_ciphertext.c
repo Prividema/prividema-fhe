@@ -206,7 +206,7 @@ Test(const_mult_ggsw, without_normalization)
 	univ_coefs_to_dft(module, u_dft, u);
 
 	// Computes u * ggsw
-	const_mult_ggsw(module, product_computed, ggsw, u_dft, 0);
+	const_mult_ggsw(module, product_computed, ggsw, u_dft);
 
 	// Asserts product_computed = u * ggsw
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
@@ -308,32 +308,6 @@ Test(ggsw_Sj_Yti_dft, basic)
 	delete_ggsw_params(params_ggsw);
 }
 
-// Test normalize_ggsw
-Test(normalize_ggsw_dft, basic)
-{
-	// Parameters
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-
-	// Variables
-	GGSWCiphertextDFT* res_dft  = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
-
-	// Normalize ggsw_dft
-	int status = normalize_ggsw_dft(module, res_dft, ggsw_dft);
-
-	// Asserts normalize_ggsw_dft succeed
-	cr_assert(eq(int, status, 0), "normalize_ggsw_dft failed");
-
-	// Clean up
-	delete_ggsw_dft(ggsw_dft);
-	delete_ggsw_dft(res_dft);
-	pvda_delete_module_info(module);
-	delete_glwe_params(params_glwe);
-	delete_ggsw_params(params_ggsw);
-}
-
 Test(add_ggsw_dft, basic)
 {
 	// Parameters
@@ -396,7 +370,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u) * DFT(ggsw)
-	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft, 0);
+	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft);
 
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
