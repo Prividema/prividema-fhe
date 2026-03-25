@@ -33,26 +33,18 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
-	PolyUnivDFT* m_univ_dft     = NULL;  // DFT(msg)
-	PolyUnivDFT* m_skj_univ_dft = NULL;  // DFT(msg * sk_j)
-	PolyUniv* m_skj_univ        = NULL;  // -msg * sk_j
-
+	PolyUnivDFT* m_univ_dft     = new_univ_dft(module);   // DFT(msg)
+	PolyUnivDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
+	PolyUniv* m_skj_univ        = new_univ(params_glwe);  // -msg * sk_j
 	// compute_phase_ij requires some extra temp space
-	// TODO: find out why it is being set to poly_univ_bytes even though it is a different data type
-	PolyUnivRnX* tmp_sp1 = NULL;
-
+	PolyUnivRnX* tmp_sp1 = new_univ_rnx(params_glwe);
 	// Temp space for -m * sk * 2^{-kappa_tilde}
-	PolyBiv* glwe_biv_msg = NULL;
+	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
 
-	m_univ_dft = new_univ_dft(module);
 	CHECK_ALLOC(m_univ_dft, "malloc failed in ggsw_secret_encrypt");
-	m_skj_univ_dft = new_univ_dft(module);
 	CHECK_ALLOC(m_skj_univ_dft, "malloc failed in ggsw_secret_encrypt");
-	m_skj_univ = new_univ(params_glwe);
 	CHECK_ALLOC(m_skj_univ, "malloc failed in ggsw_secret_encrypt");
-	tmp_sp1 = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(tmp_sp1, "malloc failed in ggsw_secret_encrypt");
-	glwe_biv_msg = new_biv_poly(params_glwe);
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)

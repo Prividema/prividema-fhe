@@ -97,25 +97,24 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	int status = -1;
 
 	// Variables
-	MatBivDFT* ggsw_mat_dft = NULL;
 
 	// bivGGSW & bivGLWE set of parameters
 	const GGSWParams* params_ggsw = result->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
-	uint64_t N       = params_glwe->nn;
-	int64_t mat_size = ggsw_size(params_ggsw);
+	uint64_t N                      = params_glwe->nn;
+	int64_t mat_size                = ggsw_size(params_ggsw);
+	GGSWCiphertextDFT* ggsw_tmp_dft = new_ggsw_dft(params_ggsw);
 
-	// The ciphertext in the DFT domain
-	ggsw_mat_dft = malloc(ggsw_bytes(params_ggsw));
-	CHECK_ALLOC(ggsw_mat_dft, "malloc in const_mult_ggsw");
+	CHECK_ALLOC(ggsw_tmp_dft, "alloc in const_mult_ggsw");
 
-	pvda_vec_znx_dft(module, ggsw_mat_dft, mat_size, ggsw->mat, mat_size, N);
+	//TODO: redundant logic?
+	pvda_vec_znx_dft(module, ggsw_tmp_dft->mat, mat_size, ggsw->mat, mat_size, N);
 
-	pvda_svp_apply_dft(module, ggsw_mat_dft, mat_size, u_dft, ggsw->mat, mat_size, N);
+	pvda_svp_apply_dft(module, ggsw_tmp_dft->mat, mat_size, u_dft, ggsw->mat, mat_size, N);
 
 	// Go back to Zn[X,Y]
-	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_mat_dft, mat_size),
+	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_tmp_dft->mat, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw");
 
 	// Normalization
@@ -124,7 +123,7 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	status = 0;
 
 cleanup:
-	free(ggsw_mat_dft);
+	delete_ggsw_dft(ggsw_tmp_dft);
 
 	return status;
 }
