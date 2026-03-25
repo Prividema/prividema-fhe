@@ -57,6 +57,7 @@ Test(mult_vec_znx_dft, size_equal_one)
 	MODULE* module          = pvda_new_module_info(NBASE);
 
 	// Variables
+	// TODO: WONTFIX
 	int64_t* prod_computed    = calloc(poly_univ_bytes(params_glwe), 1);
 	int64_t* pol_lhs          = calloc(poly_univ_bytes(params_glwe), 1);
 	int64_t* pol_rhs          = calloc(poly_univ_bytes(params_glwe), 1);
@@ -116,6 +117,7 @@ Test(mult_vec_znx_dft, random_size)
 	}
 
 	// Variables
+	// TODO: WONTFIX
 	int64_t* component_wise_mult    = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	int64_t* vec_lhs                = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	int64_t* vec_rhs                = calloc(poly_univ_bytes(params_glwe) * size, 1);
@@ -237,9 +239,9 @@ Test(const_mult_glwe, without_normalization)
 	// Variables
 	GLWECiphertext* prod_computed = new_glwe(params_glwe);
 	GLWECiphertext* glwe          = new_glwe(params_glwe);
-	PolyUniv* u                   = malloc(poly_univ_bytes(params_glwe));
-	PolyUnivDFT* u_dft            = malloc(poly_univ_bytes(params_glwe));
-	int64_t* prod_expected        = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* u                   = new_univ(params_glwe);
+	PolyUnivDFT* u_dft            = new_univ_dft(module);
+	PolyUniv* prod_expected       = new_univ(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
 	uniform_random_vec(NBASE, glwe->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
@@ -266,12 +268,12 @@ Test(const_mult_glwe, without_normalization)
 		}
 
 	// Clean up
-	free(u);
-	free(u_dft);
+	delete_univ(u);
+	delete_univ_dft(u_dft);
 	pvda_delete_module_info(module);
 	delete_glwe(glwe);
 	delete_glwe(prod_computed);
-	free(prod_expected);
+	delete_univ(prod_expected);
 	delete_glwe_params(params_glwe);
 }
 
