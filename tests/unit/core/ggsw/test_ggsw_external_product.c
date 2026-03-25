@@ -63,7 +63,7 @@ Test(ggsw_external_product, without_error)
 	GLWECiphertext* glwe_tilde        = new_glwe(params_glwe_tilde);
 	GLWECiphertext* ext_prod_computed = new_glwe(params_glwe);
 	PolyUniv* u_univ                  = new_univ(params_glwe);
-	PolyBiv* m                        = malloc(poly_biv_bytes(params_glwe_tilde));
+	PolyBiv* m                        = new_biv_poly(params_glwe_tilde);
 
 	//! Variables to compute the result phase of the external product
 	PolyBiv* phase_computed           = new_biv_poly(params_glwe);

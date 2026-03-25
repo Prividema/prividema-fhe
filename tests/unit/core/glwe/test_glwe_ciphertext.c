@@ -356,12 +356,13 @@ Test(const_mult_glwe_dft, without_normalization)
 
 	//! Variables
 	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(params_glwe);
-	VecBiv* prod_computed_vec            = malloc(glwe_bytes(params_glwe));
-	GLWECiphertextDFT* glwe_dft          = new_glwe_dft(params_glwe);
-	VecBiv* glwe_vec                     = malloc(glwe_bytes(params_glwe));
-	PolyUniv* u                          = malloc(poly_univ_bytes(params_glwe));
-	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(int64_t));
-	int64_t* prod_expected               = malloc(poly_univ_bytes(params_glwe));
+
+	GLWECiphertext* prod        = new_glwe(params_glwe);
+	GLWECiphertextDFT* glwe_dft = new_glwe_dft(params_glwe);
+	GLWECiphertext* glwe_ct     = new_glwe(params_glwe);
+	PolyUniv* u                 = new_univ(params_glwe);
+	PolyUnivDFT* u_dft          = new_univ_dft(module);
+	PolyUniv* prod_expected     = new_univ(params_glwe);
 
 	//! Draws input variables
 	// Draws uniformly the bivGLWE ciphertext in the DFT domain
@@ -372,7 +373,7 @@ Test(const_mult_glwe_dft, without_normalization)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, glwe_vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
+	pvda_vec_znx_idft(module, glwe_ct->vec, glwe_size(params_glwe), glwe_dft->vec, glwe_size(params_glwe));
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);
@@ -381,27 +382,26 @@ Test(const_mult_glwe_dft, without_normalization)
 	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft, 0);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, prod_computed_vec, glwe_size(params_glwe), prod_computed_dft->vec,
-	                  glwe_size(params_glwe));
+	pvda_vec_znx_idft(module, prod->vec, glwe_size(params_glwe), prod_computed_dft->vec, glwe_size(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
 	for (uint64_t i = 1; i <= LBASE; i++)
 		for (uint64_t j = 0; j < KBASE + 1; j++)
 		{
-			PolyUniv* glwe_ij = glwe_vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
+			PolyUniv* glwe_ij = glwe_ct->vec + (i - 1) * (KBASE + 1) * NBASE + j * NBASE;
 			pvda_znx_product(module, prod_expected, u, glwe_ij);
 			for (uint64_t p = 0; p < NBASE; p++)
 			{
-				cr_assert(eq(i64, prod_computed_vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], prod_expected[p]));
+				cr_assert(eq(i64, prod->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p], prod_expected[p]));
 			}
 		}
 
 	// Clean up
-	free(u);
-	free(u_dft);
-	free(glwe_vec);
-	free(prod_computed_vec);
-	free(prod_expected);
+	delete_univ(u);
+	delete_univ_dft(u_dft);
+	delete_glwe(glwe_ct);
+	delete_glwe(prod);
+	delete_univ(prod_expected);
 	delete_glwe_dft(glwe_dft);
 	delete_glwe_dft(prod_computed_dft);
 	delete_glwe_params(params_glwe);
