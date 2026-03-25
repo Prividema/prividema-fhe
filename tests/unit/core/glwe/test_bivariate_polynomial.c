@@ -299,11 +299,10 @@ Test(add_biv_poly, basic)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
-	PolyBiv* pol_lhs = malloc(poly_biv_bytes(params_glwe));
+	PolyBiv* pol_lhs = new_biv_poly(params_glwe);
+	PolyBiv* pol_rhs = new_biv_poly(params_glwe);
 	;
-	PolyBiv* pol_rhs = malloc(poly_biv_bytes(params_glwe));
-	;
-	PolyBiv* sum_computed = malloc(poly_biv_bytes(params_glwe));
+	PolyBiv* sum_computed = new_biv_poly(params_glwe);
 
 	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]
 	normal_random_biv_poly(params_glwe, pol_lhs);
@@ -346,10 +345,9 @@ Test(normal_random_biv_poly_dft, is_it_working)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
-	PolyBivDFT* pol_dft = malloc(poly_biv_bytes(params_glwe));
-	;
-	PolyBiv* pol            = malloc(poly_biv_bytes(params_glwe));
-	PolyBiv* pol_normalized = malloc(poly_biv_bytes(params_glwe));
+	PolyBivDFT* pol_dft     = new_biv_poly_dft(params_glwe);
+	PolyBiv* pol            = new_biv_poly(params_glwe);
+	PolyBiv* pol_normalized = new_biv_poly(params_glwe);
 
 	// Draw pol_dft normaly in the DFT domain
 	normal_random_biv_poly_dft(module, params_glwe, pol_dft);
@@ -389,11 +387,9 @@ Test(add_biv_poly_dft, basic)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Variables
-	PolyBivDFT* pol_lhs_dft = malloc(poly_biv_bytes(params_glwe));
-	;
-	PolyBivDFT* pol_rhs_dft = malloc(poly_biv_bytes(params_glwe));
-	;
-	PolyBivDFT* sum_computed_dft = malloc(poly_biv_bytes(params_glwe));
+	PolyBivDFT* pol_lhs_dft      = new_biv_poly_dft(params_glwe);
+	PolyBivDFT* pol_rhs_dft      = new_biv_poly_dft(params_glwe);
+	PolyBivDFT* sum_computed_dft = new_biv_poly_dft(params_glwe);
 
 	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]
 	normal_random_biv_poly_dft(module, params_glwe, pol_lhs_dft);
