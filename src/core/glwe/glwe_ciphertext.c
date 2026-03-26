@@ -1,5 +1,6 @@
 #include "glwe_ciphertext.h"
 
+#include <assert.h>
 #include <string.h>
 
 #include "logger.h"
@@ -91,6 +92,12 @@ cleanup:
 	delete_glwe_dft(u_glwe_dft);
 
 	return status;
+}
+
+PolyBiv* glwe_extract_poly(const GLWECiphertext* glwe_ct, uint64_t pos)
+{
+	assert(pos >= 0 && pos <= glwe_ct->params->k);
+	return glwe_ct->vec + glwe_ct->params->nn * pos;
 }
 
 //! bivGLWE IN DFT PART (begin)

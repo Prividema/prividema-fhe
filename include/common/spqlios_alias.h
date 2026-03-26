@@ -53,14 +53,14 @@ void pvda_delete_module_info(MODULE* module);
 
 VecUnivDFT* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size);
 
-void pvda_vec_znx_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
-                      int64_t a_sl);
+void pvda_vec_znx_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
+                      uint64_t a_sl);
 
 void pvda_delete_vec_znx_dft(double* res);
 
 int64_t* pvda_new_vec_znx_big(const MODULE* module, int64_t size);
 
-int pvda_vec_znx_idft(const MODULE* module, int64_t* res, int64_t res_size, const double* a_dft, int64_t a_size);
+int pvda_vec_znx_idft(const MODULE* module, int64_t* res, uint64_t res_size, const double* a_dft, uint64_t a_size);
 
 void pvda_delete_vec_znx_big(int64_t* res);
 

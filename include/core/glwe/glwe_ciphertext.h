@@ -1,7 +1,10 @@
 #ifndef bivGLWE_CIPHERTEXT_H
 #define bivGLWE_CIPHERTEXT_H
 
+#include <stdint.h>
+
 #include "bivariate_polynomial.h"
+#include "rng.h"
 
 //! bivGLWE PART (begin)
 
@@ -68,6 +71,14 @@ void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECip
  */
 int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe);
 
+/**
+ *
+ * TODO
+ *
+ *
+ */
+PolyBiv* glwe_extract_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
+
 //! bivGLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft
@@ -125,6 +136,27 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
  */
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
                         const GLWECiphertextDFT* glwe_dft);
+
+/**
+ * @brief convert a GLWECiphertext into its DFT representation
+ *
+ * @param module The backend module
+ * @param res_dft The resulting glwe ciphertext (in DFT)
+ * @param glwe_ct The input coefficient domain GLWE
+ *
+ */
+int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct);
+
+/**
+ *
+ * @brief Convert a GLWECiphertextDFT into its coefficient (non-DFT) representation
+ *
+ * @param module The backend module
+ * @param res_ct The resulting glwe ciphertext (in coef space)
+ * @param glwe_dft The input glwe in the DFT domain
+ *
+ */
+int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
 
 //! COMMON PART (begin)
 

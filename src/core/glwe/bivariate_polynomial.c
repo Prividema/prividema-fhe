@@ -200,3 +200,18 @@ cleanup:
 
 	return status;
 }
+
+int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
+{
+	uint64_t nn = params_glwe->nn;
+	uint64_t l  = poly_biv_size(params_glwe);
+	pvda_vec_znx_dft(module, res_dft, l, a, l, nn);
+	return 1;
+}
+
+int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
+{
+	uint64_t nn = params_glwe->nn;
+	uint64_t l  = poly_biv_size(params_glwe);
+	return pvda_vec_znx_idft(module, res, l, a_dft, l);
+}

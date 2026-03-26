@@ -99,7 +99,6 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 	int status = -1;
 
 	const GLWEParams* params = (const GLWEParams*)glwe->params;
-	VecBiv* result           = glwe->vec;
 	// GLWE parameters
 	uint64_t nn      = params->nn;
 	uint64_t k       = params->k;
@@ -121,7 +120,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 	CHECK_ALLOC(as_j, "as_j's calloc failed in glwe_secret_masking");
 
 	// Draws uniformly in Zn[X,Y] the ajs'
-	CHECK_CALL(uniform_random_vec(k * nn, result, l, (k + 1) * nn, kappa),
+	CHECK_CALL(uniform_random_vec(k * nn, glwe->vec, l, (k + 1) * nn, kappa),
 	           "A generation failed in glwe_secret_masking_dft");
 
 	// Computes Sum_j{0,k-1}[sk_j * a_j]
@@ -131,7 +130,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
 
 		// Computes DFT(sk_j) * DFT(a_j)
-		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, result + j * nn, l, (k + 1) * nn);
+		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, glwe_extract_poly(glwe, j), l, (k + 1) * nn);
 
 		// Undo DFT to retreive sk_j * a_j
 		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l),
@@ -145,7 +144,7 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 	for (size_t i = 0; i < nn * l; ++i) acc[i] += phase[i];
 
 	// The pointer to the last row of the ciphertext vector (B)
-	PolyBiv* b_0 = result + k * nn;
+	PolyBiv* b_0 = glwe_extract_poly(glwe, k);
 
 	// Normalize acc (B) and put it in the result variable
 	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, b_0, l, (k + 1) * nn, acc, l, nn),
@@ -165,7 +164,6 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKe
                           const GLWECiphertext* glwe)
 {
 	const GLWEParams* params = glwe->params;
-	const VecBiv* glwe_vec   = glwe->vec;
 
 	int status = -1;
 
@@ -188,7 +186,7 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKe
 	{
 		// The j-th component of the secret key in DFT form and the bivGLWE/GLW ciphertext respectively
 		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
-		const PolyUniv* a_j        = glwe_vec + j * nn;
+		const PolyUniv* a_j        = glwe_extract_poly(glwe, j);
 
 		// Computes DFT(sk_j * a_j)
 		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, a_j, l, (k + 1) * nn);
@@ -202,7 +200,7 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKe
 	}
 
 	// Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
-	const PolyBiv* b = glwe_vec + k * nn;
+	const PolyBiv* b = glwe_extract_poly(glwe, k);
 
 	// acc += b <=> acc = b - sum(sk_j*a_j)
 	add_biv_poly(params, acc, nn, acc, nn, b, (k + 1) * nn);
@@ -247,7 +245,7 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* glwe_dft, c
 	CHECK_CALL(add_mult(module, params, acc, glwe_ct->vec, sk_dft), "add_mult failed in glwe_secret_masking_dft.");
 
 	// The pointer to limb_0(b)
-	PolyBiv* b_0 = glwe_ct->vec + k * nn;
+	PolyBiv* b_0 = glwe_extract_poly(glwe_ct, k);
 
 	// For each i in {0,l} limb_i(b) = limb_i(acc) = Sum_j{0,k-1}[sk_j * limb_i(a_j)]
 	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, b_0, l, (k + 1) * nn, acc, l, nn),
@@ -296,7 +294,7 @@ int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, const GLWESecr
 	CHECK_CALL(sub_mult(module, params, acc, glwe_ct->vec, sk_dft), "sub_mult failed in glwe_secret_masking_dft");
 
 	// Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
-	PolyBiv* b = glwe_ct->vec + k * nn;
+	PolyBiv* b = glwe_extract_poly(glwe_ct, k);
 	add_biv_poly(params, acc, nn, b, (k + 1) * nn, acc, nn);
 
 	// The phase in Zn[X,Y]
