@@ -176,7 +176,7 @@ int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECip
  *
  * @note The size of a bivGLWE ciphertext is the same in and out of the DFT domain.
  */
-uint64_t glwe_size(const GLWEParams* params_glwe);
+uint64_t glwe_total_nlimbs(const GLWEParams* params_glwe);
 
 /**
  * @brief The number of bytes needed to store a bivGLWE ciphertext.

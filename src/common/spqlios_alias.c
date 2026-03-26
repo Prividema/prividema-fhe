@@ -64,8 +64,8 @@ void pvda_delete_svp_ppol(double* pmat)
 	delete_svp_ppol(((SVP_PPOL*)pmat));
 }
 
-void pvda_svp_apply_dft(const MODULE* module, const double* res, int64_t res_size, const PolyUnivDFT* ppol,
-                        const int64_t* a, int64_t a_size, int64_t a_sl)
+void pvda_svp_apply_dft(const MODULE* module, const double* res, uint64_t res_size, const PolyUnivDFT* ppol,
+                        const int64_t* a, uint64_t a_size, uint64_t a_sl)
 {
 	svp_apply_dft(module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)ppol, a, a_size, a_sl);
 }

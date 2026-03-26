@@ -288,8 +288,9 @@ int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, const GLWESecr
 	CHECK_ALLOC(glwe_ct, "calloc failed in glwe_secret_masking_dft");
 	CHECK_ALLOC(acc, "calloc failed in glwe_secret_masking_dft");
 
-	CHECK_CALL(pvda_vec_znx_idft(module, glwe_ct->vec, glwe_size(params), glwe_dft->vec, glwe_size(params)),
-	           "idft failed in glwe_secret_demasking_dft");
+	CHECK_CALL(
+	    pvda_vec_znx_idft(module, glwe_ct->vec, glwe_total_nlimbs(params), glwe_dft->vec, glwe_total_nlimbs(params)),
+	    "idft failed in glwe_secret_demasking_dft");
 
 	CHECK_CALL(sub_mult(module, params, acc, glwe_ct->vec, sk_dft), "sub_mult failed in glwe_secret_masking_dft");
 

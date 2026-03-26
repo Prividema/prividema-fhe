@@ -29,7 +29,7 @@ Test(ggsw_size, basic)
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_size returns NLIMBS_TILDEBASE * NLIMBSBASE
-	cr_assert(eq(i64, ggsw_size(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
+	cr_assert(eq(i64, ggsw_total_n_glwe_limbs(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
 
 	// Clean up
 	delete_glwe_params(params_glwe);
@@ -157,8 +157,8 @@ Test(add_ggsw, basic)
 	GGSWCiphertext* sum_computed = new_ggsw(params_ggsw);
 
 	// Draws uniformly the bivGGSW ciphertexts
-	uniform_random_vec(NBASE, ggsw_lhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
-	uniform_random_vec(NBASE, ggsw_rhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw_lhs->mat, ggsw_total_n_glwe_limbs(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw_rhs->mat, ggsw_total_n_glwe_limbs(params_ggsw), NBASE, KAPPABASE - 1);
 
 	// Computes ggsw_lhs + ggsw_rhs
 	add_ggsw(sum_computed, ggsw_lhs, ggsw_rhs);
@@ -200,7 +200,7 @@ Test(const_mult_ggsw, without_normalization)
 	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
 
 	// Draws uniformly the bivGGSW ciphertext
-	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw->mat, ggsw_total_n_glwe_limbs(params_ggsw), NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);
@@ -321,8 +321,8 @@ Test(add_ggsw_dft, basic)
 	GGSWCiphertextDFT* sum_computed_dft = new_ggsw_dft(params_ggsw);
 
 	// Draws uniformly the bivGGSW ciphertexts
-	uniform_random_vec_znx_dft(module, ggsw_lhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
-	uniform_random_vec_znx_dft(module, ggsw_rhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_lhs_dft->mat, ggsw_total_n_glwe_limbs(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_rhs_dft->mat, ggsw_total_n_glwe_limbs(params_ggsw), KAPPABASE - 1);
 
 	// Computes ggsw_lhs_dft + ggsw_rhs_dft
 	add_ggsw_dft(sum_computed_dft, ggsw_lhs_dft, ggsw_rhs_dft);
@@ -367,15 +367,17 @@ Test(const_mult_ggsw_dft, without_normalization)
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
 
 	// Draws uniformly the bivGGSW ciphertext in the DFT domain
-	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_total_n_glwe_limbs(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u) * DFT(ggsw)
 	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft);
 
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
-	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
-	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_total_n_glwe_limbs(params_ggsw), ggsw_dft->mat,
+	                  ggsw_total_n_glwe_limbs(params_ggsw));
+	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_total_n_glwe_limbs(params_ggsw), prod_computed_dft->mat,
+	                  ggsw_total_n_glwe_limbs(params_ggsw));
 
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)

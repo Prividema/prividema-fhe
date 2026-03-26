@@ -219,7 +219,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
  *
  * @note The size is the same in DFT and iDFT domains.
  */
-uint64_t ggsw_size(const GGSWParams* params_ggsw);
+uint64_t ggsw_total_n_glwe_limbs(const GGSWParams* params_ggsw);
 
 /**
  * @brief Gets the number of bytes needed to store a GGSW ciphertext.

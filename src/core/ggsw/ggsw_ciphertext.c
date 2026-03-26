@@ -106,7 +106,7 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
 	uint64_t nn                     = params_glwe->nn;
-	int64_t mat_size                = ggsw_size(params_ggsw);
+	int64_t mat_size                = ggsw_total_n_glwe_limbs(params_ggsw);
 	GGSWCiphertextDFT* ggsw_tmp_dft = new_ggsw_dft(params_ggsw);
 
 	CHECK_ALLOC(ggsw_tmp_dft, "alloc in const_mult_ggsw");
@@ -189,8 +189,8 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	const GGSWParams* params_ggsw = result_dft->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
-	uint64_t nn      = params_glwe->nn;
-	int64_t mat_size = ggsw_size(params_ggsw);
+	uint64_t nn       = params_glwe->nn;
+	uint64_t mat_size = ggsw_total_n_glwe_limbs(params_ggsw);
 
 	// Temporary bivGGSW ciphertext
 	ggsw_mat = malloc(ggsw_bytes(params_ggsw));
@@ -214,7 +214,7 @@ cleanup:
 
 //! COMMON PART (begin)
 
-uint64_t ggsw_size(const GGSWParams* params_ggsw)
+uint64_t ggsw_total_n_glwe_limbs(const GGSWParams* params_ggsw)
 {
 	return params_ggsw->n_limbs_tilde * params_ggsw->params_glwe->n_limbs;
 }
@@ -222,5 +222,5 @@ uint64_t ggsw_size(const GGSWParams* params_ggsw)
 uint64_t ggsw_bytes(const GGSWParams* params_ggsw)
 {
 	int64_t N = params_ggsw->params_glwe->nn;
-	return ggsw_size(params_ggsw) * N * sizeof(int64_t);
+	return ggsw_total_n_glwe_limbs(params_ggsw) * N * sizeof(int64_t);
 }

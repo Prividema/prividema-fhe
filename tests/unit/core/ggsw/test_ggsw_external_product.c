@@ -34,7 +34,8 @@ void printf_glwe(GLWECiphertext* glwe)
 void printf_glwe_dft(MODULE* module, GLWECiphertextDFT* glwe_dft)
 {
 	VecBiv* glwe_vec = malloc(glwe_bytes(glwe_dft->params));
-	pvda_vec_znx_idft(module, glwe_vec, glwe_size(glwe_dft->params), glwe_dft->vec, glwe_size(glwe_dft->params));
+	pvda_vec_znx_idft(module, glwe_vec, glwe_total_nlimbs(glwe_dft->params), glwe_dft->vec,
+	                  glwe_total_nlimbs(glwe_dft->params));
 
 	for (int64_t j = 0; j < KBASE + 1; j++) printf_poly_biv(glwe_vec + j * NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
 

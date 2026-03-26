@@ -68,8 +68,8 @@ double* pvda_new_svp_ppol(const MODULE* module);
 
 void pvda_svp_prepare(const MODULE* module, PolyUnivDFT* prepared_pol, const int64_t* pol);
 
-void pvda_svp_apply_dft(const MODULE* module, const double* res, int64_t res_size, const PolyUnivDFT* prepared_pol,
-                        const int64_t* a, int64_t a_size, int64_t a_sl);
+void pvda_svp_apply_dft(const MODULE* module, const double* res, uint64_t res_size, const PolyUnivDFT* prepared_pol,
+                        const int64_t* a, uint64_t a_size, uint64_t a_sl);
 
 void pvda_delete_svp_ppol(double* res);
 
