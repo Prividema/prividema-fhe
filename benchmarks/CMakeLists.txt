@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-
 set(BENCHMARK_ENABLE_GTEST_TESTS OFF CACHE BOOL "Disable Google Benchmark's internal tests" FORCE)
 # Google bencmakrk
 include(FetchContent)
@@ -11,6 +10,7 @@ FetchContent_Declare(
   CMAKE_ARGS     -DBENCHMARK_ENABLE_GTEST_TESTS=OFF
 )
 FetchContent_MakeAvailable(benchmark)
+set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 
 # Collect all test source files
 file(GLOB BENCH_FILES *.c *.cpp)
