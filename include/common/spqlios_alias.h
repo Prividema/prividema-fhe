@@ -8,7 +8,7 @@
 // |                                           |
 // =============================================
 
-typedef enum module_type_t MODULE_TYPE;
+//typedef enum module_type_t MODULE_TYPE;
 
 /// @brief Opaque structure that describe the modules (\f$\mathbb{Z}_n[X]\f$, \f$\mathbb{T}_n[X]\f$) and the hardware.
 typedef struct module_info_t MODULE;
