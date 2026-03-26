@@ -77,7 +77,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT
  *
  *
  */
-PolyBiv* glwe_extract_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
+PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
 
 //! bivGLWE IN DFT PART (begin)
 
@@ -136,6 +136,14 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
  */
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
                         const GLWECiphertextDFT* glwe_dft);
+
+/**
+ *
+ * TODO
+ *
+ *
+ */
+PolyBivDFT* glwe_extract_start_poly_dft(const GLWECiphertextDFT* glwe_dft, uint64_t pos);
 
 /**
  * @brief convert a GLWECiphertext into its DFT representation

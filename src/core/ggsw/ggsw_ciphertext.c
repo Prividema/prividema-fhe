@@ -1,10 +1,13 @@
 #include "ggsw_ciphertext.h"
 
+#include <stdint.h>
 #include <string.h>
 
+#include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "logger.h"
+#include "rng.h"
 #include "spqlios_alias.h"
 #include "utils.h"
 
@@ -62,7 +65,7 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 	uint64_t nn                   = params_glwe->nn;
 	uint64_t k                    = params_glwe->k;
 	uint64_t kappa                = params_glwe->kappa;
-	uint64_t l                    = poly_biv_size(params_glwe);
+	uint64_t l                    = glwe_params_l(params_glwe);
 
 	// Normalization of the bivGGSW ciphertext
 	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)

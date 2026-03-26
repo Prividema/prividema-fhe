@@ -31,7 +31,7 @@ Test(poly_biv_size, basic)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 
 	// Asserts poly_biv_size returns LBASE
-	cr_assert(eq(i64, poly_biv_size(params_glwe), LBASE, "poly_biv_size failed: got %" PRId64 ", expected %" PRId64,
+	cr_assert(eq(i64, glwe_params_l(params_glwe), LBASE, "poly_biv_size failed: got %" PRId64 ", expected %" PRId64,
 	             poly_biv_size(params_glwe), LBASE));
 
 	// Clean up

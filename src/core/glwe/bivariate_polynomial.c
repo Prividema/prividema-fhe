@@ -11,7 +11,7 @@
 uint64_t poly_biv_coef_number(const GLWEParams* params_glwe)
 {
 	uint64_t nn = params_glwe->nn;
-	return poly_biv_size(params_glwe) * nn;
+	return glwe_params_l(params_glwe) * nn;
 }
 
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe)
@@ -68,7 +68,7 @@ cleanup:
 void add_biv_poly(const GLWEParams* params_glwe, PolyBiv* res, int64_t res_sl, const PolyBiv* a, int64_t a_sl,
                   const PolyBiv* b, int64_t b_sl)
 {
-	for (uint64_t i = 0; i < poly_biv_size(params_glwe); i++)
+	for (uint64_t i = 0; i < glwe_params_l(params_glwe); i++)
 		for (uint64_t p = 0; p < params_glwe->nn; p++) res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
 }
 
@@ -77,7 +77,7 @@ void add_biv_poly(const GLWEParams* params_glwe, PolyBiv* res, int64_t res_sl, c
 uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe)
 {
 	uint64_t nn = params_glwe->nn;
-	return (poly_biv_size(params_glwe) * nn) / 2;
+	return (glwe_params_l(params_glwe) * nn) / 2;
 }
 
 PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe)
@@ -102,8 +102,7 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_gl
 	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol), "normal_random_biv_poly failed in normal_biv_poly_dft.");
 
 	// Then compute in the DFT domain
-	pvda_vec_znx_dft(module, result_dft, poly_biv_size(params_glwe), rd_pol, poly_biv_size(params_glwe),
-	                 params_glwe->nn);
+	biv_coefs_to_dft(module, params_glwe, result_dft, rd_pol);
 
 	status = 0;
 
@@ -126,7 +125,7 @@ int uniform_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_g
 	           "pol's malloc failed in uniform_random_biv_poly_dft.");
 
 	// Computes bivariate polynomial in the DFT domain
-	pvda_vec_znx_dft(module, result_dft, poly_biv_size(params_glwe), pol, poly_biv_size(params_glwe), params_glwe->nn);
+	biv_coefs_to_dft(module, params_glwe, result_dft, pol);
 
 	status = 0;
 
@@ -139,7 +138,7 @@ cleanup:
 void add_biv_poly_dft(const GLWEParams* params_glwe, PolyBivDFT* res, int64_t res_sl, const PolyBivDFT* a, int64_t a_sl,
                       const PolyBivDFT* b, int64_t b_sl)
 {
-	for (uint64_t i = 0; i < poly_biv_size(params_glwe); i++)
+	for (uint64_t i = 0; i < glwe_params_l(params_glwe); i++)
 		for (uint64_t p = 0; p < params_glwe->nn; p++) res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
 }
 
@@ -147,14 +146,14 @@ void add_biv_poly_dft(const GLWEParams* params_glwe, PolyBivDFT* res, int64_t re
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
 
-uint64_t poly_biv_size(const GLWEParams* params_glwe) { return params_glwe->n_limbs / (params_glwe->k + 1); }
+uint64_t glwe_params_l(const GLWEParams* params_glwe) { return params_glwe->n_limbs / (params_glwe->k + 1); }
 
 void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {
 	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = poly_biv_size(params_glwe);
+	uint64_t l     = glwe_params_l(params_glwe);
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	// TODO: slow polynomial evaulation,
@@ -172,7 +171,7 @@ int univ_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const double* pol_u
 	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = poly_biv_size(params_glwe);
+	uint64_t l     = glwe_params_l(params_glwe);
 
 	// Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa -
 	// 1) - 1]
@@ -204,7 +203,7 @@ cleanup:
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
 {
 	uint64_t nn = params_glwe->nn;
-	uint64_t l  = poly_biv_size(params_glwe);
+	uint64_t l  = glwe_params_l(params_glwe);
 	pvda_vec_znx_dft(module, res_dft, l, a, l, nn);
 	return 1;
 }
@@ -212,6 +211,6 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
 	uint64_t nn = params_glwe->nn;
-	uint64_t l  = poly_biv_size(params_glwe);
+	uint64_t l  = glwe_params_l(params_glwe);
 	return pvda_vec_znx_idft(module, res, l, a_dft, l);
 }

@@ -44,7 +44,7 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphe
 	uint64_t nn    = result->params->nn;
 	uint64_t k     = result->params->k;
 	uint64_t kappa = result->params->kappa;
-	uint64_t l     = poly_biv_size(result->params);
+	uint64_t l     = glwe_params_l(result->params);
 
 	for (uint64_t j = 0; j < k + 1; j++)
 		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result->vec + j * nn, l, (k + 1) * nn,
@@ -82,9 +82,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 	                   nn);
 
 	// Computes it out of the DFT domain
-	CHECK_CALL(
-	    pvda_vec_znx_idft(module, result->vec, glwe_size(result->params), u_glwe_dft->vec, glwe_size(result->params)),
-	    "vec_znx_idft_p failed in const_mult_glwe");
+	glwe_dft_to_coef(module, result, u_glwe_dft);
 
 	status = 0;
 
@@ -94,10 +92,16 @@ cleanup:
 	return status;
 }
 
-PolyBiv* glwe_extract_poly(const GLWECiphertext* glwe_ct, uint64_t pos)
+PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos)
 {
 	assert(pos >= 0 && pos <= glwe_ct->params->k);
 	return glwe_ct->vec + glwe_ct->params->nn * pos;
+}
+
+PolyBivDFT* glwe_extract_start_poly_dft(const GLWECiphertextDFT* glwe_dft, uint64_t pos)
+{
+	assert(pos >= 0 && pos <= glwe_dft->params->k);
+	return glwe_dft->vec + glwe_dft->params->nn * pos;
 }
 
 //! bivGLWE IN DFT PART (begin)
@@ -154,7 +158,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	// bivGLWE parameters
 	uint64_t nn = params->nn;
 	uint64_t k  = params->k;
-	uint64_t l  = poly_biv_size(params);
+	uint64_t l  = glwe_params_l(params);
 
 	// Point to DFT(u * glwe)
 	u_glwe_vec_dft = malloc(glwe_bytes(params));
@@ -223,4 +227,31 @@ void mult_vec_znx_dft(const MODULE* module, double* result_dft, int64_t result_s
 	}
 	else
 		mult_vec_znx_dft(module, result_dft, result_size, d_dft, d_size, c_dft, c_size);
+}
+
+int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct)
+{
+	int status = -1;
+
+	pvda_vec_znx_dft(module, res_dft->vec, glwe_ct->params->n_limbs, glwe_ct->vec, glwe_ct->params->n_limbs,
+	                 glwe_ct->params->nn);
+
+	status = 0;
+cleanup:
+	return status;
+}
+
+int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft)
+{
+	int status = -1;
+
+	//TODO: test, for now untested
+
+	CHECK_CALL(
+	    pvda_vec_znx_idft(module, res_ct->vec, res_ct->params->n_limbs, glwe_dft->vec, glwe_dft->params->n_limbs),
+	    "iDFT failed for a GLWE");
+
+	status = 0;
+cleanup:
+	return status;
 }
