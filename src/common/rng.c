@@ -15,6 +15,10 @@
 #pragma comment(lib, "bcrypt.lib")
 #endif
 
+#ifdef __linux__
+#include <sys/random.h>
+#endif
+
 // On some distros math.h doesn't define M_PI so we define it here just in case.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -42,6 +46,12 @@ int read_rand(uint64_t* result)
 	arc4random_buf(result, sizeof(*result));
 
 // For other Linux Distro
+#elif defined(__linux__)
+
+	size_t rand_bytes = getrandom(result, sizeof(*result), 0);
+
+	return rand_bytes == sizeof(*result) ? 0 : -1;
+
 #else
 	FILE* f = fopen("/dev/urandom", "rb");
 	if (!f) return log_perror("fopen");
