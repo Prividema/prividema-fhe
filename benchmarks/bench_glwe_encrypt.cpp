@@ -2,12 +2,11 @@
 
 #include <cmath>
 
-#include "univariate_polynomial.h"
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe.h"
 #include "glwe_transform_key.h"
+#include "univariate_polynomial.h"
 }
 
 #define NBASE       (1 << 16)
