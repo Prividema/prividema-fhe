@@ -73,7 +73,7 @@ Test(ggsw_secret_encrypt, works)
 	// Computes a bivGGSW(m)
 	ggsw_secret_encrypt(module, ggsw, sk_dft, m_univ);
 
-	// Asserts the j-th row in the i-th PartialGGSW(m) in the ggsw is :
+	// Asserts the j-th row in the i-th GLWEGadget(m) in the ggsw is :
 	// - a bivGLWE(-m * sk_j / 2^{kappa_tilde * i})), for j < k
 	// - a bivGLWE(m / 2^{kappa_tilde * i}))        , for j = k
 	for (uint64_t i = 1; i <= L_TILDEBASE; i++)

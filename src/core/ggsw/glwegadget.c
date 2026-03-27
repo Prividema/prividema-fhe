@@ -35,8 +35,8 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 	PolyUnivRnX* tmp_sp1  = new_univ_rnx(params_glwe);
 	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
 
-	CHECK_ALLOC(tmp_sp1, "malloc failed in ggsw_secret_encrypt");
-	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
+	CHECK_ALLOC(tmp_sp1, "alloc failed in GLWEGadget encryption");
+	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
 
 	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
 	{
@@ -45,7 +45,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 		// Adds the error
 		CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
-		           "Error addition failed in partialGGSW encryption");
+		           "Error addition failed in GLWEGadget encryption");
 		// Compute the base-2^kappa decomposition
 		CHECK_CALL(univ_to_biv(params_glwe, glwe_biv_msg, tmp_sp1), "univ_to_biv failed in compute_phase_ij");
 
@@ -55,7 +55,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec (ie, add A * S)
 		CHECK_CALL(glwe_secret_masking(module, &glwe_ct, sk_dft, glwe_biv_msg),
-		           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
+		           "glwe masking failed in a GLWEGadget encryption");
 	}
 
 	status = 0;

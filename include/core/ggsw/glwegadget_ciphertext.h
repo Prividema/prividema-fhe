@@ -4,7 +4,7 @@
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 
-typedef struct partialggsw_ciphertext
+typedef struct glwegadget_ciphertext
 {
 	const GLWEGadgetParams* params;
 	MatBiv* mat;  // matrix of size n_limbs x l_tilde
@@ -36,14 +36,14 @@ size_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget);
  */
 void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
 
-typedef struct partialggsw_ciphertext_prepared
+typedef struct glwegadget_ciphertext_prepared
 {
 	const GLWEGadgetParams* params;
 	MatBivDFT* mat;  // matrix of size n_limbs x l_tilde
 } GLWEGadgetCiphertextPrep;
 
 /**
- * @brief creates a new partialggsw ciphertext
+ * @brief creates a new preparet GLWEGadget
  *
  * @params params The parameters
  *
@@ -51,7 +51,7 @@ typedef struct partialggsw_ciphertext_prepared
 GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params);
 
 /**
- * @brief Deletes a PartialGGSWCiphertext
+ * @brief Deletes a prepared GLWEGadget
  *
  * Remember that it does not own the underlying parameters
  *

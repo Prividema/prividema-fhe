@@ -13,12 +13,12 @@ size_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget)
 GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params)
 {
 	GLWEGadgetCiphertext* glwegadget = malloc(sizeof(GLWEGadgetCiphertext));
-	CHECK_ALLOC(glwegadget, "malloc failed in partial GGSW creation");
+	CHECK_ALLOC(glwegadget, "alloc failed in GLWEGadget creation");
 
 	glwegadget->params = params;
 
 	glwegadget->mat = calloc(glwegadget_coef_number(params), sizeof(MatBiv));
-	CHECK_ALLOC(glwegadget, "malloc failed in partial GGSW creation");
+	CHECK_ALLOC(glwegadget, "alloc failed in GLWEGadget creation");
 
 	return glwegadget;
 cleanup:

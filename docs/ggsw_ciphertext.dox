@@ -57,9 +57,9 @@
  *
  * Each block corresponds to one power of the gadget base.
  *
- * ## Partial bivGGSW ciphertext
+ * ## GLWEGadget ciphertext (OUT-OF-DATE)
  *
- * A partial bivGGSW ciphertext (denoted \(\text{partialGGSW}\)) is obtained by
+ * A GLWEGadget ciphertext is obtained by
  * restricting the full bivGGSW ciphertext to a subset of rows corresponding
  * to a fixed power of the gadget base \((2^kappa)\).
  *

@@ -43,29 +43,31 @@ GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t
 void delete_ggsw_params(GGSWParams* params);
 
 /**
- * @brief Gets the number of partialGGSWs in a GGSW.
+ * @brief Gets the number of GLWEGadgets in a GGSW.
  *
  * @param params The GGSW parameters.
  *
- * @return The number of partialGGSW in a GGSW.
+ * @return The number of GLWEGadgets in a GGSW.
  */
 uint64_t ggsw_num_glwegadget(const GGSWParams* params);
 
 /**
- * @brief Gets the number of rows in a partialGGSW.
+ * TODO: find out what it is used for and what "rows" means (and document it better)
+ *
+ * @brief Gets the number of rows in a ?
  *
  * @param params The GGSW parameters.
  *
- * @return The number of rows in a partialGGSW.
+ * @return The number of rows in a GLWEGadget
  */
 uint64_t ggsw_num_rows_per_glwegadget(const GGSWParams* params);
 
 /**
- * @struct PartialGGSWCtParams
+ * @struct GLWEGadgetParams
  *
- * @brief Partial GGSW Parameters.
+ * @brief GLWEGadget Parameters.
  */
-typedef struct partialggsw_ct_params
+typedef struct glwegadget_params
 {
 	/// GLWE parameters.
 	const GLWEParams* params_glwe;
