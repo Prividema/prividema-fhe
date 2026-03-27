@@ -67,7 +67,7 @@ cleanup:
 	return status;
 }
 
-int glwegadget_half_prod(const MODULE* module, GLWEGadgetCiphertext* result,
+int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a)
 {
 	int status = -1;
@@ -77,12 +77,12 @@ int glwegadget_half_prod(const MODULE* module, GLWEGadgetCiphertext* result,
 	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
 	size_t ncols = glwegadget_prep_ct->params->params_glwe->n_limbs;
 
-	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params->params_glwe);
+	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params);
 
 	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, nn, glwegadget_prep_ct->mat, nrows, ncols),
 	           "vmp apply falied in half product");
 
-	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, ncols, glwe_dft->vec, ncols), "iDFT failed in half product");
+	CHECK_CALL(pvda_vec_znx_idft(module, result->vec, ncols, glwe_dft->vec, ncols), "iDFT failed in half product");
 
 cleanup:
 	delete_glwe_dft(glwe_dft);

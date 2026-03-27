@@ -39,9 +39,10 @@ int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GL
  *
  * TODO: implement
  *
+ * @param module The backend module
  * @param result The resulting GGSWCiphertext
  * @param pk     The public key used for encryption
- * @param m      The message to encrypt
+ * @param m_univ The message to encrypt
  *
  * */
 int ggsw_public_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWEPublicKey* pk, const PolyUniv* m_univ);
@@ -66,10 +67,10 @@ int ggsw_secret_encrypt_dft(const MODULE* module, GGSWCiphertextDFT* result_dft,
 /**
  * @brief Computes the external product between a bivGLWE and a biv bivGGSW.
  *
- * @param module   Additionnal information for backend.
- * @param res_dft  The bivariate GLWE result ciphertext in the DFT domain.
- * @param glwe_dft The bivariate GLWE input ciphertext in the DFT domain.
- * @param ggsw_dft The bivariate GGSW input ciphertext in the DFT domain.
+ * @param module      Additionnal information for backend.
+ * @param result_dft  The bivariate GLWE result ciphertext in the DFT domain.
+ * @param glwe_dft    The bivariate GLWE input ciphertext in the DFT domain.
+ * @param ggsw_dft    The bivariate GGSW input ciphertext in the DFT domain.
  *
  * @retval • `-1` if an error occurs.
  * @retval • `0` otherwise.
