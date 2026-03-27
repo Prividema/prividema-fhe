@@ -45,16 +45,16 @@ Test(glwegad_secret_encrypt, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module                = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe       = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
-	GLWEGadParams* params_glwegad = new_glwegad_params(params_glwe, KAPPA_TILDEBASE, L_TILDEBASE);
+	MODULE* module                   = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe          = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEGadgetParams* params_glwegad = new_glwegad_params(params_glwe, KAPPA_TILDEBASE, L_TILDEBASE);
 
 	// Variables
-	GLWESecretKey* sk          = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft   = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	GLWEGadCiphertext* glwegad = new_glwegad(params_glwegad);
-	PolyUniv* m_univ           = new_univ(params_glwe);
-	PolyUnivDFT* m_univ_dft    = new_univ_dft(module);
+	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWEGadgetCiphertext* glwegad = new_glwegad(params_glwegad);
+	PolyUniv* m_univ              = new_univ(params_glwe);
+	PolyUnivDFT* m_univ_dft       = new_univ_dft(module);
 	// Variables to compute the phase of each ggsw's row
 	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
 	PolyUnivRnX* phase_computed_univ_RnX = new_univ_rnx(params_glwe);
@@ -70,7 +70,7 @@ Test(glwegad_secret_encrypt, works)
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
 
 	// Computes a bivGGSW(m)
-	glwegad_secret_encrypt(module, glwegad, sk_dft, m_univ);
+	glwegadget_secret_encrypt(module, glwegad, sk_dft, m_univ);
 
 	for (uint64_t i = 1; i <= L_TILDEBASE; i++)
 	{

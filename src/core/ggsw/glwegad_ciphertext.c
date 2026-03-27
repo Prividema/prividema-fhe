@@ -5,14 +5,14 @@
 #include "rng.h"
 #include "utils.h"
 
-size_t glwegad_coef_number(const GLWEGadParams* params_glwegad)
+size_t glwegad_coef_number(const GLWEGadgetParams* params_glwegad)
 {
 	return params_glwegad->l_tilde * glwe_coef_number(params_glwegad->params_glwe);
 }
 
-GLWEGadCiphertext* new_glwegad(const GLWEGadParams* params)
+GLWEGadgetCiphertext* new_glwegad(const GLWEGadgetParams* params)
 {
-	GLWEGadCiphertext* glwegad = malloc(sizeof(GLWEGadCiphertext));
+	GLWEGadgetCiphertext* glwegad = malloc(sizeof(GLWEGadgetCiphertext));
 	CHECK_ALLOC(glwegad, "malloc failed in partial GGSW creation");
 
 	glwegad->params = params;
@@ -26,7 +26,7 @@ cleanup:
 	return NULL;
 }
 
-void delete_glwegad(GLWEGadCiphertext* glwegad_ct)
+void delete_glwegad(GLWEGadgetCiphertext* glwegad_ct)
 {
 	if (!glwegad_ct) return;
 	free(glwegad_ct->mat);

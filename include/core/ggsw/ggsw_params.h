@@ -71,7 +71,7 @@ typedef struct partialggsw_ct_params
 	const GLWEParams* params_glwe;
 	uint64_t kappa_tilde;  // (2^kappa) = 2^-kappa_tilde.
 	uint64_t l_tilde;      // The precision.
-} GLWEGadParams;
+} GLWEGadgetParams;
 
 /**
  * @brief Creates a set of GGSW Parameters.
@@ -82,8 +82,8 @@ typedef struct partialggsw_ct_params
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
-GLWEGadParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde);
+GLWEGadgetParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde);
 
-void* delete_glwegad_params(GLWEGadParams* params);
+void* delete_glwegad_params(GLWEGadgetParams* params);
 
 #endif  // bivGGSW_CT_PARAMS_H

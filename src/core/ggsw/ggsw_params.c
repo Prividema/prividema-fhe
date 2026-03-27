@@ -29,10 +29,10 @@ uint64_t ggsw_num_glwegad(const GGSWParams* params) { return params->n_limbs_til
 
 uint64_t ggsw_num_rows_per_glwegad(const GGSWParams* params) { return params->k_tilde + 1; }
 
-GLWEGadParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde)
+GLWEGadgetParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde)
 {
 	assert(params);
-	GLWEGadParams* params_glwegad = malloc(sizeof(GLWEGadParams));
+	GLWEGadgetParams* params_glwegad = malloc(sizeof(GLWEGadgetParams));
 	CHECK_ALLOC(params_glwegad, "malloc failed in new_ggsw_ct_params");
 
 	params_glwegad->params_glwe = params;
@@ -44,4 +44,4 @@ cleanup:
 	return NULL;
 }
 
-void* delete_glwegad_params(GLWEGadParams* params) { free(params); }
+void* delete_glwegad_params(GLWEGadgetParams* params) { free(params); }

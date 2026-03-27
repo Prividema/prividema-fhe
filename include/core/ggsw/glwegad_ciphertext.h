@@ -6,9 +6,9 @@
 
 typedef struct partialggsw_ciphertext
 {
-	const GLWEGadParams* params;
+	const GLWEGadgetParams* params;
 	MatBiv* mat;  // matrix of size n_limbs x l_tilde
-} GLWEGadCiphertext;
+} GLWEGadgetCiphertext;
 
 /**
  * @brief creates a new GLWEGadget ciphertext
@@ -16,7 +16,7 @@ typedef struct partialggsw_ciphertext
  * @params params The parameters
  *
  */
-GLWEGadCiphertext* new_glwegad(const GLWEGadParams* params);
+GLWEGadgetCiphertext* new_glwegad(const GLWEGadgetParams* params);
 
 /**
  * @brief Returns the number of coefficients in a GLWEGadgetCiphertext
@@ -24,7 +24,7 @@ GLWEGadCiphertext* new_glwegad(const GLWEGadParams* params);
  * @params params_glwegad The parameters
  *
  */
-size_t glwegad_coef_number(const GLWEGadParams* params_glwegad);
+size_t glwegad_coef_number(const GLWEGadgetParams* params_glwegad);
 
 /**
  * @brief Deletes a GLWEGadget ciphertext
@@ -34,11 +34,11 @@ size_t glwegad_coef_number(const GLWEGadParams* params_glwegad);
  * @params glwegad_ct The ciphertext to delete
  *
  */
-void delete_glwegad(GLWEGadCiphertext* glwegad_ct);
+void delete_glwegad(GLWEGadgetCiphertext* glwegad_ct);
 
 typedef struct partialggsw_ciphertext_prepared
 {
-	const GLWEGadParams* params;
+	const GLWEGadgetParams* params;
 	MatBivDFT* mat;  // matrix of size n_limbs x l_tilde
 } GLWEGadCiphertextPrep;
 
@@ -48,7 +48,7 @@ typedef struct partialggsw_ciphertext_prepared
  * @params params The parameters
  *
  */
-GLWEGadCiphertextPrep* new_glwegad_prep(const GLWEGadParams* params);
+GLWEGadCiphertextPrep* new_glwegad_prep(const GLWEGadgetParams* params);
 
 /**
  * @brief Deletes a PartialGGSWCiphertext
@@ -58,6 +58,6 @@ GLWEGadCiphertextPrep* new_glwegad_prep(const GLWEGadParams* params);
  * @params glwegad_ct The ciphertext to delete
  *
  */
-void delete_glwegad_prep(GLWEGadCiphertext* glwegad_prep_ct);
+void delete_glwegad_prep(GLWEGadgetCiphertext* glwegad_prep_ct);
 
 #endif  // PARTIALGGSW_CIPHERTEXT_H

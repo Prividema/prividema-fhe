@@ -15,10 +15,10 @@
  * @params m_univ The univariate plaintext
  *
  */
-int glwegad_secret_encrypt(const MODULE* module,
-                           GLWEGadCiphertext* result,       // result
-                           const GLWESecretKeyDFT* sk_dft,  // secret key
-                           const PolyUniv* m_univ           // message
+int glwegadget_secret_encrypt(const MODULE* module,
+                              GLWEGadgetCiphertext* result,    // result
+                              const GLWESecretKeyDFT* sk_dft,  // secret key
+                              const PolyUniv* m_univ           // message
 );
 
 /**
@@ -34,9 +34,9 @@ int glwegad_secret_encrypt(const MODULE* module,
  *
  */
 void glwegad_public_encrypt(const MODULE* module,
-                            GLWEGadCiphertext* result,  // result
-                            const GLWEPublicKey* pk,    // public key
-                            const PolyUniv* m_univ      // message
+                            GLWEGadgetCiphertext* result,  // result
+                            const GLWEPublicKey* pk,       // public key
+                            const PolyUniv* m_univ         // message
 );
 
 /**
@@ -46,7 +46,7 @@ void glwegad_public_encrypt(const MODULE* module,
  * @param i            The index of the GLWE to retrievie, from 1 to l_tilde included
  *
  */
-VecBiv* glwegad_retrieve_bivglwe(GLWEGadCiphertext* glwegad_ct, int64_t i);
+VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t i);
 
 /**
  *
@@ -54,7 +54,7 @@ VecBiv* glwegad_retrieve_bivglwe(GLWEGadCiphertext* glwegad_ct, int64_t i);
  * a GLWE ciphertext
  *
  */
-int glwegad_half_prod(const MODULE* module, GLWEGadCiphertext* result, const GLWEGadCiphertextPrep* glwegad_prep_ct,
-                      const PolyBiv* a);
+int glwegadget_half_prod(const MODULE* module, GLWEGadgetCiphertext* result,
+                         const GLWEGadCiphertextPrep* glwegad_prep_ct, const PolyBiv* a);
 
 #endif  // !DEBUG
