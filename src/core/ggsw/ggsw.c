@@ -51,7 +51,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	// Computes DFT(msg)
 	univ_coefs_to_dft(module, m_univ_dft, m_univ);
 
-	for (uint64_t i = 1; i <= ggsw_num_glwegad(params_ggsw); i++)
+	for (uint64_t i = 1; i <= ggsw_num_glwegadget(params_ggsw); i++)
 	{
 		for (uint64_t j = 0; j < k_tilde + 1; j++)
 		{

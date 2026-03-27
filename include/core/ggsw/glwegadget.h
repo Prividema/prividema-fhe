@@ -3,7 +3,7 @@
 
 #include "bivariate_polynomial.h"
 #include "glwe_key.h"
-#include "glwegad_ciphertext.h"
+#include "glwegadget_ciphertext.h"
 
 /**
  * @brief Encrypts a univariate integer pollynomial into a GLWEGadget
@@ -33,16 +33,16 @@ int glwegadget_secret_encrypt(const MODULE* module,
  * @params m_univ The univariate plaintext
  *
  */
-void glwegad_public_encrypt(const MODULE* module,
-                            GLWEGadgetCiphertext* result,  // result
-                            const GLWEPublicKey* pk,       // public key
-                            const PolyUniv* m_univ         // message
+void glwegadget_public_encrypt(const MODULE* module,
+                               GLWEGadgetCiphertext* result,  // result
+                               const GLWEPublicKey* pk,       // public key
+                               const PolyUniv* m_univ         // message
 );
 
 /**
  * @brief Retreive a bivglwe from a GLWEGadget (halfGGSW for k = 1)
  *
- * @param glwegad_ct     The GLWEGadget ciphertext
+ * @param glwegadget_ct     The GLWEGadget ciphertext
  * @param i            The index of the GLWE to retrievie, from 1 to l_tilde included
  *
  */
@@ -55,6 +55,6 @@ VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t
  *
  */
 int glwegadget_half_prod(const MODULE* module, GLWEGadgetCiphertext* result,
-                         const GLWEGadCiphertextPrep* glwegad_prep_ct, const PolyBiv* a);
+                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a);
 
 #endif  // !DEBUG

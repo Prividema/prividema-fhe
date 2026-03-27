@@ -25,23 +25,23 @@ cleanup:
 
 void delete_ggsw_params(GGSWParams* params) { free(params); }
 
-uint64_t ggsw_num_glwegad(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
+uint64_t ggsw_num_glwegadget(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
 
-uint64_t ggsw_num_rows_per_glwegad(const GGSWParams* params) { return params->k_tilde + 1; }
+uint64_t ggsw_num_rows_per_glwegadget(const GGSWParams* params) { return params->k_tilde + 1; }
 
-GLWEGadgetParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde)
+GLWEGadgetParams* new_glwegadget_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde)
 {
 	assert(params);
-	GLWEGadgetParams* params_glwegad = malloc(sizeof(GLWEGadgetParams));
-	CHECK_ALLOC(params_glwegad, "malloc failed in new_ggsw_ct_params");
+	GLWEGadgetParams* params_glwegadget = malloc(sizeof(GLWEGadgetParams));
+	CHECK_ALLOC(params_glwegadget, "malloc failed in new_ggsw_ct_params");
 
-	params_glwegad->params_glwe = params;
-	params_glwegad->kappa_tilde = kappa_tilde;
-	params_glwegad->l_tilde     = l_tilde;
+	params_glwegadget->params_glwe = params;
+	params_glwegadget->kappa_tilde = kappa_tilde;
+	params_glwegadget->l_tilde     = l_tilde;
 
-	return params_glwegad;
+	return params_glwegadget;
 cleanup:
 	return NULL;
 }
 
-void* delete_glwegad_params(GLWEGadgetParams* params) { free(params); }
+void* delete_glwegadget_params(GLWEGadgetParams* params) { free(params); }

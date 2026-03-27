@@ -4,7 +4,7 @@
 
 #include "bivariate_polynomial.h"
 #include "core/ggsw/ggsw.h"
-#include "core/ggsw/glwegad.h"
+#include "core/ggsw/glwegadget.h"
 #include "core/glwe/glwe.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
@@ -34,7 +34,7 @@
  * @brief Tests ggsw_secret_encrpyt
  *
  */
-Test(glwegad_secret_encrypt, works)
+Test(glwegadget_secret_encrypt, works)
 {
 	// bivGLWE and bivGGSW parameters. This set of bivGLWE parameters is for bivGGSW ciphertext
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
@@ -45,16 +45,16 @@ Test(glwegad_secret_encrypt, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module                   = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe          = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
-	GLWEGadgetParams* params_glwegad = new_glwegad_params(params_glwe, KAPPA_TILDEBASE, L_TILDEBASE);
+	MODULE* module                      = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe             = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPA_TILDEBASE, L_TILDEBASE);
 
 	// Variables
-	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	GLWEGadgetCiphertext* glwegad = new_glwegad(params_glwegad);
-	PolyUniv* m_univ              = new_univ(params_glwe);
-	PolyUnivDFT* m_univ_dft       = new_univ_dft(module);
+	GLWESecretKey* sk                = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft         = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWEGadgetCiphertext* glwegadget = new_glwegadget(params_glwegadget);
+	PolyUniv* m_univ                 = new_univ(params_glwe);
+	PolyUnivDFT* m_univ_dft          = new_univ_dft(module);
 	// Variables to compute the phase of each ggsw's row
 	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
 	PolyUnivRnX* phase_computed_univ_RnX = new_univ_rnx(params_glwe);
@@ -70,7 +70,7 @@ Test(glwegad_secret_encrypt, works)
 	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
 
 	// Computes a bivGGSW(m)
-	glwegadget_secret_encrypt(module, glwegad, sk_dft, m_univ);
+	glwegadget_secret_encrypt(module, glwegadget, sk_dft, m_univ);
 
 	for (uint64_t i = 1; i <= L_TILDEBASE; i++)
 	{
@@ -83,7 +83,8 @@ Test(glwegad_secret_encrypt, works)
 
 		// Point to bivGLWE(m / 2^{kappa_tilde * i})
 
-		VecBiv* glwe_vec_ptr = glwegad->mat + (i - 1) * glwe_coef_number(params_glwe);
+		//TODO: add accessor function
+		VecBiv* glwe_vec_ptr = glwegadget->mat + (i - 1) * glwe_coef_number(params_glwe);
 
 		// Computes the phase = m / 2^{kappa_tilde * i} + err
 		GLWECiphertext glwe_ct = {params_glwe, glwe_vec_ptr};
@@ -95,7 +96,7 @@ Test(glwegad_secret_encrypt, works)
 		//! Computes by hand the phase = m / 2^{kappa_tilde * i}
 		for (uint64_t p = 0; p < NBASE; p++)
 		{
-			phase_univ_RnX[p] = ldexp((double)m_univ[p], -(params_glwegad->kappa_tilde * i));
+			phase_univ_RnX[p] = ldexp((double)m_univ[p], -(params_glwegadget->kappa_tilde * i));
 		}
 
 		// A variable counting the number of times the error is greater than 3*sigma
@@ -131,9 +132,9 @@ Test(glwegad_secret_encrypt, works)
 	delete_univ_rnx(phase_univ_RnX);
 	delete_univ(m_univ);
 	delete_univ_dft(m_univ_dft);
-	delete_glwegad(glwegad);
+	delete_glwegadget(glwegadget);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_params(params_glwe);
-	delete_glwegad_params(params_glwegad);
+	delete_glwegadget_params(params_glwegadget);
 	pvda_delete_module_info(module);
 }

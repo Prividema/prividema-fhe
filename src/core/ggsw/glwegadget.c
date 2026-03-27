@@ -1,4 +1,4 @@
-#include "glwegad.h"
+#include "glwegadget.h"
 
 #include <math.h>
 #include <stdint.h>
@@ -6,7 +6,7 @@
 #include "bivariate_polynomial.h"
 #include "glwe.h"
 #include "glwe_ciphertext.h"
-#include "glwegad_ciphertext.h"
+#include "glwegadget_ciphertext.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -68,18 +68,18 @@ cleanup:
 }
 
 int glwegadget_half_prod(const MODULE* module, GLWEGadgetCiphertext* result,
-                         const GLWEGadCiphertextPrep* glwegad_prep_ct, const PolyBiv* a)
+                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a)
 {
 	int status = -1;
 
 	//TODO: assert size compatibility
-	size_t nrows = glwegad_prep_ct->params->l_tilde;
-	uint64_t nn  = glwegad_prep_ct->params->params_glwe->nn;
-	size_t ncols = glwegad_prep_ct->params->params_glwe->n_limbs;
+	size_t nrows = glwegadget_prep_ct->params->l_tilde;
+	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
+	size_t ncols = glwegadget_prep_ct->params->params_glwe->n_limbs;
 
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params->params_glwe);
 
-	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, nn, glwegad_prep_ct->mat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, nn, glwegadget_prep_ct->mat, nrows, ncols),
 	           "vmp apply falied in half product");
 
 	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, ncols, glwe_dft->vec, ncols), "iDFT failed in half product");

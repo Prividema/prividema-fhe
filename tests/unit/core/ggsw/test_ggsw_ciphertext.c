@@ -99,7 +99,7 @@ Test(ggsw_Sj_Yti, basic)
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
 	// asserts ggsw_Sj_Yti returns the right pointer
-	for (uint64_t i = 1; i < ggsw_num_glwegad(params_ggsw); i++)
+	for (uint64_t i = 1; i < ggsw_num_glwegadget(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
 			VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(ggsw, j, i);
@@ -209,7 +209,7 @@ Test(const_mult_ggsw, without_normalization)
 	const_mult_ggsw(module, product_computed, ggsw, u_dft);
 
 	// Asserts product_computed = u * ggsw
-	for (uint64_t ii = 1; ii <= ggsw_num_glwegad(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_glwegadget(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
@@ -286,7 +286,7 @@ Test(ggsw_Sj_Yti_dft, basic)
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
 	// Asserts ggsw_Sj_Yti_dft returns the right pointer
-	for (uint64_t i = 1; i < ggsw_num_glwegad(params_ggsw); i++)
+	for (uint64_t i = 1; i < ggsw_num_glwegadget(params_ggsw); i++)
 		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
 		{
 			VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(ggsw_dft, j, i);
@@ -380,7 +380,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	                  ggsw_total_n_glwe_limbs(params_ggsw));
 
 	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
-	for (uint64_t ii = 1; ii <= ggsw_num_glwegad(params_ggsw); ii++)
+	for (uint64_t ii = 1; ii <= ggsw_num_glwegadget(params_ggsw); ii++)
 		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);

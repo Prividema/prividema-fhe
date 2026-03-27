@@ -49,7 +49,7 @@ void delete_ggsw_params(GGSWParams* params);
  *
  * @return The number of partialGGSW in a GGSW.
  */
-uint64_t ggsw_num_glwegad(const GGSWParams* params);
+uint64_t ggsw_num_glwegadget(const GGSWParams* params);
 
 /**
  * @brief Gets the number of rows in a partialGGSW.
@@ -58,7 +58,7 @@ uint64_t ggsw_num_glwegad(const GGSWParams* params);
  *
  * @return The number of rows in a partialGGSW.
  */
-uint64_t ggsw_num_rows_per_glwegad(const GGSWParams* params);
+uint64_t ggsw_num_rows_per_glwegadget(const GGSWParams* params);
 
 /**
  * @struct PartialGGSWCtParams
@@ -82,8 +82,13 @@ typedef struct partialggsw_ct_params
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
-GLWEGadgetParams* new_glwegad_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde);
+GLWEGadgetParams* new_glwegadget_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde);
 
-void* delete_glwegad_params(GLWEGadgetParams* params);
+/**
+ * @brief Deletes a glwegadget's parameters
+ *
+ * @param params The GLWEGadgetParams to delete/deallocate
+ */
+void* delete_glwegadget_params(GLWEGadgetParams* params);
 
 #endif  // bivGGSW_CT_PARAMS_H
