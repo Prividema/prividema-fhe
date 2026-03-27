@@ -159,6 +159,24 @@ cleanup:
 	return status;
 }
 
+int glwe_secret_encrypt(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                        const PolyUnivRnX* m_univ_rnx)
+{
+	int status              = -1;
+	PolyBiv* biv_phase      = new_biv_poly(result->params);
+	PolyUnivRnX* univ_phase = new_univ_rnx(result->params);
+
+	CHECK_CALL(add_normal_random_vec(univ_phase, result->params->nn, univ_phase, 0.0, result->params->sigma),
+	           "failed to add the error in glwe encryption");
+	CHECK_CALL(univ_to_biv(result->params, biv_phase, univ_phase), "failed univ to biv conversion in glwe encryption");
+	CHECK_CALL(glwe_secret_masking(module, result, sk_dft, biv_phase), "masking failed in glwe encryption");
+
+	status = 0;
+cleanup:
+	free(biv_phase);
+	return status;
+}
+
 int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKeyDFT* sk_dft,
                           const GLWECiphertext* glwe)
 {

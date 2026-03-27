@@ -30,6 +30,19 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* result, const GLWE
                         const PolyBiv* phase);
 
 /**
+ * @brief Encrypts a univariate message
+ *
+ * @param result The result bivariate ciphertext.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param m_univ_rnx  The univariate secret message to encrypt
+ *
+ * @retval `-1` if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  -`0` othwerwise.
+ */
+int glwe_secret_encrypt(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                        const PolyUnivRnX* m_univ_rnx);
+
+/**
  * @brief Computes -Sum_j{0,k-1}[sk_j * a_j]
  *
  * @param module Additionnal information for backend.
