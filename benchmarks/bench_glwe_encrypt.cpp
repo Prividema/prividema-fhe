@@ -2,6 +2,8 @@
 
 #include <cmath>
 
+#include "univariate_polynomial.h"
+
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe.h"
@@ -31,11 +33,11 @@ void test_benchmark(benchmark::State& state)
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	PolyBiv* m                           = (PolyBiv*)malloc(poly_biv_bytes(params_glwe));
-	PolyBiv* err                         = (PolyBiv*)malloc(poly_biv_bytes(params_glwe));
-	PolyUnivRnX* m_univ_RnX              = (PolyUnivRnX*)calloc(NBASE, sizeof(double));
-	PolyBiv* phase                       = (PolyBiv*)calloc(NBASE * LBASE, sizeof(int64_t));
-	PolyBivDFT* phase_dft                = (PolyBivDFT*)malloc(poly_biv_bytes(params_glwe));
+	PolyBiv* m                           = new_biv_poly(params_glwe);
+	PolyBiv* err                         = new_biv_poly(params_glwe);
+	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
+	PolyBiv* phase                       = new_biv_poly(params_glwe);
+	PolyBivDFT* phase_dft                = new_biv_poly_dft(params_glwe);
 	GLWECiphertextDFT* glwe_computed_dft = new_glwe_dft(params_glwe);
 
 	//! Draws each input variable
@@ -68,7 +70,7 @@ void test_benchmark(benchmark::State& state)
 	}
 
 	free(m);
-	free(m_univ_RnX);
+	delete_univ_rnx(m_univ_RnX);
 	free(err);
 	free(phase);
 	free(phase_dft);

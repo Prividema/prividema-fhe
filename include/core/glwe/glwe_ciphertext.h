@@ -1,14 +1,17 @@
 #ifndef bivGLWE_CIPHERTEXT_H
 #define bivGLWE_CIPHERTEXT_H
 
+#include <stdint.h>
+
 #include "bivariate_polynomial.h"
+#include "rng.h"
 
 //! bivGLWE PART (begin)
 
 typedef struct glwe_ciphertext
 {
 	const GLWEParams* params;  // bivGLWE parameters
-	VecBiv* vec;                 // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
+	VecBiv* vec;               // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
 /**
@@ -62,20 +65,26 @@ void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECip
  * @param result The result bivGLWE ciphertext.
  * @param u The Zn[X] polynomial.
  * @param glwe The bivGLWE ciphertext.
- * @param do_normalization The function normalizes the bivGLWE ciphertext if and only if do_normalization = 1.
  *
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe,
-                    int do_normalization);
+int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe);
+
+/**
+ *
+ * TODO
+ *
+ *
+ */
+PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
 
 //! bivGLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft
 {
 	const GLWEParams* params;  // bivGLWE parameters
-	VecBivDFT* vec;              // Vector in the DFT
+	VecBivDFT* vec;            // Vector in the DFT
 } GLWECiphertextDFT;
 
 /**
@@ -104,19 +113,6 @@ GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params_glwe);
  */
 void delete_glwe_dft(GLWECiphertextDFT* glwe);
 
-// TODO test normalize_glwe_dft
-/**
- * @brief Normalizes a bivGLWE ciphertext in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param result_dft The result normalized bivGLWE ciphertext in the DFT domain.
- * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
- *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
- */
-int normalize_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_dft);
-
 /**
  * @brief Adds two bivGLWE ciphertext.
  *
@@ -134,13 +130,41 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
  * @param res_dft The result bivGLWE ciphertext in the DFT domain.
  * @param u The Zn[X] polynomial.
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
- * @param do_normalization the function normalizes the bivGLWE ciphertext if and only if do_normalization = 1.
  *
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
-                        const GLWECiphertextDFT* glwe_dft, int do_normalization);
+                        const GLWECiphertextDFT* glwe_dft);
+
+/**
+ *
+ * TODO
+ *
+ *
+ */
+PolyBivDFT* glwe_extract_start_poly_dft(const GLWECiphertextDFT* glwe_dft, uint64_t pos);
+
+/**
+ * @brief convert a GLWECiphertext into its DFT representation
+ *
+ * @param module The backend module
+ * @param res_dft The resulting glwe ciphertext (in DFT)
+ * @param glwe_ct The input coefficient domain GLWE
+ *
+ */
+int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct);
+
+/**
+ *
+ * @brief Convert a GLWECiphertextDFT into its coefficient (non-DFT) representation
+ *
+ * @param module The backend module
+ * @param res_ct The resulting glwe ciphertext (in coef space)
+ * @param glwe_dft The input glwe in the DFT domain
+ *
+ */
+int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
 
 //! COMMON PART (begin)
 
@@ -152,7 +176,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const 
  *
  * @note The size of a bivGLWE ciphertext is the same in and out of the DFT domain.
  */
-uint64_t glwe_size(const GLWEParams* params_glwe);
+uint64_t glwe_total_nlimbs(const GLWEParams* params_glwe);
 
 /**
  * @brief The number of bytes needed to store a bivGLWE ciphertext.

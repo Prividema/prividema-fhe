@@ -146,17 +146,7 @@ uint64_t poly_biv_bytes(const GLWEParams* params_glwe);
  *
  * @note The size of a bivariate polynomial is the same in and out of the DFT domain.
  */
-uint64_t poly_biv_size(const GLWEParams* params_glwe);
-
-/**
- * @brief Returns the number of bytes needed to store a univariate polynomial.
- *
- * @param params_glwe The bivGLWE parameters.
- * @return uint64_t
- *
- * @note The number of bytes needed to store an univariate polynomial is the same in and out of the DFT domain.
- */
-uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
+uint64_t glwe_params_l(const GLWEParams* params_glwe);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
@@ -178,5 +168,9 @@ void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv*
  * @retval - `0` otherwise.
  */
 int univ_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const double* pol_univ);
+
+int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
+
+int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft);
 
 #endif  // BIVARIATE_POLYNOMIAL_H
