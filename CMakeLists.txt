@@ -37,7 +37,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 option(BUILD_TESTS "Build the Tests" ON)
 option(BUILD_EXAMPLES "Build the examples" ON)
-option(BUILD_BENCHMARKS "Build the benchmarks" ON)
+option(BUILD_BENCHMARKS "Build the benchmarks" OFF)
 option(BUILD_GGSW "Build the ggsw library inside libcore" ON)
 option(ENABLE_DEBUG "Enable additional prints for debugging purpose" OFF)
 option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
@@ -54,6 +54,10 @@ if(ENABLE_DEBUG)
   add_compile_definitions(DEBUG=1)
 else()
   add_compile_definitions(DEBUG=0)
+endif()
+
+if(BUILD_BENCHMARKS)
+  add_compile_options(-fno-omit-frame-pointer -g)
 endif()
 
 # ----------------------------------------
