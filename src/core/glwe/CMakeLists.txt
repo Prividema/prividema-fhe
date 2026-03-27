@@ -9,6 +9,7 @@ set(GLWE_SRCS
     glwe_ciphertext.c
     glwe_key.c
     glwe_transform_key.c
+    univariate_polynomial.c
     bivariate_polynomial.c
 )
 
@@ -25,7 +26,4 @@ target_link_libraries(GLWE PRIVATE libspqlios COMMON)
 target_include_directories(GLWE
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include/core/glwe/   # Public headers for consumers
-        ${PROJECT_SOURCE_DIR}/include/common/
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/  # Internal headers only
 )

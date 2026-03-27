@@ -185,8 +185,8 @@ Test(rand_normal, test_rand_normal)
 
 Test(normal_random_vec, basic)
 {
-	MODULE* module   = pvda_new_module_info(NBASE);
-	double* pol_univ = malloc(NBASE * KBASE * sizeof(double));
+	MODULE* module       = pvda_new_module_info(NBASE);
+	VecUnivRnX* pol_univ = malloc(NBASE * KBASE * sizeof(double));
 	if (pol_univ == NULL)
 	{
 		log_perror("malloc");
@@ -207,8 +207,8 @@ Test(normal_random_vec, basic)
 
 Test(uniform_random_vec_dft, basic)
 {
-	MODULE* module       = pvda_new_module_info(NBASE);
-	PolyUnivDFT* res_dft = malloc(NBASE * KBASE * sizeof(double));
+	MODULE* module      = pvda_new_module_info(NBASE);
+	VecUnivDFT* res_dft = malloc(NBASE * KBASE * sizeof(double));
 	if (res_dft == NULL)
 	{
 		log_perror("malloc");
@@ -223,7 +223,7 @@ Test(uniform_random_vec_dft, basic)
 		cr_fail();
 	}
 
-	PolyUniv* res = malloc(NBASE * KBASE * sizeof(int64_t));
+	VecUniv* res = malloc(NBASE * KBASE * sizeof(int64_t));
 	if (res == NULL)
 	{
 		log_perror("malloc");
