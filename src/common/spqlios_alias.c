@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "rng.h"
 #include "utils.h"
 #include "vec_znx_arithmetic.h"
 
@@ -14,10 +15,10 @@ void pvda_delete_module_info(MODULE* module)
 	delete_module_info(module);
 }
 
-double* pvda_new_vec_znx_dft(const MODULE* module, int64_t size) { return (double*)new_vec_znx_dft(module, size); }
+VecUnivDFT* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size) { return (double*)new_vec_znx_dft(module, size); }
 
-void pvda_vec_znx_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
-                      int64_t a_sl)
+void pvda_vec_znx_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
+                      uint64_t a_sl)
 {
 	vec_znx_dft(module, (VEC_ZNX_DFT*)res, res_size, a, a_size, a_sl);
 }
@@ -30,7 +31,7 @@ void pvda_delete_vec_znx_dft(double* res)
 
 int64_t* pvda_new_vec_znx_big(const MODULE* module, int64_t size) { return (int64_t*)new_vec_znx_big(module, size); }
 
-int pvda_vec_znx_idft(const MODULE* module, int64_t* res, int64_t res_size, const double* a_dft, int64_t a_size)
+int pvda_vec_znx_idft(const MODULE* module, int64_t* res, uint64_t res_size, const double* a_dft, uint64_t a_size)
 {
 	size_t tmp_bytes = vec_znx_idft_tmp_bytes(module);
 	uint8_t* tmp     = malloc(tmp_bytes);
@@ -63,8 +64,8 @@ void pvda_delete_svp_ppol(double* pmat)
 	delete_svp_ppol(((SVP_PPOL*)pmat));
 }
 
-void pvda_svp_apply_dft(const MODULE* module, const double* res, int64_t res_size, const PolyUnivDFT* ppol,
-                        const int64_t* a, int64_t a_size, int64_t a_sl)
+void pvda_svp_apply_dft(const MODULE* module, const double* res, uint64_t res_size, const PolyUnivDFT* ppol,
+                        const int64_t* a, uint64_t a_size, uint64_t a_sl)
 {
 	svp_apply_dft(module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)ppol, a, a_size, a_sl);
 }
@@ -94,8 +95,8 @@ void pvda_delete_vmp_pmat(double* pmat)
 	delete_vmp_pmat(((VMP_PMAT*)pmat));
 }
 
-int pvda_vmp_apply_dft(const MODULE* module, double* res, int64_t res_size, const int64_t* a, int64_t a_size,
-                       int64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols)
+int pvda_vmp_apply_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
+                       uint64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols)
 {
 	int status         = -1;
 	uint8_t* tmp_space = malloc(vmp_apply_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
@@ -125,8 +126,8 @@ cleanup:
 	return status;
 }
 
-int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, int64_t* res, int64_t res_size,
-                                  int64_t res_sl, const int64_t* a, int64_t a_size, int64_t a_sl)
+int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, int64_t* res, uint64_t res_size,
+                                  uint64_t res_sl, const int64_t* a, uint64_t a_size, uint64_t a_sl)
 {
 	int status         = -1;
 	uint8_t* tmp_space = malloc(vec_znx_normalize_base2k_tmp_bytes(module));

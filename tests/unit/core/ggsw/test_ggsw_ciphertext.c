@@ -5,6 +5,7 @@
 #include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 
 #define NBASE            1024
 #define KBASE            1
@@ -28,7 +29,7 @@ Test(ggsw_size, basic)
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Asserts ggsw_size returns NLIMBS_TILDEBASE * NLIMBSBASE
-	cr_assert(eq(i64, ggsw_size(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
+	cr_assert(eq(i64, ggsw_total_n_glwe_limbs(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
 
 	// Clean up
 	delete_glwe_params(params_glwe);
@@ -156,8 +157,8 @@ Test(add_ggsw, basic)
 	GGSWCiphertext* sum_computed = new_ggsw(params_ggsw);
 
 	// Draws uniformly the bivGGSW ciphertexts
-	uniform_random_vec(NBASE, ggsw_lhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
-	uniform_random_vec(NBASE, ggsw_rhs->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw_lhs->mat, ggsw_total_n_glwe_limbs(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw_rhs->mat, ggsw_total_n_glwe_limbs(params_ggsw), NBASE, KAPPABASE - 1);
 
 	// Computes ggsw_lhs + ggsw_rhs
 	add_ggsw(sum_computed, ggsw_lhs, ggsw_rhs);
@@ -189,23 +190,23 @@ Test(const_mult_ggsw, without_normalization)
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	PolyUniv* u                      = malloc(NBASE * sizeof(int64_t));
-	PolyUnivDFT* u_dft               = malloc(NBASE * sizeof(double));
+	PolyUniv* u                      = new_univ(params_glwe);
+	PolyUnivDFT* u_dft               = new_univ_dft(module);
 	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
 	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
-	PolyUniv* prod_expected          = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* prod_expected          = new_univ(params_glwe);
 
 	// Draws uniformly the Zn[X] constant
 	uniform_random_vec(NBASE, u, 1, NBASE, KAPPABASE - 1);
 
 	// Draws uniformly the bivGGSW ciphertext
-	uniform_random_vec(NBASE, ggsw->mat, ggsw_size(params_ggsw), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, ggsw->mat, ggsw_total_n_glwe_limbs(params_ggsw), NBASE, KAPPABASE - 1);
 
 	// Computes u in the DFT domain
-	pvda_vec_znx_dft(module, u_dft, 1, u, 1, NBASE);
+	univ_coefs_to_dft(module, u_dft, u);
 
 	// Computes u * ggsw
-	const_mult_ggsw(module, product_computed, ggsw, u_dft, 0);
+	const_mult_ggsw(module, product_computed, ggsw, u_dft);
 
 	// Asserts product_computed = u * ggsw
 	for (uint64_t ii = 1; ii <= ggsw_num_glwegad(params_ggsw); ii++)
@@ -227,9 +228,9 @@ Test(const_mult_ggsw, without_normalization)
 		}
 
 	// Clean up
-	free(u);
-	free(prod_expected);
-	free(u_dft);
+	delete_univ(u);
+	delete_univ(prod_expected);
+	delete_univ_dft(u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 	delete_ggsw_params(params_ggsw);
@@ -307,32 +308,6 @@ Test(ggsw_Sj_Yti_dft, basic)
 	delete_ggsw_params(params_ggsw);
 }
 
-// Test normalize_ggsw
-Test(normalize_ggsw_dft, basic)
-{
-	// Parameters
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
-
-	// Variables
-	GGSWCiphertextDFT* res_dft  = new_ggsw_dft(params_ggsw);
-	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
-
-	// Normalize ggsw_dft
-	int status = normalize_ggsw_dft(module, res_dft, ggsw_dft);
-
-	// Asserts normalize_ggsw_dft succeed
-	cr_assert(eq(int, status, 0), "normalize_ggsw_dft failed");
-
-	// Clean up
-	delete_ggsw_dft(ggsw_dft);
-	delete_ggsw_dft(res_dft);
-	pvda_delete_module_info(module);
-	delete_glwe_params(params_glwe);
-	delete_ggsw_params(params_ggsw);
-}
-
 Test(add_ggsw_dft, basic)
 {
 	// Parameters
@@ -346,8 +321,8 @@ Test(add_ggsw_dft, basic)
 	GGSWCiphertextDFT* sum_computed_dft = new_ggsw_dft(params_ggsw);
 
 	// Draws uniformly the bivGGSW ciphertexts
-	uniform_random_vec_znx_dft(module, ggsw_lhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
-	uniform_random_vec_znx_dft(module, ggsw_rhs_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_lhs_dft->mat, ggsw_total_n_glwe_limbs(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_rhs_dft->mat, ggsw_total_n_glwe_limbs(params_ggsw), KAPPABASE - 1);
 
 	// Computes ggsw_lhs_dft + ggsw_rhs_dft
 	add_ggsw_dft(sum_computed_dft, ggsw_lhs_dft, ggsw_rhs_dft);
@@ -380,27 +355,29 @@ Test(const_mult_ggsw_dft, without_normalization)
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	PolyUnivDFT* u_dft                   = malloc(NBASE * sizeof(double));
+	PolyUnivDFT* u_dft                   = new_univ_dft(module);
 	GGSWCiphertextDFT* ggsw_dft          = new_ggsw_dft(params_ggsw);
 	GGSWCiphertextDFT* prod_computed_dft = new_ggsw_dft(params_ggsw);
-	PolyUniv* u                          = malloc(NBASE * sizeof(double));
+	PolyUniv* u                          = new_univ(params_glwe);
 	GGSWCiphertext* ggsw_ct              = new_ggsw(params_ggsw);
 	GGSWCiphertext* prod_comp            = new_ggsw(params_ggsw);
-	PolyUniv* prod_expected              = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* prod_expected              = new_univ(params_glwe);
 
 	// Draws uniformly the Zn[X] polynomial in the DFT domain
 	uniform_random_vec_znx_dft(module, u_dft, 1, KAPPABASE - 1);
 
 	// Draws uniformly the bivGGSW ciphertext in the DFT domain
-	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_size(params_ggsw), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, ggsw_dft->mat, ggsw_total_n_glwe_limbs(params_ggsw), KAPPABASE - 1);
 
 	// Computes DFT(u) * DFT(ggsw)
-	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft, 0);
+	const_mult_ggsw_dft(module, prod_computed_dft, ggsw_dft, u_dft);
 
 	// Computes the matrix of u_dft, ggsw_dft and prod_computed_dft out of the DFT domain
 	pvda_vec_znx_idft(module, u, 1, u_dft, 1);
-	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_size(params_ggsw), ggsw_dft->mat, ggsw_size(params_ggsw));
-	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_size(params_ggsw), prod_computed_dft->mat, ggsw_size(params_ggsw));
+	pvda_vec_znx_idft(module, ggsw_ct->mat, ggsw_total_n_glwe_limbs(params_ggsw), ggsw_dft->mat,
+	                  ggsw_total_n_glwe_limbs(params_ggsw));
+	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_total_n_glwe_limbs(params_ggsw), prod_computed_dft->mat,
+	                  ggsw_total_n_glwe_limbs(params_ggsw));
 
 	// Asserts prod_computed_dft = DFT(u) * DFT(ggsw)
 	for (uint64_t ii = 1; ii <= ggsw_num_glwegad(params_ggsw); ii++)
@@ -422,9 +399,9 @@ Test(const_mult_ggsw_dft, without_normalization)
 		}
 
 	// Clean up
-	free(u);
-	free(u_dft);
-	free(prod_expected);
+	delete_univ(u);
+	delete_univ_dft(u_dft);
+	delete_univ(prod_expected);
 	delete_ggsw(ggsw_ct);
 	delete_ggsw(prod_comp);
 	delete_ggsw_dft(ggsw_dft);

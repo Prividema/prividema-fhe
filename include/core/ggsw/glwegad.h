@@ -4,7 +4,6 @@
 #include "bivariate_polynomial.h"
 #include "glwe_key.h"
 #include "glwegad_ciphertext.h"
-#include "vec_znx_arithmetic.h"
 
 /**
  * @brief Encrypts a univariate integer pollynomial into a GLWEGadget

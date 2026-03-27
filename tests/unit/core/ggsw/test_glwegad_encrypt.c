@@ -12,6 +12,7 @@
 #include "glwe_key.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 #define NBASE            1024
@@ -44,22 +45,22 @@ Test(glwegad_secret_encrypt, works)
 	cr_log_info("error length = %e", err_length);
 
 	// Parameters
-	MODULE* module              = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe     = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module                = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe       = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 	GLWEGadParams* params_glwegad = new_glwegad_params(params_glwe, KAPPA_TILDEBASE, L_TILDEBASE);
 
 	// Variables
-	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk          = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft   = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	GLWEGadCiphertext* glwegad = new_glwegad(params_glwegad);
-	PolyUniv* m_univ         = malloc(poly_univ_bytes(params_glwe));
-	PolyUnivDFT* m_univ_dft  = malloc(poly_univ_bytes(params_glwe));
+	PolyUniv* m_univ           = new_univ(params_glwe);
+	PolyUnivDFT* m_univ_dft    = new_univ_dft(module);
 	// Variables to compute the phase of each ggsw's row
-	PolyBiv* phase_computed              = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
-	PolyUnivRnX* phase_computed_univ_RnX = calloc(NBASE, sizeof(int64_t));
-	PolyUnivRnX* phase_univ_RnX          = calloc(NBASE, sizeof(int64_t));
-	PolyUnivDFT* m_skj_univ_dft          = malloc(poly_univ_bytes(params_glwe));
-	PolyUniv* m_skj_univ                 = malloc(poly_univ_bytes(params_glwe));
+	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
+	PolyUnivRnX* phase_computed_univ_RnX = new_univ_rnx(params_glwe);
+	PolyUnivRnX* phase_univ_RnX          = new_univ_rnx(params_glwe);
+	PolyUnivDFT* m_skj_univ_dft          = new_univ_dft(module);
+	PolyUniv* m_skj_univ                 = new_univ(params_glwe);
 
 	// Draws uniformly in (Zn[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
@@ -123,13 +124,13 @@ Test(glwegad_secret_encrypt, works)
 	}
 
 	// Clean up
-	free(phase_computed_univ_RnX);
-	free(m_skj_univ_dft);
-	free(m_skj_univ);
+	delete_univ_rnx(phase_computed_univ_RnX);
+	delete_univ_dft(m_skj_univ_dft);
+	delete_univ(m_skj_univ);
 	free(phase_computed);
-	free(phase_univ_RnX);
-	free(m_univ);
-	free(m_univ_dft);
+	delete_univ_rnx(phase_univ_RnX);
+	delete_univ(m_univ);
+	delete_univ_dft(m_univ_dft);
 	delete_glwegad(glwegad);
 	delete_glwe_secret_key_dft(sk_dft);
 	delete_glwe_params(params_glwe);

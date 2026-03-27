@@ -7,6 +7,7 @@
 #include "glwe_ciphertext.h"
 #include "glwegad_ciphertext.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 VecBiv* glwegad_retrieve_bivglwe(GLWEGadCiphertext* glwegad_ct, int64_t i)
