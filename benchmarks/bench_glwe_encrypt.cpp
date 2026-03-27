@@ -9,10 +9,10 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE       (1 << 16)
-#define KBASE       19
-#define KAPPABASE   4
-#define NLIMBSBASE  (91 * 20)
+#define NBASE       (1 << 14)
+#define KBASE       1
+#define KAPPABASE   19
+#define NLIMBSBASE  (20 * 2)
 #define LBASE       NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE   -(LBASE / 2 + 1) * KAPPABASE
 
@@ -30,14 +30,12 @@ void test_benchmark(benchmark::State& state)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
-	PolyBiv* m                           = new_biv_poly(params_glwe);
-	PolyBiv* err                         = new_biv_poly(params_glwe);
-	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
-	PolyBiv* phase                       = new_biv_poly(params_glwe);
-	PolyBivDFT* phase_dft                = new_biv_poly_dft(params_glwe);
-	GLWECiphertextDFT* glwe_computed_dft = new_glwe_dft(params_glwe);
+	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	PolyBiv* m                    = new_biv_poly(params_glwe);
+	PolyBiv* err                  = new_biv_poly(params_glwe);
+	PolyBiv* phase                = new_biv_poly(params_glwe);
+	GLWECiphertext* glwe_computed = new_glwe(params_glwe);
 
 	//! Draws each input variable
 	// Draws uniformly in (Cm[X])^k the secret key
@@ -52,28 +50,20 @@ void test_benchmark(benchmark::State& state)
 
 	//! Computes with functions
 	// Computes the message in Tn[X] with the base-2Kappa
-	biv_to_univ(params_glwe, m_univ_RnX, m);
 
 	// The final phase = m + err
 	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
 
-	// Computes the phase in the DFT domain
-	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
-
-	// Computes the bivGLWE ciphertext
-
 	for (auto _ : state)
 	{
-		glwe_secret_masking_dft(module, glwe_computed_dft, sk_dft, phase_dft);
-		benchmark::DoNotOptimize(glwe_computed_dft);
+		glwe_secret_masking(module, glwe_computed, sk_dft, phase);
+		benchmark::DoNotOptimize(glwe_computed);
 	}
 
 	free(m);
-	delete_univ_rnx(m_univ_RnX);
 	free(err);
 	free(phase);
-	free(phase_dft);
-	delete_glwe_dft(glwe_computed_dft);
+	delete_glwe(glwe_computed);
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
