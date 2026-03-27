@@ -66,7 +66,7 @@ Test(glwe_secret_masking, small_error)
 	biv_to_univ(params_glwe, m_univ_RnX, m);
 
 	// The final phase = m + err
-	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
+	add_biv_poly(module, params_glwe, phase, m, err);
 
 	// Computes the bivGLWE ciphertext
 	glwe_secret_masking(module, glwe_computed, sk_dft, phase);
@@ -156,7 +156,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	univ_to_biv(params_glwe, m, m_univ_RnX);
 
 	// Computes the final phase = m + err
-	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
+	add_biv_poly(module, params_glwe, phase, m, err);
 
 	// Computes the bivGLWE ciphertext
 	glwe_secret_masking(module, glwe_computed, sk_dft, phase);
@@ -251,7 +251,7 @@ Test(glwe_secret_masking_dft, small_error)
 	biv_to_univ(params_glwe, m_univ_RnX, m);
 
 	// The final phase = m + err
-	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
+	add_biv_poly(module, params_glwe, phase, m, err);
 
 	// Computes the phase in the DFT domain
 	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);
@@ -349,7 +349,7 @@ Test(glwe_secret_masking_dft, uniform_RnX_message)
 	univ_to_biv(params_glwe, m, m_univ_RnX);
 
 	// Computes the final phase = m + err
-	add_biv_poly(params_glwe, phase, NBASE, m, NBASE, err, NBASE);
+	add_biv_poly(module, params_glwe, phase, m, err);
 
 	// Computes the phase in the DFT domain
 	pvda_vec_znx_dft(module, phase_dft, LBASE, phase, LBASE, NBASE);

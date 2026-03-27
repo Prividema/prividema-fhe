@@ -309,7 +309,7 @@ Test(add_biv_poly, basic)
 	normal_random_biv_poly(params_glwe, pol_rhs);
 
 	// Computes pol_lhs + pol_rhs
-	add_biv_poly(params_glwe, sum_computed, params_glwe->nn, pol_lhs, params_glwe->nn, pol_rhs, params_glwe->nn);
+	add_biv_poly(module, params_glwe, sum_computed, pol_lhs, pol_rhs);
 
 	// Asserts sum_computed = pol_lhs + pol_rhs
 	for (uint64_t i = 1; i <= LBASE; i++)
@@ -375,43 +375,4 @@ Test(normal_random_biv_poly_dft, is_it_working)
 	free(pol_normalized);
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
-}
-
-/**
- * @brief Test add_biv_poly_dft correctness with random normal DFT polynomials
- */
-Test(add_biv_poly_dft, basic)
-{
-	// Parameters
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-
-	// Variables
-	PolyBivDFT* pol_lhs_dft      = new_biv_poly_dft(params_glwe);
-	PolyBivDFT* pol_rhs_dft      = new_biv_poly_dft(params_glwe);
-	PolyBivDFT* sum_computed_dft = new_biv_poly_dft(params_glwe);
-
-	// Draw normaly pol_lhs and pol_rhs in Zn[X,Y]
-	normal_random_biv_poly_dft(module, params_glwe, pol_lhs_dft);
-	normal_random_biv_poly_dft(module, params_glwe, pol_rhs_dft);
-
-	add_biv_poly_dft(params_glwe, sum_computed_dft, params_glwe->nn, pol_lhs_dft, params_glwe->nn, pol_rhs_dft,
-	                 params_glwe->nn);
-
-	for (uint64_t i = 1; i <= LBASE; i++)
-	{
-		for (uint64_t p = 0; p < NBASE; p++)
-		{
-			int64_t idx = p + (i - 1) * params_glwe->nn;
-			cr_assert(epsilon_eq(dbl, sum_computed_dft[idx], pol_lhs_dft[idx] + pol_rhs_dft[idx], 1e-9),
-			          "add_biv_poly_dft mismatch at index %" PRId64 ": %f + %f = %f, got %f", (long long)idx,
-			          pol_lhs_dft[idx], pol_rhs_dft[idx], pol_lhs_dft[idx] + pol_rhs_dft[idx], sum_computed_dft[idx]);
-		}
-	}
-
-	free(pol_lhs_dft);
-	free(pol_rhs_dft);
-	free(sum_computed_dft);
-	pvda_delete_module_info(module);
-	delete_glwe_params(params_glwe);
 }

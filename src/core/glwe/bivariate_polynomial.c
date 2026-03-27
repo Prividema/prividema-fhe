@@ -1,6 +1,7 @@
 #include "bivariate_polynomial.h"
 
 #include <math.h>
+#include <stdint.h>
 
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -65,11 +66,11 @@ cleanup:
 	return status;
 }
 
-void add_biv_poly(const GLWEParams* params_glwe, PolyBiv* res, int64_t res_sl, const PolyBiv* a, int64_t a_sl,
-                  const PolyBiv* b, int64_t b_sl)
+void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
 {
-	for (uint64_t i = 0; i < glwe_params_l(params_glwe); i++)
-		for (uint64_t p = 0; p < params_glwe->nn; p++) res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
+	uint64_t nn = params_glwe->nn;
+	uint64_t l  = glwe_params_l(params_glwe);
+	pvda_vec_znx_add(module, res, l, nn, a, l, nn, b, l, nn);
 }
 
 //! BIV POLY IN DFT PART (begin)
@@ -133,13 +134,6 @@ cleanup:
 	free(pol);
 
 	return status;
-}
-
-void add_biv_poly_dft(const GLWEParams* params_glwe, PolyBivDFT* res, int64_t res_sl, const PolyBivDFT* a, int64_t a_sl,
-                      const PolyBivDFT* b, int64_t b_sl)
-{
-	for (uint64_t i = 0; i < glwe_params_l(params_glwe); i++)
-		for (uint64_t p = 0; p < params_glwe->nn; p++) res[p + i * res_sl] = a[p + i * a_sl] + b[p + i * b_sl];
 }
 
 //! COMMON PART (begin)

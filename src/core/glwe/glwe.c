@@ -6,6 +6,7 @@
 #include "glwe_params.h"
 #include "logger.h"
 #include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 //! bivGLWE PART (begin)
@@ -136,12 +137,10 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l),
 		           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
 
-		// Add it all to the accumulator
-		for (uint64_t p = 0; p < nn * l; p++) acc[p] += as_j[p];
+		add_biv_poly(module, params, acc, acc, as_j);
 	}
 
-	// Add the message with noise to acc, so acc now becomes B before normalization
-	for (size_t i = 0; i < nn * l; ++i) acc[i] += phase[i];
+	add_biv_poly(module, params, acc, acc, phase);
 
 	// The pointer to the last row of the ciphertext vector (B)
 	PolyBiv* b_0 = glwe_extract_start_poly(glwe, k);
@@ -196,15 +195,14 @@ int glwe_secret_demasking(const MODULE* module, PolyBiv* res, const GLWESecretKe
 		           "vec_znx_idft_p failed in glwe_secret_demasking_ggsw_lib");
 
 		// And subs it to acc
-		for (uint64_t p = 0; p < nn * l; p++) acc[p] -= as_j[p];
+		pvda_vec_znx_sub(module, acc, l, nn, acc, l, nn, as_j, l, nn);
 	}
 
 	// Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
 	const PolyBiv* b = glwe_extract_start_poly(glwe, k);
 
 	// acc += b <=> acc = b - sum(sk_j*a_j)
-	add_biv_poly(params, acc, nn, acc, nn, b, (k + 1) * nn);
-
+	pvda_vec_znx_add(module, acc, l, nn, acc, l, nn, b, l, (k + 1) * nn);
 	//normalize acc into result
 	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params->kappa, res, l, nn, acc, l, nn),
 	           "vec_znx_normalize_base2k_p failed in glwe_secret_demasking_ggsw_lib");
@@ -263,6 +261,10 @@ int glwe_secret_masking_dft(const MODULE* module, GLWECiphertextDFT* glwe_dft, c
 			glwe_dft->vec[i * (k + 1) * nn + k * nn + p] += phase_dft[i * nn + p];
 		}
 	}
+	/*
+	  pvda_vec_rnx_add(module, glwe_dft->vec + k * nn, l, (k + 1) * nn, glwe_dft->vec + k * nn, l, (k + 1) * nn,
+	                   phase_dft, l, nn);
+	*/
 
 	status = 0;
 cleanup:
@@ -296,7 +298,7 @@ int glwe_secret_demasking_dft(const MODULE* module, PolyBiv* res, const GLWESecr
 
 	// Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
 	PolyBiv* b = glwe_extract_start_poly(glwe_ct, k);
-	add_biv_poly(params, acc, nn, b, (k + 1) * nn, acc, nn);
+	pvda_vec_znx_add(module, acc, l, nn, acc, l, nn, b, l, (k + 1) * nn);
 
 	// The phase in Zn[X,Y]
 	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, params->kappa, res, l, nn, acc, l, nn),
