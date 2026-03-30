@@ -176,15 +176,16 @@ int univ_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const double* pol_u
 	// Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa -
 	// 1) - 1]
 	int64_t mask = (1LL << kappa) - 1;
+	double acc   = 0;
+	for (uint64_t i = 1; i <= l; i++)
+	{
+		acc += ldexp(1.0, kappa - 1 - kappa * i);
+	}
 
 	for (uint64_t p = 0; p < nn; p++)
 	{
 		// For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to pol_univ[p]
-		double tmp = pol_univ[p];
-		for (uint64_t i = 1; i <= l; i++)
-		{
-			tmp += ldexp(1.0, kappa - 1 - kappa * i);
-		}
+		double tmp = pol_univ[p] + acc;
 
 		if (tmp < 0) tmp -= floor(tmp);
 		for (uint64_t i = 1; i <= l; i++)
