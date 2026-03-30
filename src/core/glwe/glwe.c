@@ -114,30 +114,44 @@ int glwe_secret_masking(const MODULE* module, GLWECiphertext* glwe, const GLWESe
 	// In other words, acc is <A, SK>
 	PolyBiv* acc         = new_biv_poly(params);
 	PolyBivDFT* as_j_dft = new_biv_poly_dft(params);  // DFT(sk_j) * DFT(a_j)
-	PolyBiv* as_j        = new_biv_poly(params);      // sk_j * a_j
+	PolyBiv* as_j        = NULL;
 
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_masking");
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking");
-	CHECK_ALLOC(as_j, "as_j's calloc failed in glwe_secret_masking");
 
 	// Draws uniformly in Zn[X,Y] the ajs'
 	CHECK_CALL(uniform_random_vec(k * nn, glwe->vec, l, (k + 1) * nn, kappa),
 	           "A generation failed in glwe_secret_masking_dft");
 
 	// Computes Sum_j{0,k-1}[sk_j * a_j]
-	for (uint64_t j = 0; j < k; j++)
+	if (k > 1)
 	{
-		// The j-th component of the DFT encoding of the secret key
-		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
+		as_j = new_biv_poly(params);  // sk_j * a_j
+		CHECK_ALLOC(as_j, "as_j's calloc failed in glwe_secret_masking");
 
-		// Computes DFT(sk_j) * DFT(a_j)
-		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, glwe_extract_start_poly(glwe, j), l, (k + 1) * nn);
+		for (uint64_t j = 0; j < k; j++)
+		{
+			// The j-th component of the DFT encoding of the secret key
+			PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
 
-		// Undo DFT to retreive sk_j * a_j
-		CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l),
+			// Computes DFT(sk_j) * DFT(a_j)
+			pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, glwe_extract_start_poly(glwe, j), l, (k + 1) * nn);
+
+			// Undo DFT to retreive sk_j * a_j
+			CHECK_CALL(pvda_vec_znx_idft(module, as_j, l, as_j_dft, l),
+			           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
+
+			add_biv_poly(module, params, acc, acc, as_j);
+		}
+	}
+	else
+	{
+		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, 0);
+
+		pvda_svp_apply_dft(module, as_j_dft, l, sk_j_univ_dft, glwe_extract_start_poly(glwe, 0), l, (k + 1) * nn);
+
+		CHECK_CALL(pvda_vec_znx_idft(module, acc, l, as_j_dft, l),
 		           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
-
-		add_biv_poly(module, params, acc, acc, as_j);
 	}
 
 	add_biv_poly(module, params, acc, acc, phase);
