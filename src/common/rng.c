@@ -155,10 +155,10 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
-		for (uint64_t j = 0; j < limb_len; j++)
-			if (rand_uniform(res + i * res_sl + j, nb_bits) < 0)
-				return log_message(LOG_ERROR, "uniform_random_vec failed");
+		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "unifrom random vec failed");
 	return 0;
+cleanup:
+	return -1;
 }
 
 int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
@@ -194,6 +194,7 @@ cleanup:
 
 int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma)
 {
+	// TODO: possible performance improvement here
 	for (int i = 0; i < vec_size; i++)
 	{
 		double tmp;
