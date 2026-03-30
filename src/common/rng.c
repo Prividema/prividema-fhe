@@ -1,8 +1,12 @@
 #include "rng.h"
 
+#include <assert.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <threads.h>
 
 #include "logger.h"
 #include "spqlios_alias.h"
@@ -24,6 +28,8 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+const size_t rand_buf_size = 8192;
+
 /*
     Read a random number depending on the OS :
     - On Windows : Uses Windows' Cryptographic API called CNG.
@@ -32,7 +38,7 @@
                         if an error occurs during the generation.
     - On other Linux distributions : read /dev/urandom.
 */
-int read_rand(uint64_t* result)
+int read_rand(uint64_t* result, size_t bytes)
 {
 // For Windows
 #ifdef _WIN32
@@ -48,9 +54,9 @@ int read_rand(uint64_t* result)
 // For other Linux Distro
 #elif defined(__linux__)
 
-	size_t rand_bytes = getrandom(result, sizeof(*result), 0);
-
-	return rand_bytes == sizeof(*result) ? 0 : -1;
+	size_t rand_bytes = getrandom(result, bytes, 0);
+	if (rand_bytes != bytes) return -1;
+	return 0;
 
 #else
 	FILE* f = fopen("/dev/urandom", "rb");
@@ -62,35 +68,28 @@ int read_rand(uint64_t* result)
 
 	return 0;
 }
+static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
+{
+	int shft = 64 - n_bits;
+	*tgt     = ((*tgt) << shft) >> shft;
+}
 
 int rand_uniform(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
-	if (nb_bits > 8 * sizeof(int64_t))
-		return log_message(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits,
-		                   8 * sizeof(int64_t));
-
-	// Generate a random int64_t
-	// r is in the interval [0, uint64_MAX]
-	uint64_t r;
-	if (read_rand(&r) < 0) return -1;
+	assert(nb_bits <= 64);
 
 	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
-	if (nb_bits == 8 * sizeof(int64_t)) *result = (int64_t)r;
+	if (nb_bits == 8 * sizeof(int64_t))
+		return read_rand((uint64_t*)result, 8);
 
-	// If nb_bits is not the max. size, r is in the interval [0, int64_MAX]
-	// We bring r into the inteval [0, 2^nb_bits) with a modulo
-	// that is equivalent to truncating bits so we keep the cryptosafe property.
-	// Then we apply an offset to get a result in [-2^(nb_bits-1), 2^(nb_bits-1))
 	else
 	{
-		// Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
-		// As r is still an unsigned int, it is now in [0, p)
-		uint64_t p = (1 << nb_bits);
-		r &= p - 1;
+		if (read_rand((uint64_t*)result, nb_bits / 8 + (nb_bits % 8 != 0)) < 0) return -1;
 
-		// Apply an offset so result is in [-p/2, p/2)
-		*result = (int64_t)r - (int64_t)p / 2;
+		reduce_uniform_n(result, nb_bits);
+
+		return 1;
 	}
 
 	return 0;
@@ -127,7 +126,7 @@ int rand_normal(double* result, double mu, double sigma)
 {
 	// Generate a uniform number in [0, 2^64]
 	uint64_t uniform;
-	CHECK_CALL(read_rand(&uniform), "Rng failed in rand_normal");
+	CHECK_CALL(read_rand(&uniform, 8), "Rng failed in rand_normal");
 
 	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
 	double uu = ((double)uniform) / ((double)UINT64_MAX);
@@ -147,9 +146,14 @@ cleanup:
 
 int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
 {
+	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * N), "rng error");
 	for (uint64_t p = 0; p < N; p++)
-		if (rand_uniform(res + p, nb_bits) < 0) return log_message(LOG_ERROR, "uniform_random_pol_znx failed");
+	{
+		reduce_uniform_n(res + p, nb_bits);
+	}
 	return 0;
+cleanup:
+	return -1;
 }
 
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
