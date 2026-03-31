@@ -4,17 +4,6 @@
 #include "glwe_key.h"
 
 //! bivGLWE PART (begin)
-/**
- * @brief Computes Sum_j{0,k-1}[sk_j * a_j]
- *
- * @param module Additionnal information for backend.
- * @param result The bivariate polynomial result.
- * @param glwe The bivGLWE ciphertext
- * @param sk_dft The Secret key in the DFT domain.
- * @return int
- */
-int add_mult(const MODULE* module, const GLWEParams* params, PolyBiv* result, const VecBiv* glwe,
-             const GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Encrypts a phase (message + noise) and puts it in result.
@@ -41,18 +30,6 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, cons
  */
 int glwe_secret_encrypt(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
                         const PolyUnivRnX* m_univ_rnx);
-
-/**
- * @brief Computes -Sum_j{0,k-1}[sk_j * a_j]
- *
- * @param module Additionnal information for backend.
- * @param result The bivariate result.
- * @param glwe The bivGLWE ciphertext
- * @param sk_dft The Secret key in the DFT domain.
- * @return int
- */
-int sub_mult(const MODULE* module, const GLWEParams* params, PolyBiv* result, const VecBiv* glwe_vec,
-             const GLWESecretKeyDFT* sk_dft);
 
 /**
  * @brief Demasks the ciphertext into the
