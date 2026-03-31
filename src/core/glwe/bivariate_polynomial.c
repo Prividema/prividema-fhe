@@ -40,7 +40,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
 
-	univ_to_biv(params_glwe, result, rd_pol_univ);
+	univ_rnx_to_biv(params_glwe, result, rd_pol_univ);
 
 	status = 0;
 
@@ -142,7 +142,7 @@ uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_nu
 
 uint64_t glwe_params_l(const GLWEParams* params_glwe) { return params_glwe->n_limbs / (params_glwe->k + 1); }
 
-void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
+void biv_rnx_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {
 	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
@@ -164,7 +164,7 @@ void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv*
 	}
 }
 
-int univ_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const double* pol_univ)
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ)
 {
 	int status = -1;
 

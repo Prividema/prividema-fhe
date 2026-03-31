@@ -138,7 +138,7 @@ uint64_t glwe_params_l(const GLWEParams* params_glwe);
  * @param pol_univ The result univariate polynomial in Rn[X].
  * @param pol_biv The input bivariate polynomial.
  */
-void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol);
+void biv_rnx_to_univ(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol);
 
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Rn[X].
@@ -150,7 +150,7 @@ void biv_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv*
  * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval - `0` otherwise.
  */
-int univ_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const double* pol_univ);
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ);
 
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
 

@@ -73,7 +73,7 @@ Test(biv_to_univ, runs)
 	pol[0] = 1;
 
 	// Computes the bivariate polynomial in the Tn[X]
-	biv_to_univ(params_glwe, pol_univ_computed, pol);
+	biv_rnx_to_univ(params_glwe, pol_univ_computed, pol);
 
 	// Asserts pol_univ_computed(X) = 2^{-KAPPABASE}
 	cr_assert(eq(dbl, pol_univ_computed[0], ldexp(1.0, -KAPPABASE)));
@@ -106,7 +106,7 @@ Test(univ_to_biv, one_test)
 	pol_univ[0] = ldexp(1.0, -KAPPABASE);
 
 	// Compute pol_univ's base-2KAPPABASE normalized decomposition
-	univ_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
 
 	// Asserts pol_computed = Y
 	cr_assert(eq(int, pol_computed[0], 1), "pol_computed[%ld, %ld] = %ld ", 0, 1, pol_computed[0]);
@@ -143,7 +143,7 @@ Test(univ_to_biv, basic)
 	normal_random_vec(pol_univ, NBASE, 0.0, 1e-2);
 
 	// Computes pol_univ's base-2KAPPABASE normalized decomposition
-	univ_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
 
 	// pol_computed_p = pol_computed(X, Y = 2^{-KAPPABASE})[p]
 	double pol_computed_p = 0;
@@ -186,10 +186,10 @@ Test(univ_to_biv, maths_test)
 	normal_random_vec(pol_univ, NBASE, 0.0, 1e-2);
 
 	// Computes pol_univ's base-2KAPPABASE decomposition
-	univ_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
 
 	// Computes pol in Rn[X] with Y = 2^{-KAPPABASE}
-	biv_to_univ(params_glwe, pol_univ_computed, pol_computed);
+	biv_rnx_to_univ(params_glwe, pol_univ_computed, pol_computed);
 
 	// Asserts pol_univ_computed(X) = pol_univ(X)
 	for (uint64_t p = 0; p < NBASE; p++)
