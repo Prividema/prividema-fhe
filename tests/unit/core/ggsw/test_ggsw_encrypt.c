@@ -90,7 +90,7 @@ Test(ggsw_secret_encrypt, works)
 
 			// Computes the phase = -m * sk_j / 2^{kappa_tilde * i}) + err
 			GLWECiphertext glwe_ct = {params_glwe, ggsw_retrieve_bivglwe(ggsw, j, i)};
-			glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
+			glwe_secret_decrypt(module, phase_computed, sk_dft, &glwe_ct);
 			biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
 
 			// Computes DFT(m * sk_j)
@@ -150,7 +150,7 @@ Test(ggsw_secret_encrypt, works)
 
 		// Computes the phase = m / 2^{kappa_tilde * i} + err
 		GLWECiphertext glwe_ct = {params_glwe, glwe_vec_ptr};
-		glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
+		glwe_secret_decrypt(module, phase_computed, sk_dft, &glwe_ct);
 
 		// Computes the phase in Tn[X]
 		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);

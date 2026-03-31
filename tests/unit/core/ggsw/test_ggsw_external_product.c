@@ -87,7 +87,7 @@ Test(ggsw_external_product, without_error)
 
 	//! Computation with function
 	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
-	glwe_secret_masking(module, glwe_tilde, sk_glwe_dft, m);
+	glwe_secret_encrypt_phase(module, glwe_tilde, sk_glwe_dft, m);
 
 	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_dft, u_univ);
@@ -98,7 +98,7 @@ Test(ggsw_external_product, without_error)
 	normalize_glwe(module, ext_prod_computed, ext_prod_computed);
 
 	// Computes the result phase = u*m + err , normalized with the base-2Kappa
-	glwe_secret_demasking(module, phase_computed, sk_glwe_dft, ext_prod_computed);
+	glwe_secret_decrypt(module, phase_computed, sk_glwe_dft, ext_prod_computed);
 
 	// The computed phase = u*m + err in Tn[X]
 	biv_to_univ(params_glwe, um_computed_univ_RnX, phase_computed);

@@ -87,7 +87,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 			GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 			//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
-			CHECK_CALL(glwe_secret_masking(module, &glwe_ct, sk_dft, glwe_biv_msg),
+			CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_dft, glwe_biv_msg),
 			           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
 		}
 	}

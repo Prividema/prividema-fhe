@@ -48,7 +48,7 @@ void test_benchmark(benchmark::State& state)
 	for (auto _ : state)
 	{
 		glwe_secret_encrypt(module, glwe_computed, sk_dft, m);
-		glwe_secret_demasking(module, result_biv, sk_dft, glwe_computed);
+		glwe_secret_decrypt(module, result_biv, sk_dft, glwe_computed);
 		biv_to_univ(params_glwe, result_univ, result_biv);
 		benchmark::DoNotOptimize(result_univ);
 	}
