@@ -28,8 +28,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-const size_t rand_buf_size = 8192;
-
 /*
     Read a random number depending on the OS :
     - On Windows : Uses Windows' Cryptographic API called CNG.

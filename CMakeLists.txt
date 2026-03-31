@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(prividema-fhe)
 
+cmake_policy(SET CMP0069 NEW)
 # ----------------------------------------
 # Include FetchContent for external dependencies
 # Enable testing framework
@@ -60,6 +61,18 @@ if(BUILD_BENCHMARKS)
   add_compile_options(-fno-omit-frame-pointer -g)
 endif()
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
+
+if(lto_supported)
+  message(STATUS "LTO/IPO enabled for optimized builds")
+  # This sets the global default for all targets defined after this point
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  add_compile_options(-flto)
+  add_link_options(-flto)
+else()
+  message(STATUS "LTO not supported: ${lto_error}")
+endif()
 # ----------------------------------------
 # Import spqlios library
 # ----------------------------------------
