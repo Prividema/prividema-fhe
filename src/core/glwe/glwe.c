@@ -96,7 +96,7 @@ int glwe_secret_encrypt(const MODULE* module, GLWECiphertext* result, const GLWE
 	PolyBiv* biv_phase      = new_biv_poly(result->params);
 	PolyUnivRnX* univ_phase = new_univ_rnx(result->params);
 
-	CHECK_CALL(add_normal_random_vec(univ_phase, result->params->nn, univ_phase, 0.0, result->params->sigma),
+	CHECK_CALL(add_normal_random_vec(univ_phase, result->params->nn, m_univ_rnx, 0.0, result->params->sigma),
 	           "failed to add the error in glwe encryption");
 	CHECK_CALL(univ_rnx_to_biv(result->params, biv_phase, univ_phase),
 	           "failed univ to biv conversion in glwe encryption");
@@ -105,6 +105,7 @@ int glwe_secret_encrypt(const MODULE* module, GLWECiphertext* result, const GLWE
 	status = 0;
 cleanup:
 	free(biv_phase);
+	delete_univ_rnx(univ_phase);
 	return status;
 }
 
