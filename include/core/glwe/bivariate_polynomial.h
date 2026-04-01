@@ -156,4 +156,8 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft);
 
+int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_univ, const PolyBiv* pol);
+
+int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx);
+
 #endif  // BIVARIATE_POLYNOMIAL_H

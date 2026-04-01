@@ -11,7 +11,7 @@
 
 #define NBASE      1024
 #define KBASE      1
-#define KAPPABASE  4
+#define KAPPABASE  19
 #define NLIMBSBASE (KBASE + 1) * 4
 #define LBASE      NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE  -7
@@ -154,6 +154,32 @@ Test(univ_rnx_to_biv, maths_test)
 	delete_univ_rnx(pol_univ);
 	free(pol_computed);
 	delete_univ_rnx(pol_univ_computed);
+	delete_glwe_params(params_glwe);
+}
+
+Test(univ_tnx_to_biv, maths_test)
+{
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+
+	PolyUnivTnX* pol_univ          = new_univ_tnx(params_glwe);
+	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
+	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
+
+	uniform_random_vec(NBASE, (PolyUniv*)pol_univ, 1, NBASE, 64);
+
+	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ);
+
+	biv_to_univ_tnx(params_glwe, pol_univ_computed, pol_computed);
+
+	for (uint64_t p = 0; p < NBASE; p++)
+	{
+		//TODO: adjust to allow L*KAPPA < 64
+		cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
+	}
+
+	delete_univ_tnx(pol_univ);
+	free(pol_computed);
+	delete_univ_tnx(pol_univ_computed);
 	delete_glwe_params(params_glwe);
 }
 

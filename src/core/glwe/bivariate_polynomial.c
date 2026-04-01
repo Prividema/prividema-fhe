@@ -1,7 +1,10 @@
 #include "bivariate_polynomial.h"
 
+#include <assert.h>
 #include <math.h>
 #include <stdint.h>
+#include <string.h>
+#include <sys/types.h>
 
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -138,7 +141,6 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const Poly
 	//TODO: add l_max
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
-	// TODO: slow polynomial evaulation,
 	double pkappa = exp2(-(double)kappa);
 
 	for (uint64_t p = 0; p < nn; p++)
@@ -202,4 +204,58 @@ int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l(params_glwe);
 	return pvda_vec_znx_idft(module, res, l, a_dft, l);
+}
+
+int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_univ, const PolyBiv* pol)
+{
+	uint64_t nn    = params_glwe->nn;
+	uint64_t kappa = params_glwe->kappa;
+	uint64_t l     = glwe_params_l(params_glwe);
+	uint64_t l_max = 64 / kappa + (64 % kappa != 0);
+
+	memset(res_univ, 0, nn * sizeof(*res_univ));
+
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		for (uint64_t i = 0; i < l && i < l_max; ++i)
+		{
+			int shft_amt = 64 - (int)kappa - (int)(i * kappa);
+			if (shft_amt > 0)
+				res_univ[p] += ((uint64_t)pol[i * nn + p]) << shft_amt;
+			else
+				res_univ[p] += (pol[i * nn + p] >> -shft_amt);
+		}
+	}
+	return 0;
+}
+
+int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx)
+{
+	uint64_t nn    = params_glwe->nn;
+	uint64_t kappa = params_glwe->kappa;
+	uint64_t l     = glwe_params_l(params_glwe);
+	uint64_t l_max = 64 / kappa + (64 % kappa != 0);
+
+	uint64_t acc = 0;
+	int64_t mask = (1LL << kappa) - 1;
+	for (uint64_t i = 1; i <= l && i <= l_max; i++)
+	{
+		acc += 1LL << (kappa - 1 - kappa * i);
+	}
+
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		uint64_t tmp = pol_tnx[p] + acc;
+
+		for (uint64_t i = 1; i <= l; i++)
+		{
+			int shft_amt = 64 - (int)(i * kappa);
+			if (shft_amt > 0)
+				res[(i - 1) * nn + p] = (int64_t)((tmp >> shft_amt) & mask) - (1LL << (kappa - 1));
+			else
+				res[(i - 1) * nn + p] = (int64_t)((tmp << -shft_amt) & mask) - (1LL << (kappa - 1));
+		}
+	}
+
+	return 0;
 }
