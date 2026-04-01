@@ -120,9 +120,7 @@ Test(univ_to_biv, basic)
 
 		//TODO: double check this and if correct add comment (and split into multiple lines) as to what it is doing
 		cr_assert(epsilon_eq(dbl, pol_computed_p - floor(pol_computed_p) - pol_univ[p] + floor(pol_univ[p]), 0,
-		                     ldexp(1.0, -(LBASE - 1) * KAPPABASE)),
-		          "pol_univ(X = %ld) = %lf and pol(X = %ld) %lf", p, pol_computed_p - floor(pol_computed_p),
-		          -pol_univ[p] + floor(pol_univ[p]), p);
+		                     ldexp(1.0, -(LBASE - 1) * KAPPABASE) + 3 * DBL_EPSILON));
 	}
 
 	delete_univ_rnx(pol_univ);
@@ -148,7 +146,7 @@ Test(univ_rnx_to_biv, maths_test)
 	for (uint64_t p = 0; p < NBASE; p++)
 	{
 		cr_assert(epsilon_eq(dbl, pol_univ[p] - floor(pol_univ[p]) - pol_univ_computed[p] + floor(pol_univ_computed[p]),
-		                     0, ldexp(1.0, -(LBASE - 1) * KAPPABASE)),
+		                     0, ldexp(1.0, -(LBASE - 1) * KAPPABASE) + 3 * DBL_EPSILON),
 		          "pol_univ[%ld] = %lf and pol_univ_computed[%ld] = %lf", p, pol_univ[p], p, pol_univ_computed[p]);
 	}
 

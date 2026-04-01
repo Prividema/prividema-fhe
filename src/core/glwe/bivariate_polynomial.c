@@ -135,6 +135,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const Poly
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = glwe_params_l(params_glwe);
+	//TODO: add l_max
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	// TODO: slow polynomial evaulation,
@@ -159,12 +160,13 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = glwe_params_l(params_glwe);
+	uint64_t l_max = 53 / kappa + (53 % kappa != 0);
 
 	// Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa -
 	// 1) - 1]
 	int64_t mask = (1LL << kappa) - 1;
 	double acc   = 0;
-	for (uint64_t i = 1; i <= l; i++)
+	for (uint64_t i = 1; i <= l && i <= l_max; i++)
 	{
 		acc += ldexp(1.0, kappa - 1 - kappa * i);
 	}
@@ -174,7 +176,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		double tmp = pol_univ[p] + acc;
 
 		if (tmp < 0) tmp -= floor(tmp);
-		for (uint64_t i = 1; i <= l; i++)
+		for (uint64_t i = 1; i <= l && i <= l_max; i++)
 		{
 			res[(i - 1) * nn + p] = (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
 		}
