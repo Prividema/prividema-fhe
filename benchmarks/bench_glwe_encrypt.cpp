@@ -14,7 +14,6 @@ extern "C" {
 #define KAPPABASE   19
 #define NLIMBSBASE  (15 * 2)
 #define LBASE       NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE   -(LBASE / 2 + 1) * KAPPABASE
 
 #define PROB_FACTOR 3
 
@@ -22,21 +21,14 @@ void test_benchmark(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
-	// Since the message is drawn in Zn[X,Y], there is no decomposition error. Thus, the error should be smaller than 3*sigma 99.73% of the time
-	double err_length = 3 * sigma;
-
-	//! Parameters
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
-	//! Variables
 	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
 	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
 	PolyUnivRnX* m                = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_computed = new_glwe(params_glwe);
 
-	//! Draws each input variable
-	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 

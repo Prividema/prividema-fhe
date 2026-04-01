@@ -216,15 +216,13 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_univ, const 
 
 	memset(res_univ, 0, nn * sizeof(*res_univ));
 
-	for (uint64_t p = 0; p < nn; p++)
+	for (uint64_t i = 0; i < l && i < l_max; ++i)
 	{
-		for (uint64_t i = 0; i < l && i < l_max; ++i)
+		for (uint64_t p = 0; p < nn; p++)
 		{
-			int shft_amt = 64 - (int)kappa - (int)(i * kappa);
-			if (shft_amt > 0)
-				res_univ[p] += ((uint64_t)pol[i * nn + p]) << shft_amt;
-			else
-				res_univ[p] += (pol[i * nn + p] >> -shft_amt);
+			int shft_amt     = 64 - (int)kappa - (int)(i * kappa);
+			uint64_t add_amt = shft_amt > 0 ? ((uint64_t)pol[i * nn + p]) << shft_amt : (pol[i * nn + p] >> -shft_amt);
+			res_univ[p] += add_amt;
 		}
 	}
 	return 0;

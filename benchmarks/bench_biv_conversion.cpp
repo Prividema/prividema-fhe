@@ -4,15 +4,13 @@
 
 extern "C" {
 #include "bivariate_polynomial.h"
-#include "glwe.h"
-#include "glwe_transform_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 }
 
 #define NBASE       (1 << 14)
 #define KBASE       1
-#define KAPPABASE   9
+#define KAPPABASE   19
 #define NLIMBSBASE  (15 * 2)
 #define LBASE       NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE   -(LBASE / 2 + 1) * KAPPABASE
