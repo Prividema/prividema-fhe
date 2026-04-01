@@ -63,24 +63,6 @@ Test(coef_dft_back_forth, basic)
 	pvda_delete_module_info(module);
 }
 
-int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX* a)
-{
-	for (size_t i = 0; i < params_glwe->nn; ++i)
-	{
-		res[i] = (uint64_t)(ldexp(a[i] - floor(a[i]), 64));
-	}
-	return 1;
-}
-
-int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX* a)
-{
-	for (size_t i = 0; i < params_glwe->nn; ++i)
-	{
-		res[i] = ldexp((double)((int64_t)a[i]), -64);
-	}
-	return 1;
-}
-
 Test(tnx_rnx_encoding, known_bounded_values)
 {
 	PolyUnivRnX rnx_values[4] = {0, -0.25, 0.25, -0.5};

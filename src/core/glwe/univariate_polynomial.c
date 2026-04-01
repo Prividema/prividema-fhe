@@ -46,7 +46,7 @@ int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX
 {
 	for (size_t i = 0; i < params_glwe->nn; ++i)
 	{
-		res[i] = (uint64_t)((int64_t)ldexp(a[i], 64));
+		res[i] = (uint64_t)(ldexp(a[i] - floor(a[i]), 64));
 	}
 	return 1;
 }
@@ -55,7 +55,7 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
 {
 	for (size_t i = 0; i < params_glwe->nn; ++i)
 	{
-		res[i] = ldexp((double)a[i], -64);
+		res[i] = ldexp((double)((int64_t)a[i]), -64);
 	}
 	return 1;
 }
