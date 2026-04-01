@@ -28,15 +28,14 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 {
 	int status = -1;
 
-	// Variables
-	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
-	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
-	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = params_glwe->n_limbs / (params_glwe->k + 1);
 
-	// Draws a random univariate polynomial P(X) in Rn[X]
+	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
+	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
+
+	//TODO: generate directly? Use tnx? Seems like it could use improvement
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
 
@@ -94,19 +93,13 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_gl
 {
 	int status = -1;
 
-	// Variables
-	PolyBiv* rd_pol = NULL;
-
-	// Base-2Kappa normalized bivariate polynomial
-	rd_pol = new_biv_poly(params_glwe);
+	PolyBiv* rd_pol = new_biv_poly(params_glwe);
 	CHECK_ALLOC(rd_pol, "rd_pol malloc failed in normal_random_biv_poly_dft");
-	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol), "normal_random_biv_poly failed in normal_biv_poly_dft.");
 
-	// Then compute in the DFT domain
+	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol), "normal_random_biv_poly failed in normal_biv_poly_dft.");
 	biv_coefs_to_dft(module, params_glwe, result_dft, rd_pol);
 
 	status = 0;
-
 cleanup:
 	free(rd_pol);
 
@@ -118,21 +111,16 @@ int uniform_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_g
 {
 	int status = -1;
 
-	// Variables
 	PolyBiv* pol = NULL;
 
-	// Uniformly drawn bivariate polynomial
 	CHECK_CALL(uniform_random_biv_poly(params_glwe, pol, precision),
 	           "pol's malloc failed in uniform_random_biv_poly_dft.");
 
-	// Computes bivariate polynomial in the DFT domain
 	biv_coefs_to_dft(module, params_glwe, result_dft, pol);
 
 	status = 0;
-
 cleanup:
 	free(pol);
-
 	return status;
 }
 
@@ -144,7 +132,6 @@ uint64_t glwe_params_l(const GLWEParams* params_glwe) { return params_glwe->n_li
 
 void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {
-	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = glwe_params_l(params_glwe);
@@ -184,7 +171,6 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 
 	for (uint64_t p = 0; p < nn; p++)
 	{
-		// For each p, we substract (2^kappa)/2 * (2^kappa)^(-i) to pol_univ[p]
 		double tmp = pol_univ[p] + acc;
 
 		if (tmp < 0) tmp -= floor(tmp);
