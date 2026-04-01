@@ -49,7 +49,7 @@ void test_benchmark(benchmark::State& state)
 	{
 		glwe_secret_encrypt(module, glwe_computed, sk_dft, m);
 		glwe_secret_decrypt(module, result_biv, sk_dft, glwe_computed);
-		biv_rnx_to_univ(params_glwe, result_univ, result_biv);
+		biv_to_univ_rnx(params_glwe, result_univ, result_biv);
 		benchmark::DoNotOptimize(result_univ);
 	}
 

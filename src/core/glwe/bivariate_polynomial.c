@@ -135,10 +135,11 @@ uint64_t glwe_params_l(const GLWEParams* params_glwe) { return params_glwe->n_li
 
 void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {
-	uint64_t nn    = params_glwe->nn;
-	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l(params_glwe);
-	//TODO: add l_max
+	uint64_t nn      = params_glwe->nn;
+	uint64_t kappa   = params_glwe->kappa;
+	uint64_t l       = glwe_params_l(params_glwe);
+	uint64_t l_max   = 53 / kappa + (53 % kappa != 0);
+	uint64_t start_l = l > l_max ? l_max : l;
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	double pkappa = exp2(-(double)kappa);
@@ -146,7 +147,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const Poly
 	for (uint64_t p = 0; p < nn; p++)
 	{
 		res_univ[p] = 0;
-		for (uint64_t i = l; i >= 1; --i)
+		for (uint64_t i = start_l; i >= 1; --i)
 		{
 			res_univ[p] += (double)pol_biv[(i - 1) * nn + p];
 			res_univ[p] *= pkappa;
@@ -247,7 +248,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	{
 		uint64_t tmp = pol_tnx[p] + acc;
 
-		for (uint64_t i = 1; i <= l; i++)
+		for (uint64_t i = 1; i <= l && i <= l_max; i++)
 		{
 			int shft_amt = 64 - (int)(i * kappa);
 			if (shft_amt > 0)
