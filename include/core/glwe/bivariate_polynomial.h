@@ -135,10 +135,10 @@ uint64_t glwe_params_l(const GLWEParams* params_glwe);
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
  *
  * @param params_glwe The bivGLWE parameters.
- * @param pol_univ The result univariate polynomial in Rn[X].
- * @param pol_biv The input bivariate polynomial.
+ * @param res_univ The result univariate polynomial in Rn[X].
+ * @param pol The input bivariate polynomial.
  */
-void biv_rnx_to_univ(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol);
+void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol);
 
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Rn[X].

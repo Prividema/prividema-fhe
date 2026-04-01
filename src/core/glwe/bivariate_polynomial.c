@@ -142,7 +142,7 @@ uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_nu
 
 uint64_t glwe_params_l(const GLWEParams* params_glwe) { return params_glwe->n_limbs / (params_glwe->k + 1); }
 
-void biv_rnx_to_univ(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
+void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {
 	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;

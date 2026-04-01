@@ -63,7 +63,7 @@ Test(glwe_secret_masking, small_error)
 
 	//! Computations with functions
 	// Computes the message in Tn[X] with the base-2Kappa
-	biv_rnx_to_univ(params_glwe, m_univ_RnX, m);
+	biv_to_univ_rnx(params_glwe, m_univ_RnX, m);
 
 	// The final phase = m + err
 	add_biv_poly(module, params_glwe, phase, m, err);
@@ -75,7 +75,7 @@ Test(glwe_secret_masking, small_error)
 	glwe_secret_decrypt(module, phase_computed, sk_dft, glwe_computed);
 
 	// The computed phase in Rn[X]
-	biv_rnx_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
+	biv_to_univ_rnx(params_glwe, phase_computed_univ_RnX, phase_computed);
 
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
@@ -165,7 +165,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	glwe_secret_decrypt(module, phase_computed, sk_dft, glwe_computed);
 
 	// The computed phase in Rn[X]
-	biv_rnx_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
+	biv_to_univ_rnx(params_glwe, phase_computed_univ_RnX, phase_computed);
 
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;

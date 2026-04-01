@@ -101,7 +101,7 @@ Test(ggsw_external_product, without_error)
 	glwe_secret_decrypt(module, phase_computed, sk_glwe_dft, ext_prod_computed);
 
 	// The computed phase = u*m + err in Tn[X]
-	biv_rnx_to_univ(params_glwe, um_computed_univ_RnX, phase_computed);
+	biv_to_univ_rnx(params_glwe, um_computed_univ_RnX, phase_computed);
 
 	//! Computation by hand
 	// Computes DFT(m)
@@ -117,7 +117,7 @@ Test(ggsw_external_product, without_error)
 	pvda_vec_znx_normalize_base2k(module, KAPPA_TILDEBASE, um, L_TILDEBASE, NBASE, um, L_TILDEBASE, NBASE);
 
 	// Computes u*m in Tn[X]
-	biv_rnx_to_univ(params_glwe_tilde, um_univ_RnX, um);
+	biv_to_univ_rnx(params_glwe_tilde, um_univ_RnX, um);
 
 	//! Asserts um_computed_univ(X) = u * m_univ
 	for (uint64_t p = 0; p < NBASE; p++)
