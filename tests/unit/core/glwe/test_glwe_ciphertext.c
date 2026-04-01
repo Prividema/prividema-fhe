@@ -20,15 +20,12 @@
 /**
  * @brief Tests whether glwe_size computes the right size of a bivGLWE ciphertext.
  */
-Test(glwe_size, basic)
+Test(glwe_total_nlimbs, basic)
 {
-	// Parameters
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	// Asserts glwe_size returns NLIMBSBASE
 	cr_assert(eq(i64, glwe_total_nlimbs(params_glwe), NLIMBSBASE));
 
-	// Clean up
 	delete_glwe_params(params_glwe);
 }
 
@@ -37,13 +34,10 @@ Test(glwe_size, basic)
  */
 Test(glwe_bytes, basic)
 {
-	// Parameters
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	// Asserts glwe_bytes returns NLIMBSBASE * NBASE * sizeof(int64_t)
 	cr_assert(eq(i64, glwe_bytes(params_glwe), NLIMBSBASE * NBASE * sizeof(int64_t)));
 
-	// Clean up
 	delete_glwe_params(params_glwe);
 }
 
@@ -337,7 +331,6 @@ Test(add_glwe_dft, basic)
 				             glwe_lhs_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p] +
 				                 glwe_rhs_dft->vec[(i - 1) * (KBASE + 1) * NBASE + j * NBASE + p]));
 
-	// Clean up
 	pvda_delete_module_info(module);
 	delete_glwe_dft(glwe_lhs_dft);
 	delete_glwe_dft(glwe_rhs_dft);

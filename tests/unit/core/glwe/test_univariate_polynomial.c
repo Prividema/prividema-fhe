@@ -39,12 +39,12 @@ Test(poly_univ_bytes, basic)
  */
 Test(coef_dft_back_forth, basic)
 {
-	// Parameters
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
 	MODULE* module          = pvda_new_module_info(NBASE);
-	PolyUniv* a             = new_univ(params_glwe);
-	PolyUniv* a_t           = new_univ(params_glwe);
-	PolyUnivDFT* res_dft    = new_univ_dft(module);
+
+	PolyUniv* a          = new_univ(params_glwe);
+	PolyUniv* a_t        = new_univ(params_glwe);
+	PolyUnivDFT* res_dft = new_univ_dft(module);
 
 	uniform_random_vec(NBASE, a, 1, NBASE, 8);
 
@@ -55,7 +55,6 @@ Test(coef_dft_back_forth, basic)
 	{
 		cr_assert(eq(i64, a_t[i], a[i]));
 	}
-	// Clean up
 	delete_glwe_params(params_glwe);
 	delete_univ(a);
 	delete_univ(a_t);
