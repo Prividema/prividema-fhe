@@ -103,12 +103,12 @@ Test(tnx_rnx_encoding, known_bounded_values)
 
 Test(tnx_rnx_encoding, known_outbounded_values)
 {
-	PolyUnivRnX rnx_values[4] = {2, -1.25, 68.25, 0.5};
-	PolyUnivTnX tnx_values[4] = {0, 0xc000000000000000L, 0x4000000000000000L, 0x8000000000000000L};
+	PolyUnivRnX rnx_values[5] = {2, -1.25, 68.25, 0.5, 0.875};
+	PolyUnivTnX tnx_values[5] = {0, 0xc000000000000000L, 0x4000000000000000L, 0x8000000000000000L, 0xe000000000000000L};
 
-	PolyUnivTnX tnx_computed[4];
+	PolyUnivTnX tnx_computed[5];
 
-	GLWEParams* params_glwe = new_glwe_params(4, 1, 4, 1, 0);
+	GLWEParams* params_glwe = new_glwe_params(5, 1, 4, 1, 0);
 
 	univ_rnx_to_tnx(params_glwe, tnx_computed, rnx_values);
 
