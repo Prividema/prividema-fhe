@@ -58,8 +58,8 @@ Test(ggsw_external_product, without_error)
 	MODULE* module          = pvda_new_module_info(NBASE);
 
 	//! Variables
-	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_glwe_dft     = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_glwe_dft     = alloc_glwe_secret_key_dft(params_glwe);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde        = new_glwe(params_glwe_tilde);
 	GLWECiphertext* ext_prod_computed = new_glwe(params_glwe);

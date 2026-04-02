@@ -48,8 +48,8 @@ Test(ggsw_secret_encrypt, works)
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
-	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk        = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(params_glwe);
 	GGSWCiphertext* ggsw     = new_ggsw(params_ggsw);
 	PolyUniv* m_univ         = new_univ(params_glwe);
 	PolyUnivDFT* m_univ_dft  = new_univ_dft(module);

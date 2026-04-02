@@ -3,21 +3,22 @@
 #include <assert.h>
 #include <stdint.h>
 
+#include "glwe_params.h"
 #include "logger.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "utils.h"
 
-GLWESecretKey* alloc_glwe_secret_key(uint64_t nn, uint64_t k)
+GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe)
 {
 	uint64_t j        = 0;
 	GLWESecretKey* sk = malloc(sizeof(GLWESecretKey));
 	CHECK_ALLOC(sk, "sk's malloc failed in alloc_glwe_secret_key");
 
-	sk->nn = nn;
-	sk->k  = k;
+	sk->nn = params_glwe->nn;
+	sk->k  = params_glwe->k;
 
-	sk->values = calloc(nn * k, sizeof(double));
+	sk->values = calloc(params_glwe->nn * params_glwe->k, sizeof(PolyUniv));
 	CHECK_ALLOC(sk->values, "values creation failed in glwe key generation");
 
 	return sk;
@@ -57,15 +58,15 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 	free(sk);
 }
 
-GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t nn, uint64_t k)
+GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe)
 {
 	uint64_t j           = 0;
 	GLWESecretKeyDFT* sk = malloc(sizeof(GLWESecretKeyDFT));
 	CHECK_ALLOC(sk, "sk's malloc failed in new_glwe_secret_key.");
-	sk->nn = nn;
-	sk->k  = k;
+	sk->nn = params_glwe->nn;
+	sk->k  = params_glwe->k;
 
-	sk->values = malloc(nn * k * sizeof(PolyUnivDFT));
+	sk->values = malloc(params_glwe->nn * params_glwe->k * sizeof(PolyUnivDFT));
 	CHECK_ALLOC(sk->values, "values' malloc failed in alloc_glwe_secret_key_dft");
 
 	return sk;

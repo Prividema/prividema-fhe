@@ -40,8 +40,8 @@ Test(glwe_secret_masking, small_error)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(params_glwe);
 	PolyBiv* m                           = new_biv_poly(params_glwe);
 	PolyBiv* err                         = new_biv_poly(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
@@ -131,8 +131,8 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKey* sk                    = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(params_glwe);
 	PolyBiv* m                           = new_biv_poly(params_glwe);
 	PolyBiv* err                         = new_biv_poly(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);

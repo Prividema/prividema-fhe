@@ -2,6 +2,7 @@
 #include <criterion/new/assert.h>
 
 #include "core/glwe/glwe_key.h"
+#include "glwe_params.h"
 
 #define NBASE      1024
 #define KBASE      1
@@ -17,12 +18,14 @@
  */
 Test(new_glwe_secret_key, values_not_null)
 {
-	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KBASE, NLIMBSBASE, SIGMABASE);
+	GLWESecretKey* sk       = alloc_glwe_secret_key(params_glwe);
 
 	// Asserts the secret key is not NULL
 	cr_assert(eq(int, sk != NULL, 1), "new_glwe_secret_key failed.");
 
 	delete_glwe_secret_key(sk);
+	delete_glwe_params(params_glwe);
 }
 
 /**
@@ -31,10 +34,11 @@ Test(new_glwe_secret_key, values_not_null)
 Test(uniform_glwe_secret_key, values_not_null)
 {
 	// Parameters
-	MODULE* module = pvda_new_module_info(NBASE);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KBASE, NLIMBSBASE, SIGMABASE);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
 	int status = uniform_glwe_secret_key(module, sk, 2);
@@ -45,4 +49,5 @@ Test(uniform_glwe_secret_key, values_not_null)
 	// Clean up
 	pvda_delete_module_info(module);
 	delete_glwe_secret_key(sk);
+	delete_glwe_params(params_glwe);
 }

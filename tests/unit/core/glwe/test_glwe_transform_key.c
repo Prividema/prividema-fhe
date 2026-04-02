@@ -4,6 +4,7 @@
 
 #include "core/glwe/glwe_transform_key.h"
 #include "glwe_key.h"
+#include "glwe_params.h"
 #include "univariate_polynomial.h"
 
 #define NBASE 1024
@@ -15,10 +16,11 @@
  */
 Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KBASE, 0, 0);
 
-	GLWESecretKey* sk        = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk        = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(params_glwe);
 	PolyUniv* expected_poly  = calloc(NBASE, sizeof(int64_t));  // TODO: correct type
 
 	// Draws uniformly in Zn[X] the bivGLWE secret key's values
@@ -39,4 +41,5 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 	pvda_delete_module_info(module);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_params(params_glwe);
 }
