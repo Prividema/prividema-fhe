@@ -37,7 +37,7 @@ void test_benchmark(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		glwe_secret_encrypt(module, glwe_computed, sk_dft, m);
+		glwe_secret_encrypt_rnx(module, glwe_computed, sk_dft, m);
 		benchmark::DoNotOptimize(glwe_computed);
 	}
 
@@ -50,3 +50,37 @@ void test_benchmark(benchmark::State& state)
 }
 
 BENCHMARK(test_benchmark);
+
+void test_encrypt_tnx(benchmark::State& state)
+{
+	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+
+	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
+	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	PolyUnivTnX* m                = new_univ_tnx(params_glwe);
+	GLWECiphertext* glwe_computed = new_glwe(params_glwe);
+
+	uniform_glwe_secret_key(module, sk, 3);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+
+	//The input message, for now sampled normally since we cannot sample uniformly in the torus right now
+	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
+
+	for (auto _ : state)
+	{
+		glwe_secret_encrypt_tnx(module, glwe_computed, sk_dft, m);
+		benchmark::DoNotOptimize(glwe_computed);
+	}
+
+	delete_univ_tnx(m);
+	delete_glwe(glwe_computed);
+	pvda_delete_module_info(module);
+	delete_glwe_params(params_glwe);
+	delete_glwe_secret_key(sk);
+	delete_glwe_secret_key_dft(sk_dft);
+}
+
+BENCHMARK(test_encrypt_tnx);
