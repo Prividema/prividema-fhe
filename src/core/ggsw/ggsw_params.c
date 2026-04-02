@@ -13,10 +13,10 @@ GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uin
 	GGSWParams* params_ggsw = malloc(sizeof(GGSWParams));
 	CHECK_ALLOC(params_ggsw, "malloc in new_ggsw_ct_params");
 
-	params_ggsw->params_glwe   = params_glwe;
-	params_ggsw->k_tilde       = k_tilde;
-	params_ggsw->kappa_tilde   = kappa_tilde;
-	params_ggsw->n_limbs_tilde = n_limbs_tilde;
+	params_ggsw->params_glwe = params_glwe;
+	params_ggsw->k_tilde     = k_tilde;
+	params_ggsw->kappa_tilde = kappa_tilde;
+	params_ggsw->l_tilde     = n_limbs_tilde / (k_tilde + 1);
 
 	return params_ggsw;
 cleanup:
@@ -25,11 +25,11 @@ cleanup:
 
 void delete_ggsw_params(GGSWParams* params) { free(params); }
 
-uint64_t ggsw_num_pggsw(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
+uint64_t ggsw_num_pggsw(const GGSWParams* params) { return params->l_tilde; }
 
 uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params) { return params->k_tilde + 1; }
 
-uint64_t ggsw_num_rows(const GGSWParams* params) { return params->n_limbs_tilde; };
+uint64_t ggsw_num_rows(const GGSWParams* params) { return params->l_tilde * (params->k_tilde + 1); };
 
 uint64_t ggsw_coef_number(const GGSWParams* params_ggsw)
 {
