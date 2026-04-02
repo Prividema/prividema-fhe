@@ -47,7 +47,6 @@ function(BuildUnitTests testfiles libname)
     # Link libraries
     target_link_libraries(${test_name} PRIVATE
             ${libname}
-            COMMON
             libspqlios
 
             # Criterion via pkg-config
@@ -73,8 +72,7 @@ endfunction()
 # Build all unit tests
 # ------------------------------------------------------------
 
-BuildUnitTests(TEST_BACKEND_FILES BACKEND)
-BuildUnitTests(TEST_COMMON_FILES  COMMON)
-BuildUnitTests(TEST_GGSW_FILES    CORE)
-BuildUnitTests(TEST_GLWE_FILES    CORE)
+BuildUnitTests(TEST_COMMON_FILES  PVDA_COMMON)
+BuildUnitTests(TEST_GGSW_FILES    PVDA_CORE)
+BuildUnitTests(TEST_GLWE_FILES    PVDA_CORE)
 BuildUnitTests(TEST_SCHEMES_FILES SCHEMES)
