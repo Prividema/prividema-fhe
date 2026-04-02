@@ -11,20 +11,10 @@ pkg_check_modules(CRITERION REQUIRED IMPORTED_TARGET criterion)
 # Platform-specific configuration
 # ------------------------------------------------------------
 
-# Fetch criterion with pkg-config
-find_package(PkgConfig REQUIRED)
-
-pkg_check_modules(
-    CRITERION
-    REQUIRED
-    IMPORTED_TARGET
-    criterion
-)
-
 if(APPLE)
-    set(NEED_MATH_LIB FALSE)
+  set(NEED_MATH_LIB FALSE)
 else()
-    set(NEED_MATH_LIB TRUE)
+  set(NEED_MATH_LIB TRUE)
 endif()
 
 # ------------------------------------------------------------
@@ -37,46 +27,46 @@ file(GLOB TEST_GGSW_FILES core/ggsw/*.c)
 file(GLOB TEST_GLWE_FILES core/glwe/*.c)
 file(GLOB TEST_SCHEMES_FILES schemes/*.c)
 
+add_subdirectory(utils)
 # ------------------------------------------------------------
 # Function to build unit tests
 # ------------------------------------------------------------
 
 function(BuildUnitTests testfiles libname)
 
-    foreach(test_file IN LISTS ${testfiles})
-        get_filename_component(test_name ${test_file} NAME_WE)
+  foreach(test_file IN LISTS ${testfiles})
+    get_filename_component(test_name ${test_file} NAME_WE)
 
-        add_executable(${test_name} ${test_file})
+    add_executable(${test_name} ${test_file})
 
-        # Project includes only
-        target_include_directories(${test_name} PRIVATE
+    # Project includes only
+    target_include_directories(${test_name} PRIVATE
             ${PROJECT_SOURCE_DIR}/include
+            utils/include
             ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/
         )
 
-        # Link libraries
-        target_link_libraries(${test_name} PRIVATE
+    # Link libraries
+    target_link_libraries(${test_name} PRIVATE
             ${libname}
-            GLWE
-            COMMON
             libspqlios
-
+            PVDA_UTEST_UTILS
             # Criterion via pkg-config
             PkgConfig::CRITERION
         )
 
-        # Math lib (Linux only)
-        if(NEED_MATH_LIB)
-            target_link_libraries(${test_name} PRIVATE m)
-        endif()
+    # Math lib (Linux only)
+    if(NEED_MATH_LIB)
+      target_link_libraries(${test_name} PRIVATE m)
+    endif()
 
-        # Register test
-        add_test(
+    # Register test
+    add_test(
             NAME ${test_name}
             COMMAND $<TARGET_FILE:${test_name}>
         )
 
-    endforeach()
+  endforeach()
 
 endfunction()
 
@@ -84,8 +74,7 @@ endfunction()
 # Build all unit tests
 # ------------------------------------------------------------
 
-BuildUnitTests(TEST_BACKEND_FILES BACKEND)
-BuildUnitTests(TEST_COMMON_FILES  COMMON)
-BuildUnitTests(TEST_GGSW_FILES    CORE)
-BuildUnitTests(TEST_GLWE_FILES    CORE)
+BuildUnitTests(TEST_COMMON_FILES  PVDA_COMMON)
+BuildUnitTests(TEST_GGSW_FILES    PVDA_CORE)
+BuildUnitTests(TEST_GLWE_FILES    PVDA_CORE)
 BuildUnitTests(TEST_SCHEMES_FILES SCHEMES)
