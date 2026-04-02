@@ -22,9 +22,9 @@ pkg_check_modules(
 )
 
 if(APPLE)
-    set(NEED_MATH_LIB FALSE)
+  set(NEED_MATH_LIB FALSE)
 else()
-    set(NEED_MATH_LIB TRUE)
+  set(NEED_MATH_LIB TRUE)
 endif()
 
 # ------------------------------------------------------------
@@ -43,21 +43,20 @@ file(GLOB TEST_SCHEMES_FILES schemes/*.c)
 
 function(BuildUnitTests testfiles libname)
 
-    foreach(test_file IN LISTS ${testfiles})
-        get_filename_component(test_name ${test_file} NAME_WE)
+  foreach(test_file IN LISTS ${testfiles})
+    get_filename_component(test_name ${test_file} NAME_WE)
 
-        add_executable(${test_name} ${test_file})
+    add_executable(${test_name} ${test_file})
 
-        # Project includes only
-        target_include_directories(${test_name} PRIVATE
+    # Project includes only
+    target_include_directories(${test_name} PRIVATE
             ${PROJECT_SOURCE_DIR}/include
             ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/
         )
 
-        # Link libraries
-        target_link_libraries(${test_name} PRIVATE
+    # Link libraries
+    target_link_libraries(${test_name} PRIVATE
             ${libname}
-            GLWE
             COMMON
             libspqlios
 
@@ -65,18 +64,18 @@ function(BuildUnitTests testfiles libname)
             PkgConfig::CRITERION
         )
 
-        # Math lib (Linux only)
-        if(NEED_MATH_LIB)
-            target_link_libraries(${test_name} PRIVATE m)
-        endif()
+    # Math lib (Linux only)
+    if(NEED_MATH_LIB)
+      target_link_libraries(${test_name} PRIVATE m)
+    endif()
 
-        # Register test
-        add_test(
+    # Register test
+    add_test(
             NAME ${test_name}
             COMMAND $<TARGET_FILE:${test_name}>
         )
 
-    endforeach()
+  endforeach()
 
 endfunction()
 
