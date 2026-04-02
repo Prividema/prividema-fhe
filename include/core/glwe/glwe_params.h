@@ -6,12 +6,12 @@
 
 typedef struct glwe_ct_params
 {
-	uint64_t nn;       // The cyclotomic polynomial degree, in the code m = nn / 2, ie the dimension of the DFT domain
-	uint64_t k;        // Number of secret key terms, k=1 for RLWE
-	uint64_t kappa;    // Used for the base-2^kappa representation (K)
-	uint64_t n_limbs;  // (k+1)l or (k+1)l - 1 if l_a and l_b are different l,
-	                   // at each limb we have a polynomial of degree nn (Zn[X])
-	double sigma;      // The standard deviation of the error distribution.
+	uint64_t nn;     // The cyclotomic polynomial degree, in the code m = nn / 2, ie the dimension of the DFT domain
+	uint64_t k;      // Number of secret key terms, k=1 for RLWE
+	uint64_t kappa;  // Used for the base-2^kappa representation (K)
+	uint64_t l;      // l
+	                 // at each limb we have a polynomial of degree nn (Zn[X])
+	double sigma;    // The standard deviation of the error distribution.
 } GLWEParams;
 
 /**
@@ -52,5 +52,15 @@ uint64_t glwe_params_l(const GLWEParams* params_glwe);
  *
  */
 uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
+
+/**
+ * @brief The number of bytes needed to store a bivGLWE ciphertext.
+ *
+ * @param params_glwe The bivGLWE parameters.
+ * @return int64_t
+ *
+ * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of the DFT domain.
+ */
+uint64_t glwe_params_bytes(const GLWEParams* params_glwe);
 
 #endif  // bivGLWE_CT_PARAMS_H

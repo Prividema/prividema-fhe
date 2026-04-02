@@ -21,11 +21,11 @@
 /**
  * @brief Tests whether glwe_size computes the right size of a bivGLWE ciphertext.
  */
-Test(glwe_total_nlimbs, basic)
+Test(glwe_params_n_limbs, basic)
 {
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	cr_assert(eq(i64, glwe_total_nlimbs(params_glwe), NLIMBSBASE));
+	cr_assert(eq(i64, glwe_params_n_limbs(params_glwe), NLIMBSBASE));
 
 	delete_glwe_params(params_glwe);
 }
@@ -37,7 +37,7 @@ Test(glwe_bytes, basic)
 {
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
 
-	cr_assert(eq(i64, glwe_bytes(params_glwe), NLIMBSBASE * NBASE * sizeof(int64_t)));
+	cr_assert(eq(i64, glwe_params_bytes(params_glwe), NLIMBSBASE * NBASE * sizeof(int64_t)));
 
 	delete_glwe_params(params_glwe);
 }
@@ -367,8 +367,8 @@ Test(const_mult_glwe_dft, without_normalization)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, glwe_ct->vec, glwe_total_nlimbs(params_glwe), glwe_dft->vec,
-	                  glwe_total_nlimbs(params_glwe));
+	pvda_vec_znx_idft(module, glwe_ct->vec, glwe_params_n_limbs(params_glwe), glwe_dft->vec,
+	                  glwe_params_n_limbs(params_glwe));
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);
@@ -377,8 +377,8 @@ Test(const_mult_glwe_dft, without_normalization)
 	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, prod->vec, glwe_total_nlimbs(params_glwe), prod_computed_dft->vec,
-	                  glwe_total_nlimbs(params_glwe));
+	pvda_vec_znx_idft(module, prod->vec, glwe_params_n_limbs(params_glwe), prod_computed_dft->vec,
+	                  glwe_params_n_limbs(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
 	for (uint64_t i = 1; i <= LBASE; i++)
