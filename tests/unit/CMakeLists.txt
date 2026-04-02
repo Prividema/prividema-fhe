@@ -27,6 +27,7 @@ file(GLOB TEST_GGSW_FILES core/ggsw/*.c)
 file(GLOB TEST_GLWE_FILES core/glwe/*.c)
 file(GLOB TEST_SCHEMES_FILES schemes/*.c)
 
+add_subdirectory(utils)
 # ------------------------------------------------------------
 # Function to build unit tests
 # ------------------------------------------------------------
@@ -41,6 +42,7 @@ function(BuildUnitTests testfiles libname)
     # Project includes only
     target_include_directories(${test_name} PRIVATE
             ${PROJECT_SOURCE_DIR}/include
+            utils/include
             ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/
         )
 
@@ -48,7 +50,7 @@ function(BuildUnitTests testfiles libname)
     target_link_libraries(${test_name} PRIVATE
             ${libname}
             libspqlios
-
+            PVDA_UTEST_UTILS
             # Criterion via pkg-config
             PkgConfig::CRITERION
         )
