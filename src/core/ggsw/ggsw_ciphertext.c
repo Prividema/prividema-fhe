@@ -6,6 +6,7 @@
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
+#include "glwe_params.h"
 #include "logger.h"
 #include "rng.h"
 #include "spqlios_alias.h"
@@ -216,7 +217,7 @@ cleanup:
 
 uint64_t ggsw_total_n_glwe_limbs(const GGSWParams* params_ggsw)
 {
-	return params_ggsw->n_limbs_tilde * params_ggsw->params_glwe->n_limbs;
+	return params_ggsw->n_limbs_tilde * glwe_params_n_limbs(params_ggsw->params_glwe);
 }
 
 uint64_t ggsw_bytes(const GGSWParams* params_ggsw)

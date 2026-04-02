@@ -4,6 +4,7 @@
 
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_ciphertext.h"
+#include "glwe_params.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
@@ -204,8 +205,8 @@ Test(add_glwe, basic)
 	GLWECiphertext* sum_computed = new_glwe(params_glwe);
 
 	// Draws in Zn[X] the bivGLWE's bivariate elements
-	uniform_random_vec(NBASE, glwe_lhs->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
-	uniform_random_vec(NBASE, glwe_rhs->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), NBASE, KAPPABASE - 1);
 
 	// Computes glwe_lhs + glwe_rhs
 	add_glwe(sum_computed, glwe_lhs, glwe_rhs);
@@ -238,7 +239,7 @@ Test(const_mult_glwe, without_normalization)
 	PolyUniv* prod_expected       = new_univ(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
-	uniform_random_vec(NBASE, glwe->vec, params_glwe->n_limbs, NBASE, KAPPABASE - 1);
+	uniform_random_vec(NBASE, glwe->vec, glwe_params_n_limbs(params_glwe), NBASE, KAPPABASE - 1);
 
 	// Draws in Zn[X] the polynomial u
 	uniform_random_pol_znx(u, NBASE, KAPPABASE - 1);
@@ -317,8 +318,8 @@ Test(add_glwe_dft, basic)
 	GLWECiphertextDFT* sum_computed_dft = new_glwe_dft(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertexts glwe_lhs_dft and glwe_rhs_dft in the DFT domain
-	uniform_random_vec_znx_dft(module, glwe_lhs_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
-	uniform_random_vec_znx_dft(module, glwe_rhs_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, glwe_lhs_dft->vec, glwe_params_n_limbs(params_glwe), KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, glwe_rhs_dft->vec, glwe_params_n_limbs(params_glwe), KAPPABASE - 1);
 
 	// Computes glwe_lhs_dft + glwe_rhs_dft
 	add_glwe_dft(sum_computed_dft, glwe_lhs_dft, glwe_rhs_dft);
@@ -359,7 +360,7 @@ Test(const_mult_glwe_dft, without_normalization)
 
 	//! Draws input variables
 	// Draws uniformly the bivGLWE ciphertext in the DFT domain
-	uniform_random_vec_znx_dft(module, glwe_dft->vec, params_glwe->n_limbs, KAPPABASE - 1);
+	uniform_random_vec_znx_dft(module, glwe_dft->vec, glwe_params_n_limbs(params_glwe), KAPPABASE - 1);
 
 	// Draws uniformly
 	uniform_random_pol_znx(u, NBASE, KAPPABASE - 1);

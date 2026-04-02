@@ -122,16 +122,6 @@ int uniform_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_g
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe);
 
 /**
- * @brief Returns the size - the number l of Zn[X] coefficients - for a bivariate polynomial.
- *
- * @param params_glwe
- * @return uint64_t
- *
- * @note The size of a bivariate polynomial is the same in and out of the DFT domain.
- */
-uint64_t glwe_params_l(const GLWEParams* params_glwe);
-
-/**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
  *
  * @param params_glwe The bivGLWE parameters.

@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <string.h>
 
+#include "glwe_params.h"
 #include "logger.h"
 #include "utils.h"
 
@@ -234,8 +235,8 @@ int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLW
 {
 	int status = -1;
 
-	pvda_vec_znx_dft(module, res_dft->vec, glwe_ct->params->n_limbs, glwe_ct->vec, glwe_ct->params->n_limbs,
-	                 glwe_ct->params->nn);
+	pvda_vec_znx_dft(module, res_dft->vec, glwe_params_n_limbs(glwe_ct->params), glwe_ct->vec,
+	                 glwe_params_n_limbs(glwe_ct->params), glwe_ct->params->nn);
 
 	status = 0;
 cleanup:
@@ -248,9 +249,9 @@ int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECip
 
 	//TODO: test, for now untested
 
-	CHECK_CALL(
-	    pvda_vec_znx_idft(module, res_ct->vec, res_ct->params->n_limbs, glwe_dft->vec, glwe_dft->params->n_limbs),
-	    "iDFT failed for a GLWE");
+	CHECK_CALL(pvda_vec_znx_idft(module, res_ct->vec, glwe_params_n_limbs(res_ct->params), glwe_dft->vec,
+	                             glwe_params_n_limbs(glwe_dft->params)),
+	           "iDFT failed for a GLWE");
 
 	status = 0;
 cleanup:

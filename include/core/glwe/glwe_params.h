@@ -33,4 +33,24 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_
  */
 void delete_glwe_params(GLWEParams* params);
 
+/**
+ * @brief Returns the size - the number l of Zn[X] coefficients - for a bivariate polynomial.
+ *
+ * @param params_glwe
+ * @return uint64_t
+ *
+ * @note The size of a bivariate polynomial is the same in and out of the DFT domain.
+ */
+uint64_t glwe_params_l(const GLWEParams* params_glwe);
+
+/**
+ * @brief Returns the number of limbs across all polynomials in a GLWE ciphertext
+ * In other words, (k+1)*l
+ *
+ * @param params_glwe
+ * @return uint64_t
+ *
+ */
+uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
+
 #endif  // bivGLWE_CT_PARAMS_H

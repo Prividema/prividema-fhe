@@ -22,3 +22,7 @@ cleanup:
 }
 
 void delete_glwe_params(GLWEParams* params) { free(params); }
+
+uint64_t glwe_params_l(const GLWEParams* params_glwe) { return params_glwe->n_limbs / (params_glwe->k + 1); }
+
+uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe) { return params_glwe->n_limbs; }

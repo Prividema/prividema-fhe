@@ -154,6 +154,7 @@ cleanup:
 	return -1;
 }
 
+//TODO: fix int64_t number of limbs and stride length
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
