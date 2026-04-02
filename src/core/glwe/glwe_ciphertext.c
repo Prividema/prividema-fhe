@@ -9,8 +9,6 @@
 
 //! bivGLWE PART (begin)
 
-uint64_t glwe_coef_number(const GLWEParams* params) { return glwe_params_n_limbs(params) * params->nn; }
-
 GLWECiphertext* new_glwe(const GLWEParams* params)
 {
 	// The bivGLWE does not own the GLWEParams

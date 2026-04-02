@@ -15,14 +15,6 @@ typedef struct glwe_ciphertext
 } GLWECiphertext;
 
 /**
- * @brief Return the number of coefficient in a bivariate bivGLWE ciphertext.
- *
- * @param params_glwe The bivGLWE parameters.
- * @return int64_t
- */
-uint64_t glwe_coef_number(const GLWEParams* params_glwe);
-
-/**
  * @brief Creates a bivGLWE, filled with 0.
  *
  * @param params_glwe The bivGLWE parameters.

@@ -44,6 +44,7 @@ void delete_ggsw_params(GGSWParams* params);
 
 /**
  * @brief Gets the number of partialGGSWs in a GGSW.
+ * In other words, returns l_tilde
  *
  * @param params The GGSW parameters.
  *
@@ -59,6 +60,59 @@ uint64_t ggsw_num_pggsw(const GGSWParams* params);
  * @return The number of rows in a partialGGSW.
  */
 uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params);
+
+/**
+ * @brief Gets the number of rows in a GGSW.
+ * In other words, (k+1) * l_tilde
+ *
+ * @param params The GGSW parameters.
+ *
+ * @return The number of rows in a GGSW.
+ */
+uint64_t ggsw_num_rows(const GGSWParams* params);
+
+/**
+ * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext.
+ *
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ *
+ * @return The number of coefficients in a GGSW ciphertext.
+ */
+uint64_t ggsw_coef_number(const GGSWParams* params_ggsw);
+
+/**
+ * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext in the DFT space.
+ *
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ *
+ * @return The number of coefficients in a GGSW ciphertext.
+ *
+ * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
+ * \f$\mathbb{Z}_n[X]\f$, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
+ */
+uint64_t ggsw_coef_number_dft(const GGSWParams* params_ggsw);
+
+/**
+ * @brief Gets the number of bytes needed to store a GGSW ciphertext.
+ *
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ *
+ * @return The number of bytes needed to store a GGSW ciphertext.
+ *
+ * @note This function works in both DFT and iDFT domains.
+ */
+uint64_t ggsw_bytes(const GGSWParams* params_ggsw);
+
+/**
+ * @brief Gets the size of any type of GGSW ciphertext.
+ *
+ * @param params_ggsw A Pointer to the GGSW parameters.
+ *
+ * @return The size of any type of GGSW ciphertext.
+ *
+ * @note The size is the same in DFT and iDFT domains.
+ */
+uint64_t ggsw_total_n_glwe_limbs(const GGSWParams* params_ggsw);
 
 /**
  * @struct PartialGGSWCtParams

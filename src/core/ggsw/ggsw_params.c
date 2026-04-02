@@ -3,7 +3,7 @@
 #include <assert.h>
 #include <stdio.h>
 
-#include "logger.h"
+#include "ggsw_ciphertext.h"
 #include "utils.h"
 
 GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,
@@ -28,3 +28,26 @@ void delete_ggsw_params(GGSWParams* params) { free(params); }
 uint64_t ggsw_num_pggsw(const GGSWParams* params) { return params->n_limbs_tilde / (params->k_tilde + 1); }
 
 uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params) { return params->k_tilde + 1; }
+
+uint64_t ggsw_num_rows(const GGSWParams* params) { return params->n_limbs_tilde; };
+
+uint64_t ggsw_coef_number(const GGSWParams* params_ggsw)
+{
+	return ggsw_num_rows(params_ggsw) * glwe_coef_number(params_ggsw->params_glwe);
+}
+
+uint64_t ggsw_coef_number_dft(const GGSWParams* params_ggsw)
+{
+	return (ggsw_num_rows(params_ggsw) * glwe_coef_number(params_ggsw->params_glwe)) / 2;
+}
+
+uint64_t ggsw_bytes(const GGSWParams* params_ggsw)
+{
+	int64_t N = params_ggsw->params_glwe->nn;
+	return ggsw_total_n_glwe_limbs(params_ggsw) * N * sizeof(int64_t);
+}
+
+uint64_t ggsw_total_n_glwe_limbs(const GGSWParams* params_ggsw)
+{
+	return ggsw_num_rows(params_ggsw) * glwe_params_n_limbs(params_ggsw->params_glwe);
+}

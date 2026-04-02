@@ -14,11 +14,6 @@
 
 //! bivGGSW Part (begin)
 
-uint64_t ggsw_coef_number(const GGSWParams* params_ggsw)
-{
-	return params_ggsw->n_limbs_tilde * glwe_coef_number(params_ggsw->params_glwe);
-}
-
 GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw)
 {
 	// The bivGGSW does not own the GGSWParams
@@ -131,11 +126,6 @@ cleanup:
 
 //! bivGGSW DFT PART (begin)
 
-uint64_t ggsw_coef_number_dft(const GGSWParams* params_ggsw)
-{
-	return (params_ggsw->n_limbs_tilde * glwe_coef_number(params_ggsw->params_glwe)) / 2;
-}
-
 GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw)
 {
 	GGSWCiphertextDFT* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextDFT));
@@ -214,14 +204,3 @@ cleanup:
 }
 
 //! COMMON PART (begin)
-
-uint64_t ggsw_total_n_glwe_limbs(const GGSWParams* params_ggsw)
-{
-	return params_ggsw->n_limbs_tilde * glwe_params_n_limbs(params_ggsw->params_glwe);
-}
-
-uint64_t ggsw_bytes(const GGSWParams* params_ggsw)
-{
-	int64_t N = params_ggsw->params_glwe->nn;
-	return ggsw_total_n_glwe_limbs(params_ggsw) * N * sizeof(int64_t);
-}

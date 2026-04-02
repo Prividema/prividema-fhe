@@ -63,4 +63,12 @@ uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
  */
 uint64_t glwe_params_bytes(const GLWEParams* params_glwe);
 
+/**
+ * @brief Return the number of coefficient in a bivariate bivGLWE ciphertext.
+ *
+ * @param params_glwe The bivGLWE parameters.
+ * @return int64_t
+ */
+uint64_t glwe_coef_number(const GLWEParams* params_glwe);
+
 #endif  // bivGLWE_CT_PARAMS_H

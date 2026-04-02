@@ -32,3 +32,4 @@ uint64_t glwe_params_bytes(const GLWEParams* params)
 	uint64_t nn = params->nn;
 	return glwe_params_n_limbs(params) * nn * sizeof(int64_t);
 }
+uint64_t glwe_coef_number(const GLWEParams* params) { return glwe_params_n_limbs(params) * params->nn; }

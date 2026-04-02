@@ -31,15 +31,6 @@ typedef struct ggsw_ciphertext
 } GGSWCiphertext;
 
 /**
- * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext.
- *
- * @param params_ggsw A Pointer to the GGSW parameters.
- *
- * @return The number of coefficients in a GGSW ciphertext.
- */
-uint64_t ggsw_coef_number(const GGSWParams* params_ggsw);
-
-/**
  * @brief Creates a Bivariate GGSW ciphertext filled with 0.
  *
  * @param params_ggsw A Pointer to the GGSW parameters.
@@ -134,18 +125,6 @@ typedef struct ggsw_ciphertext_dft
 } GGSWCiphertextDFT;
 
 /**
- * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext in the DFT space.
- *
- * @param params_ggsw A Pointer to the GGSW parameters.
- *
- * @return The number of coefficients in a GGSW ciphertext.
- *
- * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
- * \f$\mathbb{Z}_n[X]\f$, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
- */
-uint64_t ggsw_coef_number_dft(const GGSWParams* params_ggsw);
-
-/**
  * @brief Creates a Bivariate GGSW ciphertext in the DFT space filled with 0.
  *
  * @param params_ggsw A Pointer to the GGSW parameters.
@@ -203,33 +182,5 @@ void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_l
  */
 int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
                         const PolyUnivDFT* u_dft);
-
-// =============================================
-// |                                           |
-// |      			 Common Part     		   |
-// |                                           |
-// =============================================
-
-/**
- * @brief Gets the size of any type of GGSW ciphertext.
- *
- * @param params_ggsw A Pointer to the GGSW parameters.
- *
- * @return The size of any type of GGSW ciphertext.
- *
- * @note The size is the same in DFT and iDFT domains.
- */
-uint64_t ggsw_total_n_glwe_limbs(const GGSWParams* params_ggsw);
-
-/**
- * @brief Gets the number of bytes needed to store a GGSW ciphertext.
- *
- * @param params_ggsw A Pointer to the GGSW parameters.
- *
- * @return The number of bytes needed to store a GGSW ciphertext.
- *
- * @note This function works in both DFT and iDFT domains.
- */
-uint64_t ggsw_bytes(const GGSWParams* params_ggsw);
 
 #endif  // bivGGSW_CIPHERTEXT_H

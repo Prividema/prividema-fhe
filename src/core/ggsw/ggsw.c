@@ -120,7 +120,7 @@ int ggsw_external_product(const MODULE* module,
 	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
 	// As the result of the vector-matrix product glwe * ggsw,
 	// the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
-	uint64_t nrows = ggsw->params->n_limbs_tilde;
+	uint64_t nrows = ggsw_num_rows(ggsw->params);
 	uint64_t ncols = glwe_params_n_limbs(ggsw->params->params_glwe);
 
 	// Variables
