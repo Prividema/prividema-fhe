@@ -12,21 +12,11 @@
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
+#include "ututils.h"
 
-#define NBASE            1024
-#define KBASE            1
-#define KAPPABASE        4
-#define NLIMBSBASE       (KBASE + 1) * 4
-#define LBASE            NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE        -(LBASE / 2 + 1) * KAPPABASE
+#define PROB_FACTOR 3
 
-#define K_TILDEBASE      1
-#define KAPPA_TILDEBASE  4
-#define NLIMBS_TILDEBASE (K_TILDEBASE + 1) * 4
-#define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
-#define SIGMA_TILDEBASE  -3
-
-#define PROB_FACTOR      3
+PvdaTstParams params = {1024, 1, 4, 4, 4, -3};
 
 /**
  * @brief Tests ggsw_secret_encrpyt
@@ -34,18 +24,12 @@
  */
 Test(ggsw_secret_encrypt, works)
 {
-	// bivGLWE and bivGGSW parameters. This set of bivGLWE parameters is for bivGGSW ciphertext
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	INIT_PVDA_PARAMS_GGSW(&params);
 
 	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
 	// chance
-	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
+	double err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
 	cr_log_info("error length = %e", err_length);
-
-	// Parameters
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	// Variables
 	GLWESecretKey* sk        = alloc_glwe_secret_key(params_glwe);
@@ -65,7 +49,7 @@ Test(ggsw_secret_encrypt, works)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws uniformly in Zn[X] the message
-	uniform_random_pol_znx(m_univ, NBASE, KAPPABASE);
+	uniform_random_pol_znx(m_univ, params_glwe->nn, params_glwe->kappa);
 
 	// Computes the message in the DFT domain
 	univ_coefs_to_dft(module, m_univ_dft, m_univ);
@@ -76,10 +60,10 @@ Test(ggsw_secret_encrypt, works)
 	// Asserts the j-th row in the i-th PartialGGSW(m) in the ggsw is :
 	// - a bivGLWE(-m * sk_j / 2^{kappa_tilde * i})), for j < k
 	// - a bivGLWE(m / 2^{kappa_tilde * i}))        , for j = k
-	for (uint64_t i = 1; i <= L_TILDEBASE; i++)
+	for (uint64_t i = 1; i <= params_ggsw->l_tilde; i++)
 	{
 		// For j from 0 to k-1 (ie, the -m*sk values)
-		for (uint64_t j = 0; j < K_TILDEBASE; j++)
+		for (uint64_t j = 0; j < params_ggsw->k_tilde; j++)
 		{
 			// Fills each changed variable with 0s'
 			memset(phase_computed, 0, poly_biv_bytes(params_glwe));
@@ -98,14 +82,14 @@ Test(ggsw_secret_encrypt, works)
 
 			// Computes DFT(-m * sk_j)
 			// TODO: znx negate
-			for (uint64_t p = 0; p < NBASE; p++)
+			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
 				m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 			}
 			pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1);
 
 			// Computes -m * sk_j / 2^{kappa_tilde * i}
-			for (uint64_t p = 0; p < NBASE; p++)
+			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
 				phase_univ_RnX[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * i));
 			}
@@ -115,7 +99,7 @@ Test(ggsw_secret_encrypt, works)
 
 			// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
 			// are only different by an error of approximation and a gaussian error
-			for (uint64_t p = 0; p < NBASE; p++)
+			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
 				double distance = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
 				int cond        = distance < err_length;
@@ -124,8 +108,8 @@ Test(ggsw_secret_encrypt, works)
 			}
 
 			/// Prob that the number of error grater than 3sigma is greater or equal than 0.0027*N
-			int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-			double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
+			int max_fails = (int)(PROB_FACTOR * 0.0027 * params_glwe->nn);
+			double proba  = binomial_tail(params_glwe->nn, 0.0027, PROB_FACTOR);
 
 			/// Asserts big_error_count <= 0.0027*N
 			cr_assert(big_error_count <= max_fails,
@@ -142,7 +126,7 @@ Test(ggsw_secret_encrypt, works)
 		memset(phase_univ_RnX, 0, poly_univ_bytes(params_glwe));
 
 		// The bivGGSW row correponding to bivGLWE(m / 2^{kappa_tilde * i})
-		uint64_t row_i_ktilde = (i - 1) * (K_TILDEBASE + 1) + K_TILDEBASE;
+		uint64_t row_i_ktilde = (i - 1) * (params_ggsw->k_tilde + 1) + params_ggsw->k_tilde;
 
 		// Point to bivGLWE(m / 2^{kappa_tilde * i})
 
@@ -156,7 +140,7 @@ Test(ggsw_secret_encrypt, works)
 		biv_to_univ_rnx(params_glwe, phase_computed_univ_RnX, phase_computed);
 
 		//! Computes by hand the phase = m / 2^{kappa_tilde * i}
-		for (uint64_t p = 0; p < NBASE; p++)
+		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{
 			phase_univ_RnX[p] = ldexp((double)m_univ[p], -(params_ggsw->kappa_tilde * i));
 		}
@@ -166,7 +150,7 @@ Test(ggsw_secret_encrypt, works)
 
 		// Assures that the difference between the phase = m / 2^{kappa_tilde * i} and the computed phase,
 		// are only different by an error of approximation and a gaussian error
-		for (uint64_t p = 0; p < NBASE; p++)
+		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{
 			double diff = torus_distance(phase_univ_RnX[p], phase_computed_univ_RnX[p]);
 
@@ -176,8 +160,8 @@ Test(ggsw_secret_encrypt, works)
 		}
 
 		/// Prob that the number of error grater than 3sigma is greater or equal than 0.0027*N
-		int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-		double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
+		int max_fails = (int)(PROB_FACTOR * 0.0027 * params_glwe->nn);
+		double proba  = binomial_tail(params_glwe->nn, 0.0027, PROB_FACTOR);
 
 		/// Asserts big_error_count <= 0.0027*N
 		cr_assert(big_error_count <= max_fails,
@@ -196,7 +180,6 @@ Test(ggsw_secret_encrypt, works)
 	delete_univ_dft(m_univ_dft);
 	delete_ggsw(ggsw);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_params(params_glwe);
-	delete_ggsw_params(params_ggsw);
-	pvda_delete_module_info(module);
+
+	DELETE_PVDA_PARAMS_GGSW;
 }

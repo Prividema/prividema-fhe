@@ -210,6 +210,7 @@ cleanup:
 	return -1;
 }
 
+//TODO: int64_t size
 int normal_random_vec(double* res, int64_t res_size, double mu, double sigma)
 {
 	for (int i = 0; i < res_size; i++) CHECK_CALL(rand_normal(res + i, mu, sigma), "normal_random_vec failed");

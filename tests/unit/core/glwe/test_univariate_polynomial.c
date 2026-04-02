@@ -7,14 +7,9 @@
 #include "common/spqlios_alias.h"
 #include "glwe_params.h"
 #include "univariate_polynomial.h"
+#include "ututils.h"
 
-#define NBASE      1024
-#define KBASE      1
-#define KAPPABASE  4
-#define NLIMBSBASE (KBASE + 1) * 4
-#define LBASE      NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE  -7
-
+PvdaTstParams params = {1024, 1, 4, 4, 0, -7};
 //! COMMON PART (begin)
 
 /**
@@ -22,16 +17,12 @@
  */
 Test(poly_univ_bytes, basic)
 {
-	// Parameters
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	INIT_PVDA_PARAMS_GLWE(&params);
 
-	// Asserts poly_univ_bytes returns NBASE * sizeof(int64_t)
-	cr_assert(eq(i64, poly_univ_bytes(params_glwe), NBASE * sizeof(int64_t),
-	             "poly_univ_bytes failed: got %" PRId64 ", expected %" PRId64, poly_univ_bytes(params_glwe),
-	             NBASE * sizeof(int64_t)));
+	// Asserts poly_univ_bytes returns params_glwe->nn * sizeof(int64_t)
+	cr_assert(eq(i64, poly_univ_bytes(params_glwe), params_glwe->nn * sizeof(int64_t)));
 
-	// Clean up
-	delete_glwe_params(params_glwe);
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 /**
@@ -39,27 +30,26 @@ Test(poly_univ_bytes, basic)
  */
 Test(coef_dft_back_forth, basic)
 {
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module          = pvda_new_module_info(NBASE);
+	INIT_PVDA_PARAMS_GLWE(&params);
 
 	PolyUniv* a          = new_univ(params_glwe);
 	PolyUniv* a_t        = new_univ(params_glwe);
 	PolyUnivDFT* res_dft = new_univ_dft(module);
 
-	uniform_random_vec(NBASE, a, 1, NBASE, 8);
+	uniform_random_vec(params_glwe->nn, a, 1, params_glwe->nn, 8);
 
 	univ_coefs_to_dft(module, res_dft, a);
 	univ_dft_to_coefs(module, a_t, res_dft);
 
-	for (int i = 0; i < NBASE; ++i)
+	for (int i = 0; i < params_glwe->nn; ++i)
 	{
 		cr_assert(eq(i64, a_t[i], a[i]));
 	}
-	delete_glwe_params(params_glwe);
 	delete_univ(a);
 	delete_univ(a_t);
 	delete_univ_dft(res_dft);
-	pvda_delete_module_info(module);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 Test(tnx_rnx_encoding, known_bounded_values)

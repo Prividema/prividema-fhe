@@ -10,13 +10,9 @@
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
+#include "ututils.h"
 
-#define NBASE       1024
-#define KBASE       1
-#define KAPPABASE   4
-#define NLIMBSBASE  (KBASE + 1) * 8
-#define LBASE       NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE   -(LBASE / 2 + 1) * KAPPABASE
+PvdaTstParams params = {1024, 1, 4, 8, 0, 0};
 
 #define PROB_FACTOR 3
 
@@ -29,15 +25,8 @@
  */
 Test(glwe_secret_masking, small_error)
 {
-	// The variance of the error's distribution
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
-
-	// Since the message are drawn in Zn[X,Y], there is no decomposition error. Thus, the error should be smaller than 3*sigma 99.73% of the time
+	INIT_PVDA_PARAMS_GLWE(&params);
 	double err_length = 3 * sigma;
-
-	//! Parameters
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
@@ -56,7 +45,7 @@ Test(glwe_secret_masking, small_error)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// The input message uniformly drawn in Zn[X,Y]
-	uniform_random_biv_poly(params_glwe, m, LBASE / 2);
+	uniform_random_biv_poly(params_glwe, m, params_glwe->l / 2);
 
 	// The input error normaly drawn in Zn[X,Y]
 	normal_random_biv_poly(params_glwe, err);
@@ -82,7 +71,7 @@ Test(glwe_secret_masking, small_error)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++)
+	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
 		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
@@ -91,8 +80,8 @@ Test(glwe_secret_masking, small_error)
 		if (!cond) big_error_count++;
 	}
 
-	int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-	double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
+	int max_fails = (int)(PROB_FACTOR * 0.0027 * params_glwe->nn);
+	double proba  = binomial_tail(params_glwe->nn, 0.0027, PROB_FACTOR);
 
 	/// Asserts big_error_count <= 0.0027*N
 	cr_assert(big_error_count <= max_fails,
@@ -109,8 +98,8 @@ Test(glwe_secret_masking, small_error)
 	free(m);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_params(params_glwe);
-	pvda_delete_module_info(module);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 /**
@@ -120,15 +109,9 @@ Test(glwe_secret_masking, small_error)
  */
 Test(glwe_secret_masking, uniform_RnX_message)
 {
-	// The variance of the error's distribution
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	INIT_PVDA_PARAMS_GLWE(&params);
 
-	// The message is drawn in Rn[X], there is a decomposition error of 2^{-kappa * l}. And the error should be smaller than 3*sigma 99.73% of the time.
-	double err_length = ldexp(1.0, -LBASE * KAPPABASE) + 3 * sigma;
-
-	//! Parameters
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	double err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
@@ -146,7 +129,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	// Draws normaly in Rn[X] m_univ_RnX
-	normal_random_vec(m_univ_RnX, NBASE, 0.0, 0.1);
+	normal_random_vec(m_univ_RnX, params_glwe->nn, 0.0, 0.1);
 
 	// Draws normaly the error
 	normal_random_biv_poly(params_glwe, err);
@@ -172,7 +155,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 
 	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < NBASE; p++)
+	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
 		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
 
@@ -181,8 +164,8 @@ Test(glwe_secret_masking, uniform_RnX_message)
 		if (!cond) big_error_count++;
 	}
 
-	int max_fails = (int)(PROB_FACTOR * 0.0027 * NBASE);
-	double proba  = binomial_tail(NBASE, 0.0027, PROB_FACTOR);
+	int max_fails = (int)(PROB_FACTOR * 0.0027 * params_glwe->nn);
+	double proba  = binomial_tail(params_glwe->nn, 0.0027, PROB_FACTOR);
 
 	/// Asserts big_error_count <= 0.0027*N
 	cr_assert(big_error_count <= max_fails,
@@ -200,6 +183,6 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	free(m_univ_RnX);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
-	delete_glwe_params(params_glwe);
-	pvda_delete_module_info(module);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
