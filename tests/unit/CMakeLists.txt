@@ -11,16 +11,6 @@ pkg_check_modules(CRITERION REQUIRED IMPORTED_TARGET criterion)
 # Platform-specific configuration
 # ------------------------------------------------------------
 
-# Fetch criterion with pkg-config
-find_package(PkgConfig REQUIRED)
-
-pkg_check_modules(
-    CRITERION
-    REQUIRED
-    IMPORTED_TARGET
-    criterion
-)
-
 if(APPLE)
   set(NEED_MATH_LIB FALSE)
 else()
