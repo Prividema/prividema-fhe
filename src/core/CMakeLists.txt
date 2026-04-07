@@ -4,17 +4,9 @@
 
 # Build GLWE library
 add_subdirectory(glwe)
+add_subdirectory(ggsw)
 
 # Create CORE interface library and link GLWE
-add_library(CORE INTERFACE)
-target_link_libraries(CORE INTERFACE GLWE)
+add_library(PVDA_CORE INTERFACE)
+target_link_libraries(PVDA_CORE INTERFACE PVDA_GLWE PVDA_GGSW PVDA_COMMON)
 
-# Build GGSW library if enabled
-# A compiler macro 'GGSW' is defined for code that depends on GGSW
-if(BUILD_GGSW)
-    target_compile_definitions(CORE INTERFACE GGSW=1)
-    add_subdirectory(ggsw)
-    target_link_libraries(CORE INTERFACE GGSW)
-else()
-    target_compile_definitions(CORE INTERFACE GGSW=0)
-endif()
