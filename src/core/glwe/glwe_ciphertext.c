@@ -137,6 +137,7 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe)
 void add_glwe_dft(GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_lhs_dft,
                   const GLWECiphertextDFT* glwe_rhs_dft)
 {
+	//TODO: pvda_add
 	for (uint64_t t = 0; t < glwe_coef_number(result_dft->params); t++)
 		result_dft->vec[t] = glwe_lhs_dft->vec[t] + glwe_rhs_dft->vec[t];
 }

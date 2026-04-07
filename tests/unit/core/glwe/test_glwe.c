@@ -1,6 +1,5 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
-#include <stdio.h>
 
 #include "bivariate_polynomial.h"
 #include "common/spqlios_alias.h"
@@ -35,36 +34,24 @@ Test(glwe_secret_masking, small_error)
 	PolyBiv* err                         = new_biv_poly(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
 	PolyBiv* phase                       = new_biv_poly(params_glwe);
-	GLWECiphertext* glwe_computed        = new_glwe(params_glwe);
-	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
-	PolyUnivRnX* phase_computed_univ_RnX = new_univ_rnx(params_glwe);
+	GLWECiphertext* glwe_observed        = new_glwe(params_glwe);
+	PolyBiv* phase_observed              = new_biv_poly(params_glwe);
+	PolyUnivRnX* phase_observed_univ_RnX = new_univ_rnx(params_glwe);
 
-	//! Draws each input variable
-	// Draws uniformly in (Cm[X])^k the secret key
+	//Draw key and message
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-
-	// The input message uniformly drawn in Zn[X,Y]
 	uniform_random_biv_poly(params_glwe, m, params_glwe->l / 2);
 
-	// The input error normaly drawn in Zn[X,Y]
-	normal_random_biv_poly(params_glwe, err);
-
-	//! Computations with functions
-	// Computes the message in Tn[X] with the base-2Kappa
+	// Get the message in univariate RnX form for expected result
 	biv_to_univ_rnx(params_glwe, m_univ_RnX, m);
 
-	// The final phase = m + err
+	// Encrypt and decrypt the message
+	normal_random_biv_poly(params_glwe, err);
 	add_biv_poly(module, params_glwe, phase, m, err);
-
-	// Computes the bivGLWE ciphertext
-	glwe_secret_encrypt_phase(module, glwe_computed, sk_dft, phase);
-
-	// The computed phase in Rn[X]
-	glwe_secret_decrypt(module, phase_computed, sk_dft, glwe_computed);
-
-	// The computed phase in Rn[X]
-	biv_to_univ_rnx(params_glwe, phase_computed_univ_RnX, phase_computed);
+	glwe_secret_encrypt_phase(module, glwe_observed, sk_dft, phase);
+	glwe_secret_decrypt(module, phase_observed, sk_dft, glwe_observed);
+	biv_to_univ_rnx(params_glwe, phase_observed_univ_RnX, phase_observed);
 
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
@@ -73,7 +60,7 @@ Test(glwe_secret_masking, small_error)
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+		double diff = torus_distance(m_univ_RnX[p], phase_observed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -89,9 +76,9 @@ Test(glwe_secret_masking, small_error)
 	          "chance, that happens.",
 	          max_fails, big_error_count, proba);
 	//! Clean up
-	free(phase_computed_univ_RnX);
-	free(phase_computed);
-	delete_glwe(glwe_computed);
+	free(phase_observed_univ_RnX);
+	free(phase_observed);
+	delete_glwe(glwe_observed);
 	free(phase);
 	free(m_univ_RnX);
 	free(err);
@@ -120,35 +107,22 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	PolyBiv* err                         = new_biv_poly(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
 	PolyBiv* phase                       = new_biv_poly(params_glwe);
-	GLWECiphertext* glwe_computed        = new_glwe(params_glwe);
-	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
-	PolyUnivRnX* phase_computed_univ_RnX = new_univ_rnx(params_glwe);
-	//! Draws each input variable
-	// Draws uniformly in (Cm[X])^k the secret key
+	GLWECiphertext* glwe_observed        = new_glwe(params_glwe);
+	PolyBiv* phase_observed              = new_biv_poly(params_glwe);
+	PolyUnivRnX* phase_observed_univ_RnX = new_univ_rnx(params_glwe);
+
+	//Draw message (in RnX) and key
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-
-	// Draws normaly in Rn[X] m_univ_RnX
 	normal_random_vec(m_univ_RnX, params_glwe->nn, 0.0, 0.1);
 
-	// Draws normaly the error
-	normal_random_biv_poly(params_glwe, err);
-
-	//! Computation with functions
-	// Computes m_univ_RnX bivariate form
+	//Encrypt said message
 	univ_rnx_to_biv(params_glwe, m, m_univ_RnX);
-
-	// Computes the final phase = m + err
+	normal_random_biv_poly(params_glwe, err);
 	add_biv_poly(module, params_glwe, phase, m, err);
-
-	// Computes the bivGLWE ciphertext
-	glwe_secret_encrypt_phase(module, glwe_computed, sk_dft, phase);
-
-	// Computes the computed phase in Rn[X]
-	glwe_secret_decrypt(module, phase_computed, sk_dft, glwe_computed);
-
-	// The computed phase in Rn[X]
-	biv_to_univ_rnx(params_glwe, phase_computed_univ_RnX, phase_computed);
+	glwe_secret_encrypt_phase(module, glwe_observed, sk_dft, phase);
+	glwe_secret_decrypt(module, phase_observed, sk_dft, glwe_observed);
+	biv_to_univ_rnx(params_glwe, phase_observed_univ_RnX, phase_observed);
 
 	// A variable counting the number of times the error is greater than 3*sigma
 	int big_error_count = 0;
@@ -157,7 +131,7 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		double diff = torus_distance(m_univ_RnX[p], phase_computed_univ_RnX[p]);
+		double diff = torus_distance(m_univ_RnX[p], phase_observed_univ_RnX[p]);
 
 		int cond = diff < err_length;
 
@@ -174,9 +148,9 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	          max_fails, big_error_count, proba);
 
 	//! Clean up
-	free(phase_computed_univ_RnX);
-	free(phase_computed);
-	delete_glwe(glwe_computed);
+	free(phase_observed_univ_RnX);
+	free(phase_observed);
+	delete_glwe(glwe_observed);
 	free(phase);
 	free(m);
 	free(err);

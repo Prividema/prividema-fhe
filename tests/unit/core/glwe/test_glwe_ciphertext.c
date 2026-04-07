@@ -188,6 +188,8 @@ Test(new_glwe, basic)
 
 /**
  * @brief Tests whether add_glwe adds two bivGLWE ciphertexts.
+ *
+ * TODO: this is bad. This is testing not the addition of valid GLWEs but of the underlying data.
  */
 Test(add_glwe, basic)
 {
@@ -209,7 +211,7 @@ Test(add_glwe, basic)
 
 	// Asserts sum_computed = glwe_lhs + glwe_rhs
 	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++)
-		cr_assert(eq(sum_computed->vec[t], glwe_lhs->vec[t] + glwe_rhs->vec[t]));
+		cr_assert(eq(i64, sum_computed->vec[t], glwe_lhs->vec[t] + glwe_rhs->vec[t]));
 
 	// Clean up
 	delete_glwe(glwe_lhs);
