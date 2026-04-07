@@ -30,8 +30,8 @@ void test_benchmark(benchmark::State& state)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	//! Variables
-	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
 	PolyUnivRnX* m                = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_computed = new_glwe(params_glwe);
 	PolyBiv* result_biv           = new_biv_poly(params_glwe);
