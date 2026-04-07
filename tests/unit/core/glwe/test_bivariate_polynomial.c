@@ -64,6 +64,7 @@ Test(univ_rnx_to_biv, one_test)
 	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
 	PolyBiv* pol_computed = new_biv_poly(params_glwe);
 
+	memset(pol_univ, 0, poly_univ_rnx_bytes(params_glwe));
 	// Define pol_univ(X) = 2^{-params->kappa} , i.e. in Zn[X,Y] pol(X,Y) = Y
 	pol_univ[0] = ldexp(1.0, -params_glwe->kappa);
 
