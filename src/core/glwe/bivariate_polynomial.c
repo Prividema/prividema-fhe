@@ -138,7 +138,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const Poly
 	uint64_t nn      = params_glwe->nn;
 	uint64_t kappa   = params_glwe->kappa;
 	uint64_t l       = glwe_params_l(params_glwe);
-	uint64_t l_max   = 53 / kappa + (53 % kappa != 0);
+	uint64_t l_max   = INT_ROUND_UP_DIV(53ul, kappa);
 	uint64_t start_l = l > l_max ? l_max : l;
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
@@ -163,7 +163,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = glwe_params_l(params_glwe);
-	uint64_t l_max = 53 / kappa + (53 % kappa != 0);
+	uint64_t l_max = INT_ROUND_UP_DIV(53ul, kappa);
 
 	// Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa -
 	// 1) - 1]
@@ -212,7 +212,7 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_univ, const 
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = glwe_params_l(params_glwe);
-	uint64_t l_max = 64 / kappa + (64 % kappa != 0);
+	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
 
 	memset(res_univ, 0, nn * sizeof(*res_univ));
 
@@ -233,7 +233,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
 	uint64_t l     = glwe_params_l(params_glwe);
-	uint64_t l_max = 64 / kappa + (64 % kappa != 0);
+	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
 
 	uint64_t acc = 0;
 	int64_t mask = (1LL << kappa) - 1;

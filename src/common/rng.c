@@ -86,7 +86,7 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 
 	else
 	{
-		if (read_rand((uint64_t*)result, nb_bits / 8 + (nb_bits % 8 != 0)) < 0) return -1;
+		if (read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
 		reduce_uniform_n(result, nb_bits);
 
