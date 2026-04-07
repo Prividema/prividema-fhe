@@ -7,12 +7,9 @@
 #include "core/glwe/glwe_ciphertext.h"
 #include "core/glwe/glwe_transform_key.h"
 #include "rng.h"
+#include "test_utils.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
-#include "test_utils.h"
-
-#define K_TILDEBASE     1
-#define KAPPA_TILDEBASE 4
 
 PvdaTstParams params = {1024, 1, 4, 4, 4, -3};
 
@@ -31,80 +28,65 @@ Test(ggsw_external_product, without_error)
 	GLWESecretKeyDFT* sk_glwe_dft     = alloc_glwe_secret_key_dft(params_glwe);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde        = new_glwe(params_glwe);
-	GLWECiphertext* ext_prod_computed = new_glwe(params_glwe);
+	GLWECiphertext* ext_prod_observed = new_glwe(params_glwe);
 	PolyUniv* u_univ                  = new_univ(params_glwe);
 	PolyBiv* m                        = new_biv_poly(params_glwe);
 
-	PolyBiv* phase_computed           = new_biv_poly(params_glwe);
-	PolyUnivRnX* um_computed_univ_RnX = new_univ_rnx(params_glwe);
+	PolyBiv* phase_observed           = new_biv_poly(params_glwe);
+	PolyUnivRnX* um_observed_univ_RnX = new_univ_rnx(params_glwe);
 	PolyUnivDFT* u_univ_dft           = new_univ_dft(module);
 	PolyBivDFT* um_dft                = new_biv_poly_dft(params_glwe);
 	PolyBiv* um                       = new_biv_poly(params_glwe);
 	PolyUnivRnX* um_univ_RnX          = new_univ_rnx(params_glwe);
 
-	// Define sk_ggsw = (1, 0, ... , 0)
 	// TODO: WHY?
 	sk_ggsw->values[0] = 1;
-
-	// Computes the bivGGSW secret key out of the DFT domain
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_glwe_dft, sk_ggsw);
 
 	// Draws uniformly both messages
 	uniform_random_pol_znx(u_univ, params_glwe->nn, params_glwe->kappa);
 	uniform_random_biv_poly(params_glwe, m, 1);
 
-	//! Computation with function
-	// Computes glwe_tilde, a bivGLWE(m) using the base-2Kappa_tilde decomposition
+	// Computation with function
 	glwe_secret_encrypt_phase(module, glwe_tilde, sk_glwe_dft, m);
-
-	// Computes ggsw, a bivGGSW(u) using the base-2Kappa
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_dft, u_univ);
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_external_product(module, ext_prod_computed, glwe_tilde, ggsw);
-	normalize_glwe(module, ext_prod_computed, ext_prod_computed);
+	ggsw_external_product(module, ext_prod_observed, glwe_tilde, ggsw);
+	normalize_glwe(module, ext_prod_observed, ext_prod_observed);
+	glwe_secret_decrypt(module, phase_observed, sk_glwe_dft, ext_prod_observed);
+	biv_to_univ_rnx(params_glwe, um_observed_univ_RnX, phase_observed);
 
-	// Computes the result phase = u*m + err , normalized with the base-2Kappa
-	glwe_secret_decrypt(module, phase_computed, sk_glwe_dft, ext_prod_computed);
-
-	// The computed phase = u*m + err in Tn[X]
-	biv_to_univ_rnx(params_glwe, um_computed_univ_RnX, phase_computed);
-
-	//! Computation by hand
+	//Computes u*m manually
 	univ_coefs_to_dft(module, u_univ_dft, u_univ);
-
-	// Computes DFT(u*m)
 	pvda_svp_apply_dft(module, um_dft, params_ggsw->l_tilde, u_univ_dft, m, params_ggsw->l_tilde, params_glwe->nn);
-
-	pvda_vec_znx_idft(module, um, params_ggsw->l_tilde, um_dft, params_ggsw->l_tilde);
-
-	pvda_vec_znx_normalize_base2k(module, KAPPA_TILDEBASE, um, params_ggsw->l_tilde, params_glwe->nn, um,
+	univ_dft_to_coefs(module, um, um_dft);
+	pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, um, params_ggsw->l_tilde, params_glwe->nn, um,
 	                              params_ggsw->l_tilde, params_glwe->nn);
-
 	biv_to_univ_rnx(params_glwe, um_univ_RnX, um);
 
 	//! Asserts um_computed_univ(X) = u * m_univ
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		double diff = torus_distance(um_univ_RnX[p], um_computed_univ_RnX[p]);
+		double diff = torus_distance(um_univ_RnX[p], um_observed_univ_RnX[p]);
 		int cond    = diff < err_length;
 
 		cr_assert(cond, "Equality failed with um_computed_univ_RnX[%ld] = %lf and  um_univ_RnX[%ld] = %lf", p, p,
-		          um_univ_RnX[p] - floor(um_univ_RnX[p]), p, um_computed_univ_RnX[p], err_length);
+		          um_univ_RnX[p] - floor(um_univ_RnX[p]), p, um_observed_univ_RnX[p], err_length);
 	}
 
 	// Clean up
 	free(m);
 	delete_univ(u_univ);
 	delete_univ_dft(u_univ_dft);
-	free(phase_computed);
+	free(phase_observed);
 	free(um);
 	delete_univ_rnx(um_univ_RnX);
 	free(um_dft);
-	delete_univ_rnx(um_computed_univ_RnX);
+	delete_univ_rnx(um_observed_univ_RnX);
 
-	delete_glwe(ext_prod_computed);
+	delete_glwe(ext_prod_observed);
 	delete_glwe(glwe_tilde);
 	delete_ggsw(ggsw);
 
