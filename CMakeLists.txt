@@ -109,45 +109,6 @@ FetchContent_MakeAvailable(spqlios)
 # ----------------------------------------
 add_subdirectory(src)
 
-# ----------------------------------------
-# Criterion installation instructions
-# ----------------------------------------
-
-# UBUNTU USERS
-# ------------------------
-# 1. Install Meson (required for building Criterion):
-#      sudo apt install meson
-# 2. Clone and build Criterion (optional if you want latest version):
-#      git clone https://github.com/Snaipe/Criterion.git
-#      cd Criterion/
-#      mkdir build
-#      meson setup build
-#      sudo meson install -C build
-# 3. Verify installation:
-#      ls /usr/include/criterion
-#      ls /usr/lib/libcriterion*
-# Notes:
-#  - Linking math library (-lm) may be required on Linux
-
-# MAC USERS
-# ------------------------
-# 1. Install Criterion using Homebrew (recommended):
-#      brew install criterion
-# 2. Ensure Meson is installed (required by Criterion):
-#      brew install meson
-# 3. Verify installation:
-#      # Apple Silicon (arm64)
-#      ls /opt/homebrew/include/criterion
-#      ls /opt/homebrew/lib/libcriterion*
-#      # Intel macOS
-#      ls /usr/local/include/criterion
-#      ls /usr/local/lib/libcriterion*
-# 4. Optional: build from source
-#      git clone https://github.com/Snaipe/Criterion.git
-#      cd Criterion/
-#      mkdir build
-#      meson setup build
-#      meson install -C build
 
 # ----------------------------------------
 # Build unit tests if enabled
