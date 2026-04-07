@@ -45,7 +45,7 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
                             const PolyUnivTnX* m_univ_tnx);
 
 /**
- * @brief Demasks the ciphertext into the
+ * @brief Decrypts the ciphertext into the
  * bivariate phase (message + noise) and puts it in result.
  *
  * @param module Additionnal information for backend.

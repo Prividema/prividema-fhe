@@ -75,7 +75,7 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 int rand_uniform(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
-	assert(nb_bits <= 64);
+	assert(nb_bits <= 8*sizeof(int64_t));
 
 	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
 	if (nb_bits == 8 * sizeof(int64_t))
@@ -157,7 +157,7 @@ cleanup:
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
-		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "unifrom random vec failed");
+		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
 	return 0;
 cleanup:
 	return -1;
