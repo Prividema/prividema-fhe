@@ -147,8 +147,8 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
  * @param res The bivariate decomposition.
  * @param pol_univ The univariate polynomial.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ);
 
@@ -156,8 +156,28 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft);
 
+/**
+ * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial. The result is in fixed-point representation.
+ *
+ * @param params_glwe The bivGLWE parameters.
+ * @param res_univ The result univariate polynomial in Tn[X].
+ * @param pol The input bivariate polynomial.
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
 int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_univ, const PolyBiv* pol);
 
+/**
+ * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Tn[X].
+ *
+ * @param params_glwe The bivGLWE parameters.
+ * @param res The bivariate decomposition.
+ * @param pol_tnx The univariate polynomial in fixed-point form
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
+ */
 int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx);
 
 #endif  // BIVARIATE_POLYNOMIAL_H
