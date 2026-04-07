@@ -54,5 +54,9 @@
  */
 double torus_distance(double a, double b);
 
+uint64_t u64_round_up_div(uint64_t num, uint64_t step);
+
+#define INT_ROUND_UP_DIV(num, step) _Generic((num), uint64_t: u64_round_up_div)(num, step)
+
 double binomial_tail(uint64_t nn, double p, int k);
 #endif  // UTILS_H

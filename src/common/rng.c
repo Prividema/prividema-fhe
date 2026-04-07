@@ -40,28 +40,31 @@ int read_rand(uint64_t* result, size_t bytes)
 {
 // For Windows
 #ifdef _WIN32
-	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, sizeof(*result), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
 	if (status != STATUS_SUCCESS) return log_message(LOG_ERROR, "BCryptGenRandom() Failed");
 
 // For MACOS/FreeBSD
 // According to arc4random's doc, the function crashes if an error occurs :
 // "Cryptographic randomness is considered fundamental — if it’s broken, continuing execution is unsafe."
 #elif defined(__APPLE__) || defined(__FreeBSD__)
-	arc4random_buf(result, sizeof(*result));
+	arc4random_buf(result, bytes);
 
-// For other Linux Distro
+// For Linux
 #elif defined(__linux__)
 
 	size_t rand_bytes = getrandom(result, bytes, 0);
 	if (rand_bytes != bytes) return -1;
 	return 0;
 
+// I don't know what system this block below would be (and it would be quite slow)
+// But for now we leave it for compatibility
 #else
+	// THIS IS VERY SLOW!
 	FILE* f = fopen("/dev/urandom", "rb");
 	if (!f) return log_perror("fopen");
-	int r = fread(result, sizeof(*result), 1, f);
+	int r = fread(result, 1, bytes, f);
 	fclose(f);
-	if (r != 1) return log_perror("fread");
+	if (r != bytes) return log_perror("fread");
 #endif
 
 	return 0;
@@ -75,7 +78,7 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 int rand_uniform(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
-	assert(nb_bits <= 64);
+	assert(nb_bits <= 8 * sizeof(int64_t));
 
 	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
 	if (nb_bits == 8 * sizeof(int64_t))
@@ -83,7 +86,7 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 
 	else
 	{
-		if (read_rand((uint64_t*)result, nb_bits / 8 + (nb_bits % 8 != 0)) < 0) return -1;
+		if (read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
 		reduce_uniform_n(result, nb_bits);
 
@@ -158,7 +161,7 @@ cleanup:
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
-		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "unifrom random vec failed");
+		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
 	return 0;
 cleanup:
 	return -1;
