@@ -39,6 +39,8 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 option(BUILD_TESTS "Build the Tests" ON)
 option(BUILD_EXAMPLES "Build the examples" ON)
 option(BUILD_BENCHMARKS "Build the benchmarks" OFF)
+option(PROFILING_OPTIONS "Add options to allow for proper profiling even in realease-like builds" OFF)
+option(BUILD_NATIVE "Enable march=native optimisations" OFF)
 option(ENABLE_DEBUG "Enable additional prints for debugging purpose" OFF)
 option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
 
@@ -56,8 +58,26 @@ else()
   add_compile_definitions(DEBUG=0)
 endif()
 
-if(BUILD_BENCHMARKS)
+if(PROFILING_OPTIONS)
   add_compile_options(-fno-omit-frame-pointer -g)
+endif()
+
+if(BUILD_NATIVE)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|IntelLLVM")
+    include(CheckCXXCompilerFlag)
+    check_cxx_compiler_flag("-march=native" COMPILER_SUPPORTS_MARCH_NATIVE)
+
+    if(COMPILER_SUPPORTS_MARCH_NATIVE)
+      add_compile_options(-march=native)
+      message(STATUS "Native optimization (-march=native) enabled.")
+    else()
+      message(WARNING "-march=native is not supported by this compiler.")
+    endif()
+
+  elseif(MSVC)
+    message(STATUS "MSVC detected. -march=native skipped (manual /arch flag required).")
+  endif()
+
 endif()
 
 include(CheckIPOSupported)
