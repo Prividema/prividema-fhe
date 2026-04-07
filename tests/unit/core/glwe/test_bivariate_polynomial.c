@@ -96,7 +96,7 @@ Test(univ_rnx_to_biv, basic)
 	// Computes pol_univ's base-2params->kappa normalized decomposition
 	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
 
-	double err_length = ldexp(1.0, -(params_glwe->l - 1) * params_glwe->kappa + 3 * DBL_EPSILON);
+	double err_length = ldexp(1.0, -(params_glwe->l - 1) * params_glwe->kappa) + 3 * DBL_EPSILON;
 
 	// Asserts pol_computed, in Rn[X] (with Y = 2^{-params->kappa}), is equal to pol_univ
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
