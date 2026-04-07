@@ -29,14 +29,13 @@ cmake --build build;
 build/core/tests/hello
 ```
 
-### CMake options :
+### CMake options
 
 - `BUILD_TESTS`: Build the test files.
-- `BUILD_GGSW` : Build the ggsw library inside libcore.
 - `ENABLE_DEBUG` : Enables additional debug prints.
 - `BUILD_DOCS` : Build the Documentation.
 
-## Structure 
+## Structure
 
 ## Security
 
