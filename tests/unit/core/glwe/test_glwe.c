@@ -13,8 +13,6 @@
 
 PvdaTstParams params = {1024, 1, 4, 8, 0, 0};
 
-#define PROB_FACTOR 3
-
 //! GGWS PART (begin)
 
 /**

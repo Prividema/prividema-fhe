@@ -12,8 +12,6 @@
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-#define PROB_FACTOR 3
-
 PvdaTstParams params = {1024, 1, 4, 4, 4, -3};
 
 /**
