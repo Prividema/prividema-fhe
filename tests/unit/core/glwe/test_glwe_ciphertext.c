@@ -7,8 +7,8 @@
 #include "glwe_params.h"
 #include "rng.h"
 #include "spqlios_alias.h"
-#include "univariate_polynomial.h"
 #include "test_utils.h"
+#include "univariate_polynomial.h"
 
 PvdaTstParams params = {1024, 1, 4, 2, 0, 1e-7};
 
@@ -165,7 +165,7 @@ Test(glwe_coef_number, basic)
 	cr_assert(eq(i64, glwe_coef_number(params_glwe), NLIMBSBASE * params_glwe->nn));
 
 	// Clean up
-	delete_glwe_params(params_glwe);
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 /**
@@ -286,7 +286,7 @@ Test(glwe_coef_number_dft, basic)
 	cr_assert(eq(i64, glwe_coef_number_dft(params_glwe), NLIMBSBASE * params_glwe->nn / 2));
 
 	// Clean up
-	delete_glwe_params(params_glwe);
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 /**

@@ -150,6 +150,7 @@ Test(ggsw_secret_encrypt, works)
 	delete_univ_dft(m_univ_dft);
 	delete_ggsw(ggsw);
 	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key(sk);
 
 	DELETE_PVDA_PARAMS_GGSW;
 }

@@ -6,8 +6,8 @@
 #include "common/rng.h"
 #include "common/spqlios_alias.h"
 #include "glwe_params.h"
-#include "univariate_polynomial.h"
 #include "test_utils.h"
+#include "univariate_polynomial.h"
 
 PvdaTstParams params = {1024, 1, 4, 4, 0, -7};
 //! COMMON PART (begin)
@@ -70,6 +70,8 @@ Test(tnx_rnx_encoding, known_bounded_values)
 		cr_assert(eq(u64, tnx_values[i], tnx_computed[i]));
 		cr_assert(eq(dbl, rnx_values[i], rnx_computed[i]));
 	}
+
+	delete_glwe_params(params_glwe);
 }
 
 Test(tnx_rnx_encoding, known_outbounded_values)
@@ -87,4 +89,6 @@ Test(tnx_rnx_encoding, known_outbounded_values)
 	{
 		cr_assert(eq(u64, tnx_values[i], tnx_computed[i]));
 	}
+
+	delete_glwe_params(params_glwe);
 }

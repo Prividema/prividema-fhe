@@ -5,8 +5,8 @@
 #include "core/glwe/glwe_transform_key.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "univariate_polynomial.h"
 #include "test_utils.h"
+#include "univariate_polynomial.h"
 
 PvdaTstParams params = {1024, 1, 1, 1, 1, 0};
 
@@ -39,6 +39,7 @@ Test(transform_glwe_secret_key_not_dft_to_dft, basic)
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
+	delete_univ(expected_poly);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
