@@ -51,6 +51,14 @@ uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe);
 PolyUniv* new_univ(const GLWEParams* params_glwe);
 
 /**
+ * @brief Allocate a new univariate polynomial (in coefficient space)
+ *
+ * @param params_glwe The parameters to use for the polynomial
+ *
+ */
+PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe);
+
+/**
  * @brief Allocate a new univariate polynomial in DFT domain
  *
  * @param params_glwe The parameters to use for the polynomial
@@ -74,6 +82,13 @@ PolyUnivRnX* new_univ_rnx(const GLWEParams* params_glwe);
 void delete_univ(PolyUniv* pol);
 
 /**
+ * @brief Deallocates a univariate polynomial
+ *
+ * @param pol The object to deallocate
+ */
+void delete_univ_tnx(PolyUnivTnX* pol);
+
+/**
  * @brief Deallocates a real univariate polynomial
  *
  * @param pol The object to deallocate
@@ -86,4 +101,9 @@ void delete_univ_rnx(PolyUnivRnX* pol);
  * @param pol The object to deallocate
  */
 void delete_univ_dft(PolyUnivDFT* pol);
+
+int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX* a);
+
+int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX* a);
+
 #endif

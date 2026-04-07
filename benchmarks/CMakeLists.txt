@@ -6,7 +6,7 @@ include(FetchContent)
 FetchContent_Declare(
   benchmark
   GIT_REPOSITORY https://github.com/google/benchmark.git
-  GIT_TAG        v1.8.3
+  GIT_TAG        v1.9.5
   CMAKE_ARGS     -DBENCHMARK_ENABLE_GTEST_TESTS=OFF
 )
 FetchContent_MakeAvailable(benchmark)

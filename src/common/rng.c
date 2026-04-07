@@ -1,8 +1,12 @@
 #include "rng.h"
 
+#include <assert.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <threads.h>
 
 #include "logger.h"
 #include "spqlios_alias.h"
@@ -32,65 +36,61 @@
                         if an error occurs during the generation.
     - On other Linux distributions : read /dev/urandom.
 */
-int read_rand(uint64_t* result)
+int read_rand(uint64_t* result, size_t bytes)
 {
 // For Windows
 #ifdef _WIN32
-	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, sizeof(*result), BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
 	if (status != STATUS_SUCCESS) return log_message(LOG_ERROR, "BCryptGenRandom() Failed");
 
 // For MACOS/FreeBSD
 // According to arc4random's doc, the function crashes if an error occurs :
 // "Cryptographic randomness is considered fundamental — if it’s broken, continuing execution is unsafe."
 #elif defined(__APPLE__) || defined(__FreeBSD__)
-	arc4random_buf(result, sizeof(*result));
+	arc4random_buf(result, bytes);
 
-// For other Linux Distro
+// For Linux
 #elif defined(__linux__)
 
-	size_t rand_bytes = getrandom(result, sizeof(*result), 0);
+	size_t rand_bytes = getrandom(result, bytes, 0);
+	if (rand_bytes != bytes) return -1;
+	return 0;
 
-	return rand_bytes == sizeof(*result) ? 0 : -1;
-
+// I don't know what system this block below would be (and it would be quite slow)
+// But for now we leave it for compatibility
 #else
+	// THIS IS VERY SLOW!
 	FILE* f = fopen("/dev/urandom", "rb");
 	if (!f) return log_perror("fopen");
-	int r = fread(result, sizeof(*result), 1, f);
+	int r = fread(result, 1, bytes, f);
 	fclose(f);
-	if (r != 1) return log_perror("fread");
+	if (r != bytes) return log_perror("fread");
 #endif
 
 	return 0;
+}
+static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
+{
+	int shft = 64 - n_bits;
+	*tgt     = ((*tgt) << shft) >> shft;
 }
 
 int rand_uniform(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
-	if (nb_bits > 8 * sizeof(int64_t))
-		return log_message(LOG_ERROR, "rand_uniform() : nb_bits exceeds the maximum value %lu > %ld", nb_bits,
-		                   8 * sizeof(int64_t));
-
-	// Generate a random int64_t
-	// r is in the interval [0, uint64_MAX]
-	uint64_t r;
-	if (read_rand(&r) < 0) return -1;
+	assert(nb_bits <= 8 * sizeof(int64_t));
 
 	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
-	if (nb_bits == 8 * sizeof(int64_t)) *result = (int64_t)r;
+	if (nb_bits == 8 * sizeof(int64_t))
+		return read_rand((uint64_t*)result, 8);
 
-	// If nb_bits is not the max. size, r is in the interval [0, int64_MAX]
-	// We bring r into the inteval [0, 2^nb_bits) with a modulo
-	// that is equivalent to truncating bits so we keep the cryptosafe property.
-	// Then we apply an offset to get a result in [-2^(nb_bits-1), 2^(nb_bits-1))
 	else
 	{
-		// Reduce modulo p = 2^nb_bits with a mask (1 << nb_bits) - 1
-		// As r is still an unsigned int, it is now in [0, p)
-		uint64_t p = (1 << nb_bits);
-		r &= p - 1;
+		if (read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
-		// Apply an offset so result is in [-p/2, p/2)
-		*result = (int64_t)r - (int64_t)p / 2;
+		reduce_uniform_n(result, nb_bits);
+
+		return 1;
 	}
 
 	return 0;
@@ -127,7 +127,7 @@ int rand_normal(double* result, double mu, double sigma)
 {
 	// Generate a uniform number in [0, 2^64]
 	uint64_t uniform;
-	CHECK_CALL(read_rand(&uniform), "Rng failed in rand_normal");
+	CHECK_CALL(read_rand(&uniform, 8), "Rng failed in rand_normal");
 
 	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
 	double uu = ((double)uniform) / ((double)UINT64_MAX);
@@ -147,18 +147,23 @@ cleanup:
 
 int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
 {
+	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * N), "rng error");
 	for (uint64_t p = 0; p < N; p++)
-		if (rand_uniform(res + p, nb_bits) < 0) return log_message(LOG_ERROR, "uniform_random_pol_znx failed");
+	{
+		reduce_uniform_n(res + p, nb_bits);
+	}
 	return 0;
+cleanup:
+	return -1;
 }
 
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
-		for (uint64_t j = 0; j < limb_len; j++)
-			if (rand_uniform(res + i * res_sl + j, nb_bits) < 0)
-				return log_message(LOG_ERROR, "uniform_random_vec failed");
+		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
 	return 0;
+cleanup:
+	return -1;
 }
 
 int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
@@ -194,6 +199,7 @@ cleanup:
 
 int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma)
 {
+	// TODO: possible performance improvement here
 	for (int i = 0; i < vec_size; i++)
 	{
 		double tmp;
