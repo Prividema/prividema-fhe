@@ -33,8 +33,8 @@ PolyBiv* new_biv_poly(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  * @param result The result bivariate polynomial.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
 
@@ -48,8 +48,8 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
  * @param params_glwe The bivGLWE parameters.
  * @param precision The maximum degree in Y of the polynomial.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int64_t precision);
 
@@ -91,8 +91,8 @@ PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  * @param result_dft The result bivarariate polynomial in the DFT domain.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft);
 
@@ -103,8 +103,8 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_gl
  * @param params_glwe The bivGLWE parameters.
  * @param result_dft The result bivariate polynomial in the DFT domain.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int uniform_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft,
                                 int64_t precision);
@@ -152,21 +152,47 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
  */
 int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ);
 
+/**
+ * @brief Performs the DFT of a bivariate polynomial
+ *
+ *
+ * @param module      The backend module
+ * @param params_glwe The GLWE parameters for the associated bivariate polynomials
+ * @param res_dft     The resulting DFT domain bivariate polynomial
+ * @param a           The input coefficient-space bivariate polynomial
+ *
+ * @retval -1 If an error occurs
+ * @retval 0  Otwerwise
+ *
+ */
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
 
+/**
+ * @brief Performs the iDFT of a bivariate polynomial
+ *
+ *
+ * @param module      The backend module
+ * @param params_glwe The GLWE parameters for the associated bivariate polynomials
+ * @param res         The resulting coefficient-space bivariate polynomial
+ * @param a_dft       The input DFT domain bivariate polynomial
+ *
+ * @retval -1 If an error occurs
+ * @retval 0  Otwerwise
+ *
+ */
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial. The result is in fixed-point representation.
  *
  * @param params_glwe The bivGLWE parameters.
- * @param res_univ The result univariate polynomial in Tn[X].
+ * @param res_tnx The result univariate polynomial in Tn[X].
  * @param pol The input bivariate polynomial.
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_univ, const PolyBiv* pol);
+int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol);
 
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Tn[X].
