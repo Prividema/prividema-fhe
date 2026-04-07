@@ -4,7 +4,25 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-int pvda_tst_util_mock();
+#include "glwe_params.h"
+#include "rng.h"
+
+/*
+ * Asserts (and fails a test if not met) the following condition:
+ *
+ * The difference between polynomials a and b coefficient-wise is over max_err at most 3*0.27% of the time.
+ * The difference between polynomials a and b is, coefficient-wise, never equal or greater to max_err.
+ *
+ * @param params_glwe The GLWE params
+ * @param a           A RnX polynomial
+ * @param b           A RnX polynomial
+ * @param stdev_diff  The standard deviation (sigma) of the aforementioned Normal dist.
+ *
+ *
+ */
+
+void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
+                                     double critical_err);
 
 typedef struct pvda_tst_params_t
 {

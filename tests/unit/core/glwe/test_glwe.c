@@ -7,9 +7,9 @@
 #include "glwe_key.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
+#include "test_utils.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
-#include "test_utils.h"
 
 PvdaTstParams params = {1024, 1, 4, 8, 0, 0};
 
@@ -25,7 +25,8 @@ PvdaTstParams params = {1024, 1, 4, 8, 0, 0};
 Test(glwe_secret_masking, small_error)
 {
 	INIT_PVDA_PARAMS_GLWE(&params);
-	double err_length = 3 * sigma;
+	double err_length          = 3 * sigma;
+	double critical_err_length = 5 * sigma;
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
@@ -53,29 +54,8 @@ Test(glwe_secret_masking, small_error)
 	glwe_secret_decrypt(module, phase_observed, sk_dft, glwe_observed);
 	biv_to_univ_rnx(params_glwe, phase_observed_univ_RnX, phase_observed);
 
-	// A variable counting the number of times the error is greater than 3*sigma
-	int big_error_count = 0;
+	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
 
-	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
-	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < params_glwe->nn; p++)
-	{
-		double diff = torus_distance(m_univ_RnX[p], phase_observed_univ_RnX[p]);
-
-		int cond = diff < err_length;
-
-		if (!cond) big_error_count++;
-	}
-
-	int max_fails = (int)(PROB_FACTOR * 0.0027 * params_glwe->nn);
-	double proba  = binomial_tail(params_glwe->nn, 0.0027, PROB_FACTOR);
-
-	/// Asserts big_error_count <= 0.0027*N
-	cr_assert(big_error_count <= max_fails,
-	          "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf "
-	          "chance, that happens.",
-	          max_fails, big_error_count, proba);
-	//! Clean up
 	free(phase_observed_univ_RnX);
 	free(phase_observed);
 	delete_glwe(glwe_observed);
@@ -98,7 +78,8 @@ Test(glwe_secret_masking, uniform_RnX_message)
 {
 	INIT_PVDA_PARAMS_GLWE(&params);
 
-	double err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
+	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
+	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma;
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
@@ -124,30 +105,8 @@ Test(glwe_secret_masking, uniform_RnX_message)
 	glwe_secret_decrypt(module, phase_observed, sk_dft, glwe_observed);
 	biv_to_univ_rnx(params_glwe, phase_observed_univ_RnX, phase_observed);
 
-	// A variable counting the number of times the error is greater than 3*sigma
-	int big_error_count = 0;
+	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
 
-	// Using the triangle inequality, for each p, the difference should be smaller than |err_p| + |msg_p -
-	// msgComputed_p| Ie, 3*sigma + 2^(-l*kappa)
-	for (uint64_t p = 0; p < params_glwe->nn; p++)
-	{
-		double diff = torus_distance(m_univ_RnX[p], phase_observed_univ_RnX[p]);
-
-		int cond = diff < err_length;
-
-		if (!cond) big_error_count++;
-	}
-
-	int max_fails = (int)(PROB_FACTOR * 0.0027 * params_glwe->nn);
-	double proba  = binomial_tail(params_glwe->nn, 0.0027, PROB_FACTOR);
-
-	/// Asserts big_error_count <= 0.0027*N
-	cr_assert(big_error_count <= max_fails,
-	          "The error should be greater than 3*sigma at most %ld times but got %ld times. There is a %lf "
-	          "chance, that happens.",
-	          max_fails, big_error_count, proba);
-
-	//! Clean up
 	free(phase_observed_univ_RnX);
 	free(phase_observed);
 	delete_glwe(glwe_observed);
