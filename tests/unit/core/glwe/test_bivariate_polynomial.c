@@ -7,9 +7,9 @@
 #include "bivariate_polynomial.h"
 #include "common/rng.h"
 #include "common/spqlios_alias.h"
+#include "test_utils.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
-#include "ututils.h"
 
 PvdaTstParams params = {1024, 1, 19, 4, 0, -7};
 //! COMMON PART (begin)

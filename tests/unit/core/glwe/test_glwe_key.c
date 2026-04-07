@@ -2,7 +2,7 @@
 #include <criterion/new/assert.h>
 
 #include "core/glwe/glwe_key.h"
-#include "ututils.h"
+#include "test_utils.h"
 
 PvdaTstParams params = {1024, 1, 4, 5, 0, -12};
 //! bivGLWE KEY PART (begin)

@@ -9,7 +9,7 @@
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
-#include "ututils.h"
+#include "test_utils.h"
 
 #define K_TILDEBASE     1
 #define KAPPA_TILDEBASE 4

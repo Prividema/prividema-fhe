@@ -12,7 +12,7 @@
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
-#include "ututils.h"
+#include "test_utils.h"
 
 #define PROB_FACTOR 3
 

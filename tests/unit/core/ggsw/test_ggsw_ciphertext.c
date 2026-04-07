@@ -7,7 +7,7 @@
 #include "glwe_params.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
-#include "ututils.h"
+#include "test_utils.h"
 
 #define NLIMBSBASE       ((params_glwe->k + 1) * 2)
 

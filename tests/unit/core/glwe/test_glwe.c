@@ -9,7 +9,7 @@
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
-#include "ututils.h"
+#include "test_utils.h"
 
 PvdaTstParams params = {1024, 1, 4, 8, 0, 0};
 

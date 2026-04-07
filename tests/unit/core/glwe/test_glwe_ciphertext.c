@@ -8,7 +8,7 @@
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
-#include "ututils.h"
+#include "test_utils.h"
 
 PvdaTstParams params = {1024, 1, 4, 2, 0, 1e-7};
 

@@ -7,7 +7,7 @@
 #include "common/spqlios_alias.h"
 #include "glwe_params.h"
 #include "univariate_polynomial.h"
-#include "ututils.h"
+#include "test_utils.h"
 
 PvdaTstParams params = {1024, 1, 4, 4, 0, -7};
 //! COMMON PART (begin)
