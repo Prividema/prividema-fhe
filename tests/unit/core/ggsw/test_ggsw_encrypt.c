@@ -1,6 +1,5 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
-#include <stdio.h>
 
 #include "bivariate_polynomial.h"
 #include "core/ggsw/ggsw.h"
@@ -12,7 +11,6 @@
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 #define PROB_FACTOR 3
 
@@ -56,8 +54,7 @@ Test(ggsw_secret_encrypt, works)
 	// - a bivGLWE(m / 2^{kappa_tilde * i}))        , for j = k
 	for (uint64_t i = 1; i <= params_ggsw->l_tilde; i++)
 	{
-		//TODO: include k in the loop with if (elim duplicate code)
-		for (uint64_t j = 0; j < params_ggsw->k_tilde; j++)
+		for (uint64_t j = 0; j <= params_ggsw->k_tilde; j++)
 		{
 			memset(phase_computed, 0, poly_biv_bytes(params_glwe));
 			memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
@@ -71,35 +68,21 @@ Test(ggsw_secret_encrypt, works)
 			biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
 
 			// Computes -m * sk_j / 2^{i*kappa_tilde}
-			mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
-			for (uint64_t p = 0; p < params_glwe->nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
-			pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1);
+			if (j < params_ggsw->k_tilde)
+			{
+				mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
+				for (uint64_t p = 0; p < params_glwe->nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
+				pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1);
+			}
+
 			for (uint64_t p = 0; p < params_glwe->nn; p++)
-				phase_expected_univ_rnx[p] = ldexp((double)m_skj_univ[p], -(params_ggsw->kappa_tilde * i));
+				phase_expected_univ_rnx[p] =
+				    ldexp((j == params_ggsw->k_tilde) ? (double)m_univ[p] : (double)m_skj_univ[p],
+				          -(params_ggsw->kappa_tilde * i));
 
 			pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx,
 			                                max_err_length, critical_err_length);
 		}
-
-		// Final row (k/k+1, ie, the b in (a0, a1, ..., ak-1, b))
-
-		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
-		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
-		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
-
-		VecBiv* glwe_vec_ptr = ggsw_retrieve_bivglwe(ggsw, params_glwe->k, i);
-
-		// Retrieves the phase, which should be  m / 2^{kappa_tilde * i} + err
-		GLWECiphertext glwe_ct = {params_glwe, glwe_vec_ptr};
-		glwe_secret_decrypt(module, phase_computed, sk_dft, &glwe_ct);
-
-		// Computes the phase (m + err) / 2^{i*kappa_tilde}
-		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
-		for (uint64_t p = 0; p < params_glwe->nn; p++)
-			phase_expected_univ_rnx[p] = ldexp((double)m_univ[p], -(params_ggsw->kappa_tilde * i));
-
-		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, max_err_length,
-		                                critical_err_length);
 	}
 
 	// Clean up
