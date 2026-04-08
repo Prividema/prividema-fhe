@@ -238,6 +238,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	for (uint64_t i = 1; i <= l && i <= l_max; i++)
 	{
 		acc += 1LL << (kappa - 1 - kappa * i);
+		//TODO: bug, fix (case kappa - 1 - kappa * i < 0 is not correct)
 	}
 
 	for (uint64_t p = 0; p < nn; p++)
