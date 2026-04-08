@@ -46,9 +46,8 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 		min = -(1 << (nb_bits - 1));
 	}
 
-	// boxes = {0, ..., 0}
 	int64_t boxes[nb_boxes];
-	for (int i = 0; i < nb_boxes; i++) boxes[i] = 0;
+	memset(boxes, 0, nb_boxes * sizeof(boxes[0]));
 
 	// Fill the boxes
 	double step = ((double)max - (double)min) / (double)nb_boxes;
@@ -57,27 +56,11 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 		int64_t sample = 0;
 		if (rand_uniform(&sample, nb_bits) < 0) return -1;
 
-		// This loop fills the nb_boxes elements of boxes.
-		// We have separated our interval into
-		// [min, min + step) ... [min + (nb_boxes-1)step, max)
-		// But if a generated number is exactly max, a buffer overflow is thrown.
-		// To fix this we include the max value in the last box.
-		int j = 0;
-		for (double v = (double)min; v < (double)max; v += step)
-		{
-			if (j != nb_boxes)
-			{
-				if (sample < v + step)
-				{
-					boxes[j]++;
-					break;
-				}
-				j++;
-			}
-			// In this case the element equals max.
-			else
-				boxes[j - 1]++;
-		}
+		// Epsilon 1e9 used to avoid floating point precision bad rounding
+		int box_n = (int)(((double)(sample - min) + 1e9) / step);
+		if (box_n == nb_boxes) --box_n;
+
+		++boxes[box_n];
 	}
 
 	// Apply Chi squared test
@@ -209,28 +192,13 @@ Test(uniform_random_vec_dft, basic)
 {
 	MODULE* module      = pvda_new_module_info(NBASE);
 	VecUnivDFT* res_dft = malloc(NBASE * KBASE * sizeof(double));
-	if (res_dft == NULL)
-	{
-		log_perror("malloc");
-		cr_fail();
-	}
-
-	if (uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0)
-	{
-		log_message(LOG_ERROR, "uniform_random_vec_znx_dft failed.");
-		pvda_delete_module_info(module);
-		free(res_dft);
-		cr_fail();
-	}
 
 	VecUniv* res = malloc(NBASE * KBASE * sizeof(int64_t));
-	if (res == NULL)
-	{
-		log_perror("malloc");
-		pvda_delete_module_info(module);
-		free(res_dft);
-		cr_fail();
-	}
+
+	cr_assert(res);
+	cr_assert(res_dft);
+
+	cr_assert(uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0);
 
 	pvda_vec_znx_dft(module, res_dft, KBASE, res, KBASE, NBASE);
 
