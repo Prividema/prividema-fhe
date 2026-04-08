@@ -11,13 +11,11 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-PvdaTstParams params = {1024, 1, 4, 4, 4, -3};
-
 /** The test is done without error, it is a proof of concept*/
 //TODO: is it, though? SIGMA_TILDEBASE is NOT 0
-Test(ggsw_external_product, without_error)
+PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	//! Variance of the error's normal distributions
 	params_glwe->sigma = 0;

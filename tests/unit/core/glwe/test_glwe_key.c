@@ -4,15 +4,14 @@
 #include "core/glwe/glwe_key.h"
 #include "test_utils.h"
 
-PvdaTstParams params = {1024, 1, 4, 5, 0, -12};
 //! bivGLWE KEY PART (begin)
 
 /**
  * @brief Ensures new_glwe_secret_key returns a non-NULL pointer when values != NULL.
  */
-Test(new_glwe_secret_key, values_not_null)
+PvdaParamTest(new_glwe_secret_key, values_not_null, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
 
@@ -26,9 +25,9 @@ Test(new_glwe_secret_key, values_not_null)
 /**
  * @brief Ensures uniform_glwe_secret_key returns a non-NULL pointer when values != NULL.
  */
-Test(uniform_glwe_secret_key, values_not_null)
+PvdaParamTest(uniform_glwe_secret_key, values_not_null, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
 	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);

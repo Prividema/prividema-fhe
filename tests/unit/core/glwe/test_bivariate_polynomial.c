@@ -1,5 +1,6 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+#include <criterion/parameterized.h>
 #include <inttypes.h>
 #include <math.h>
 #include <stdlib.h>
@@ -11,30 +12,29 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-PvdaTstParams params = {1024, 1, 19, 4, 0, -7};
 //! COMMON PART (begin)
 
-Test(poly_biv_size, basic)
+PvdaParamTest(poly_biv_size, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	cr_assert(eq(i64, glwe_params_l(params_glwe), params_glwe->l));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(poly_biv_bytes, basic)
+PvdaParamTest(poly_biv_bytes, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	cr_assert(eq(i64, poly_biv_bytes(params_glwe), params_glwe->nn * params_glwe->l * sizeof(int64_t)));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(biv_to_univ_rnx, runs)
+PvdaParamTest(biv_to_univ_rnx, runs, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyBiv* pol                   = new_biv_poly(params_glwe);
 	PolyUnivRnX* pol_univ_computed = new_univ_rnx(params_glwe);
@@ -57,9 +57,9 @@ Test(biv_to_univ_rnx, runs)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(univ_rnx_to_biv, one_test)
+PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
 	PolyBiv* pol_computed = new_biv_poly(params_glwe);
@@ -83,9 +83,9 @@ Test(univ_rnx_to_biv, one_test)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(univ_rnx_to_biv, basic)
+PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
 	PolyBiv* pol_computed = new_biv_poly(params_glwe);
@@ -116,9 +116,9 @@ Test(univ_rnx_to_biv, basic)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(univ_rnx_to_biv, maths_test)
+PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivRnX* pol_univ          = new_univ_rnx(params_glwe);
 	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
@@ -145,9 +145,9 @@ Test(univ_rnx_to_biv, maths_test)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(univ_tnx_to_biv, maths_test)
+PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivTnX* pol_univ          = new_univ_tnx(params_glwe);
 	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
@@ -178,9 +178,9 @@ Test(univ_tnx_to_biv, maths_test)
  * @brief Tests if it returns the right size for N in [1,100]
  * @note n_limbs = (k + 1) * l
  */
-Test(poly_biv_coef_number, classic_params)
+PvdaParamTest(poly_biv_coef_number, classic_params, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Asserts poly_biv_coef_number returns params_glwe->nn * params_glwe->l
 	cr_assert(eq(i64, poly_biv_coef_number(params_glwe), params_glwe->nn * params_glwe->l));
@@ -188,9 +188,9 @@ Test(poly_biv_coef_number, classic_params)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(normal_random_biv_poly, does_not_crash)
+PvdaParamTest(normal_random_biv_poly, does_not_crash, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyBiv* pol = new_biv_poly(params_glwe);
 
@@ -203,9 +203,9 @@ Test(normal_random_biv_poly, does_not_crash)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(normal_random_biv_poly, output_is_normalized)
+PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyBiv* pol = new_biv_poly(params_glwe);
 
@@ -228,9 +228,9 @@ Test(normal_random_biv_poly, output_is_normalized)
 /**
  * @brief Test add_biv_poly correctness with random normal polynomials
  */
-Test(add_biv_poly, basic)
+PvdaParamTest(add_biv_poly, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyBiv* pol_lhs      = new_biv_poly(params_glwe);
 	PolyBiv* pol_rhs      = new_biv_poly(params_glwe);

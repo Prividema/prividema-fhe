@@ -12,15 +12,13 @@
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-PvdaTstParams params = {1024, 1, 4, 4, 4, -3};
-
 /**
  * @brief Tests ggsw_secret_encrpyt
  *
  */
-Test(ggsw_secret_encrypt, works)
+PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
 	// chance

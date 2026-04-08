@@ -14,9 +14,9 @@ PvdaTstParams params = {1024, 1, 1, 1, 1, 0};
  * @brief Tests whether transform_glwe_secret_key_not_dft_to_dft transforms the secret key out of the DFT domain, in DFT
  * space.
  */
-Test(transform_glwe_secret_key_not_dft_to_dft, basic)
+PvdaParamTest(transform_glwe_secret_key_not_dft_to_dft, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	GLWESecretKey* sk        = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(params_glwe);

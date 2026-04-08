@@ -15,9 +15,9 @@ PvdaTstParams params = {1024, 1, 4, 4, 0, -7};
 /**
  * @brief Test poly_biv_bytes
  */
-Test(poly_univ_bytes, basic)
+PvdaParamTest(poly_univ_bytes, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Asserts poly_univ_bytes returns params_glwe->nn * sizeof(int64_t)
 	cr_assert(eq(i64, poly_univ_bytes(params_glwe), params_glwe->nn * sizeof(int64_t)));
@@ -28,9 +28,9 @@ Test(poly_univ_bytes, basic)
 /**
  * @brief Test poly_biv_bytes
  */
-Test(coef_dft_back_forth, basic)
+PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUniv* a          = new_univ(params_glwe);
 	PolyUniv* a_t        = new_univ(params_glwe);

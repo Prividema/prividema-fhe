@@ -114,9 +114,9 @@ Test(rand_normal, test_rand_normal)
 
 PvdaTstParams params = {4, 2, 4, 1, 1, -1};
 
-Test(normal_random_vec, basic)
+PvdaParamTest(normal_random_vec, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	//TODO: RnX vec of size params_glwe->nn*params_glwe->k??
 	VecUnivRnX* pol_univ = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
@@ -129,9 +129,9 @@ Test(normal_random_vec, basic)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(uniform_random_vec_dft, basic)
+PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 	VecUnivDFT* res_dft = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
 
 	VecUniv* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));

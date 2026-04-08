@@ -20,9 +20,9 @@ PvdaTstParams params = {1024, 1, 4, 8, 0, 0};
  * ie. there is no loss of precision for the message going from Rn[X] to Zn[X,Y].
  * Moreover, the error is small enough to not affect the message.
  */
-Test(glwe_secret_masking, small_error)
+PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 	double err_length          = 3 * sigma;
 	double critical_err_length = 5 * sigma;
 
@@ -72,9 +72,9 @@ Test(glwe_secret_masking, small_error)
  * ie. there is a 2^(-l*kappa) loss of precision for the message, going from Rn[X] to Zn[X,Y].
  * Moreover, the error is small enough to not affect the bivariate message.
  */
-Test(glwe_secret_masking, uniform_RnX_message)
+PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
 	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma;

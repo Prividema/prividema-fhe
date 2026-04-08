@@ -6,23 +6,19 @@
 #include "ggsw_ciphertext.h"
 #include "glwe_params.h"
 #include "rng.h"
-#include "univariate_polynomial.h"
 #include "test_utils.h"
+#include "univariate_polynomial.h"
 
-#define NLIMBSBASE       ((params_glwe->k + 1) * 2)
+#define NLIMBSBASE       ((params_glwe->k + 1) * params_glwe->l)
 
-#define K_TILDEBASE      1
-#define KAPPA_TILDEBASE  4
-#define NLIMBS_TILDEBASE (K_TILDEBASE + 1) * 1
-#define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
+#define NLIMBS_TILDEBASE (params_glwe->k + 1) * params_ggsw->l_tilde
 
-PvdaTstParams params = {1024, 1, 4, 2, 1, 1e-7};
 //! COMMON PART (begin)
 
 // Test ggsw_size
-Test(ggsw_size, basic)
+PvdaParamTest(ggsw_size, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Asserts ggsw_size returns NLIMBS_TILDEBASE * NLIMBSBASE
 	cr_assert(eq(i64, ggsw_total_n_glwe_limbs(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE));
@@ -31,9 +27,9 @@ Test(ggsw_size, basic)
 }
 
 // Test ggsw_bytes
-Test(ggsw_bytes, basic)
+PvdaParamTest(ggsw_bytes, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Asserts ggsw_bytes returns NLIMBS_TILDEBASE * NLIMBSBASE * params_glwe->nn * sizeof(int64_t)
 	cr_assert(eq(i64, ggsw_bytes(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * params_glwe->nn * sizeof(int64_t)));
@@ -44,9 +40,9 @@ Test(ggsw_bytes, basic)
 //! bivGGSW Part (begin)
 
 // Test ggsw_coef_number
-Test(ggsw_coef_number, basic)
+PvdaParamTest(ggsw_coef_number, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Asserts ggsw_coeff_number returns NLIMBS_TILDEBASE * NLIMBSBASE * params_glwe->nn
 	cr_assert(eq(i64, ggsw_coef_number(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * params_glwe->nn));
@@ -55,9 +51,9 @@ Test(ggsw_coef_number, basic)
 }
 
 // Test new_ggsw
-Test(new_ggsw, basic)
+PvdaParamTest(new_ggsw, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
@@ -73,16 +69,16 @@ Test(new_ggsw, basic)
 }
 
 // Test ggsw_Sj_Yti
-Test(ggsw_Sj_Yti, basic)
+PvdaParamTest(ggsw_Sj_Yti, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
 	// asserts ggsw_Sj_Yti returns the right pointer
 	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
-		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
+		for (uint64_t j = 0; j < params_glwe->k + 1; j++)
 		{
 			VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(ggsw, j, i);
 
@@ -91,11 +87,11 @@ Test(ggsw_Sj_Yti, basic)
 			ct_mat_ij[1] = 2;
 
 			cr_assert(eq(i64,
-			             ggsw->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * params_glwe->nn +
+			             ggsw->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
 			                       j * NLIMBSBASE * params_glwe->nn],
 			             1));
 			cr_assert(eq(i64,
-			             ggsw->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * params_glwe->nn +
+			             ggsw->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
 			                       j * NLIMBSBASE * params_glwe->nn + 1],
 			             2));
 		}
@@ -107,9 +103,9 @@ Test(ggsw_Sj_Yti, basic)
 }
 
 // Test normalize_ggsw
-Test(normalize_ggsw, basic)
+PvdaParamTest(normalize_ggsw, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 	GGSWCiphertext* res  = new_ggsw(params_ggsw);
@@ -127,9 +123,9 @@ Test(normalize_ggsw, basic)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-Test(add_ggsw, basic)
+PvdaParamTest(add_ggsw, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	GGSWCiphertext* ggsw_lhs     = new_ggsw(params_ggsw);
@@ -164,9 +160,9 @@ Test(add_ggsw, basic)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-Test(const_mult_ggsw, without_normalization)
+PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	PolyUniv* u                      = new_univ(params_glwe);
@@ -190,7 +186,7 @@ Test(const_mult_ggsw, without_normalization)
 
 	// Asserts product_computed = u * ggsw
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
+		for (uint64_t jj = 0; jj < params_glwe->k + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
 			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
@@ -223,9 +219,9 @@ Test(const_mult_ggsw, without_normalization)
 //! bivGGSW IN DFT SPACE Part (begin)
 
 // Test ggsw_coef_number
-Test(ggsw_coef_number_dft, basic)
+PvdaParamTest(ggsw_coef_number_dft, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Asserts ggsw_coef_number_dft returns NLIMBS_TILDEBASE * NLIMBSBASE * params_glwe->nn / 2
 	cr_assert(eq(i64, ggsw_coef_number_dft(params_ggsw), NLIMBS_TILDEBASE * NLIMBSBASE * params_glwe->nn / 2));
@@ -234,9 +230,9 @@ Test(ggsw_coef_number_dft, basic)
 }
 
 // Test new_ggsw
-Test(new_ggsw_dft, basic)
+PvdaParamTest(new_ggsw_dft, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
@@ -252,16 +248,16 @@ Test(new_ggsw_dft, basic)
 }
 
 // Test ggsw_Sj_Yti_dft
-Test(ggsw_Sj_Yti_dft, basic)
+PvdaParamTest(ggsw_Sj_Yti_dft, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
 	// Asserts ggsw_Sj_Yti_dft returns the right pointer
 	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
-		for (uint64_t j = 0; j < K_TILDEBASE + 1; j++)
+		for (uint64_t j = 0; j < params_glwe->k + 1; j++)
 		{
 			VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(ggsw_dft, j, i);
 
@@ -270,11 +266,11 @@ Test(ggsw_Sj_Yti_dft, basic)
 			ct_mat_ij[1] = 0.2;
 
 			cr_assert(eq(dbl,
-			             ggsw_dft->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * params_glwe->nn +
+			             ggsw_dft->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
 			                           j * NLIMBSBASE * params_glwe->nn],
 			             0.1));
 			cr_assert(eq(dbl,
-			             ggsw_dft->mat[(i - 1) * (K_TILDEBASE + 1) * NLIMBSBASE * params_glwe->nn +
+			             ggsw_dft->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
 			                           j * NLIMBSBASE * params_glwe->nn + 1],
 			             0.2));
 		}
@@ -285,9 +281,9 @@ Test(ggsw_Sj_Yti_dft, basic)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-Test(add_ggsw_dft, basic)
+PvdaParamTest(add_ggsw_dft, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	GGSWCiphertextDFT* ggsw_lhs_dft     = new_ggsw_dft(params_ggsw);
@@ -320,9 +316,9 @@ Test(add_ggsw_dft, basic)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-Test(const_mult_ggsw_dft, without_normalization)
+PvdaParamTest(const_mult_ggsw_dft, without_normalization, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSW(&params);
+	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	PolyUnivDFT* u_dft                   = new_univ_dft(module);
@@ -350,7 +346,7 @@ Test(const_mult_ggsw_dft, without_normalization)
 	                  ggsw_total_n_glwe_limbs(params_ggsw));
 
 	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < K_TILDEBASE + 1; jj++)
+		for (uint64_t jj = 0; jj < params_glwe->k + 1; jj++)
 		{
 			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
 			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);

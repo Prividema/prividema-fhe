@@ -10,18 +10,16 @@
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-PvdaTstParams params = {1024, 1, 4, 2, 0, 1e-7};
-
-#define NLIMBSBASE ((params_glwe->k + 1) * 2)
+#define NLIMBSBASE ((params_glwe->k + 1) * params_glwe->l)
 
 //! COMMON PART (begin)
 
 /**
  * @brief Tests whether glwe_size computes the right size of a bivGLWE ciphertext.
  */
-Test(glwe_params_n_limbs, basic)
+PvdaParamTest(glwe_params_n_limbs, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	cr_assert(eq(i64, glwe_params_n_limbs(params_glwe), NLIMBSBASE));
 
@@ -31,9 +29,9 @@ Test(glwe_params_n_limbs, basic)
 /**
  * @brief Tests whether glwe_bytes computes the right number of bytes in a bivGLWE ciphertext.
  */
-Test(glwe_bytes, basic)
+PvdaParamTest(glwe_bytes, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	cr_assert(eq(i64, glwe_params_bytes(params_glwe), NLIMBSBASE * params_glwe->nn * sizeof(int64_t)));
 
@@ -43,9 +41,9 @@ Test(glwe_bytes, basic)
 /**
  * @brief Tests whether mult_vec_znx_dft multiply correctly two Zn[X] polynomials pol_lhs and b. Ie res = pol_lhs * b.
  */
-Test(mult_vec_znx_dft, size_equal_one)
+PvdaParamTest(mult_vec_znx_dft, size_equal_one, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Variables
 	// TODO: WONTFIX
@@ -95,9 +93,9 @@ Test(mult_vec_znx_dft, size_equal_one)
  * It draws a random uniform size, ie a random uniform number of Zn[X] polynomials.
  * Ie vec_lhs = (a_i), vec_rhs = (b_i) -> res = vec_lhs ⊙ vec_rhs = (a_i * b_i). Where a_i and b_i are in Zn[X]
  */
-Test(mult_vec_znx_dft, random_size)
+PvdaParamTest(mult_vec_znx_dft, random_size, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	int64_t size = 0;
 
@@ -157,9 +155,9 @@ Test(mult_vec_znx_dft, random_size)
 /**
  * @brief Tests whether glwe_bytes computes the right number of coefficient in a bivGLWE ciphertext.
  */
-Test(glwe_coef_number, basic)
+PvdaParamTest(glwe_coef_number, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Asserts glwe_coef_number returns NLIMBSBASE * params_glwe->nn
 	cr_assert(eq(i64, glwe_coef_number(params_glwe), NLIMBSBASE * params_glwe->nn));
@@ -171,10 +169,10 @@ Test(glwe_coef_number, basic)
 /**
  * @brief Tests whether new_glwe returns a non-NULL pointer.
  */
-Test(new_glwe, basic)
+PvdaParamTest(new_glwe, basic, default_params_fn)
 {
 	// Parameters
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 	GLWECiphertext* glwe = new_glwe(params_glwe);
 
 	// Asserts new_glwe allocates a non-NULL glwe
@@ -191,9 +189,9 @@ Test(new_glwe, basic)
  *
  * TODO: this is bad. This is testing not the addition of valid GLWEs but of the underlying data.
  */
-Test(add_glwe, basic)
+PvdaParamTest(add_glwe, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Variables
 	GLWECiphertext* glwe_lhs     = new_glwe(params_glwe);
@@ -224,9 +222,9 @@ Test(add_glwe, basic)
 /**
  * @brief Tests whether const_mult_glwe multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
-Test(const_mult_glwe, without_normalization)
+PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Variables
 	GLWECiphertext* prod_computed = new_glwe(params_glwe);
@@ -277,10 +275,10 @@ Test(const_mult_glwe, without_normalization)
 /**
  * @brief Tests whether glwe_coef_number_dft computes the right number of coefficient in a bivGLWE ciphertext in the DFT domain.
  */
-Test(glwe_coef_number_dft, basic)
+PvdaParamTest(glwe_coef_number_dft, basic, default_params_fn)
 {
 	// Parameters
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Asserts glwe_coef_number_dft returns NLIMBSBASE * params_glwe->nn / 2
 	cr_assert(eq(i64, glwe_coef_number_dft(params_glwe), NLIMBSBASE * params_glwe->nn / 2));
@@ -292,9 +290,9 @@ Test(glwe_coef_number_dft, basic)
 /**
  * @brief Tests whether new_glwe_dft returns a non-NULL pointer.
  */
-Test(new_glwe_dft, basic)
+PvdaParamTest(new_glwe_dft, basic, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	GLWECiphertextDFT* glwe = new_glwe_dft(params_glwe);
 	cr_assert(eq(int, (glwe != NULL) && (glwe->vec != NULL), 1));
@@ -304,10 +302,10 @@ Test(new_glwe_dft, basic)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(add_glwe_dft, basic)
+PvdaParamTest(add_glwe_dft, basic, default_params_fn)
 {
 	// Parameters
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Variables
 	GLWECiphertextDFT* glwe_lhs_dft     = new_glwe_dft(params_glwe);
@@ -340,9 +338,9 @@ Test(add_glwe_dft, basic)
 /**
  * @brief Tests whether const_mult_glwe_dft multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
-Test(const_mult_glwe_dft, without_normalization)
+PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(&params);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	//! Variables
 	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(params_glwe);
