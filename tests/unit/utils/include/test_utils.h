@@ -32,9 +32,23 @@ typedef struct pvda_tst_params_t
 	uint64_t kappa;
 	uint64_t l;
 	uint64_t l_tilde;
+
+	/** Can be :
+	 * - =0 if one wants the default computation according to the other params
+	 * - <0 to specify a power of 2
+	 * - >0 to specify the exact value
+	 */
 	double sigma;
 } PvdaTstParams;
 
+/**
+ * Internal use function to fill the sigma value of PvdaTstParams and get its value.
+ *
+ * Since sigma can be specified as a power, the actual stdev or left to a default to be
+ * computed according to the other params, this function does that.
+ *
+ *
+ */
 double generate_sigma(PvdaTstParams* p);
 
 #define INIT_PVDA_PARAMS_BASE(PRS) MODULE* module = pvda_new_module_info((PRS)->nn);
@@ -58,8 +72,28 @@ double generate_sigma(PvdaTstParams* p);
 	DELETE_PVDA_PARAMS_GLWE     \
 	delete_ggsw_params(params_ggsw);
 
+/**
+ * Sample default parameters generator function for Prividema parametrized tests.
+ *
+ * This function uses hard-coded parameter tuples (structs), but other functions
+ * might want to generate the parameters at execution time (if doing cartesian products, for example)
+ *
+ */
 struct criterion_test_params default_params_fn();
 
+/**
+ * Macro to define a parametrized test for Prividema.
+ *
+ * It always uses the PvdaTstParams object to pass the parameters
+ *
+ * @param suite_name   The suite name as in normal Criterion
+ * @param test_name    The test name as in normal Criterion
+ * @param generator_fn The name of a function returning a struct criterion_test_params with parameters to use for the test
+ *                     See default_params_fn for an example of a static generator function.
+ *
+ *
+ *
+ */
 #define PvdaParamTest(suite_name, test_name, generator_fn)                        \
 	ParameterizedTestParameters(suite_name, test_name) { return generator_fn(); } \
                                                                                   \
