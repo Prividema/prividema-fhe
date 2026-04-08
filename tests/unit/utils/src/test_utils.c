@@ -3,6 +3,7 @@
 
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+#include <criterion/parameterized.h>
 #include <math.h>
 
 #include "math.h"
@@ -34,6 +35,17 @@ void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX*
 
 	int max_fails = (int)(prob_factor * 0.0027 * (double)params_glwe->nn);
 	cr_assert(big_error_count <= max_fails, "Too many values not following the dist");
+}
+
+struct criterion_test_params default_params_fn()
+{
+	static PvdaTstParams default_params[] = {
+	    {.nn = 1024, .k = 1, .kappa = 4, .l = 8, .l_tilde = 8, .sigma = 0},          // toy params, let default sigma
+	    {.nn = (1 << 14), .k = 1, .kappa = 19, .l = 15, .l_tilde = 15, .sigma = 0},  // lattigo params, default sigma
+
+	};
+
+	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
 }
 /*
 

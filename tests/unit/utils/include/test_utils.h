@@ -1,6 +1,7 @@
 #ifndef PVDA_UTEST_UTILS
 #define PVDA_UTEST_UTILS
 
+#include <criterion/parameterized.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -56,5 +57,12 @@ double generate_sigma(PvdaTstParams* p);
 #define DELETE_PVDA_PARAMS_GGSW \
 	DELETE_PVDA_PARAMS_GLWE     \
 	delete_ggsw_params(params_ggsw);
+
+struct criterion_test_params default_params_fn();
+
+#define PvdaParamTest(suite_name, test_name, generator_fn)                        \
+	ParameterizedTestParameters(suite_name, test_name) { return generator_fn(); } \
+                                                                                  \
+	ParameterizedTest(PvdaTstParams* param, suite_name, test_name)
 
 #endif
