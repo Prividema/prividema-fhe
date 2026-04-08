@@ -8,7 +8,7 @@
 // |                                           |
 // =============================================
 
-typedef enum module_type_t MODULE_TYPE;
+//typedef enum module_type_t MODULE_TYPE;
 
 /// @brief Opaque structure that describe the modules (\f$\mathbb{Z}_n[X]\f$, \f$\mathbb{T}_n[X]\f$) and the hardware.
 typedef struct module_info_t MODULE;
@@ -92,5 +92,11 @@ int pvda_znx_product(const MODULE* module, int64_t* res, const int64_t* a, const
 
 int pvda_vec_znx_negate(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
                         uint64_t a_size, uint64_t a_sl);
+
+int pvda_vec_znx_add(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
+                     uint64_t a_size, uint64_t a_sl, const int64_t* b, uint64_t b_size, uint64_t b_sl);
+
+int pvda_vec_znx_sub(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
+                     uint64_t a_size, uint64_t a_sl, const int64_t* b, uint64_t b_size, uint64_t b_sl);
 
 uint64_t pvda_module_extract_nn(const MODULE* module);

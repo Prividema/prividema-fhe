@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 project(prividema-fhe)
 
+cmake_policy(SET CMP0069 NEW)
 # ----------------------------------------
 # Include FetchContent for external dependencies
 # Enable testing framework
@@ -37,7 +38,7 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 option(BUILD_TESTS "Build the Tests" ON)
 option(BUILD_EXAMPLES "Build the examples" ON)
-option(BUILD_GGSW "Build the ggsw library inside libcore" ON)
+option(BUILD_BENCHMARKS "Build the benchmarks" OFF)
 option(ENABLE_DEBUG "Enable additional prints for debugging purpose" OFF)
 option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
 
@@ -45,16 +46,32 @@ option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
 # Debug print configuration
 # ----------------------------------------
 if(ENABLE_DEBUG)
-    if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
-        add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
-        add_link_options(-fsanitize=address)
-    endif()
-    message(STATUS "Debug Prints Enabled")
-    add_compile_definitions(DEBUG=1)
+  if(CMAKE_C_COMPILER_ID MATCHES "GNU|Clang")
+    add_compile_options(-fsanitize=address -fno-omit-frame-pointer)
+    add_link_options(-fsanitize=address)
+  endif()
+  message(STATUS "Debug Prints Enabled")
+  add_compile_definitions(DEBUG=1)
 else()
-    add_compile_definitions(DEBUG=0)
+  add_compile_definitions(DEBUG=0)
 endif()
 
+if(BUILD_BENCHMARKS)
+  add_compile_options(-fno-omit-frame-pointer -g)
+endif()
+
+include(CheckIPOSupported)
+check_ipo_supported(RESULT lto_supported OUTPUT lto_error)
+
+if(lto_supported)
+  message(STATUS "LTO/IPO enabled for optimized builds")
+  # This sets the global default for all targets defined after this point
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
+  add_compile_options(-flto)
+  add_link_options(-flto)
+else()
+  message(STATUS "LTO not supported: ${lto_error}")
+endif()
 # ----------------------------------------
 # Import spqlios library
 # ----------------------------------------
@@ -116,35 +133,40 @@ add_subdirectory(src)
 # Build unit tests if enabled
 # ----------------------------------------
 if(BUILD_TESTS)
-    message(STATUS "Building Test Files")
-    add_subdirectory(tests)
+  message(STATUS "Building Test Files")
+  add_subdirectory(tests)
 endif()
 
 # ----------------------------------------
 # Build examples if enabled
 # ----------------------------------------
 if(BUILD_EXAMPLES)
-    message(STATUS "Building Example Files")
-    add_subdirectory(examples)
+  message(STATUS "Building Example Files")
+  add_subdirectory(examples)
+endif()
+
+if(BUILD_BENCHMARKS)
+  message(STATUS "Building Benchmark Files")
+  add_subdirectory(benchmarks)
 endif()
 
 # ----------------------------------------
 # Doxygen documentation
 # ----------------------------------------
 if(BUILD_DOCS)
-    find_package(Doxygen REQUIRED)
-    if(DOXYGEN_FOUND)
-        set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
-        set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-        configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+  find_package(Doxygen REQUIRED)
+  if(DOXYGEN_FOUND)
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/docs/Doxyfile.in)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
 
-        add_custom_target(doc_html ALL
+    add_custom_target(doc_html ALL
             COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             COMMENT "Generating HTML documentation from Markdown"
             VERBATIM
         )
-    else()
-        message(WARNING "Doxygen needs to be installed to generate the documentation")
-    endif()
+  else()
+    message(WARNING "Doxygen needs to be installed to generate the documentation")
+  endif()
 endif()

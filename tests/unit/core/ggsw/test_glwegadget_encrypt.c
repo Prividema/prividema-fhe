@@ -88,10 +88,10 @@ Test(glwegadget_secret_encrypt, works)
 
 		// Computes the phase = m / 2^{kappa_tilde * i} + err
 		GLWECiphertext glwe_ct = {params_glwe, glwe_vec_ptr};
-		glwe_secret_demasking(module, phase_computed, sk_dft, &glwe_ct);
+		glwe_secret_decrypt(module, phase_computed, sk_dft, &glwe_ct);
 
 		// Computes the phase in
-		biv_to_univ(params_glwe, phase_computed_univ_RnX, phase_computed);
+		biv_to_univ_rnx(params_glwe, phase_computed_univ_RnX, phase_computed);
 
 		//! Computes by hand the phase = m / 2^{kappa_tilde * i}
 		for (uint64_t p = 0; p < NBASE; p++)

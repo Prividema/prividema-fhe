@@ -14,25 +14,25 @@
 // =============================================
 
 /**
- * @brief Generates an uniform random number.
+ * @brief Generates an uniform random number between [-2^(nb_bits-1), 2^(nb_bits-1))
  *
- * @param result  A pointer that Point to the generated value.
- * @param nb_bits The number of bits of the result, sign bit included.
+ * @param result  The resulting uniformly sampled integer
+ * @param nb_bits The number of bits of the result
  *
- * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
  */
 int rand_uniform(int64_t* result, uint64_t nb_bits);
 
 /**
  * @brief Generates a gaussian random number with the given parameters.
  *
- * @param result A pointer that Point to the generated value.
- * @param mu     The mean value.
- * @param sigma  The standard deviation.
+ * @param result The resulting normally (Gaussian) sampled number
+ * @param mu     The mean parameter for the distribution.
+ * @param sigma  The standard deviation of the distribution.
  *
- * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
  */
 int rand_normal(double* result, double mu, double sigma);
 
@@ -43,32 +43,37 @@ int rand_normal(double* result, double mu, double sigma);
 // =============================================
 
 /**
- * @brief Generates a uniformly random Zn[X] polynomial.
+ * @brief Generates a uniformly random Zn[X] polynomial
+ *
+ * Coefficients are uniformly sampled in range [-2^(nb_bits-1), 2^(nb_bits-1))
  *
  * @param res     The result uniformly drawn Zn[X] polynomial.
- * @param N       The degree of the cyclotomic polynomial.
- * @param nb_bits The exponent of the distribution range = [-2^nb_bits, 2^nb_bits).
+ * @param N       Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param nb_bits Number of randomness bits per coefficient.
  *
- * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
  */
 int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits);
 
 /**
  * @brief Generates a random vector following a uniform distribution in res.
  *
- * @param limb_len The size of each limb. N for TGLWE and TGGSW.
+ * In other words, every res_sl words/elements (of 64 bits), it fills limb_len
+ * elements with a uniformly sampled random integer of nb_bits, between
+ * [-2^(nb_bits-1), 2^(nb_bits-1))
+ *
+ * @param limb_len The size of each limb. A common value could be N or k*N (to fill the A's)
  * @param res      The result.
- * @param nb_limbs The number of limbs.
+ * @param nb_limbs The number of limbs. In other words, how many times we fill limb_len words.
  * @param res_sl   The stride (in elements) between two consecutive result limbs.
  *                 It indicates how many elements must be skipped in memory to reach
  *                 the start of the next limb in `res`.
- * @param nb_bits  The exponent of the distribution range = [-2^nb_bits, 2^nb_bits).
+ * @param nb_bits  The exponent of the distribution range = [-2^(nb_bits-1), 2^(nb_bits-1))
  *
- * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
  *
- * @note For each call to this function, we'll generate a new seed.
  */
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits);
 
@@ -80,8 +85,8 @@ int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_
  * @param vec_size The number of limbs.
  * @param nb_bits  The exponent of the range = [-2^nb_bits, 2^nb_bits).
  *
- * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
  *
  * @note For each call to this function, we'll generate a new seed.
  */
@@ -95,25 +100,25 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
  * @param mu        The mean value of the distribution.
  * @param sigma     The standard deviation of the distribution.
  *
- * @retval • `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
 
  */
 int normal_random_vec(double* res, int64_t res_size, double mu, double sigma);
 
 /**
- * @brief Adds a random number to each element of vec that follows a normal
- * distribuition.
+ * @brief Adds a random normally sampled number to each element of vec
  *
  * res and vec can be the same vector for in-place addition
  *
  * @param res       The result.
  * @param res_size  The number of elements in the vectors.
- * @param vec       The input vector
- * @param mu        The mean value of the distribution.
+ * @param vec       The input vector.
+ * @param mu        The mean parameter of the distribution.
  * @param sigma     The standard deviation of the distribution.
- * @retval • `-1` if an error occurs.
- * @retval • `0` otherwise.
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
  *
  */
 int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma);

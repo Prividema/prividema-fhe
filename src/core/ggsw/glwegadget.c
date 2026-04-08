@@ -47,14 +47,14 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 		CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
 		           "Error addition failed in GLWEGadget encryption");
 		// Compute the base-2^kappa decomposition
-		CHECK_CALL(univ_to_biv(params_glwe, glwe_biv_msg, tmp_sp1), "univ_to_biv failed in compute_phase_ij");
+		CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1), "univ_to_biv failed in compute_phase_ij");
 
 		// Get the pointer for the result position
 		VecBiv* glwe_vec       = glwegadget_extract_bivglwe(result, i);
 		GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec (ie, add A * S)
-		CHECK_CALL(glwe_secret_masking(module, &glwe_ct, sk_dft, glwe_biv_msg),
+		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_dft, glwe_biv_msg),
 		           "glwe masking failed in a GLWEGadget encryption");
 	}
 

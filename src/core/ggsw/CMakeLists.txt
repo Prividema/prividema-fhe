@@ -13,16 +13,16 @@ set(GGSW_SRCS
 )
 
 # Create a shared library named GGSW
-add_library(GGSW SHARED ${GGSW_SRCS})
+add_library(PVDA_GGSW SHARED ${GGSW_SRCS})
 
 # Set the output library name explicitly
-set_target_properties(GGSW PROPERTIES OUTPUT_NAME ggsw)
+set_target_properties(PVDA_GGSW PROPERTIES OUTPUT_NAME pvdaggsw)
 
 # Link dependencies: bivGGSW depends on GLWE, libspqlios, and COMMON
-target_link_libraries(GGSW PRIVATE GLWE libspqlios COMMON)
+target_link_libraries(PVDA_GGSW PRIVATE PVDA_GLWE libspqlios PVDA_COMMON)
 
 # Include directories
-target_include_directories(GGSW
+target_include_directories(PVDA_GGSW
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include/core/ggsw
 )

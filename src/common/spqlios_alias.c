@@ -163,6 +163,20 @@ int pvda_vec_znx_negate(const MODULE* module, int64_t* res, uint64_t res_size, u
 }
 
 uint64_t pvda_module_extract_nn(const MODULE* module) { return module_get_n(module); }
+
+int pvda_vec_znx_add(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
+                     uint64_t a_size, uint64_t a_sl, const int64_t* b, uint64_t b_size, uint64_t b_sl)
+{
+	vec_znx_add(module, res, res_size, res_sl, a, a_size, a_sl, b, b_size, b_sl);
+	return 1;
+}
+
+int pvda_vec_znx_sub(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
+                     uint64_t a_size, uint64_t a_sl, const int64_t* b, uint64_t b_size, uint64_t b_sl)
+{
+	vec_znx_sub(module, res, res_size, res_sl, a, a_size, a_sl, b, b_size, b_sl);
+	return 1;
+}
 /*
 int pvda_vec_rnx_negate(const MODULE* module, double* res, uint64_t res_size, uint64_t res_sl, const double* a,
                         uint64_t a_size, uint64_t a_sl)

@@ -23,6 +23,18 @@
 // =============================================
 
 /**
+ * @brief Represents a \f$\mathbb{T}_n[X]\f$ polynomial, by means of
+ * coefficients which are the numerators of a fraction with denominator 2^64
+ * @note `Length = N` for a polynomial in \f$\mathbb{T}_n[X]\f$.
+ */
+typedef uint64_t PolyUnivTnX;
+
+/**
+ * @brief Represents a vector of the above
+ */
+typedef uint64_t VecUnivTnX;
+
+/**
  * @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial.
  * @note `Length = N` for a polynomial in \f$\mathbb{R}_n[X]\f$.
  */
