@@ -1,9 +1,12 @@
 
 #include "test_utils.h"
 
+#include <criterion/criterion.h>
+#include <criterion/new/assert.h>
 #include <math.h>
 
 #include "math.h"
+#include "utils.h"
 
 double generate_sigma(PvdaTstParams* p)
 {
@@ -12,6 +15,26 @@ double generate_sigma(PvdaTstParams* p)
 	return ldexp(1.0, -(p->l / 2 + 1) * p->kappa);
 }
 
+void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
+                                     double critical_err)
+{
+	const int prob_factor = 3;
+
+	int big_error_count = 0;
+	for (uint64_t p = 0; p < params_glwe->nn; p++)
+	{
+		double diff = torus_distance(a[p], b[p]);
+
+		cr_assert(lt(dbl, diff, critical_err), "Difference outside range (too big)");
+
+		int cond = diff < max_err;
+
+		if (!cond) big_error_count++;
+	}
+
+	int max_fails = (int)(prob_factor * 0.0027 * (double)params_glwe->nn);
+	cr_assert(big_error_count <= max_fails, "Too many values not following the dist");
+}
 /*
 
 OLD CODE that might be useful later on
