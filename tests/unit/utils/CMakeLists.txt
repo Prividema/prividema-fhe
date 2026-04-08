@@ -6,6 +6,7 @@ pkg_check_modules(CRITERION REQUIRED IMPORTED_TARGET criterion)
 
 set(UTEST_UTILS_SRCS
     src/test_utils.c
+    src/stat_utils.c
 )
 
 add_library(PVDA_UTEST_UTILS SHARED ${UTEST_UTILS_SRCS})
