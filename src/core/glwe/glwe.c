@@ -19,11 +19,10 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 
 	const GLWEParams* params = (const GLWEParams*)glwe->params;
 	// GLWE parameters
-	uint64_t nn      = params->nn;
-	uint64_t k       = params->k;
-	uint64_t kappa   = params->kappa;
-	uint64_t n_limbs = params->n_limbs;
-	uint64_t l       = n_limbs / (k + 1);
+	uint64_t nn    = params->nn;
+	uint64_t k     = params->k;
+	uint64_t kappa = params->kappa;
+	uint64_t l     = glwe_params_l(params);
 
 	// The acc variable is used for the sum
 	// As a reminder, if we deonte acc_j its value at cycle j,

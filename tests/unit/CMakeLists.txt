@@ -51,6 +51,7 @@ function(BuildUnitTests testfiles libname)
             ${libname}
             libspqlios
             PVDA_UTEST_UTILS
+            PVDA_GLWE
             # Criterion via pkg-config
             PkgConfig::CRITERION
         )

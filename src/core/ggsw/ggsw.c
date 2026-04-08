@@ -120,8 +120,8 @@ int ggsw_external_product(const MODULE* module,
 	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
 	// As the result of the vector-matrix product glwe * ggsw,
 	// the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
-	uint64_t nrows = ggsw->params->n_limbs_tilde;
-	uint64_t ncols = ggsw->params->params_glwe->n_limbs;
+	uint64_t nrows = ggsw_num_rows(ggsw->params);
+	uint64_t ncols = glwe_params_n_limbs(ggsw->params->params_glwe);
 
 	// Variables
 	MatBivDFT* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
@@ -130,7 +130,7 @@ int ggsw_external_product(const MODULE* module,
 	ggsw_pmat = malloc(ggsw_bytes(ggsw->params));
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
 
-	result_dft = malloc(glwe_bytes(ggsw->params->params_glwe));
+	result_dft = malloc(glwe_params_bytes(ggsw->params->params_glwe));
 	CHECK_ALLOC(result_dft, "result's malloc failed in ggsw_external_product");
 
 	// Prepares bivGGSW ciphertext

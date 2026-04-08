@@ -33,7 +33,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = params_glwe->n_limbs / (params_glwe->k + 1);
+	uint64_t l     = glwe_params_l(params_glwe);
 
 	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
@@ -130,8 +130,6 @@ cleanup:
 //! COMMON PART (begin)
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
-
-uint64_t glwe_params_l(const GLWEParams* params_glwe) { return params_glwe->n_limbs / (params_glwe->k + 1); }
 
 void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
 {
@@ -240,6 +238,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	for (uint64_t i = 1; i <= l && i <= l_max; i++)
 	{
 		acc += 1LL << (kappa - 1 - kappa * i);
+		//TODO: bug, fix (case kappa - 1 - kappa * i < 0 is not correct)
 	}
 
 	for (uint64_t p = 0; p < nn; p++)

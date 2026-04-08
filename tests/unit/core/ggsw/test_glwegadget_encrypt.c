@@ -50,8 +50,8 @@ Test(glwegadget_secret_encrypt, works)
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPA_TILDEBASE, L_TILDEBASE);
 
 	// Variables
-	GLWESecretKey* sk                = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft         = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk                = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft         = alloc_glwe_secret_key_dft(params_glwe);
 	GLWEGadgetCiphertext* glwegadget = new_glwegadget(params_glwegadget);
 	PolyUniv* m_univ                 = new_univ(params_glwe);
 	PolyUnivDFT* m_univ_dft          = new_univ_dft(module);
