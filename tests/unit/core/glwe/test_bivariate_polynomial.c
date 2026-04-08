@@ -3,6 +3,7 @@
 #include <criterion/parameterized.h>
 #include <inttypes.h>
 #include <math.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "bivariate_polynomial.h"
@@ -161,8 +162,16 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		//TODO: adjust to allow L*KAPPA < 64
-		cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
+		int bits = params_glwe->l * params_glwe->kappa;
+		if (bits >= 64)
+			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
+		else
+		{
+			uint64_t max_diff = 1l << (64 - bits);
+			uint64_t diff     = pol_univ[p] > pol_univ_computed[p] ? pol_univ[p] - pol_univ_computed[p]
+			                                                       : pol_univ_computed[p] - pol_univ[p];
+			cr_assert(lt(u64, diff, max_diff));
+		}
 	}
 
 	delete_univ_tnx(pol_univ);
