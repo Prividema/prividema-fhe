@@ -5,20 +5,10 @@
 #include "common/logger.h"
 #include "common/rng.h"
 #include "core/glwe/glwe_params.h"
+#include "stat_utils.h"
 #include "test_utils.h"
 
 #define NB_SAMPLES 1000
-
-// Chi-squared critical value for alpha = 0.05 depending on the degrees of freedom
-double chi_critical_05[100] = {
-    3.841,   5.991,   7.815,   9.488,   11.070,  12.592,  14.067,  15.507,  16.919,  18.307,  19.675,  21.026,  22.362,
-    23.685,  24.996,  26.296,  27.587,  28.869,  30.144,  31.410,  32.671,  33.924,  35.172,  36.415,  37.652,  38.885,
-    40.113,  41.337,  42.557,  43.773,  44.985,  46.194,  47.400,  48.602,  49.802,  50.998,  52.192,  53.384,  54.572,
-    55.758,  56.942,  58.124,  59.304,  60.481,  61.656,  62.830,  64.001,  65.171,  66.339,  67.505,  68.669,  69.832,
-    70.993,  72.153,  73.311,  74.468,  75.624,  76.778,  77.931,  79.082,  80.232,  81.381,  82.529,  83.675,  84.821,
-    85.965,  87.108,  88.250,  89.391,  90.531,  91.670,  92.808,  93.945,  95.081,  96.217,  97.351,  98.484,  99.617,
-    100.749, 101.879, 103.010, 104.139, 105.267, 06.395,  107.522, 108.648, 109.773, 110.898, 112.022, 113.145, 114.268,
-    115.390, 116.511, 117.632, 118.752, 119.871, 120.990, 122.108, 123.225, 124.342};
 
 // -------------------------------------------------------------------------------------
 // Uniform Distribution Test
@@ -111,43 +101,6 @@ Test(rand_uniform_16, test_rand_uniform)
 	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
 }
 
-// -------------------------------------------------------------------------------------
-// Gaussian Distribution Test
-//
-// We use the Jarque-Bera test : https://en.wikipedia.org/wiki/Jarque%E2%80%93Bera_test
-// -------------------------------------------------------------------------------------
-
-// Jarque-Bera test
-double jarque_bera(const double* x, int n)
-{
-	if (n < 3) return NAN;
-
-	double mean = 0.0;
-	for (int i = 0; i < n; i++) mean += x[i];
-	mean /= n;
-
-	// Compute 2nd, 3rd, 4th moments
-	double m2 = 0.0, m3 = 0.0, m4 = 0.0;
-	for (int i = 0; i < n; i++)
-	{
-		double d  = x[i] - mean;
-		double d2 = d * d;
-		m2 += d2;
-		m3 += d2 * d;
-		m4 += d2 * d2;
-	}
-	m2 /= n;
-	m3 /= n;
-	m4 /= n;
-
-	// Skewness and kurtosis
-	double ss = m3 / pow(m2, 1.5);
-	double kk = m4 / (m2 * m2);
-
-	// Jarque-Bera statistic
-	return (n / 6.0) * (ss * ss + ((kk - 3.0) * (kk - 3.0)) / 4.0);
-}
-
 // Test rand_normal with Jarque-Bera test
 Test(rand_normal, test_rand_normal)
 {
@@ -158,10 +111,6 @@ Test(rand_normal, test_rand_normal)
 	double jjbb = jarque_bera(data, NB_SAMPLES);
 	cr_assert(lt(dbl, jjbb, chi_critical_05[1]), "Expect %f < %f\n", jjbb, chi_critical_05[1]);
 }
-
-//---------------------------------------------
-//
-//-----------------------------------------
 
 PvdaTstParams params = {4, 2, 4, 1, 1, -1};
 
