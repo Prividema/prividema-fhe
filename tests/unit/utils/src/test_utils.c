@@ -42,6 +42,7 @@ struct criterion_test_params default_params_fn()
 	static PvdaTstParams default_params[] = {
 	    {.nn = 1024, .k = 1, .kappa = 4, .l = 8, .l_tilde = 8, .sigma = 0},          // toy params, let default sigma
 	    {.nn = (1 << 14), .k = 1, .kappa = 19, .l = 15, .l_tilde = 15, .sigma = 0},  // lattigo params, default sigma
+	    {.nn = 1024, .k = 4, .kappa = 8, .l = 9, .l_tilde = 9, .sigma = 0},          // k > 1 params
 
 	};
 
