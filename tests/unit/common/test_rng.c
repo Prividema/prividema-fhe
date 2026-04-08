@@ -4,6 +4,8 @@
 
 #include "common/logger.h"
 #include "common/rng.h"
+#include "core/glwe/glwe_params.h"
+#include "test_utils.h"
 
 #define NB_SAMPLES 1000
 
@@ -33,7 +35,6 @@ double chi_critical_05[100] = {
  */
 int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 {
-	// Setup the max, min values
 	int64_t max, min;
 	if (nb_bits == 8 * sizeof(int64_t))
 	{
@@ -49,7 +50,6 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 	int64_t boxes[nb_boxes];
 	memset(boxes, 0, nb_boxes * sizeof(boxes[0]));
 
-	// Fill the boxes
 	double step = ((double)max - (double)min) / (double)nb_boxes;
 	for (size_t i = 0; i < NB_SAMPLES; i++)
 	{
@@ -57,7 +57,7 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 		if (rand_uniform(&sample, nb_bits) < 0) return -1;
 
 		// Epsilon 1e9 used to avoid floating point precision bad rounding
-		int box_n = (int)(((double)(sample - min) + 1e9) / step);
+		int box_n = (int)(((double)sample - (double)min + 1e-9) / step);
 		if (box_n == nb_boxes) --box_n;
 
 		++boxes[box_n];
@@ -93,8 +93,8 @@ Test(rand_uniform_64, test_rand_uniform)
 	// On 100 iterations it fails 5 times in average.
 	// We determined experimentally the standard deviation sigma = 4
 	// So the number of failures should be in range 5 +- 4.
-	cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
-	cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
+	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
+	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
 }
 
 // Test rand_uniform on the interval [-32768,32767]
@@ -107,8 +107,8 @@ Test(rand_uniform_16, test_rand_uniform)
 	// On 100 iterations it fails 5 times in average.
 	// We determined experimentally the standard deviation sigma = 4
 	// So the number of failures should be in range 5 +- 4.
-	cr_assert(le(int, 1, count), "The number of errors should be between in range 5 +- 4");
-	cr_assert(ge(int, 9, count), "The number of errors should be between in range 5 +- 4");
+	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
+	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
 }
 
 // -------------------------------------------------------------------------------------
@@ -163,46 +163,39 @@ Test(rand_normal, test_rand_normal)
 //
 //-----------------------------------------
 
-#define NBASE 4
-#define KBASE 2
+PvdaTstParams params = {4, 2, 4, 1, 1, -1};
 
 Test(normal_random_vec, basic)
 {
-	MODULE* module       = pvda_new_module_info(NBASE);
-	VecUnivRnX* pol_univ = malloc(NBASE * KBASE * sizeof(double));
-	if (pol_univ == NULL)
-	{
-		log_perror("malloc");
-		cr_fail();
-	}
+	INIT_PVDA_PARAMS_GLWE(&params);
 
-	if (normal_random_vec(pol_univ, NBASE * KBASE, 0.0, 0.001) < 0)
-	{
-		log_message(LOG_ERROR, "new_normal_random_vec failedi.");
-		pvda_delete_module_info(module);
-		free(pol_univ);
-		cr_fail();
-	}
+	//TODO: RnX vec of size params_glwe->nn*params_glwe->k??
+	VecUnivRnX* pol_univ = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
+	cr_assert(pol_univ != NULL);
 
-	pvda_delete_module_info(module);
+	cr_assert(normal_random_vec(pol_univ, params_glwe->nn * params_glwe->k, 0.0, 0.001) == 0);
+
 	free(pol_univ);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 Test(uniform_random_vec_dft, basic)
 {
-	MODULE* module      = pvda_new_module_info(NBASE);
-	VecUnivDFT* res_dft = malloc(NBASE * KBASE * sizeof(double));
+	INIT_PVDA_PARAMS_GLWE(&params);
+	VecUnivDFT* res_dft = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
 
-	VecUniv* res = malloc(NBASE * KBASE * sizeof(int64_t));
+	VecUniv* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));
 
-	cr_assert(res);
-	cr_assert(res_dft);
+	cr_assert(res != NULL);
+	cr_assert(res_dft != NULL);
 
-	cr_assert(uniform_random_vec_znx_dft(module, res_dft, KBASE, 2) < 0);
+	cr_assert(uniform_random_vec_znx_dft(module, res_dft, params_glwe->k, 2) == 0);
 
-	pvda_vec_znx_dft(module, res_dft, KBASE, res, KBASE, NBASE);
+	pvda_vec_znx_dft(module, res_dft, params_glwe->k, res, params_glwe->k, params_glwe->nn);
 
-	pvda_delete_module_info(module);
 	free(res_dft);
 	free(res);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
