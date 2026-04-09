@@ -69,6 +69,23 @@ cleanup:
 	return status;
 }
 
+int glwegadget_prepare(const MODULE* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
+                       const GLWEGadgetCiphertext* glwegad_ct)
+{
+	int status = -1;
+
+	size_t nrows = glwegadget_prep_ct->params->l_tilde;
+	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
+	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, glwegadget_prep_ct->mat, glwegad_ct->mat, nrows, ncols),
+	           "VMP prepare for GLWEGadget prepare failed");
+
+	status = 0;
+cleanup:
+	return status;
+}
+
 int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a)
 {
@@ -84,7 +101,8 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, nn, glwegadget_prep_ct->mat, nrows, ncols),
 	           "vmp apply falied in half product");
 
-	CHECK_CALL(pvda_vec_znx_idft(module, result->vec, ncols, glwe_dft->vec, ncols), "iDFT failed in half product");
+	CHECK_CALL(glwe_dft_to_coef(module, result, glwe_dft),
+	           "conversion from GLWE DFT to coefs failed in GLWEGadget half product");
 
 cleanup:
 	delete_glwe_dft(glwe_dft);

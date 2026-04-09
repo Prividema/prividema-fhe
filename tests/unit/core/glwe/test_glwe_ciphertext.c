@@ -70,7 +70,7 @@ PvdaParamTest(mult_vec_znx_dft, size_equal_one, default_params_fn)
 
 	// Compare the real coefficient res_p for each p in [0, params_glwe->nn -1] with the res_p mult_vec_znx_dft computed
 	// coefficient.
-	pvda_znx_product(module, prod_expected, pol_lhs, pol_rhs);
+	pvda_znx_small_product(module, prod_expected, pol_lhs, pol_rhs);
 
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
@@ -132,7 +132,7 @@ PvdaParamTest(mult_vec_znx_dft, random_size, default_params_fn)
 	// coefficient.
 	for (uint64_t i = 0; i < size; i++)
 	{
-		pvda_znx_product(module, prod_expected, vec_lhs + i * params_glwe->nn, vec_rhs + i * params_glwe->nn);
+		pvda_znx_small_product(module, prod_expected, vec_lhs + i * params_glwe->nn, vec_rhs + i * params_glwe->nn);
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{
 			cr_assert(eq(i64, component_wise_mult[i * params_glwe->nn + p], prod_expected[p]));
@@ -251,7 +251,7 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 		for (uint64_t j = 0; j < params_glwe->k + 1; j++)
 		{
 			PolyUniv* glwe_ij = glwe->vec + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
-			pvda_znx_product(module, prod_expected, u, glwe_ij);
+			pvda_znx_small_product(module, prod_expected, u, glwe_ij);
 			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
 				cr_assert(eq(
@@ -379,7 +379,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 		for (uint64_t j = 0; j < params_glwe->k + 1; j++)
 		{
 			PolyUniv* glwe_ij = glwe_ct->vec + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
-			pvda_znx_product(module, prod_expected, u, glwe_ij);
+			pvda_znx_small_product(module, prod_expected, u, glwe_ij);
 			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
 				cr_assert(eq(i64, prod->vec[(i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn + p],

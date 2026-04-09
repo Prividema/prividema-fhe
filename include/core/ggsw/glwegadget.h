@@ -42,6 +42,8 @@ void glwegadget_public_encrypt(const MODULE* module, GLWEGadgetCiphertext* resul
  */
 VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t i);
 
+int glwegadget_prepare(const MODULE* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
+                       const GLWEGadgetCiphertext* glwegad_ct);
 /**
  * @brief Computes the half-external product between a GLWEGadget and
  * a GLWE ciphertext

@@ -1,29 +1,79 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+#include <stdint.h>
 #include <stdio.h>
 
+#include "bivariate_polynomial.h"
 #include "core/ggsw/ggsw.h"
 #include "core/glwe/glwe.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "core/glwe/glwe_transform_key.h"
 #include "ggsw_params.h"
+#include "glwe_key.h"
 #include "glwegadget.h"
 #include "glwegadget_ciphertext.h"
 #include "rng.h"
+#include "test_utils.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-#define NBASE            8
-#define KBASE            1
-#define KAPPABASE        4
-#define NLIMBSBASE       (KBASE + 1) * 2
-#define LBASE            NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE        -(LBASE / 2 + 1) * KAPPABASE
+struct criterion_test_params hyper_test_params_fn()
+{
+	static PvdaTstParams default_params[] = {
+	    {.nn = 2, .k = 1, .kappa = 4, .l = 1, .l_tilde = 1, .sigma = 1e-9},  // toy params, let default sigma
 
-#define K_TILDEBASE      1
-#define KAPPA_TILDEBASE  4
-#define NLIMBS_TILDEBASE (K_TILDEBASE + 1) * 2
-#define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
-#define SIGMA_TILDEBASE  -3
+	};
 
-Test(glwegadget_half_product, without_error) {}
+	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
+}
+PvdaParamTest(glwegadget_half_product, without_error, hyper_test_params_fn)
+{
+	INIT_PVDA_PARAMS_GGSWGAD(param);
+
+	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
+	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma;
+
+	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft               = alloc_glwe_secret_key_dft(params_glwe);
+	GLWECiphertext* glwe                   = new_glwe(params_glwe);
+	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
+	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
+	PolyUniv* u_univ                       = new_univ(params_glwe);
+	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
+	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
+	PolyUnivTnX* um_expected_tnx           = new_univ_tnx(params_glwe);
+	PolyUnivRnX* um_expected_rnx           = new_univ_rnx(params_glwe);
+	PolyBiv* um_observed                   = new_biv_poly(params_glwe);
+	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
+	PolyBiv* m                             = new_biv_poly(params_glwe);
+	PolyBiv* m2                            = new_biv_poly(params_glwe);
+
+	uniform_glwe_secret_key(module, sk, 3);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	uniform_random_pol_znx(u_univ, params_glwe->nn, 4);
+	uniform_random_pol_znx(m_univ_tnx, params_glwe->nn, 12);
+	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
+
+	//for debugging
+	univ_tnx_to_rnx(params_glwe, m_univ_rnx, m_univ_tnx);
+	univ_rnx_to_biv(params_glwe, m2, m_univ_rnx);
+
+	pvda_znx_small_product(module, um_expected_tnx, u_univ, m_univ_tnx);
+
+	memset(um_expected_tnx, 0, poly_univ_rnx_bytes(params_glwe));
+	for (int i = 0; i < params_glwe->nn; ++i)
+		for (int j = 0; j < params_glwe->nn; ++j)
+		{
+			um_expected_tnx[(i + j) % params_glwe->nn] += (uint64_t)u_univ[i] * m_univ_tnx[j];
+		}
+
+	univ_tnx_to_rnx(params_glwe, um_expected_rnx, um_expected_tnx);
+
+	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);
+	glwegadget_prepare(module, glwegad_prep, glwegad);
+	glwegadget_half_prod(module, glwe, glwegad_prep, m);
+	glwe_secret_decrypt(module, um_observed, sk_dft, glwe);
+	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed);
+
+	pvda_assert_polynomial_distance(params_glwe, um_observed_rnx, um_expected_rnx, err_length, critical_err_length);
+}
