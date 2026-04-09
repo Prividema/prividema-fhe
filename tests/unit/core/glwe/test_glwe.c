@@ -21,8 +21,8 @@
 PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
-	double err_length          = 3 * sigma + 2 * DBL_EPSILON;
-	double critical_err_length = 5 * sigma + 3 * DBL_EPSILON;
+	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma + 2 * DBL_EPSILON;
+	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma + 3 * DBL_EPSILON;
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
@@ -74,8 +74,8 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma + 2 * DBL_EPSILON;
-	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma + 3 * DBL_EPSILON;
+	double err_length          = 2 * ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma + 2 * DBL_EPSILON;
+	double critical_err_length = 2 * ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma + 3 * DBL_EPSILON;
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);

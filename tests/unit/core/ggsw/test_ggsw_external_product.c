@@ -70,7 +70,8 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 		double diff = torus_distance(um_univ_RnX[p], um_observed_univ_RnX[p]);
 		int cond    = diff < err_length;
 
-		cr_assert(cond, "Equality failed with um_computed_univ_RnX[%ld] = %lf and  um_univ_RnX[%ld] = %lf", p, p,
+		cr_assert(lt(dbl, diff, err_length),
+		          "Equality failed with um_computed_univ_RnX[%ld] = %lf and  um_univ_RnX[%ld] = %lf", p, p,
 		          um_univ_RnX[p] - floor(um_univ_RnX[p]), p, um_observed_univ_RnX[p], err_length);
 	}
 

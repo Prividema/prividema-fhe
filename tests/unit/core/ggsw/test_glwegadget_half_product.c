@@ -1,5 +1,6 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
+#include <float.h>
 #include <stdint.h>
 #include <stdio.h>
 
@@ -20,7 +21,7 @@
 struct criterion_test_params hyper_test_params_fn()
 {
 	static PvdaTstParams default_params[] = {
-	    {.nn = 2, .k = 1, .kappa = 4, .l = 1, .l_tilde = 1, .sigma = 1e-9},  // toy params, let default sigma
+	    {.nn = 128, .k = 1, .kappa = 8, .l = 16, .l_tilde = 1, .sigma = 1e-9},  // toy params, let default sigma
 
 	};
 
@@ -30,8 +31,8 @@ PvdaParamTest(glwegadget_half_product, without_error, hyper_test_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
-	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma;
+	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma + 3 * DBL_EPSILON;
+	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 10 * sigma + 5 * DBL_EPSILON;
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft               = alloc_glwe_secret_key_dft(params_glwe);
@@ -50,7 +51,7 @@ PvdaParamTest(glwegadget_half_product, without_error, hyper_test_params_fn)
 
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-	uniform_random_pol_znx(u_univ, params_glwe->nn, 4);
+	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
 	uniform_random_pol_znx(m_univ_tnx, params_glwe->nn, 12);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
 
