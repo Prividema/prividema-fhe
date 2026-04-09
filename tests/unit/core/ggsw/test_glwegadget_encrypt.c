@@ -14,14 +14,13 @@
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-PvdaTstParams params = {1024, 1, 4, 4, 4, -3};
 /**
  * @brief Tests ggsw_secret_encrpyt
  *
  */
-Test(glwegadget_secret_encrypt, works)
+PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GGSWGAD(&params);
+	INIT_PVDA_PARAMS_GGSWGAD(param);
 
 	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
 	// chance
@@ -50,10 +49,6 @@ Test(glwegadget_secret_encrypt, works)
 
 	for (uint64_t i = 1; i <= params_ggsw->l_tilde; i++)
 	{
-		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
-		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
-		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
-
 		// Exctact the i'th glwe in the glwegadget and decrypt it. It should equal a phase of m / 2^{kappa*i}
 		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegadget, i)};
 		glwe_secret_decrypt(module, phase_computed, sk_dft, &glwe_ct);
