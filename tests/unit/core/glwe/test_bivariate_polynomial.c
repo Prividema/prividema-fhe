@@ -182,6 +182,132 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
+PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	PolyUnivRnX* pol_univ_rnx      = new_univ_rnx(params_glwe);
+	PolyUnivTnX* pol_univ          = new_univ_tnx(params_glwe);
+	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
+	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
+
+	uniform_random_vec(params_glwe->nn, (PolyUniv*)pol_univ, 1, params_glwe->nn, 64);
+
+	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ);
+
+	biv_to_univ_tnx(params_glwe, pol_univ_computed, pol_computed);
+
+	for (uint64_t p = 0; p < params_glwe->nn; p++)
+	{
+		int bits = params_glwe->l * params_glwe->kappa;
+		if (bits >= 64)
+			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
+		else
+		{
+			uint64_t max_diff = 1l << (64 - bits);
+			uint64_t diff     = pol_univ[p] > pol_univ_computed[p] ? pol_univ[p] - pol_univ_computed[p]
+			                                                       : pol_univ_computed[p] - pol_univ[p];
+			cr_assert(lt(u64, diff, max_diff));
+		}
+	}
+
+	delete_univ_tnx(pol_univ);
+	free(pol_computed);
+	delete_univ_tnx(pol_univ_computed);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	PolyUnivTnX* pol_univ          = new_univ_tnx(params_glwe);
+	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
+	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
+
+	uniform_random_vec(params_glwe->nn, (PolyUniv*)pol_univ, 1, params_glwe->nn, 12);
+
+	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ);
+
+	biv_to_univ_tnx(params_glwe, pol_univ_computed, pol_computed);
+
+	for (uint64_t p = 0; p < params_glwe->nn; p++)
+	{
+		int bits = params_glwe->l * params_glwe->kappa;
+		if (bits >= 64)
+			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
+		else
+		{
+			uint64_t max_diff = 1l << (64 - bits);
+			uint64_t diff     = pol_univ[p] > pol_univ_computed[p] ? pol_univ[p] - pol_univ_computed[p]
+			                                                       : pol_univ_computed[p] - pol_univ[p];
+			cr_assert(lt(u64, diff, max_diff));
+		}
+	}
+
+	delete_univ_tnx(pol_univ);
+	free(pol_computed);
+	delete_univ_tnx(pol_univ_computed);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+Test(tnx_rnx_encoding, back_and_forth_tnx_via_biv)
+{
+	const int vec_size      = 1024;
+	GLWEParams* params_glwe = new_glwe_params(vec_size, 1, 4, 32, 0);
+	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
+	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
+	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
+	PolyBiv* biv            = new_biv_poly(params_glwe);
+
+	uint64_t precision = (1l << (64 - 53));
+	uniform_random_pol_znx(tnx_values, vec_size, 64);
+
+	univ_tnx_to_biv(params_glwe, biv, tnx_values);
+	biv_to_univ_rnx(params_glwe, rnx_values, biv);
+	univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
+
+	for (uint64_t i = 0; i < vec_size; ++i)
+	{
+		uint64_t diff = tnx_final[i] > tnx_values[i] ? tnx_final[i] - tnx_values[i] : tnx_values[i] - tnx_final[i];
+		cr_assert(le(u64, diff, precision));
+	}
+
+	delete_univ_rnx(rnx_values);
+	delete_univ_tnx(tnx_values);
+	delete_univ_tnx(tnx_final);
+	free(biv);
+	delete_glwe_params(params_glwe);
+}
+
+Test(tnx_rnx_encoding, back_and_forth_rnx_via_biv)
+{
+	const int vec_size      = 1024;
+	GLWEParams* params_glwe = new_glwe_params(vec_size, 1, 4, 32, 0);
+	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
+	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
+	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
+	PolyBiv* biv            = new_biv_poly(params_glwe);
+
+	normal_random_vec(rnx_values, vec_size, 0, 0.2);
+	for (int i = 0; i < vec_size; ++i)
+	{
+		rnx_values[i] = rnx_values[i] - floor(rnx_values[i]);
+	}
+	univ_rnx_to_biv(params_glwe, biv, rnx_values);
+	biv_to_univ_tnx(params_glwe, tnx_values, biv);
+	univ_tnx_to_rnx(params_glwe, rnx_final, tnx_values);
+
+	pvda_assert_polynomial_distance(params_glwe, rnx_final, rnx_values, 3 * DBL_EPSILON, 4 * DBL_EPSILON);
+
+	free(biv);
+	delete_univ_rnx(rnx_values);
+	delete_univ_tnx(tnx_values);
+	delete_univ_rnx(rnx_final);
+	delete_glwe_params(params_glwe);
+}
 //! BIV POLY PART (begin)
 
 /**
