@@ -24,7 +24,7 @@ foreach(bench_file ${BENCH_FILES})
   add_executable(${bench_name} ${bench_file})
 
   # Link with the main project library
-  target_link_libraries(${bench_name} PRIVATE PVDA_COMMON PVDA_GLWE libspqlios benchmark::benchmark_main)
+  target_link_libraries(${bench_name} PRIVATE PVDA_COMMON PVDA_GLWE PVDA_GGSW libspqlios benchmark::benchmark_main)
 
   # Add include path for headers
   target_include_directories(${bench_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
