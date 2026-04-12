@@ -58,6 +58,6 @@ GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params);
  * @params glwegadget_prep_ct The ciphertext to delete
  *
  */
-void delete_glwegadget_prep(GLWEGadgetCiphertext* glwegadget_prep_ct);
+void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct);
 
 #endif  // PARTIALGGSW_CIPHERTEXT_H
