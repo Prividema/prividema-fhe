@@ -32,3 +32,26 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct)
 	free(glwegadget_ct->mat);
 	free(glwegadget_ct);
 }
+
+GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params)
+{
+	GLWEGadgetCiphertextPrep* glwegad_prep = malloc(sizeof(GLWEGadgetCiphertextPrep));
+	CHECK_ALLOC(glwegad_prep, "alloc failed in GLWEGadgetPrepared creation");
+
+	glwegad_prep->params = params;
+
+	glwegad_prep->mat = calloc(glwegadget_coef_number(params), sizeof(MatBivDFT));
+	CHECK_ALLOC(glwegad_prep->mat, "alloc failed in GLWEGadgetPrepared creation");
+
+	return glwegad_prep;
+cleanup:
+	free(glwegad_prep);
+	return NULL;
+}
+
+void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct)
+{
+	if (!glwegadget_prep_ct) return;
+	free(glwegadget_prep_ct->mat);
+	free(glwegadget_prep_ct);
+}
