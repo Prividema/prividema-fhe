@@ -25,7 +25,7 @@ void test_benchmark(benchmark::State& state)
 
 	//! Parameters
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, LBASE, sigma);
 
 	//! Variables
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);

@@ -58,7 +58,7 @@ double generate_sigma(PvdaTstParams* p);
 #define INIT_PVDA_PARAMS_GLWE(PRS)                   \
 	INIT_PVDA_PARAMS_BASE((PRS))                     \
 	double sigma            = generate_sigma((PRS)); \
-	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l * ((PRS)->k + 1), sigma);
+	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l, sigma);
 
 #define DELETE_PVDA_PARAMS_GLWE \
 	DELETE_PVDA_PARAMS_BASE     \
