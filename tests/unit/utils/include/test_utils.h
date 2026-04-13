@@ -12,13 +12,20 @@
  * Asserts (and fails a test if not met) the following condition:
  *
  * The difference between polynomials a and b coefficient-wise is over max_err at most 3*0.27% of the time.
- * The difference between polynomials a and b is, coefficient-wise, never equal or greater to max_err.
+ * (The 0.27% is the expected number of times a randomly sampled value from a normal dist. is more than 3
+ * stdev from the mean)
+ * The difference between polynomials a and b is, coefficient-wise, never equal or greater to critical_err.
  *
- * @param params_glwe The GLWE params
- * @param a           A RnX polynomial
- * @param b           A RnX polynomial
- * @param stdev_diff  The standard deviation (sigma) of the aforementioned Normal dist.
+ * The first error value is intended to catch tests that are too noisy in general, while the second is a
+ * failsafe in case a function, for example, is correct everywhere but one point.
  *
+ * @param params_glwe   The GLWE params
+ * @param a             A RnX polynomial
+ * @param b             A RnX polynomial
+ * @param max_err       Typically expected to be 3*sigma plus precision errors, this is the value that
+ *                      should not be exceeded too many times
+ * @param critical_err  A value for the difference that, if exceeded at any point, will immediately make
+ *                      the test fail
  *
  */
 
