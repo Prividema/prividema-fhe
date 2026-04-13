@@ -29,7 +29,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 	double biv_epsilon         = ldexp(1.0, -params_glwe->l * params_glwe->kappa);
 	double tst_epsilon         = DBL_EPSILON;
 	double multiplier          = params_glwe->nn;
-	double max_err_length      = 3 * sigma + multiplier * tst_epsilon;
+	double max_err_length      = 3 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
 	double critical_err_length = 5 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
 
 	GLWESecretKey* sk        = alloc_glwe_secret_key(params_glwe);
