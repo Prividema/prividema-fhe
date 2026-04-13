@@ -19,7 +19,6 @@ typedef struct ggsw_ct_params
 	/// GLWE Parameters.
 	const GLWEParams* params_glwe;
 	uint64_t k_tilde;  // k_tilde = 1 for RGSW (by default k=k_tilde=1)
-	uint64_t kappa_tilde;
 	uint64_t ciphertext_nb_gglwes;
 } GGSWParams;
 
@@ -33,7 +32,7 @@ typedef struct ggsw_ct_params
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
-GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t l_tilde);
+GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t nb_glwes);
 
 /**
  * @brief Deletes a GGSW parameters.

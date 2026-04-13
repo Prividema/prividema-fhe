@@ -80,7 +80,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
 			phase_expected_univ_rnx[p] = ldexp((j == params_ggsw->k_tilde) ? (double)m_univ[p] : (double)m_skj_univ[p],
-			                                   -(params_ggsw->kappa_tilde * i));
+			                                   -(params_ggsw->params_glwe->kappa * i));
 
 		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, max_err_length,
 		                                critical_err_length);
