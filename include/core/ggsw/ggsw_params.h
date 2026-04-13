@@ -25,10 +25,9 @@ typedef struct ggsw_ct_params
 /**
  * @brief Creates a set of GGSW Parameters.
  *
- * @param params_glwe 	The GLWE parameters.
- * @param k_tilde 	  	The number of polynomials in the secret key.
- * @param kappa_tilde 	The 2-exponent of the base (2^kappa_tilde).
- * @param l_tilde (k_tilde + 1) * l_tilde.
+ * @param params_glwe   The GLWE parameters.
+ * @param k_tilde       The number of polynomials in the secret key.
+ * @param nb_glwes l_tilde_a * k + l_tilde_b
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
@@ -43,7 +42,8 @@ void delete_ggsw_params(GGSWParams* params);
 
 /**
  * @brief Gets the number of rows in a GGSW.
- *
+ *  In other words, the number of GLWEs that form a GGSW,
+ *  or l_tilde_a * k_tilde + l_tilde_b
  *
  * @param params The GGSW parameters.
  *
@@ -51,7 +51,22 @@ void delete_ggsw_params(GGSWParams* params);
  */
 uint64_t ggsw_num_rows(const GGSWParams* params);
 
+/**
+ * @brief Gets the parameter l_tilde_a
+ *
+ * @param params The GGSW params
+ *
+ * @return l_tilde_a
+ */
 uint64_t ggsw_params_l_tilde_a(const GGSWParams* params);
+
+/**
+ * @brief Gets the parameter l_tilde_b
+ *
+ * @param params The GGSW params
+ *
+ * @return l_tilde_b
+ */
 uint64_t ggsw_params_l_tilde_b(const GGSWParams* params);
 
 /**

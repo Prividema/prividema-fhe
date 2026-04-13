@@ -77,6 +77,13 @@ uint64_t glwe_params_bytes(const GLWEParams* params_glwe);
  */
 uint64_t glwe_coef_number(const GLWEParams* params_glwe);
 
+/**
+ *
+ * @brief Returns the smallest difference representable in the bivariate
+ * decomposition described by the provided params
+ *
+ * @param params The GLWEParams (from which l_a and kappa are taken)
+ */
 double glwe_bivariate_epsilon(const GLWEParams* params);
 
 #endif  // bivGLWE_CT_PARAMS_H
