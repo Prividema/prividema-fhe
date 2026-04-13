@@ -62,10 +62,11 @@ double generate_sigma(PvdaTstParams* p);
 
 #define DELETE_PVDA_PARAMS_BASE    pvda_delete_module_info(module);
 
+// TODO: add support for l_a != l_b
 #define INIT_PVDA_PARAMS_GLWE(PRS)                   \
 	INIT_PVDA_PARAMS_BASE((PRS))                     \
 	double sigma            = generate_sigma((PRS)); \
-	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l, sigma);
+	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l * ((PRS)->k + 1), sigma);
 
 #define DELETE_PVDA_PARAMS_GLWE \
 	DELETE_PVDA_PARAMS_BASE     \
@@ -73,7 +74,7 @@ double generate_sigma(PvdaTstParams* p);
 
 #define INIT_PVDA_PARAMS_GGSW(PRS) \
 	INIT_PVDA_PARAMS_GLWE((PRS))   \
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde)
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde * ((PRS)->k + 1))
 
 #define DELETE_PVDA_PARAMS_GGSW \
 	DELETE_PVDA_PARAMS_GLWE     \

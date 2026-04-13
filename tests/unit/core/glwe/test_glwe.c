@@ -6,6 +6,7 @@
 #include "common/spqlios_alias.h"
 #include "core/glwe/glwe.h"
 #include "glwe_key.h"
+#include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
 #include "test_utils.h"
@@ -22,7 +23,7 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	double biv_epsilon         = ldexp(1.0, -params_glwe->l * params_glwe->kappa);
+	double biv_epsilon         = glwe_bivariate_epsilon(params_glwe);
 	double err_length          = 3 * sigma + 2 * (biv_epsilon + DBL_EPSILON);
 	double critical_err_length = 5 * sigma + 2 * (biv_epsilon + DBL_EPSILON);
 
@@ -40,7 +41,7 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 	//Draw key and message
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-	uniform_random_biv_poly(params_glwe, m, params_glwe->l / 2);
+	uniform_random_biv_poly(params_glwe, m, glwe_params_l_a(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
 	biv_to_univ_rnx(params_glwe, m_univ_RnX, m);
@@ -76,7 +77,7 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	double biv_epsilon         = ldexp(1.0, -params_glwe->l * params_glwe->kappa);
+	double biv_epsilon         = glwe_bivariate_epsilon(params_glwe);
 	double err_length          = 3 * sigma + 2 * (biv_epsilon + DBL_EPSILON);
 	double critical_err_length = 5 * sigma + 2 * (biv_epsilon + DBL_EPSILON);
 

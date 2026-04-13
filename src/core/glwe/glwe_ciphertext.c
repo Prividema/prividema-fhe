@@ -1,8 +1,10 @@
 #include "glwe_ciphertext.h"
 
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
+#include "bivariate_polynomial.h"
 #include "glwe_params.h"
 #include "logger.h"
 #include "utils.h"
@@ -43,13 +45,16 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphe
 	uint64_t nn    = result->params->nn;
 	uint64_t k     = result->params->k;
 	uint64_t kappa = result->params->kappa;
-	uint64_t l     = glwe_params_l(result->params);
+	uint64_t l_a   = glwe_params_l_a(result->params);
+	uint64_t l_b   = glwe_params_l_b(result->params);
 
 	for (uint64_t j = 0; j < k + 1; j++)
-		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result->vec + j * nn, l, (k + 1) * nn,
-		                                         glwe->vec + j * nn, l, (k + 1) * nn),
+		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result->vec + j * nn, l_a, (k + 1) * nn,
+		                                         glwe->vec + j * nn, l_a, (k + 1) * nn),
 		           "vec_znx_normalize_base2k_p failed in normalize_glwe");
-
+	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result->vec + k * nn, l_b, (k + 1) * nn, glwe->vec + k * nn,
+	                                         l_b, (k + 1) * nn),
+	           "vec_znx_normalize_base2k_p failed in normalize_glwe");
 	status = 0;
 
 cleanup:
@@ -67,13 +72,9 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 {
 	int status = -1;
 
-	// Variables
-
 	GLWECiphertextDFT* u_glwe_dft = new_glwe_dft(glwe->params);
-	// bivGLWE parameters
-	uint64_t nn = result->params->nn;
+	uint64_t nn                   = result->params->nn;
 
-	// The pointer to DFT(u * glwe)
 	CHECK_ALLOC(u_glwe_dft, "u_glwe_dft's malloc failed in const_mult_glwe.");
 
 	// Computes DFT(u * glwe)
@@ -84,7 +85,6 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 	glwe_dft_to_coef(module, result, u_glwe_dft);
 
 	status = 0;
-
 cleanup:
 	delete_glwe_dft(u_glwe_dft);
 
@@ -145,27 +145,12 @@ void add_glwe_dft(GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_l
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const PolyUnivDFT* u_dft,
                         const GLWECiphertextDFT* glwe_dft)
 {
-	int status = -1;
-
-	// Variables
-	VecBivDFT* u_glwe_vec_dft     = NULL;
-	VecBiv* glwe_vec              = NULL;
-	VecBiv* result_vec_normalized = NULL;
-
-	// bivGLWE set of parameters
+	int status               = -1;
 	const GLWEParams* params = result_dft->params;
+	uint64_t nn              = params->nn;
 
-	// bivGLWE parameters
-	uint64_t nn = params->nn;
-	uint64_t k  = params->k;
-	uint64_t l  = glwe_params_l(params);
+	VecBiv* glwe_vec = malloc(glwe_params_bytes(params));
 
-	// Point to DFT(u * glwe)
-	u_glwe_vec_dft = malloc(glwe_params_bytes(params));
-	CHECK_ALLOC(u_glwe_vec_dft, "u_glwe_dft's malloc failed in const_mult_glwe_dft.");
-
-	// Point to the bivGLWE ciphertext out of the DFT domain
-	glwe_vec = malloc(glwe_params_bytes(params));
 	CHECK_ALLOC(glwe_vec, "glwe_vec's malloc failed in const_mult_glwe_dft.");
 
 	CHECK_CALL(
@@ -179,9 +164,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	status = 0;
 
 cleanup:
-	free(result_vec_normalized);
 	free(glwe_vec);
-	free(u_glwe_vec_dft);
 
 	return status;
 }

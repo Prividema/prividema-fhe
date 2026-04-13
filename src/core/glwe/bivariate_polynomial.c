@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
 
@@ -15,7 +16,7 @@
 uint64_t poly_biv_coef_number(const GLWEParams* params_glwe)
 {
 	uint64_t nn = params_glwe->nn;
-	return glwe_params_l(params_glwe) * nn;
+	return glwe_params_l_a(params_glwe) * nn;
 }
 
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe)
@@ -31,10 +32,6 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 {
 	int status = -1;
 
-	uint64_t nn    = params_glwe->nn;
-	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l(params_glwe);
-
 	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 
@@ -42,7 +39,8 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
 
-	univ_rnx_to_biv(params_glwe, result, rd_pol_univ);
+	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ),
+	           "univ to biv conversion failed in normal random biv poly generation");
 
 	status = 0;
 
@@ -70,9 +68,9 @@ cleanup:
 
 void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
 {
-	uint64_t nn = params_glwe->nn;
-	uint64_t l  = glwe_params_l(params_glwe);
-	pvda_vec_znx_add(module, res, l, nn, a, l, nn, b, l, nn);
+	uint64_t nn  = params_glwe->nn;
+	uint64_t l_a = glwe_params_l_a(params_glwe);
+	pvda_vec_znx_add(module, res, l_a, nn, a, l_a, nn, b, l_a, nn);
 }
 
 //! BIV POLY IN DFT PART (begin)
@@ -80,7 +78,7 @@ void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe)
 {
 	uint64_t nn = params_glwe->nn;
-	return (glwe_params_l(params_glwe) * nn) / 2;
+	return (glwe_params_l_a(params_glwe) * nn) / 2;
 }
 
 PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe)
@@ -135,7 +133,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const Poly
 {
 	uint64_t nn      = params_glwe->nn;
 	uint64_t kappa   = params_glwe->kappa;
-	uint64_t l       = glwe_params_l(params_glwe);
+	uint64_t l       = glwe_params_l_a(params_glwe);
 	uint64_t l_max   = INT_ROUND_UP_DIV(53ul, kappa);
 	uint64_t start_l = l > l_max ? l_max : l;
 
@@ -160,7 +158,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	// bivGLWE parameters
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l(params_glwe);
+	uint64_t l     = glwe_params_l_a(params_glwe);
 	uint64_t l_max = INT_ROUND_UP_DIV(53ul, kappa);
 
 	// Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa -
@@ -193,7 +191,7 @@ cleanup:
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
 {
 	uint64_t nn = params_glwe->nn;
-	uint64_t l  = glwe_params_l(params_glwe);
+	uint64_t l  = glwe_params_l_a(params_glwe);
 	pvda_vec_znx_dft(module, res_dft, l, a, l, nn);
 	return 1;
 }
@@ -201,7 +199,7 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
 	uint64_t nn = params_glwe->nn;
-	uint64_t l  = glwe_params_l(params_glwe);
+	uint64_t l  = glwe_params_l_a(params_glwe);
 	return pvda_vec_znx_idft(module, res, l, a_dft, l);
 }
 
@@ -209,7 +207,7 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 {
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l(params_glwe);
+	uint64_t l     = glwe_params_l_a(params_glwe);
 	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
 
 	memset(res_tnx, 0, nn * sizeof(*res_tnx));
@@ -230,7 +228,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 {
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l(params_glwe);
+	uint64_t l     = glwe_params_l_a(params_glwe);
 	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
 
 	uint64_t acc = 0;

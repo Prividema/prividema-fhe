@@ -6,6 +6,8 @@
 #include "core/glwe/glwe.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "core/glwe/glwe_transform_key.h"
+#include "ggsw_params.h"
+#include "glwe_params.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -20,7 +22,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	//! Variance of the error's normal distributions
 	params_glwe->sigma = 0;
 	sigma              = 0;
-	double err_length  = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma;
+	double err_length  = glwe_bivariate_epsilon(params_glwe) + 3 * sigma;
 
 	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_glwe_dft     = alloc_glwe_secret_key_dft(params_glwe);
@@ -58,10 +60,12 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	//Computes u*m manually
 	univ_coefs_to_dft(module, u_univ_dft, u_univ);
-	pvda_svp_apply_dft(module, um_dft, params_ggsw->l_tilde, u_univ_dft, m, params_ggsw->l_tilde, params_glwe->nn);
+	//TODO: why l_tilde?
+	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_dft, m,
+	                   ggsw_params_l_tilde_a(params_ggsw), params_glwe->nn);
 	univ_dft_to_coefs(module, um, um_dft);
-	pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, um, params_ggsw->l_tilde, params_glwe->nn, um,
-	                              params_ggsw->l_tilde, params_glwe->nn);
+	pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, um, ggsw_params_l_tilde_a(params_ggsw), params_glwe->nn,
+	                              um, ggsw_params_l_tilde_a(params_ggsw), params_glwe->nn);
 	biv_to_univ_rnx(params_glwe, um_univ_RnX, um);
 
 	//! Asserts um_computed_univ(X) = u * m_univ

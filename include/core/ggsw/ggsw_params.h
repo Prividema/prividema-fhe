@@ -20,7 +20,7 @@ typedef struct ggsw_ct_params
 	const GLWEParams* params_glwe;
 	uint64_t k_tilde;  // k_tilde = 1 for RGSW (by default k=k_tilde=1)
 	uint64_t kappa_tilde;
-	uint64_t l_tilde;
+	uint64_t ciphertext_nb_gglwes;
 } GGSWParams;
 
 /**
@@ -43,33 +43,17 @@ GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t
 void delete_ggsw_params(GGSWParams* params);
 
 /**
- * @brief Gets the number of partialGGSWs in a GGSW.
- * In other words, returns l_tilde
- *
- * @param params The GGSW parameters.
- *
- * @return The number of partialGGSW in a GGSW.
- */
-uint64_t ggsw_num_pggsw(const GGSWParams* params);
-
-/**
- * @brief Gets the number of rows in a partialGGSW.
- *
- * @param params The GGSW parameters.
- *
- * @return The number of rows in a partialGGSW.
- */
-uint64_t ggsw_num_rows_per_pggsw(const GGSWParams* params);
-
-/**
  * @brief Gets the number of rows in a GGSW.
- * In other words, (k+1) * l_tilde
+ *
  *
  * @param params The GGSW parameters.
  *
  * @return The number of rows in a GGSW.
  */
 uint64_t ggsw_num_rows(const GGSWParams* params);
+
+uint64_t ggsw_params_l_tilde_a(const GGSWParams* params);
+uint64_t ggsw_params_l_tilde_b(const GGSWParams* params);
 
 /**
  * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext.
