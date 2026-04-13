@@ -49,4 +49,9 @@ cleanup:
 	return NULL;
 }
 
-void delete_glwegadget_prep(GLWEGadgetCiphertext* glwegadget_prep_ct);
+void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct)
+{
+	if (!glwegadget_prep_ct) return;
+	free(glwegadget_prep_ct->mat);
+	free(glwegadget_prep_ct);
+}
