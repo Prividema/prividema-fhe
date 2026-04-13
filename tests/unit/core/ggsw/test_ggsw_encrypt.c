@@ -1,6 +1,7 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 #include <float.h>
+#include <math.h>
 
 #include "bivariate_polynomial.h"
 #include "core/ggsw/ggsw.h"
@@ -21,12 +22,15 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
-	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
-	// chance
-	double max_err_length =
-	    ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma + (1 << (params_glwe->kappa - 1)) * DBL_EPSILON;
-	double critical_err_length =
-	    ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma + (1 << (params_glwe->kappa - 1)) * DBL_EPSILON;
+	//Acceptable error:
+	// 3/5 sigma from the Normal error we add for encryption
+	// N * DBL_EPSILON from N-len polynomial multiplication
+	// 2 * biv_epsilon for bivariate to/from conversion
+	double biv_epsilon         = ldexp(1.0, -params_glwe->l * params_glwe->kappa);
+	double tst_epsilon         = DBL_EPSILON;
+	double multiplier          = params_glwe->nn;
+	double max_err_length      = 3 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
+	double critical_err_length = 5 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
 
 	GLWESecretKey* sk        = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(params_glwe);

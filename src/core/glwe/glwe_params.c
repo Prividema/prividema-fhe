@@ -5,7 +5,7 @@
 #include "logger.h"
 #include "utils.h"
 
-GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma)
+GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t l_tilde, double sigma)
 {
 	GLWEParams* params = malloc(sizeof(GLWEParams));
 	CHECK_ALLOC(params, "params' malloc failed in new_glwe_ct_params");
@@ -13,7 +13,7 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_
 	params->nn    = nn;
 	params->k     = k;
 	params->kappa = kappa;
-	params->l     = n_limbs / (k + 1);  //TODO change
+	params->l     = l_tilde;
 	params->sigma = sigma;
 
 	return params;

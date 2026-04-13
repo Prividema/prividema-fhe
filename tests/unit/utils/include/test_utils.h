@@ -12,13 +12,20 @@
  * Asserts (and fails a test if not met) the following condition:
  *
  * The difference between polynomials a and b coefficient-wise is over max_err at most 3*0.27% of the time.
- * The difference between polynomials a and b is, coefficient-wise, never equal or greater to max_err.
+ * (The 0.27% is the expected number of times a randomly sampled value from a normal dist. is more than 3
+ * stdev from the mean)
+ * The difference between polynomials a and b is, coefficient-wise, never equal or greater to critical_err.
  *
- * @param params_glwe The GLWE params
- * @param a           A RnX polynomial
- * @param b           A RnX polynomial
- * @param stdev_diff  The standard deviation (sigma) of the aforementioned Normal dist.
+ * The first error value is intended to catch tests that are too noisy in general, while the second is a
+ * failsafe in case a function, for example, is correct everywhere but one point.
  *
+ * @param params_glwe   The GLWE params
+ * @param a             A RnX polynomial
+ * @param b             A RnX polynomial
+ * @param max_err       Typically expected to be 3*sigma plus precision errors, this is the value that
+ *                      should not be exceeded too many times
+ * @param critical_err  A value for the difference that, if exceeded at any point, will immediately make
+ *                      the test fail
  *
  */
 
@@ -58,7 +65,7 @@ double generate_sigma(PvdaTstParams* p);
 #define INIT_PVDA_PARAMS_GLWE(PRS)                   \
 	INIT_PVDA_PARAMS_BASE((PRS))                     \
 	double sigma            = generate_sigma((PRS)); \
-	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l * ((PRS)->k + 1), sigma);
+	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l, sigma);
 
 #define DELETE_PVDA_PARAMS_GLWE \
 	DELETE_PVDA_PARAMS_BASE     \
@@ -66,15 +73,15 @@ double generate_sigma(PvdaTstParams* p);
 
 #define INIT_PVDA_PARAMS_GGSW(PRS) \
 	INIT_PVDA_PARAMS_GLWE((PRS))   \
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde * ((PRS)->k + 1));
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde)
 
 #define DELETE_PVDA_PARAMS_GGSW \
 	DELETE_PVDA_PARAMS_GLWE     \
 	delete_ggsw_params(params_ggsw);
 
-#define INIT_PVDA_PARAMS_GGSWGAD(PRS)                                                                                \
-	INIT_PVDA_PARAMS_GLWE((PRS))                                                                                     \
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde * ((PRS)->k + 1)); \
+#define INIT_PVDA_PARAMS_GGSWGAD(PRS)                                                                           \
+	INIT_PVDA_PARAMS_GLWE((PRS))                                                                                \
+	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde); \
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, (PRS)->kappa, (PRS)->l_tilde);
 
 #define DELETE_PVDA_PARAMS_GGSWGAD   \
