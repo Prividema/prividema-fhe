@@ -20,7 +20,7 @@ typedef struct ggsw_ct_params
 	const GLWEParams* params_glwe;
 	uint64_t k_tilde;  // k_tilde = 1 for RGSW (by default k=k_tilde=1)
 	uint64_t kappa_tilde;
-	uint64_t ciphertext_nb_gglwes;
+	uint64_t ciphertext_nb_limbs_tilde;
 } GGSWParams;
 
 /**
