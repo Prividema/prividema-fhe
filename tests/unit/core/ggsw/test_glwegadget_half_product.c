@@ -11,6 +11,7 @@
 #include "core/glwe/glwe_transform_key.h"
 #include "ggsw_params.h"
 #include "glwe_key.h"
+#include "glwe_params.h"
 #include "glwegadget.h"
 #include "glwegadget_ciphertext.h"
 #include "rng.h"
@@ -18,21 +19,13 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-struct criterion_test_params hyper_test_params_fn()
-{
-	static PvdaTstParams default_params[] = {
-	    {.nn = 128, .k = 1, .kappa = 8, .l = 16, .l_tilde = 1, .sigma = 1e-9},  // toy params, let default sigma
-
-	};
-
-	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
-}
-PvdaParamTest(glwegadget_half_product, without_error, hyper_test_params_fn)
+PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma + 3 * DBL_EPSILON;
-	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 10 * sigma + 5 * DBL_EPSILON;
+	double biv_epsilon         = glwe_bivariate_epsilon(params_glwe);
+	double err_length          = biv_epsilon + 3 * sigma + 3 * DBL_EPSILON;
+	double critical_err_length = biv_epsilon + 10 * sigma + 5 * DBL_EPSILON;
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft               = alloc_glwe_secret_key_dft(params_glwe);

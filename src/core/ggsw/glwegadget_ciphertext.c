@@ -1,11 +1,13 @@
 #include "glwegadget_ciphertext.h"
 
+#include <stdlib.h>
+
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "rng.h"
 #include "utils.h"
 
-size_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget)
+uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget)
 {
 	return params_glwegadget->l_tilde * glwe_coef_number(params_glwegadget->params_glwe);
 }

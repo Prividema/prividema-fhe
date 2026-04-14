@@ -9,6 +9,7 @@
 #include "bivariate_polynomial.h"
 #include "common/rng.h"
 #include "common/spqlios_alias.h"
+#include "glwe_params.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -19,7 +20,7 @@ PvdaParamTest(poly_biv_size, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	cr_assert(eq(i64, glwe_params_l(params_glwe), params_glwe->l));
+	cr_assert(eq(i64, glwe_params_n_limbs(params_glwe), params_glwe->ciphertext_nb_limbs));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -28,7 +29,7 @@ PvdaParamTest(poly_biv_bytes, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	cr_assert(eq(i64, poly_biv_bytes(params_glwe), params_glwe->nn * params_glwe->l * sizeof(int64_t)));
+	cr_assert(eq(i64, poly_biv_bytes(params_glwe), params_glwe->nn * glwe_params_l_a(params_glwe) * sizeof(int64_t)));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -74,7 +75,7 @@ PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 
 	// Asserts pol_computed = Y
 	cr_assert(eq(int, pol_computed[0], 1), "pol_computed[%ld, %ld] = %ld ", 0, 1, pol_computed[0]);
-	for (uint64_t i = 1; i < params_glwe->l * params_glwe->nn; i++)
+	for (uint64_t i = 1; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
 		cr_assert(eq(int, pol_computed[i], 0), "pol_computed[%ld, %ld] = %ld ", i / params_glwe->nn,
 		          i % params_glwe->nn, pol_computed[i]);
 
@@ -98,13 +99,13 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	// Computes pol_univ's base-2params->kappa normalized decomposition
 	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
 
-	double err_length = ldexp(1.0, -(params_glwe->l - 1) * params_glwe->kappa) + 3 * DBL_EPSILON;
+	double err_length = glwe_bivariate_epsilon(params_glwe) + 3 * DBL_EPSILON;
 
 	// Asserts pol_computed, in Rn[X] (with Y = 2^{-params->kappa}), is equal to pol_univ
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
 		double pol_computed_p = 0;
-		for (uint64_t i = 1; i <= params_glwe->l; i++)
+		for (uint64_t i = 1; i <= glwe_params_l_a(params_glwe); i++)
 			pol_computed_p += ldexp((double)pol_computed[(i - 1) * params_glwe->nn + p], -i * params_glwe->kappa);
 
 		//TODO: double check this
@@ -131,7 +132,7 @@ PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 
 	biv_to_univ_rnx(params_glwe, pol_univ_computed, pol_computed);
 
-	double err_length = ldexp(1.0, -(params_glwe->l - 1) * params_glwe->kappa) + 3 * DBL_EPSILON;
+	double err_length = glwe_params_l_a(params_glwe) + 3 * DBL_EPSILON;
 
 	// Asserts pol_univ_computed(X) = pol_univ(X)
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
@@ -162,7 +163,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		int bits = params_glwe->l * params_glwe->kappa;
+		int bits = glwe_params_l_a(params_glwe) * params_glwe->kappa;
 		if (bits >= 64)
 			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
 		else
@@ -192,7 +193,7 @@ PvdaParamTest(poly_biv_coef_number, classic_params, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Asserts poly_biv_coef_number returns params_glwe->nn * params_glwe->l
-	cr_assert(eq(i64, poly_biv_coef_number(params_glwe), params_glwe->nn * params_glwe->l));
+	cr_assert(eq(i64, poly_biv_coef_number(params_glwe), params_glwe->nn * glwe_params_l_a(params_glwe)));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -223,7 +224,7 @@ PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 
 	// Asserts pol is normalized.
 	// i.e. that each coefficient is between -2^(params->kappa-1) (inclusive) and 2^(params->kappa-1) (exculsive)
-	for (uint64_t i = 0; i < params_glwe->l * params_glwe->nn; i++)
+	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
 	{
 		cr_assert(lt(i64, pol[i], (1 << (params_glwe->kappa - 1))));
 		cr_assert(ge(i64, pol[i], -(1 << (params_glwe->kappa - 1))));
@@ -251,7 +252,7 @@ PvdaParamTest(add_biv_poly, basic, default_params_fn)
 	add_biv_poly(module, params_glwe, sum_observed, pol_lhs, pol_rhs);
 
 	// Asserts sum_computed = pol_lhs + pol_rhs
-	for (uint64_t i = 0; i < params_glwe->l * params_glwe->nn; i++)
+	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
 	{
 		cr_assert(eq(i64, sum_observed[i], pol_lhs[i] + pol_rhs[i]));
 	}

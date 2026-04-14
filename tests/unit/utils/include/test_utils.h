@@ -37,8 +37,8 @@ typedef struct pvda_tst_params_t
 	uint64_t nn;
 	uint64_t k;
 	uint64_t kappa;
-	uint64_t l;
-	uint64_t l_tilde;
+	uint64_t ciphertext_nb_limbs;
+	uint64_t ciphertext_nb_limbs_tilde;
 
 	/** Can be :
 	 * - =0 if one wants the default computation according to the other params
@@ -62,10 +62,11 @@ double generate_sigma(PvdaTstParams* p);
 
 #define DELETE_PVDA_PARAMS_BASE    pvda_delete_module_info(module);
 
+// TODO: add support for l_a != l_b
 #define INIT_PVDA_PARAMS_GLWE(PRS)                   \
 	INIT_PVDA_PARAMS_BASE((PRS))                     \
 	double sigma            = generate_sigma((PRS)); \
-	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l, sigma);
+	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs, sigma);
 
 #define DELETE_PVDA_PARAMS_GLWE \
 	DELETE_PVDA_PARAMS_BASE     \
@@ -73,16 +74,17 @@ double generate_sigma(PvdaTstParams* p);
 
 #define INIT_PVDA_PARAMS_GGSW(PRS) \
 	INIT_PVDA_PARAMS_GLWE((PRS))   \
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde)
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs_tilde)
 
 #define DELETE_PVDA_PARAMS_GGSW \
 	DELETE_PVDA_PARAMS_GLWE     \
 	delete_ggsw_params(params_ggsw);
 
-#define INIT_PVDA_PARAMS_GGSWGAD(PRS)                                                                           \
-	INIT_PVDA_PARAMS_GLWE((PRS))                                                                                \
-	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->l_tilde); \
-	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, (PRS)->kappa, (PRS)->l_tilde);
+#define INIT_PVDA_PARAMS_GGSWGAD(PRS)                                                                                 \
+	INIT_PVDA_PARAMS_GLWE((PRS))                                                                                      \
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs_tilde); \
+	GLWEGadgetParams* params_glwegadget =                                                                             \
+	    new_glwegadget_params(params_glwe, (PRS)->kappa, ((PRS)->ciphertext_nb_limbs_tilde + 1) / ((PRS)->k + 1));
 
 #define DELETE_PVDA_PARAMS_GGSWGAD   \
 	DELETE_PVDA_PARAMS_GLWE          \

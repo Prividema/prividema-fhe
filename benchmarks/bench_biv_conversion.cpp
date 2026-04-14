@@ -13,14 +13,13 @@ extern "C" {
 #define KAPPABASE  19
 #define NLIMBSBASE (15 * 2)
 #define LBASE      NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE  -(LBASE / 2 + 1) * KAPPABASE
 
 void test_univ_biv_rnx(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, LBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	PolyUnivRnX* m = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv = new_biv_poly(params_glwe);
@@ -43,7 +42,7 @@ void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, LBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	PolyUnivRnX* m     = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv     = new_biv_poly(params_glwe);
@@ -68,7 +67,7 @@ void test_univ_biv_tnx(benchmark::State& state)
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, LBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	PolyUnivTnX* m = new_univ_tnx(params_glwe);
 	PolyBiv* m_biv = new_biv_poly(params_glwe);
@@ -91,7 +90,7 @@ void test_biv_univ_tnx(benchmark::State& state)
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, LBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	PolyUnivTnX* m      = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_back = new_univ_tnx(params_glwe);
@@ -117,7 +116,7 @@ void test_biv_univ_rnx(benchmark::State& state)
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, LBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
 	PolyUnivRnX* m      = new_univ_rnx(params_glwe);
 	PolyUnivRnX* m_back = new_univ_rnx(params_glwe);

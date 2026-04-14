@@ -112,8 +112,6 @@ Test(rand_normal, test_rand_normal)
 	cr_assert(lt(dbl, jjbb, chi_critical_05[1]), "Expect %f < %f\n", jjbb, chi_critical_05[1]);
 }
 
-PvdaTstParams params = {4, 2, 4, 1, 1, -1};
-
 PvdaParamTest(normal_random_vec, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);

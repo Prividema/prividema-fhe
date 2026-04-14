@@ -1,21 +1,21 @@
 #include "ggsw_params.h"
 
 #include <assert.h>
-#include <stdio.h>
+#include <stdlib.h>
 
-#include "ggsw_ciphertext.h"
 #include "utils.h"
 
-GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t l_tilde)
+GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,
+                            uint64_t nb_limbs_tilde)
 {
 	assert(params_glwe);
 	GGSWParams* params_ggsw = malloc(sizeof(GGSWParams));
 	CHECK_ALLOC(params_ggsw, "malloc in new_ggsw_ct_params");
 
-	params_ggsw->params_glwe = params_glwe;
-	params_ggsw->k_tilde     = k_tilde;
-	params_ggsw->kappa_tilde = kappa_tilde;
-	params_ggsw->l_tilde     = l_tilde;
+	params_ggsw->params_glwe               = params_glwe;
+	params_ggsw->k_tilde                   = k_tilde;
+	params_ggsw->kappa_tilde               = kappa_tilde;
+	params_ggsw->ciphertext_nb_limbs_tilde = nb_limbs_tilde;
 
 	return params_ggsw;
 cleanup:
@@ -23,10 +23,6 @@ cleanup:
 }
 
 void delete_ggsw_params(GGSWParams* params) { free(params); }
-
-uint64_t ggsw_num_glwegadget(const GGSWParams* params) { return params->l_tilde; }
-
-uint64_t ggsw_num_rows_per_glwegadget(const GGSWParams* params) { return params->k_tilde + 1; }
 
 GLWEGadgetParams* new_glwegadget_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde)
 {
@@ -45,7 +41,16 @@ cleanup:
 
 void* delete_glwegadget_params(GLWEGadgetParams* params) { free(params); }
 
-uint64_t ggsw_num_rows(const GGSWParams* params) { return params->l_tilde * (params->k_tilde + 1); };
+uint64_t ggsw_num_rows(const GGSWParams* params) { return params->ciphertext_nb_limbs_tilde; };
+
+uint64_t ggsw_params_l_tilde_a(const GGSWParams* params)
+{
+	return (params->ciphertext_nb_limbs_tilde + 1) / (params->k_tilde + 1);
+}
+uint64_t ggsw_params_l_tilde_b(const GGSWParams* params)
+{
+	return params->ciphertext_nb_limbs_tilde - params->k_tilde * ggsw_params_l_tilde_a(params);
+}
 
 uint64_t ggsw_coef_number(const GGSWParams* params_ggsw)
 {

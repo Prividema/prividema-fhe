@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"

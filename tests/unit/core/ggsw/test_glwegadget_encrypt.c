@@ -9,6 +9,7 @@
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
+#include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
 #include "test_utils.h"
@@ -22,10 +23,9 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	// The decryption of a bivGLWE(m) should give m_dec = m + err, and |m_dec - m| <= 2^(-kappa*l) + 3*sigma with a 99%
-	// chance
-	double err_length          = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 3 * sigma + 3 * DBL_EPSILON;
-	double critical_err_length = ldexp(1.0, -params_glwe->l * params_glwe->kappa) + 5 * sigma + 5 * DBL_EPSILON;
+	double biv_epsilon         = glwe_bivariate_epsilon(params_glwe);
+	double err_length          = biv_epsilon + 3 * sigma + 3 * DBL_EPSILON;
+	double critical_err_length = biv_epsilon + 5 * sigma + 5 * DBL_EPSILON;
 	cr_log_info("error length = %e", err_length);
 
 	GLWESecretKey* sk                = alloc_glwe_secret_key(params_glwe);
@@ -47,7 +47,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 
 	glwegadget_secret_encrypt(module, glwegadget, sk_dft, m_univ);
 
-	for (uint64_t i = 1; i <= params_ggsw->l_tilde; i++)
+	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
 	{
 		// Exctact the i'th glwe in the glwegadget and decrypt it. It should equal a phase of m / 2^{kappa*i}
 		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegadget, i)};
