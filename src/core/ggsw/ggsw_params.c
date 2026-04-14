@@ -5,7 +5,7 @@
 
 #include "utils.h"
 
-GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uint64_t nb_gglwes)
+GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t nb_gglwes)
 {
 	assert(params_glwe);
 	GGSWParams* params_ggsw = malloc(sizeof(GGSWParams));
@@ -13,6 +13,7 @@ GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uin
 
 	params_ggsw->params_glwe          = params_glwe;
 	params_ggsw->k_tilde              = k_tilde;
+	params_ggsw->kappa_tilde          = kappa_tilde;
 	params_ggsw->ciphertext_nb_gglwes = nb_gglwes;
 
 	return params_ggsw;

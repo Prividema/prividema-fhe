@@ -76,8 +76,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 
 			// Computes m_skj_univ / 2^{kappa_tilde*i}
 			for (uint64_t p = 0; p < nn; p++)
-				tmp_sp1[p] =
-				    ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->params_glwe->kappa * i);
+				tmp_sp1[p] = ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->kappa_tilde * i);
 
 			CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
 			           "error addition failed in ggsw encryption");

@@ -74,7 +74,7 @@ double generate_sigma(PvdaTstParams* p);
 
 #define INIT_PVDA_PARAMS_GGSW(PRS) \
 	INIT_PVDA_PARAMS_GLWE((PRS))   \
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->ggsw_nb_glwes);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->ggsw_nb_glwes)
 
 #define DELETE_PVDA_PARAMS_GGSW \
 	DELETE_PVDA_PARAMS_GLWE     \

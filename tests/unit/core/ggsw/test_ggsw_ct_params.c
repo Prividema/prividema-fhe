@@ -11,6 +11,7 @@
 #define SIGMABASE        1e-7
 
 #define K_TILDEBASE      1
+#define KAPPA_TILDEBASE  4
 #define NLIMBS_TILDEBASE 10
 #define L_TILDEBASE      NLIMBS_TILDEBASE / (K_TILDEBASE + 1)
 
@@ -22,7 +23,7 @@
 Test(new_ggsw_params, basic)
 {
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, NLIMBS_TILDEBASE);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	cr_assert(params_ggsw != NULL);
 
