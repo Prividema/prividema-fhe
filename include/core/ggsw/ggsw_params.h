@@ -26,13 +26,14 @@ typedef struct ggsw_ct_params
 /**
  * @brief Creates a set of GGSW Parameters.
  *
- * @param params_glwe   The GLWE parameters.
- * @param k_tilde       The number of polynomials in the secret key.
- * @param nb_glwes l_tilde_a * k + l_tilde_b
+ * @param params_glwe    The GLWE parameters.
+ * @param k_tilde        The number of polynomials in the secret key.
+ * @param kappa_tilde    Kappa tilde
+ * @param nb_limbs_tilde l_tilde_a * k + l_tilde_b
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
-GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t l_tilde);
+GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t nb_limbs_tilde);
 
 /**
  * @brief Deletes a GGSW parameters.

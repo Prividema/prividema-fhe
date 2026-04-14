@@ -38,7 +38,7 @@ typedef struct pvda_tst_params_t
 	uint64_t k;
 	uint64_t kappa;
 	uint64_t ciphertext_nb_limbs;
-	uint64_t ggsw_nb_glwes;
+	uint64_t ciphertext_nb_limbs_tilde;
 
 	/** Can be :
 	 * - =0 if one wants the default computation according to the other params
@@ -74,7 +74,7 @@ double generate_sigma(PvdaTstParams* p);
 
 #define INIT_PVDA_PARAMS_GGSW(PRS) \
 	INIT_PVDA_PARAMS_GLWE((PRS))   \
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->ggsw_nb_glwes)
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs_tilde)
 
 #define DELETE_PVDA_PARAMS_GGSW \
 	DELETE_PVDA_PARAMS_GLWE     \

@@ -40,30 +40,30 @@ void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX*
 struct criterion_test_params default_params_fn()
 {
 	static PvdaTstParams default_params[] = {
-	    {.nn                  = 1024,
-	     .k                   = 1,
-	     .kappa               = 4,
-	     .ciphertext_nb_limbs = 8l * 2,
-	     .ggsw_nb_glwes       = 8l * 2,
-	     .sigma               = 0},  // toy params, let default sigma
-	    {.nn                  = (1 << 14),
-	     .k                   = 1,
-	     .kappa               = 19,
-	     .ciphertext_nb_limbs = 15l * 2,
-	     .ggsw_nb_glwes       = 15l * 2,
-	     .sigma               = 0},  // lattigo params, default sigma
-	    {.nn                  = 1024,
-	     .k                   = 4,
-	     .kappa               = 8,
-	     .ciphertext_nb_limbs = 9l * 5,
-	     .ggsw_nb_glwes       = 9l * 5,
-	     .sigma               = 0},  // k > 1 params
-	    {.nn                  = 1024,
-	     .k                   = 4,
-	     .kappa               = 8,
-	     .ciphertext_nb_limbs = 9l * 5 - 1,
-	     .ggsw_nb_glwes       = 9l * 5 - 1,
-	     .sigma               = 0},  // k > 1 l_a != l_b params
+	    {.nn                        = 1024,
+	     .k                         = 1,
+	     .kappa                     = 4,
+	     .ciphertext_nb_limbs       = 8l * 2,
+	     .ciphertext_nb_limbs_tilde = 8l * 2,
+	     .sigma                     = 0},  // toy params, let default sigma
+	    {.nn                        = (1 << 14),
+	     .k                         = 1,
+	     .kappa                     = 19,
+	     .ciphertext_nb_limbs       = 15l * 2,
+	     .ciphertext_nb_limbs_tilde = 15l * 2,
+	     .sigma                     = 0},  // lattigo params, default sigma
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5,
+	     .ciphertext_nb_limbs_tilde = 9l * 5,
+	     .sigma                     = 0},  // k > 1 params
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5 - 1,
+	     .ciphertext_nb_limbs_tilde = 9l * 5 - 1,
+	     .sigma                     = 0},  // k > 1 l_a != l_b params
 
 	};
 
