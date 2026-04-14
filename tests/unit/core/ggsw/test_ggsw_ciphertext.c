@@ -80,8 +80,8 @@ PvdaParamTest(ggsw_Sj_Yti, basic, default_params_fn)
 	// asserts ggsw_Sj_Yti returns the right pointer
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		uint64_t i        = (ij % ggsw_params_l_tilde_a(params_ggsw)) + 1;
-		uint64_t j        = ij / ggsw_params_l_tilde_a(params_ggsw);
+		uint64_t j        = (ij % (params_ggsw->k_tilde + 1));
+		uint64_t i        = ij / (params_ggsw->k_tilde + 1) + 1;
 		VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(ggsw, j, i);
 
 		// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
@@ -189,14 +189,14 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	// Asserts product_computed = u * ggsw
 	for (uint64_t iijj = 0; iijj < ggsw_num_rows(params_ggsw); ++iijj)
 	{
-		uint64_t ii           = (iijj % ggsw_params_l_tilde_a(params_ggsw)) + 1;
-		uint64_t jj           = iijj / ggsw_params_l_tilde_a(params_ggsw);
+		uint64_t jj           = (iijj % (params_ggsw->k_tilde + 1));
+		uint64_t ii           = iijj / (params_ggsw->k_tilde + 1) + 1;
 		VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
 		VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
 		for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 		{
-			uint64_t i      = (ij % (glwe_params_l_a(params_glwe))) + 1;
-			uint64_t j      = ij / glwe_params_l_a(params_glwe);
+			uint64_t j      = (ij % (params_glwe->k + 1));
+			uint64_t i      = ij / (params_glwe->k + 1) + 1;
 			PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
 			pvda_znx_product(module, prod_expected, u, ct_ij);
 			for (uint64_t p = 0; p < params_glwe->nn; p++)
@@ -260,8 +260,8 @@ PvdaParamTest(ggsw_Sj_Yti_dft, basic, default_params_fn)
 	// Asserts ggsw_Sj_Yti_dft returns the right pointer
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		uint64_t i           = (ij % ggsw_params_l_tilde_a(params_ggsw)) + 1;
-		uint64_t j           = ij / ggsw_params_l_tilde_a(params_ggsw);
+		uint64_t j           = (ij % (params_ggsw->k_tilde + 1));
+		uint64_t i           = ij / (params_ggsw->k_tilde + 1) + 1;
 		VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(ggsw_dft, j, i);
 
 		// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
@@ -350,14 +350,14 @@ PvdaParamTest(const_mult_ggsw_dft, without_normalization, default_params_fn)
 
 	for (uint64_t iijj = 0; iijj < ggsw_num_rows(params_ggsw); ++iijj)
 	{
-		uint64_t ii           = (iijj % ggsw_params_l_tilde_a(params_ggsw)) + 1;
-		uint64_t jj           = iijj / ggsw_params_l_tilde_a(params_ggsw);
+		uint64_t jj           = (iijj % (params_ggsw->k_tilde + 1));
+		uint64_t ii           = iijj / (params_ggsw->k_tilde + 1) + 1;
 		VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
 		VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);
 		for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 		{
-			uint64_t i      = ij % glwe_params_l_a(params_glwe) + 1;
-			uint64_t j      = ij / glwe_params_l_a(params_glwe);
+			uint64_t j      = ij % (params_glwe->k + 1);
+			uint64_t i      = ij / (params_glwe->k + 1) + 1;
 			PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
 			pvda_znx_product(module, prod_expected, u, ct_ij);
 			for (uint64_t p = 0; p < params_glwe->nn; p++)

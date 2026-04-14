@@ -13,7 +13,7 @@ double generate_sigma(PvdaTstParams* p)
 {
 	if (p->sigma > 0.0) return p->sigma;
 	if (p->sigma < 0.0) return ldexp(1.0, (int)p->sigma);
-	return ldexp(1.0, -(p->l / 2 + 1) * p->kappa);
+	return ldexp(1.0, -(p->ciphertext_nb_limbs / 2 + 1) * p->kappa);
 }
 
 void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
@@ -40,9 +40,30 @@ void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX*
 struct criterion_test_params default_params_fn()
 {
 	static PvdaTstParams default_params[] = {
-	    {.nn = 1024, .k = 1, .kappa = 4, .l = 8, .l_tilde = 8, .sigma = 0},          // toy params, let default sigma
-	    {.nn = (1 << 14), .k = 1, .kappa = 19, .l = 15, .l_tilde = 15, .sigma = 0},  // lattigo params, default sigma
-	    {.nn = 1024, .k = 4, .kappa = 8, .l = 9, .l_tilde = 9, .sigma = 0},          // k > 1 params
+	    {.nn                  = 1024,
+	     .k                   = 1,
+	     .kappa               = 4,
+	     .ciphertext_nb_limbs = 8l * 2,
+	     .ggsw_nb_glwes       = 8l * 2,
+	     .sigma               = 0},  // toy params, let default sigma
+	    {.nn                  = (1 << 14),
+	     .k                   = 1,
+	     .kappa               = 19,
+	     .ciphertext_nb_limbs = 15l * 2,
+	     .ggsw_nb_glwes       = 15l * 2,
+	     .sigma               = 0},  // lattigo params, default sigma
+	    {.nn                  = 1024,
+	     .k                   = 4,
+	     .kappa               = 8,
+	     .ciphertext_nb_limbs = 9l * 5,
+	     .ggsw_nb_glwes       = 9l * 5,
+	     .sigma               = 0},  // k > 1 params
+	    // {.nn                  = 1024,
+	    //  .k                   = 4,
+	    //  .kappa               = 8,
+	    //  .ciphertext_nb_limbs = 9l * 5 - 1,
+	    //  .ggsw_nb_glwes       = 9l * 5 - 1,
+	    //  .sigma               = 0},  // k > 1 l_a != l_b params
 
 	};
 

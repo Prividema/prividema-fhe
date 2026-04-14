@@ -56,8 +56,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		uint64_t i = (ij % ggsw_params_l_tilde_a(params_ggsw)) + 1;
-		uint64_t j = ij / ggsw_params_l_tilde_a(params_ggsw);
+		uint64_t j = (ij % (k + 1));
+		uint64_t i = ij / (k + 1) + 1;
 		{
 			// For j < k, m_skj_univ is -m * skj
 			// For j = k  we skip this and we get it from m_univ directly

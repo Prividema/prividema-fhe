@@ -57,8 +57,8 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 	// - a bivGLWE(m / 2^{kappa_tilde * i}))        , for j = k
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		uint64_t i = (ij % ggsw_params_l_tilde_a(params_ggsw)) + 1;
-		uint64_t j = ij / ggsw_params_l_tilde_a(params_ggsw);
+		uint64_t j = (ij % (params_ggsw->k_tilde + 1));
+		uint64_t i = ij / (params_ggsw->k_tilde + 1) + 1;
 		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
 		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
 		memset(m_skj_univ_dft, 0, poly_univ_bytes(params_glwe));

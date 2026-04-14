@@ -248,8 +248,8 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 	// Asserts prod_computed = u * glwe
 	for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 	{
-		uint64_t i        = (ij % (glwe_params_l_a(params_glwe))) + 1;
-		uint64_t j        = ij / glwe_params_l_a(params_glwe);
+		uint64_t j        = (ij % (params_glwe->k + 1));
+		uint64_t i        = ij / (params_glwe->k + 1) + 1;
 		PolyUniv* glwe_ij = glwe->vec + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
 		pvda_znx_product(module, prod_expected, u, glwe_ij);
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
@@ -372,8 +372,8 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
 	for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 	{
-		uint64_t i        = (ij % (glwe_params_l_a(params_glwe))) + 1;
-		uint64_t j        = ij / glwe_params_l_a(params_glwe);
+		uint64_t j        = (ij % (params_glwe->k + 1));
+		uint64_t i        = ij / (params_glwe->k + 1) + 1;
 		PolyUniv* glwe_ij = glwe_ct->vec + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
 		pvda_znx_product(module, prod_expected, u, glwe_ij);
 		for (uint64_t p = 0; p < params_glwe->nn; p++)

@@ -63,8 +63,8 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 	// Normalization of the bivGGSW ciphertext
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		uint64_t i = (ij % ggsw_params_l_tilde_a(params_ggsw)) + 1;
-		uint64_t j = ij / ggsw_params_l_tilde_a(params_ggsw);
+		uint64_t i = ij / (params_ggsw->k_tilde + 1) + 1;
+		uint64_t j = (ij % (params_ggsw->k_tilde + 1));
 		// The pointer to biGLWE(-m * sk_j * Y^i)
 		VecBiv* result_glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
 		GLWECiphertext glwe_normalize = {.params = params_glwe, .vec = result_glwe_vec};

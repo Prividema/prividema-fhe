@@ -37,8 +37,8 @@ typedef struct pvda_tst_params_t
 	uint64_t nn;
 	uint64_t k;
 	uint64_t kappa;
-	uint64_t l;
-	uint64_t l_tilde;
+	uint64_t ciphertext_nb_limbs;
+	uint64_t ggsw_nb_glwes;
 
 	/** Can be :
 	 * - =0 if one wants the default computation according to the other params
@@ -66,7 +66,7 @@ double generate_sigma(PvdaTstParams* p);
 #define INIT_PVDA_PARAMS_GLWE(PRS)                   \
 	INIT_PVDA_PARAMS_BASE((PRS))                     \
 	double sigma            = generate_sigma((PRS)); \
-	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->l * ((PRS)->k + 1), sigma);
+	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs, sigma);
 
 #define DELETE_PVDA_PARAMS_GLWE \
 	DELETE_PVDA_PARAMS_BASE     \
@@ -74,7 +74,7 @@ double generate_sigma(PvdaTstParams* p);
 
 #define INIT_PVDA_PARAMS_GGSW(PRS) \
 	INIT_PVDA_PARAMS_GLWE((PRS))   \
-	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->l_tilde * ((PRS)->k + 1))
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->ggsw_nb_glwes);
 
 #define DELETE_PVDA_PARAMS_GGSW \
 	DELETE_PVDA_PARAMS_GLWE     \
