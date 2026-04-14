@@ -48,7 +48,7 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphe
 	uint64_t l_a   = glwe_params_l_a(result->params);
 	uint64_t l_b   = glwe_params_l_b(result->params);
 
-	for (uint64_t j = 0; j < k + 1; j++)
+	for (uint64_t j = 0; j < k; j++)
 		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result->vec + j * nn, l_a, (k + 1) * nn,
 		                                         glwe->vec + j * nn, l_a, (k + 1) * nn),
 		           "vec_znx_normalize_base2k_p failed in normalize_glwe");
