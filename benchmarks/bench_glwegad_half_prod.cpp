@@ -19,7 +19,7 @@ extern "C" {
 #define LBASE      91
 #define NLIMBSBASE (LBASE * 2)
 
-void test_ggsw_ext_prod(benchmark::State& state)
+void test_glwegad_half_prod(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
@@ -45,7 +45,6 @@ void test_ggsw_ext_prod(benchmark::State& state)
 
 	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);
 	glwegadget_prepare(module, glwegad_prep, glwegad);
-	glwegadget_half_prod(module, glwe, glwegad_prep, m);
 
 	for (auto _ : state)
 	{
@@ -69,4 +68,4 @@ void test_ggsw_ext_prod(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_ggsw_ext_prod);
+BENCHMARK(test_glwegad_half_prod);
