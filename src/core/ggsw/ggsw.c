@@ -1,10 +1,13 @@
 #include "ggsw.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
+#include <sys/types.h>
 
 #include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
+#include "ggsw_params.h"
 #include "glwe.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
@@ -51,46 +54,43 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	// Computes DFT(msg)
 	univ_coefs_to_dft(module, m_univ_dft, m_univ);
 
-	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
+	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		for (uint64_t j = 0; j < k_tilde + 1; j++)
+		uint64_t j = (ij % (k + 1));
+		uint64_t i = ij / (k + 1) + 1;
 		{
+			// For j < k, m_skj_univ is -m * skj
+			// For j = k  we skip this and we get it from m_univ directly
+			if (j < params_glwe->k)
 			{
-				// For j < k, m_skj_univ is -m * skj
-				// For j = k  we skip this and we get it from m_univ directly
-				if (j < params_glwe->k)
-				{
-					// Computes DFT(msg * sk_j)
-					mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
+				// Computes DFT(msg * sk_j)
+				mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
 
-					// Computes -DFT(msg * sk_j)
-					for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
+				// Computes -DFT(msg * sk_j)
+				for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 
-					// Invert the DFT to get -msg * sk_j
-					CHECK_CALL(univ_dft_to_coefs(module, m_skj_univ, m_skj_univ_dft),
-					           "vec_znx_idft_p failed in compute_phase_ij");
-				}
-
-				// Computes m_skj_univ / 2^{kappa_tilde*i}
-				for (uint64_t p = 0; p < nn; p++)
-					tmp_sp1[p] =
-					    ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->kappa_tilde * i);
-
-				CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
-				           "error addition failed in ggsw encryption");
-
-				// Compute the base-2^kappa decomposition of tmp_sp1
-				CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1),
-				           "univ_to_biv failed in compute_phase_ij");
+				// Invert the DFT to get -msg * sk_j
+				CHECK_CALL(univ_dft_to_coefs(module, m_skj_univ, m_skj_univ_dft),
+				           "vec_znx_idft_p failed in compute_phase_ij");
 			}
-			// Get the pointer for the result position
-			VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
-			GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
-			//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
-			CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_dft, glwe_biv_msg),
-			           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
+			// Computes m_skj_univ / 2^{kappa_tilde*i}
+			for (uint64_t p = 0; p < nn; p++)
+				tmp_sp1[p] = ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->kappa_tilde * i);
+
+			CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
+			           "error addition failed in ggsw encryption");
+
+			// Compute the base-2^kappa decomposition of tmp_sp1
+			CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1), "univ_to_biv failed in compute_phase_ij");
 		}
+		// Get the pointer for the result position
+		VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
+		GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
+
+		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
+		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_dft, glwe_biv_msg),
+		           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
 	}
 
 	status = 0;

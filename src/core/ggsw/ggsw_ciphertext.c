@@ -1,6 +1,7 @@
 #include "ggsw_ciphertext.h"
 
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "bivariate_polynomial.h"
@@ -58,24 +59,18 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 	// TODO: assert input and output have equal params
 	const GGSWParams* params_ggsw = result->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
-	uint64_t nn                   = params_glwe->nn;
-	uint64_t k                    = params_glwe->k;
-	uint64_t kappa                = params_glwe->kappa;
-	uint64_t l                    = glwe_params_l(params_glwe);
 
 	// Normalization of the bivGGSW ciphertext
-	for (uint64_t i = 1; i <= ggsw_num_pggsw(params_ggsw); i++)
-		for (uint64_t j = 0; j < ggsw_num_rows_per_pggsw(params_ggsw); j++)
-		{
-			// The pointer to biGLWE(-m * sk_j * Y^i)
-			VecBiv* result_glwe_vec = ggsw_retrieve_bivglwe(result, j, i);
+	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
+	{
+		uint64_t i = ij / (params_ggsw->k_tilde + 1) + 1;
+		uint64_t j = (ij % (params_ggsw->k_tilde + 1));
+		// The pointer to biGLWE(-m * sk_j * Y^i)
+		VecBiv* result_glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
+		GLWECiphertext glwe_normalize = {.params = params_glwe, .vec = result_glwe_vec};
 
-			// Normalize the k+1 bivGLWE's elements
-			for (uint64_t t = 0; t < k + 1; t++)
-				CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, result_glwe_vec + t * nn, l, (k + 1) * nn,
-				                                         result_glwe_vec + t * nn, l, (k + 1) * nn),
-				           "vec_znx_normalize_base2k_p failed in normalize_ggsw");
-		}
+		normalize_glwe(module, &glwe_normalize, &glwe_normalize);
+	}
 
 	status = 0;
 

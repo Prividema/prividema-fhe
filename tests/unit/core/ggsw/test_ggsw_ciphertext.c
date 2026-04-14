@@ -1,17 +1,18 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 #include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
+#include "ggsw_params.h"
 #include "glwe_params.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-#define NLIMBSBASE       ((params_glwe->k + 1) * params_glwe->l)
-
-#define NLIMBS_TILDEBASE (params_glwe->k + 1) * params_ggsw->l_tilde
+#define NLIMBSBASE       (params_glwe->k * glwe_params_l_a(params_glwe) + glwe_params_l_b(params_glwe))
+#define NLIMBS_TILDEBASE (params_glwe->k * ggsw_params_l_tilde_a(params_ggsw) + ggsw_params_l_tilde_b(params_ggsw))
 
 //! COMMON PART (begin)
 
@@ -77,24 +78,25 @@ PvdaParamTest(ggsw_Sj_Yti, basic, default_params_fn)
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
 	// asserts ggsw_Sj_Yti returns the right pointer
-	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
-		for (uint64_t j = 0; j < params_glwe->k + 1; j++)
-		{
-			VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(ggsw, j, i);
+	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
+	{
+		uint64_t j        = (ij % (params_ggsw->k_tilde + 1));
+		uint64_t i        = ij / (params_ggsw->k_tilde + 1) + 1;
+		VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(ggsw, j, i);
 
-			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
-			ct_mat_ij[0] = 1;
-			ct_mat_ij[1] = 2;
+		// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
+		ct_mat_ij[0] = 1;
+		ct_mat_ij[1] = 2;
 
-			cr_assert(eq(i64,
-			             ggsw->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
-			                       j * NLIMBSBASE * params_glwe->nn],
-			             1));
-			cr_assert(eq(i64,
-			             ggsw->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
-			                       j * NLIMBSBASE * params_glwe->nn + 1],
-			             2));
-		}
+		cr_assert(eq(
+		    i64,
+		    ggsw->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn + j * NLIMBSBASE * params_glwe->nn],
+		    1));
+		cr_assert(eq(i64,
+		             ggsw->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
+		                       j * NLIMBSBASE * params_glwe->nn + 1],
+		             2));
+	}
 
 	// Clean up
 	delete_ggsw(ggsw);
@@ -185,26 +187,26 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	const_mult_ggsw(module, product_computed, ggsw, u_dft);
 
 	// Asserts product_computed = u * ggsw
-	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < params_glwe->k + 1; jj++)
+	for (uint64_t iijj = 0; iijj < ggsw_num_rows(params_ggsw); ++iijj)
+	{
+		uint64_t jj           = (iijj % (params_ggsw->k_tilde + 1));
+		uint64_t ii           = iijj / (params_ggsw->k_tilde + 1) + 1;
+		VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
+		VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
+		for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
-			for (uint64_t j = 0; j < params_glwe->k + 1; j++)
-				for (uint64_t i = params_glwe->l; i >= 1; i--)
-				{
-					PolyUniv* ct_ij =
-					    ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
-					pvda_znx_product(module, prod_expected, u, ct_ij);
-					for (uint64_t p = 0; p < params_glwe->nn; p++)
-					{
-						cr_assert(eq(
-						    i64,
-						    res_mat_ii_jj[(i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn + p],
-						    prod_expected[p]));
-					}
-				}
+			uint64_t j      = (ij % (params_glwe->k + 1));
+			uint64_t i      = ij / (params_glwe->k + 1) + 1;
+			PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
+			pvda_znx_product(module, prod_expected, u, ct_ij);
+			for (uint64_t p = 0; p < params_glwe->nn; p++)
+			{
+				cr_assert(eq(i64,
+				             res_mat_ii_jj[(i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn + p],
+				             prod_expected[p]));
+			}
 		}
+	}
 
 	// Clean up
 	delete_univ(u);
@@ -256,24 +258,25 @@ PvdaParamTest(ggsw_Sj_Yti_dft, basic, default_params_fn)
 	GGSWCiphertextDFT* ggsw_dft = new_ggsw_dft(params_ggsw);
 
 	// Asserts ggsw_Sj_Yti_dft returns the right pointer
-	for (uint64_t i = 1; i < ggsw_num_pggsw(params_ggsw); i++)
-		for (uint64_t j = 0; j < params_glwe->k + 1; j++)
-		{
-			VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(ggsw_dft, j, i);
+	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
+	{
+		uint64_t j           = (ij % (params_ggsw->k_tilde + 1));
+		uint64_t i           = ij / (params_ggsw->k_tilde + 1) + 1;
+		VecBivDFT* ct_mat_ij = ggsw_retrieve_bivglwe_dft(ggsw_dft, j, i);
 
-			// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
-			ct_mat_ij[0] = 0.1;
-			ct_mat_ij[1] = 0.2;
+		// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
+		ct_mat_ij[0] = 0.1;
+		ct_mat_ij[1] = 0.2;
 
-			cr_assert(eq(dbl,
-			             ggsw_dft->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
-			                           j * NLIMBSBASE * params_glwe->nn],
-			             0.1));
-			cr_assert(eq(dbl,
-			             ggsw_dft->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
-			                           j * NLIMBSBASE * params_glwe->nn + 1],
-			             0.2));
-		}
+		cr_assert(eq(dbl,
+		             ggsw_dft->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
+		                           j * NLIMBSBASE * params_glwe->nn],
+		             0.1));
+		cr_assert(eq(dbl,
+		             ggsw_dft->mat[(i - 1) * (params_glwe->k + 1) * NLIMBSBASE * params_glwe->nn +
+		                           j * NLIMBSBASE * params_glwe->nn + 1],
+		             0.2));
+	}
 
 	// Clean up
 	delete_ggsw_dft(ggsw_dft);
@@ -345,26 +348,26 @@ PvdaParamTest(const_mult_ggsw_dft, without_normalization, default_params_fn)
 	pvda_vec_znx_idft(module, prod_comp->mat, ggsw_total_n_glwe_limbs(params_ggsw), prod_computed_dft->mat,
 	                  ggsw_total_n_glwe_limbs(params_ggsw));
 
-	for (uint64_t ii = 1; ii <= ggsw_num_pggsw(params_ggsw); ii++)
-		for (uint64_t jj = 0; jj < params_glwe->k + 1; jj++)
+	for (uint64_t iijj = 0; iijj < ggsw_num_rows(params_ggsw); ++iijj)
+	{
+		uint64_t jj           = (iijj % (params_ggsw->k_tilde + 1));
+		uint64_t ii           = iijj / (params_ggsw->k_tilde + 1) + 1;
+		VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
+		VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);
+		for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 		{
-			VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw_ct, jj, ii);
-			VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(prod_comp, jj, ii);
-			for (uint64_t j = 0; j < params_glwe->k + 1; j++)
-				for (uint64_t i = params_glwe->l; i >= 1; i--)
-				{
-					PolyUniv* ct_ij =
-					    ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
-					pvda_znx_product(module, prod_expected, u, ct_ij);
-					for (uint64_t p = 0; p < params_glwe->nn; p++)
-					{
-						cr_assert(eq(
-						    i64,
-						    res_mat_ii_jj[(i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn + p],
-						    prod_expected[p]));
-					}
-				}
+			uint64_t j      = ij % (params_glwe->k + 1);
+			uint64_t i      = ij / (params_glwe->k + 1) + 1;
+			PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
+			pvda_znx_product(module, prod_expected, u, ct_ij);
+			for (uint64_t p = 0; p < params_glwe->nn; p++)
+			{
+				cr_assert(eq(i64,
+				             res_mat_ii_jj[(i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn + p],
+				             prod_expected[p]));
+			}
 		}
+	}
 
 	// Clean up
 	delete_univ(u);
