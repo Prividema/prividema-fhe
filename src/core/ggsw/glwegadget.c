@@ -104,7 +104,7 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 
 	CHECK_CALL(glwe_dft_to_coef(module, result, glwe_dft),
 	           "conversion from GLWE DFT to coefs failed in GLWEGadget half product");
-
+	status = 0;
 cleanup:
 	delete_glwe_dft(glwe_dft);
 
