@@ -253,10 +253,11 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(tnx_rnx_encoding, back_and_forth_tnx_via_biv)
+PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 {
-	const int vec_size      = 1024;
-	GLWEParams* params_glwe = new_glwe_params(vec_size, 1, 4, 32, 0);
+	INIT_PVDA_PARAMS_GLWE(param);
+	int vec_size = params_glwe->nn;
+
 	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
@@ -279,13 +280,15 @@ Test(tnx_rnx_encoding, back_and_forth_tnx_via_biv)
 	delete_univ_tnx(tnx_values);
 	delete_univ_tnx(tnx_final);
 	free(biv);
-	delete_glwe_params(params_glwe);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(tnx_rnx_encoding, back_and_forth_rnx_via_biv)
+PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
 {
-	const int vec_size      = 1024;
-	GLWEParams* params_glwe = new_glwe_params(vec_size, 1, 4, 32, 0);
+	INIT_PVDA_PARAMS_GLWE(param);
+	int vec_size = params_glwe->nn;
+
 	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
@@ -306,7 +309,8 @@ Test(tnx_rnx_encoding, back_and_forth_rnx_via_biv)
 	delete_univ_rnx(rnx_values);
 	delete_univ_tnx(tnx_values);
 	delete_univ_rnx(rnx_final);
-	delete_glwe_params(params_glwe);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
 //! BIV POLY PART (begin)
 
