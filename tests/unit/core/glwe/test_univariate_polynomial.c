@@ -6,60 +6,50 @@
 #include "common/rng.h"
 #include "common/spqlios_alias.h"
 #include "glwe_params.h"
+#include "test_utils.h"
 #include "univariate_polynomial.h"
 
-#define NBASE      1024
-#define KBASE      1
-#define KAPPABASE  4
-#define NLIMBSBASE (KBASE + 1) * 4
-#define LBASE      NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE  -7
-
+PvdaTstParams params = {1024, 1, 4, 4, 0, -7};
 //! COMMON PART (begin)
 
 /**
  * @brief Test poly_biv_bytes
  */
-Test(poly_univ_bytes, basic)
+PvdaParamTest(poly_univ_bytes, basic, default_params_fn)
 {
-	// Parameters
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
+	INIT_PVDA_PARAMS_GLWE(param);
 
-	// Asserts poly_univ_bytes returns NBASE * sizeof(int64_t)
-	cr_assert(eq(i64, poly_univ_bytes(params_glwe), NBASE * sizeof(int64_t),
-	             "poly_univ_bytes failed: got %" PRId64 ", expected %" PRId64, poly_univ_bytes(params_glwe),
-	             NBASE * sizeof(int64_t)));
+	// Asserts poly_univ_bytes returns params_glwe->nn * sizeof(int64_t)
+	cr_assert(eq(i64, poly_univ_bytes(params_glwe), params_glwe->nn * sizeof(int64_t)));
 
-	// Clean up
-	delete_glwe_params(params_glwe);
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 /**
  * @brief Test poly_biv_bytes
  */
-Test(coef_dft_back_forth, basic)
+PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 {
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, SIGMABASE));
-	MODULE* module          = pvda_new_module_info(NBASE);
+	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUniv* a          = new_univ(params_glwe);
 	PolyUniv* a_t        = new_univ(params_glwe);
 	PolyUnivDFT* res_dft = new_univ_dft(module);
 
-	uniform_random_vec(NBASE, a, 1, NBASE, 8);
+	uniform_random_vec(params_glwe->nn, a, 1, params_glwe->nn, 8);
 
 	univ_coefs_to_dft(module, res_dft, a);
 	univ_dft_to_coefs(module, a_t, res_dft);
 
-	for (int i = 0; i < NBASE; ++i)
+	for (int i = 0; i < params_glwe->nn; ++i)
 	{
 		cr_assert(eq(i64, a_t[i], a[i]));
 	}
-	delete_glwe_params(params_glwe);
 	delete_univ(a);
 	delete_univ(a_t);
 	delete_univ_dft(res_dft);
-	pvda_delete_module_info(module);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
 Test(tnx_rnx_encoding, known_bounded_values)
@@ -80,6 +70,8 @@ Test(tnx_rnx_encoding, known_bounded_values)
 		cr_assert(eq(u64, tnx_values[i], tnx_computed[i]));
 		cr_assert(eq(dbl, rnx_values[i], rnx_computed[i]));
 	}
+
+	delete_glwe_params(params_glwe);
 }
 
 Test(tnx_rnx_encoding, known_outbounded_values)
@@ -97,4 +89,6 @@ Test(tnx_rnx_encoding, known_outbounded_values)
 	{
 		cr_assert(eq(u64, tnx_values[i], tnx_computed[i]));
 	}
+
+	delete_glwe_params(params_glwe);
 }

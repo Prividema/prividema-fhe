@@ -9,23 +9,21 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE       (1 << 14)
-#define KBASE       1
-#define KAPPABASE   19
-#define NLIMBSBASE  (15 * 2)
-#define LBASE       NLIMBSBASE / (KBASE + 1)
+#define NBASE      (1 << 14)
+#define KBASE      1
+#define KAPPABASE  19
+#define NLIMBSBASE (15 * 2)
+#define LBASE      NLIMBSBASE / (KBASE + 1)
 
-#define PROB_FACTOR 3
-
-void test_benchmark(benchmark::State& state)
+void test_encrypt_rnx(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
-	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
 	PolyUnivRnX* m                = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_computed = new_glwe(params_glwe);
 
@@ -49,7 +47,7 @@ void test_benchmark(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_benchmark);
+BENCHMARK(test_encrypt_rnx);
 
 void test_encrypt_tnx(benchmark::State& state)
 {
@@ -58,8 +56,8 @@ void test_encrypt_tnx(benchmark::State& state)
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
 
-	GLWESecretKey* sk             = alloc_glwe_secret_key(NBASE, KBASE);
-	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(NBASE, KBASE);
+	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
 	PolyUnivTnX* m                = new_univ_tnx(params_glwe);
 	GLWECiphertext* glwe_computed = new_glwe(params_glwe);
 

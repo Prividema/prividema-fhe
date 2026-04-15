@@ -3,6 +3,7 @@
 
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
+#include "glwe_params.h"
 
 //! bivGLWE SECRET KEY STRUCTURES
 /**
@@ -29,11 +30,11 @@ typedef struct glwe_prep_secret_key
 /**
  * @brief Creates a GLWE Secret key.
  *
- * @param nn The degree of the chosen cyclotomic polynomial.
- * @param k The number of Zn[X] polynomial in the secret key.
+ * @params the glwe params for the key
+ *
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKey* alloc_glwe_secret_key(uint64_t nn, uint64_t k);
+GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
 
 /**
  * @brief Draws a secret key uniformly.
@@ -71,11 +72,11 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
 /**
  * @brief Creates a GLWE Secret key in the DFT domain.
  *
- * @param nn The degree of the chosen cyclotomic polynomial.
- * @param k The number of Zn[X] polynomial in the secret key.
+ * @param params_glwe the glwe params for the key
+ *
  * @return GLWESecretKeyDFT*
  */
-GLWESecretKeyDFT* alloc_glwe_secret_key_dft(uint64_t nn, uint64_t k);
+GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe);
 
 /**
  * Returns a pointer to the k'th polynomial in the secret key

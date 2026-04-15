@@ -72,7 +72,7 @@ int read_rand(uint64_t* result, size_t bytes)
 static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 {
 	int shft = 64 - n_bits;
-	*tgt     = ((*tgt) << shft) >> shft;
+	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
 }
 
 int rand_uniform(int64_t* result, uint64_t nb_bits)
@@ -88,7 +88,7 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 	{
 		if (read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
-		reduce_uniform_n(result, nb_bits);
+		reduce_uniform_n(result, (int)nb_bits);
 
 		return 1;
 	}
@@ -150,13 +150,14 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
 	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * N), "rng error");
 	for (uint64_t p = 0; p < N; p++)
 	{
-		reduce_uniform_n(res + p, nb_bits);
+		reduce_uniform_n(res + p, (int)nb_bits);
 	}
 	return 0;
 cleanup:
 	return -1;
 }
 
+//TODO: fix int64_t number of limbs and stride length
 int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
@@ -212,6 +213,7 @@ cleanup:
 	return -1;
 }
 
+//TODO: int64_t size
 int normal_random_vec(double* res, int64_t res_size, double mu, double sigma)
 {
 	for (int i = 0; i < res_size; i++) CHECK_CALL(rand_normal(res + i, mu, sigma), "normal_random_vec failed");

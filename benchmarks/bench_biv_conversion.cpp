@@ -8,14 +8,11 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE       (1 << 14)
-#define KBASE       1
-#define KAPPABASE   19
-#define NLIMBSBASE  (15 * 2)
-#define LBASE       NLIMBSBASE / (KBASE + 1)
-#define SIGMABASE   -(LBASE / 2 + 1) * KAPPABASE
-
-#define PROB_FACTOR 3
+#define NBASE      (1 << 14)
+#define KBASE      1
+#define KAPPABASE  19
+#define NLIMBSBASE (15 * 2)
+#define LBASE      NLIMBSBASE / (KBASE + 1)
 
 void test_univ_biv_rnx(benchmark::State& state)
 {

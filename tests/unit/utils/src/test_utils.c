@@ -1,3 +1,92 @@
 
+#include "test_utils.h"
 
-int pvda_tst_util_mock() { return 1234; }
+#include <criterion/criterion.h>
+#include <criterion/new/assert.h>
+#include <criterion/parameterized.h>
+#include <math.h>
+
+#include "math.h"
+#include "utils.h"
+
+double generate_sigma(PvdaTstParams* p)
+{
+	if (p->sigma > 0.0) return p->sigma;
+	if (p->sigma < 0.0) return ldexp(1.0, (int)p->sigma);
+	return ldexp(1.0, -(p->ciphertext_nb_limbs / 2 + 1) * p->kappa);
+}
+
+void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
+                                     double critical_err)
+{
+	const int prob_factor = 3;
+
+	int big_error_count = 0;
+	for (uint64_t p = 0; p < params_glwe->nn; p++)
+	{
+		double diff = torus_distance(a[p], b[p]);
+
+		cr_assert(lt(dbl, diff, critical_err), "Difference outside range (too big)");
+
+		int cond = diff < max_err;
+
+		if (!cond) big_error_count++;
+	}
+
+	int max_fails = (int)(prob_factor * 0.0027 * (double)params_glwe->nn);
+	cr_assert(big_error_count <= max_fails, "Too many values not following the dist");
+}
+
+struct criterion_test_params default_params_fn()
+{
+	static PvdaTstParams default_params[] = {
+	    {.nn                        = 1024,
+	     .k                         = 1,
+	     .kappa                     = 4,
+	     .ciphertext_nb_limbs       = 8l * 2,
+	     .ciphertext_nb_limbs_tilde = 8l * 2,
+	     .sigma                     = 0},  // toy params, let default sigma
+	    {.nn                        = (1 << 14),
+	     .k                         = 1,
+	     .kappa                     = 19,
+	     .ciphertext_nb_limbs       = 15l * 2,
+	     .ciphertext_nb_limbs_tilde = 15l * 2,
+	     .sigma                     = 0},  // lattigo params, default sigma
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5,
+	     .ciphertext_nb_limbs_tilde = 9l * 5,
+	     .sigma                     = 0},  // k > 1 params
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5 - 1,
+	     .ciphertext_nb_limbs_tilde = 9l * 5 - 1,
+	     .sigma                     = 0},  // k > 1 l_a != l_b params
+
+	};
+
+	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
+}
+/*
+
+OLD CODE that might be useful later on
+
+void printf_glwe(GLWECiphertext* glwe)
+{
+    for (int64_t j = 0; j < KBASE + 1; j++) printf_poly_biv(glwe->vec + j * NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
+}
+
+void printf_glwe_dft(MODULE* module, GLWECiphertextDFT* glwe_dft)
+{
+    VecBiv* glwe_vec = malloc(glwe_params_bytes(glwe_dft->params));
+    pvda_vec_znx_idft(module, glwe_vec, glwe_params_n_limbs(glwe_dft->params), glwe_dft->vec,
+                      glwe_params_n_limbs(glwe_dft->params));
+
+    for (int64_t j = 0; j < KBASE + 1; j++) printf_poly_biv(glwe_vec + j * NBASE, (KBASE + 1) * NBASE, NBASE, LBASE);
+
+    free(glwe_vec);
+}
+
+*/

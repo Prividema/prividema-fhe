@@ -32,8 +32,69 @@ build/core/tests/hello
 ### CMake options
 
 - `BUILD_TESTS`: Build the test files.
-- `ENABLE_DEBUG` : Enables additional debug prints.
+- `ENABLE_DEBUG` : Enables additional debug prints and enables sanitizers.
 - `BUILD_DOCS` : Build the Documentation.
+- `BUILD_EXAMPLES`: Build the example executables (TODO)
+- `BUILD_BENCHMARKS`: Build the benchmarks (requires C++ compiler)
+- `BUILD_NATIVE`: Enables -march=native optimisations, makes output NON-portable
+- `PROFILING_OPTIONS`: Adds debugging options and info even in Release builds, intended for profiling traces
+
+### Building the tests
+
+#### Criterion installation instructions
+
+##### UBUNTU USERS
+
+ 1. Install Meson (required for building Criterion):
+
+        sudo apt install meson
+
+ 1. Clone and build Criterion (optional if you want latest version):
+
+        git clone <https://github.com/Snaipe/Criterion.git>
+        cd Criterion/
+        mkdir build
+        meson setup build
+        sudo meson install -C build
+
+ 1. Verify installation:
+
+        ls /usr/include/criterion
+        ls /usr/lib/libcriterion*
+
+ Notes:
+
+- Linking math library (-lm) may be required on Linux
+
+##### MAC USERS
+
+ 1. Install Criterion using Homebrew (recommended):
+
+        brew install criterion
+
+ 2. Ensure Meson is installed (required by Criterion):
+
+        brew install meson
+
+ 3. Verify installation:
+
+     _Apple Silicon (arm64)_
+
+        ls /opt/homebrew/include/criterion
+        ls /opt/homebrew/lib/libcriterion*
+
+    _Intel macOS_
+
+        ls /usr/local/include/criterion
+        ls /usr/local/lib/libcriterion*
+
+ 4. Optional: build from source
+
+        git clone <https://github.com/Snaipe/Criterion.git>
+        cd Criterion/
+        mkdir build
+        meson setup build
+        meson install -C build
 
 ## Structure
 

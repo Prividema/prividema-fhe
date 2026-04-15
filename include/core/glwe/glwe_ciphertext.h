@@ -15,14 +15,6 @@ typedef struct glwe_ciphertext
 } GLWECiphertext;
 
 /**
- * @brief Return the number of coefficient in a bivariate bivGLWE ciphertext.
- *
- * @param params_glwe The bivGLWE parameters.
- * @return int64_t
- */
-uint64_t glwe_coef_number(const GLWEParams* params_glwe);
-
-/**
  * @brief Creates a bivGLWE, filled with 0.
  *
  * @param params_glwe The bivGLWE parameters.
@@ -167,26 +159,6 @@ int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLW
 int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
 
 //! COMMON PART (begin)
-
-/**
- * @brief Return the size of a bivGLWE ciphertext, in the DFT domain & out of the DFT domain.
- *
- * @param params_glwe The bivGLWE parameters.
- * @return int64_t
- *
- * @note The size of a bivGLWE ciphertext is the same in and out of the DFT domain.
- */
-uint64_t glwe_total_nlimbs(const GLWEParams* params_glwe);
-
-/**
- * @brief The number of bytes needed to store a bivGLWE ciphertext.
- *
- * @param params_glwe The bivGLWE parameters.
- * @return int64_t
- *
- * @note The number of bytes needed to store a bivGLWE ciphertext, is the same in and out of the DFT domain.
- */
-uint64_t glwe_bytes(const GLWEParams* params_glwe);
 
 /**
  * @brief Compute the polynomial product of c and d, component-wise in the DFT domain.
