@@ -94,10 +94,11 @@ Test(tnx_rnx_encoding, known_outbounded_values)
 	delete_glwe_params(params_glwe);
 }
 
-Test(tnx_rnx_encoding, back_and_forth_rnx)
+PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx, default_params_fn)
 {
-	const int vec_size      = 1024;
-	GLWEParams* params_glwe = new_glwe_params(vec_size, 1, 4, 14, 0);
+	INIT_PVDA_PARAMS_GLWE(param);
+	int vec_size = params_glwe->nn;
+
 	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
@@ -115,13 +116,15 @@ Test(tnx_rnx_encoding, back_and_forth_rnx)
 	delete_univ_rnx(rnx_values);
 	delete_univ_tnx(tnx_values);
 	delete_univ_rnx(rnx_final);
-	delete_glwe_params(params_glwe);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
 
-Test(tnx_rnx_encoding, back_and_forth_tnx)
+PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx, default_params_fn)
 {
-	const int vec_size      = 1024;
-	GLWEParams* params_glwe = new_glwe_params(vec_size, 1, 4, 14, 0);
+	INIT_PVDA_PARAMS_GLWE(param);
+	int vec_size = params_glwe->nn;
+
 	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
@@ -141,5 +144,6 @@ Test(tnx_rnx_encoding, back_and_forth_tnx)
 	delete_univ_rnx(rnx_values);
 	delete_univ_tnx(tnx_values);
 	delete_univ_tnx(tnx_final);
-	delete_glwe_params(params_glwe);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
