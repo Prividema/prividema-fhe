@@ -51,12 +51,6 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	uniform_random_pol_znx(m_univ_tnx, params_glwe->nn, 64);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
 
-	//for debugging
-	univ_tnx_to_rnx(params_glwe, m_univ_rnx, m_univ_tnx);
-	univ_rnx_to_biv(params_glwe, m2, m_univ_rnx);
-
-	pvda_znx_small_product(module, um_expected_tnx, u_univ, m_univ_tnx);
-
 	memset(um_expected_tnx, 0, poly_univ_rnx_bytes(params_glwe));
 	for (int i = 0; i < params_glwe->nn; ++i)
 		for (int j = 0; j < params_glwe->nn; ++j)
