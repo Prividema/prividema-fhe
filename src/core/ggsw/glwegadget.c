@@ -110,3 +110,22 @@ cleanup:
 
 	return status;
 }
+
+int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+                                    const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft)
+{
+	int status = -1;
+
+	//TODO: assert size compatibility
+	size_t nrows = glwegadget_prep_ct->params->l_tilde;
+	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
+	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+
+	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols, (double*)a_dft, nrows, glwegadget_prep_ct->mat,
+	                                     nrows, ncols),
+	           "vmp apply falied in half product");
+
+	status = 0;
+cleanup:
+	return status;
+}
