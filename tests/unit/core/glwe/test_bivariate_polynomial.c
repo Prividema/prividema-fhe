@@ -199,7 +199,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		int bits = params_glwe->l * params_glwe->kappa;
+		int bits = glwe_params_l_a(params_glwe) * params_glwe->kappa;
 		if (bits >= 64)
 			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
 		else
@@ -234,7 +234,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		int bits = params_glwe->l * params_glwe->kappa;
+		int bits = glwe_params_l_a(params_glwe) * params_glwe->kappa;
 		if (bits >= 64)
 			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
 		else
