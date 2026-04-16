@@ -2,6 +2,7 @@
 #define bivGGSW_H
 
 #include "ggsw_ciphertext.h"
+#include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "spqlios_alias.h"
 

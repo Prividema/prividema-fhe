@@ -10,6 +10,7 @@ extern "C" {
 #include "glwe_transform_key.h"
 #include "glwegadget.h"
 #include "glwegadget_ciphertext.h"
+#include "rng.h"
 #include "univariate_polynomial.h"
 }
 
