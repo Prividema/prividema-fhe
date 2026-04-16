@@ -16,24 +16,18 @@
 
 VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t i)
 {
-	// bivGLWE parameters
-	const GLWEParams* params_glwe = glwegadget_ct->params->params_glwe;
-
-	return glwegadget_ct->mat + (i - 1) * glwe_coef_number(params_glwe);
+	return glwegadget_ct->mat + (i - 1) * glwe_coef_number(glwegadget_ct->params->params_glwe);
 }
 
 int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWESecretKeyDFT* sk_dft,
                               const PolyUniv* m_univ)
 {
-	const GLWEGadgetParams* params_glwegadget = result->params;
-
 	int status = -1;
 
-	const GLWEParams* params_glwe = params_glwegadget->params_glwe;
+	const GLWEGadgetParams* params_glwegadget = result->params;
+	const GLWEParams* params_glwe             = params_glwegadget->params_glwe;
 
-	// bivGLWE parameters
 	uint64_t nn = params_glwe->nn;
-	uint64_t k  = params_glwe->k;
 
 	PolyUnivRnX* tmp_sp1  = new_univ_rnx(params_glwe);
 	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
@@ -76,7 +70,6 @@ int glwegadget_prepare(const MODULE* module, GLWEGadgetCiphertextPrep* glwegadge
 	int status = -1;
 
 	size_t nrows = glwegadget_prep_ct->params->l_tilde;
-	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
 	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
 
 	CHECK_CALL(pvda_vmp_prepare_contiguous(module, glwegadget_prep_ct->mat, glwegad_ct->mat, nrows, ncols),
@@ -118,7 +111,6 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
 
 	//TODO: assert size compatibility
 	size_t nrows = glwegadget_prep_ct->params->l_tilde;
-	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
 	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
 
 	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols, (double*)a_dft, nrows, glwegadget_prep_ct->mat,

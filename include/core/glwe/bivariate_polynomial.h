@@ -4,7 +4,7 @@
 #include "glwe_params.h"
 #include "spqlios_alias.h"
 
-//! BIV POLY PART (begin)
+// BIV POLY PART (begin)
 
 /**
  * @brief Returns the number of coefficient in bivariate polynomial.
@@ -64,7 +64,7 @@ int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int6
 void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
                   const PolyBiv* b);
 
-//! BIV POLY IN DFT PART (begin)
+// BIV POLY IN DFT PART (begin)
 
 /**
  * @brief The number of coefficient in bivariate polynomial.
@@ -96,20 +96,7 @@ PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe);
  */
 int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft);
 
-/**
- * @brief Computes a random uniform bivariate polynomial.
- *
- * @param module Additionnal information for backend.
- * @param params_glwe The bivGLWE parameters.
- * @param result_dft The result bivariate polynomial in the DFT domain.
- *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval 0 otherwise.
- */
-int uniform_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft,
-                                int64_t precision);
-
-//! COMMON PART (begin)
+// COMMON PART (begin)
 
 /**
  * @brief Returns the number of bytes needed to store a bivariate polynomial.
