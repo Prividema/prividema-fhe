@@ -7,18 +7,13 @@
  * In this header file, we define the structure representing bivariate GGSW ciphertext in both DFT and iDFT forms.
  */
 
-#include "glwegadget_ciphertext.h"
-
-// =============================================
-// |                                           |
-// |      			 iDFT Form       		   |
-// |                                           |
-// =============================================
+#include "ggsw_params.h"
+#include "spqlios_alias.h"
 
 /**
  * @struct GGSWParams
  *
- * @brief GGSW Ciphertext in the iDFT space.
+ * @brief GGSW Ciphertext in the coefficient space.
  */
 typedef struct ggsw_ciphertext
 {
@@ -72,8 +67,8 @@ VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i);
  * @param result A Pointer to store the normalized GGSW ciphertext.
  * @param ggsw   A Pointer to the GGSW ciphertext to normalize.
  *
- * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a malloc and perror is called.
+ * @retval 0 otherwise.
  */
 int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
 
@@ -94,8 +89,8 @@ void add_ggsw(GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs, const GGSW
  * @param ggsw      A Pointer to the GGSW ciphertext.
  * @param cte       The constant in \f$\mathbb{Z}_n[X]\f$.
  *
- * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a malloc and perror is called.
+ * @retval 0 otherwise.
  */
 int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* cte);
 
@@ -177,8 +172,8 @@ void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_l
  * @param ggsw      A Pointer to the GGSW ciphertext.
  * @param cte       The constant in \f$\mathbb{Z}_n[X]\f$. Must be in the DFT space.
  *
- * @retval • `-1` if an error occurs. In this case the error is from a malloc and perror is called.
- * @retval • `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a malloc and perror is called.
+ * @retval 0 otherwise.
  */
 int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
                         const PolyUnivDFT* u_dft);

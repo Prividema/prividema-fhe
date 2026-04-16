@@ -7,19 +7,19 @@
 #include "glwe_params.h"
 #include "spqlios_alias.h"
 
-//! bivGLWE PART (begin)
+// bivGLWE PART (begin)
 
 typedef struct glwe_ciphertext
 {
-	const GLWEParams* params;  // bivGLWE parameters
-	VecBiv* vec;               // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
+	const GLWEParams* params;  ///< bivGLWE parameters
+	VecBiv* vec;               ///< Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
 /**
  * @brief Creates a bivGLWE, filled with 0.
  *
  * @param params_glwe The bivGLWE parameters.
- * @return GLWECiphertext*
+ * @return The newly allocated object
  */
 GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 
@@ -79,12 +79,12 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT
  */
 PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
 
-//! bivGLWE IN DFT PART (begin)
+// bivGLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft
 {
-	const GLWEParams* params;  // bivGLWE parameters
-	VecBivDFT* vec;            // Vector in the DFT
+	const GLWEParams* params;  ///< bivGLWE parameters
+	VecBivDFT* vec;            ///< Vector in the DFT
 } GLWECiphertextDFT;
 
 /**
@@ -172,7 +172,7 @@ int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLW
  */
 int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
 
-//! COMMON PART (begin)
+// COMMON PART (begin)
 
 /**
  * @brief Compute the polynomial product of c and d, component-wise in the DFT domain.

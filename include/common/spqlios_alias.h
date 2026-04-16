@@ -41,7 +41,7 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
 // |      in spqlios. Sometimes it does not    |
 // |      exist and we have a temporary        |
 // |                implementation.            |
-// |                                           |
+// |                                           |
 // |  We additionnally allocate the memory of  |
 // |                the structures.            |
 // |                                           |

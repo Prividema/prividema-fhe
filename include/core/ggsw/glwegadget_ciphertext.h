@@ -13,7 +13,7 @@ typedef struct glwegadget_ciphertext
 /**
  * @brief creates a new GLWEGadget ciphertext
  *
- * @params params The parameters
+ * @param params The parameters
  *
  */
 GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
@@ -21,7 +21,7 @@ GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
 /**
  * @brief Returns the number of coefficients in a GLWEGadgetCiphertext
  *
- * @params params_glwegadget The parameters
+ * @param params_glwegadget The parameters
  *
  */
 uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget);
@@ -31,7 +31,7 @@ uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget);
  *
  * Remember that it does not own the underlying parameters
  *
- * @params glwegadget_ct The ciphertext to delete
+ * @param glwegadget_ct The ciphertext to delete
  *
  */
 void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
@@ -45,7 +45,7 @@ typedef struct glwegadget_ciphertext_prepared
 /**
  * @brief creates a new preparet GLWEGadget
  *
- * @params params The parameters
+ * @param params The parameters
  *
  */
 GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params);
@@ -55,7 +55,7 @@ GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params);
  *
  * Remember that it does not own the underlying parameters
  *
- * @params glwegadget_prep_ct The ciphertext to delete
+ * @param glwegadget_prep_ct The ciphertext to delete
  *
  */
 void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct);
