@@ -208,7 +208,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	int64_t mask = (1LL << kappa) - 1;
 	for (uint64_t i = 1; i <= l && 63 + kappa >= i * kappa; i++)
 	{
-		acc += 1LL << (63 + kappa - kappa * i);
+		acc += 1ULL << (63 + kappa - kappa * i);
 	}
 
 	for (uint64_t p = 0; p < nn; p++)
