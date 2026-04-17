@@ -111,8 +111,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 	uint64_t nn      = params_glwe->nn;
 	uint64_t kappa   = params_glwe->kappa;
 	uint64_t l       = glwe_params_l_a(params_glwe);
-	uint64_t l_max   = INT_ROUND_UP_DIV(53ul, kappa);
-	uint64_t start_l = l > l_max ? l_max : l;
+	uint64_t start_l = l;
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	double pkappa = exp2(-(double)kappa);
@@ -207,7 +206,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 
 	uint64_t acc = 0;
 	int64_t mask = (1LL << kappa) - 1;
-	for (uint64_t i = 1; i <= l && i <= l_max; i++)
+	for (uint64_t i = 1; i <= l && 63 + kappa >= i * kappa; i++)
 	{
 		acc += 1LL << (63 + kappa - kappa * i);
 	}
