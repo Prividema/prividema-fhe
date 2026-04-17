@@ -2,6 +2,7 @@
 #include <criterion/new/assert.h>
 #include <inttypes.h>
 #include <math.h>
+#include <stdint.h>
 
 #include "common/rng.h"
 #include "common/spqlios_alias.h"
@@ -91,4 +92,58 @@ Test(tnx_rnx_encoding, known_outbounded_values)
 	}
 
 	delete_glwe_params(params_glwe);
+}
+
+PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+	int vec_size = params_glwe->nn;
+
+	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
+	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
+	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
+
+	normal_random_vec(rnx_values, vec_size, 0, 0.2);
+	for (int i = 0; i < vec_size; ++i)
+	{
+		rnx_values[i] = rnx_values[i] - floor(rnx_values[i]);
+	}
+	univ_rnx_to_tnx(params_glwe, tnx_values, rnx_values);
+	univ_tnx_to_rnx(params_glwe, rnx_final, tnx_values);
+
+	pvda_assert_polynomial_distance(params_glwe, rnx_final, rnx_values, 3 * DBL_EPSILON, 4 * DBL_EPSILON);
+
+	delete_univ_rnx(rnx_values);
+	delete_univ_tnx(tnx_values);
+	delete_univ_rnx(rnx_final);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+	int vec_size = params_glwe->nn;
+
+	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
+	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
+	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
+
+	uint64_t precision = (1l << (64 - 53));
+	uniform_random_pol_znx(tnx_values, vec_size, 64);
+
+	univ_tnx_to_rnx(params_glwe, rnx_values, tnx_values);
+	univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
+
+	for (uint64_t i = 0; i < vec_size; ++i)
+	{
+		uint64_t diff = tnx_final[i] > tnx_values[i] ? tnx_final[i] - tnx_values[i] : tnx_values[i] - tnx_final[i];
+		cr_assert(le(u64, diff, precision));
+	}
+
+	delete_univ_rnx(rnx_values);
+	delete_univ_tnx(tnx_values);
+	delete_univ_tnx(tnx_final);
+
+	DELETE_PVDA_PARAMS_GLWE;
 }
