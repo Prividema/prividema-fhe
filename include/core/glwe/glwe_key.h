@@ -5,32 +5,36 @@
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
 
-//! bivGLWE SECRET KEY STRUCTURES
+// bivGLWE SECRET KEY STRUCTURES
+
 /**
  * @brief Structure that represents a bivGLWE secret key
  *
- * @param nn The degree of the chosen cyclotomic polynomial.
  */
 typedef struct glwe_secret_key
 {
-	uint64_t nn;
-	uint64_t k;
-	PolyUniv* values;
+	uint64_t nn;      ///< Degree of the polynomials
+	uint64_t k;       ///< Number of polynomials of degree nn in key
+	VecUniv* values;  ///< Flattened vector of the k polynomials of degree nn
 } GLWESecretKey;
 
+/**
+ * @brief Structure that represents a bivGLWE secret key in DFT domain
+ */
 typedef struct glwe_prep_secret_key
 {
-	uint64_t nn;
-	uint64_t k;
-	PolyUnivDFT* values;
+	uint64_t nn;         ///< Degree of the polynomials
+	uint64_t k;          ///< Number of polynomials of degree nn in key
+	VecUnivDFT* values;  ///< Flattened vector of the k polynomials of degree nn
+
 } GLWESecretKeyDFT;
 
-//! bivGLWE KEY PART (begin)
+// COEF SPACE PART (begin)
 
 /**
  * @brief Creates a GLWE Secret key.
  *
- * @params the glwe params for the key
+ * @param params_glswe the glwe params for the key
  *
  * @return GLWESecretKeyDFT*
  */
@@ -44,13 +48,13 @@ GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
  * @param nb_bits  Bit-size of coefficients: coefficients are sampled uniformly
  *                 in the range [-2^nb_bits, 2^nb_bits).
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits);
 
 /**
- * Returns a pointer to the k'th polynomial in the secret key
+ * @brief Returns a pointer to the k'th polynomial in the secret key
  *
  *
  * @param sk  The secret key
@@ -61,25 +65,24 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
 PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
 
 /**
- * @brief Delete the secret key.
+ * @brief Deletes the secret key.
  *
  * @param sk The secret key.
  */
 void delete_glwe_secret_key(GLWESecretKey* sk);
 
-//! bivGLWE IN DFT SPACE PART (begin)
+// DFT SPACE PART (begin)
 
 /**
  * @brief Creates a GLWE Secret key in the DFT domain.
  *
  * @param params_glwe the glwe params for the key
  *
- * @return GLWESecretKeyDFT*
  */
 GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe);
 
 /**
- * Returns a pointer to the k'th polynomial in the secret key
+ * @brief Returns a pointer to the k'th polynomial in the secret key
  *
  *
  * @param sk  The secret key
@@ -90,18 +93,24 @@ GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe);
 PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos);
 
 /**
- * @brief Delete the secret key that is in the DFT domain.
+ * @brief Deletes a secret key in the DFT domain.
  *
  * @param sk_dft The secret key in the DFT domain.
  */
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
+/**
+ * @brief Public bivGLWE key
+ *
+ * Composed of yy GLWE encryptions of 0
+ *
+ */
 typedef struct glwe_public_key
 {
-	uint64_t nn;
-	uint64_t k;
-	int64_t yy;
-	GLWECiphertext** pk;  // vector of Y element (A1,...,Ak, B)
+	uint64_t nn;          ///< Degree of the polynomials
+	uint64_t k;           ///< Parameter k of the cryptosystem
+	int64_t yy;           ///< Number of encryptions of 0 that the public key provides
+	GLWECiphertext** pk;  ///< Vector of yy GLWE encryptions of 0
 } GLWEPublicKey;
 
 #endif  // GLWE_KEY_H

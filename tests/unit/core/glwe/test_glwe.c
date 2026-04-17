@@ -98,7 +98,7 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 	normal_random_vec(m_univ_RnX, params_glwe->nn, 0.0, 0.1);
 
 	//Encrypt said message
-	univ_rnx_to_biv(params_glwe, m, m_univ_RnX);
+	univ_rnx_to_biv(params_glwe, m, m_univ_RnX, 0);
 	normal_random_biv_poly(params_glwe, err);
 	add_biv_poly(module, params_glwe, phase, m, err);
 	glwe_secret_encrypt_phase(module, glwe_observed, sk_dft, phase);

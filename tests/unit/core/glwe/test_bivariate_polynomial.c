@@ -71,7 +71,7 @@ PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 	pol_univ[0] = ldexp(1.0, -params_glwe->kappa);
 
 	// Compute pol_univ's base-2params->kappa normalized decomposition
-	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
 	// Asserts pol_computed = Y
 	cr_assert(eq(int, pol_computed[0], 1), "pol_computed[%ld, %ld] = %ld ", 0, 1, pol_computed[0]);
@@ -97,7 +97,7 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	normal_random_vec(pol_univ, params_glwe->nn, 0.0, 1e-2);
 
 	// Computes pol_univ's base-2params->kappa normalized decomposition
-	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
 	double err_length = glwe_bivariate_epsilon(params_glwe) + 3 * DBL_EPSILON;
 
@@ -128,7 +128,7 @@ PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 
 	normal_random_vec(pol_univ, params_glwe->nn, 0.0, 1e-2);
 
-	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
 	biv_to_univ_rnx(params_glwe, pol_univ_computed, pol_computed);
 
@@ -168,7 +168,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
 		else
 		{
-			uint64_t max_diff = 1l << (64 - bits);
+			uint64_t max_diff = 1ULL << (64 - bits);
 			uint64_t diff     = pol_univ[p] > pol_univ_computed[p] ? pol_univ[p] - pol_univ_computed[p]
 			                                                       : pol_univ_computed[p] - pol_univ[p];
 			cr_assert(lt(u64, diff, max_diff));
@@ -204,7 +204,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
 		else
 		{
-			uint64_t max_diff = 1l << (64 - bits);
+			uint64_t max_diff = 1ULL << (64 - bits);
 			uint64_t diff     = pol_univ[p] > pol_univ_computed[p] ? pol_univ[p] - pol_univ_computed[p]
 			                                                       : pol_univ_computed[p] - pol_univ[p];
 			cr_assert(lt(u64, diff, max_diff));
@@ -239,7 +239,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 			cr_assert(eq(u64, pol_univ[p], pol_univ_computed[p]));
 		else
 		{
-			uint64_t max_diff = 1l << (64 - bits);
+			uint64_t max_diff = 1ULL << (64 - bits);
 			uint64_t diff     = pol_univ[p] > pol_univ_computed[p] ? pol_univ[p] - pol_univ_computed[p]
 			                                                       : pol_univ_computed[p] - pol_univ[p];
 			cr_assert(lt(u64, diff, max_diff));
@@ -263,7 +263,14 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
 	PolyBiv* biv            = new_biv_poly(params_glwe);
 
-	uint64_t precision = (1l << (64 - 53));
+	uint64_t precision1 = (1ULL << (64 - 53));
+
+	int l               = glwe_params_l_a(params_glwe);
+	int kappa           = params_glwe->kappa;
+	uint64_t precision2 = l * kappa >= 64 ? 0 : (1ULL << (64 - l * kappa));
+
+	uint64_t precision = precision1 > precision2 ? precision1 : precision2;
+
 	uniform_random_pol_znx(tnx_values, vec_size, 64);
 
 	univ_tnx_to_biv(params_glwe, biv, tnx_values);
@@ -289,6 +296,8 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 	int vec_size = params_glwe->nn;
 
+	double biv_err = glwe_bivariate_epsilon(params_glwe);
+
 	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
@@ -299,11 +308,12 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
 	{
 		rnx_values[i] = rnx_values[i] - floor(rnx_values[i]);
 	}
-	univ_rnx_to_biv(params_glwe, biv, rnx_values);
+	univ_rnx_to_biv(params_glwe, biv, rnx_values, 0);
 	biv_to_univ_tnx(params_glwe, tnx_values, biv);
 	univ_tnx_to_rnx(params_glwe, rnx_final, tnx_values);
 
-	pvda_assert_polynomial_distance(params_glwe, rnx_final, rnx_values, 3 * DBL_EPSILON, 4 * DBL_EPSILON);
+	pvda_assert_polynomial_distance(params_glwe, rnx_final, rnx_values, 3 * DBL_EPSILON + biv_err,
+	                                4 * DBL_EPSILON + biv_err);
 
 	free(biv);
 	delete_univ_rnx(rnx_values);
@@ -356,8 +366,8 @@ PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 	// i.e. that each coefficient is between -2^(params->kappa-1) (inclusive) and 2^(params->kappa-1) (exculsive)
 	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
 	{
-		cr_assert(lt(i64, pol[i], (1 << (params_glwe->kappa - 1))));
-		cr_assert(ge(i64, pol[i], -(1 << (params_glwe->kappa - 1))));
+		cr_assert(lt(i64, pol[i], (1LL << (params_glwe->kappa - 1))));
+		cr_assert(ge(i64, pol[i], -(1LL << (params_glwe->kappa - 1))));
 	}
 
 	free(pol);

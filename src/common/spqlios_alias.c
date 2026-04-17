@@ -141,7 +141,7 @@ cleanup:
 	return status;
 }
 
-int pvda_znx_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b)
+int pvda_znx_small_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b)
 {
 	int status         = -1;
 	size_t tmp_size    = znx_small_single_product_tmp_bytes(module);

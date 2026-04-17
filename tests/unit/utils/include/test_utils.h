@@ -80,6 +80,16 @@ double generate_sigma(PvdaTstParams* p);
 	DELETE_PVDA_PARAMS_GLWE     \
 	delete_ggsw_params(params_ggsw);
 
+#define INIT_PVDA_PARAMS_GGSWGAD(PRS)                                                                                 \
+	INIT_PVDA_PARAMS_GLWE((PRS))                                                                                      \
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs_tilde); \
+	GLWEGadgetParams* params_glwegadget =                                                                             \
+	    new_glwegadget_params(params_glwe, (PRS)->kappa, ((PRS)->ciphertext_nb_limbs_tilde + 1) / ((PRS)->k + 1));
+
+#define DELETE_PVDA_PARAMS_GGSWGAD   \
+	DELETE_PVDA_PARAMS_GLWE          \
+	delete_ggsw_params(params_ggsw); \
+	delete_glwegadget_params(params_glwegadget);
 /**
  * Sample default parameters generator function for Prividema parametrized tests.
  *

@@ -52,7 +52,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 
 	ggsw_secret_encrypt(module, ggsw, sk_dft, m_univ);
 
-	// Asserts the j-th row in the i-th PartialGGSW(m) in the ggsw is :
+	// Asserts the j-th row in the i-th GLWEGadget(m) in the ggsw is :
 	// - a bivGLWE(-m * sk_j / 2^{kappa_tilde * i})), for j < k
 	// - a bivGLWE(m / 2^{kappa_tilde * i}))        , for j = k
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)

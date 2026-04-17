@@ -198,7 +198,7 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 			uint64_t j      = (ij % (params_glwe->k + 1));
 			uint64_t i      = ij / (params_glwe->k + 1) + 1;
 			PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
-			pvda_znx_product(module, prod_expected, u, ct_ij);
+			pvda_znx_small_product(module, prod_expected, u, ct_ij);
 			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
 				cr_assert(eq(i64,
@@ -359,7 +359,7 @@ PvdaParamTest(const_mult_ggsw_dft, without_normalization, default_params_fn)
 			uint64_t j      = ij % (params_glwe->k + 1);
 			uint64_t i      = ij / (params_glwe->k + 1) + 1;
 			PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
-			pvda_znx_product(module, prod_expected, u, ct_ij);
+			pvda_znx_small_product(module, prod_expected, u, ct_ij);
 			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
 				cr_assert(eq(i64,

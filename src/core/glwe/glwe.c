@@ -102,7 +102,7 @@ int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const 
 
 	CHECK_CALL(add_normal_random_vec(univ_phase, result->params->nn, m_univ_rnx, 0.0, result->params->sigma),
 	           "failed to add the error in glwe encryption");
-	CHECK_CALL(univ_rnx_to_biv(result->params, biv_phase, univ_phase),
+	CHECK_CALL(univ_rnx_to_biv(result->params, biv_phase, univ_phase, 0),
 	           "failed univ to biv conversion in glwe encryption");
 	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_dft, biv_phase), "masking failed in glwe encryption");
 

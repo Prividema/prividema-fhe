@@ -41,7 +41,7 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
 // |      in spqlios. Sometimes it does not    |
 // |      exist and we have a temporary        |
 // |                implementation.            |
-// |                                           |
+// |                                           |
 // |  We additionnally allocate the memory of  |
 // |                the structures.            |
 // |                                           |
@@ -88,7 +88,7 @@ void pvda_delete_vmp_pmat(double* pmat);
 int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, int64_t* res, uint64_t res_size,
                                   uint64_t res_sl, const int64_t* a, uint64_t a_size, uint64_t a_sl);
 
-int pvda_znx_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b);
+int pvda_znx_small_product(const MODULE* module, int64_t* res, const int64_t* a, const int64_t* b);
 
 int pvda_vec_znx_negate(const MODULE* module, int64_t* res, uint64_t res_size, uint64_t res_sl, const int64_t* a,
                         uint64_t a_size, uint64_t a_sl);

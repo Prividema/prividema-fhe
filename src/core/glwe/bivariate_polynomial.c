@@ -13,11 +13,7 @@
 
 //! BIV POLY PART (begin)
 
-uint64_t poly_biv_coef_number(const GLWEParams* params_glwe)
-{
-	uint64_t nn = params_glwe->nn;
-	return glwe_params_l_a(params_glwe) * nn;
-}
+uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_params_l_a(params_glwe) * params_glwe->nn; }
 
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe)
 {
@@ -39,7 +35,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
 
-	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ),
+	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
 	           "univ to biv conversion failed in normal random biv poly generation");
 
 	status = 0;
@@ -77,8 +73,7 @@ void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 
 uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe)
 {
-	uint64_t nn = params_glwe->nn;
-	return (glwe_params_l_a(params_glwe) * nn) / 2;
+	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
 }
 
 PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe)
@@ -107,51 +102,29 @@ cleanup:
 	return status;
 }
 
-int uniform_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft,
-                                int64_t precision)
-{
-	int status = -1;
-
-	PolyBiv* pol = NULL;
-
-	CHECK_CALL(uniform_random_biv_poly(params_glwe, pol, precision),
-	           "pol's malloc failed in uniform_random_biv_poly_dft.");
-
-	biv_coefs_to_dft(module, params_glwe, result_dft, pol);
-
-	status = 0;
-cleanup:
-	free(pol);
-	return status;
-}
-
 //! COMMON PART (begin)
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
 
-void biv_to_univ_rnx(const GLWEParams* params_glwe, double* res_univ, const PolyBiv* pol_biv)
+void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol_biv)
 {
 	uint64_t nn      = params_glwe->nn;
 	uint64_t kappa   = params_glwe->kappa;
 	uint64_t l       = glwe_params_l_a(params_glwe);
-	uint64_t l_max   = INT_ROUND_UP_DIV(53ul, kappa);
-	uint64_t start_l = l > l_max ? l_max : l;
+	uint64_t start_l = l;
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	double pkappa = exp2(-(double)kappa);
-
-	for (uint64_t p = 0; p < nn; p++)
-	{
-		res_univ[p] = 0;
-		for (uint64_t i = start_l; i >= 1; --i)
+	memset(res_univ, 0, poly_univ_rnx_bytes(params_glwe));
+	for (uint64_t i = start_l; i >= 1; --i)
+		for (uint64_t p = 0; p < nn; p++)
 		{
 			res_univ[p] += (double)pol_biv[(i - 1) * nn + p];
 			res_univ[p] *= pkappa;
 		}
-	}
 }
 
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ)
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset)
 {
 	int status = -1;
 
@@ -167,7 +140,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	double acc   = 0;
 	for (uint64_t i = 1; i <= l && i <= l_max; i++)
 	{
-		acc += ldexp(1.0, kappa - 1 - kappa * i);
+		acc += ldexp(1.0, (int)kappa - 1 - (int)kappa * (int)i);
 	}
 
 	for (uint64_t p = 0; p < nn; p++)
@@ -175,9 +148,10 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		double tmp = pol_univ[p] + acc;
 
 		if (tmp < 0) tmp -= floor(tmp);
-		for (uint64_t i = 1; i <= l && i <= l_max; i++)
+		for (uint64_t i = 1; i <= k_offset; ++i) res[(i - 1) * nn + p] = 0;
+		for (uint64_t i = 1; i + k_offset <= l && i <= l_max; i++)
 		{
-			res[(i - 1) * nn + p] = (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
+			res[(i + k_offset - 1) * nn + p] = (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
 		}
 	}
 
@@ -198,8 +172,7 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
-	uint64_t nn = params_glwe->nn;
-	uint64_t l  = glwe_params_l_a(params_glwe);
+	uint64_t l = glwe_params_l_a(params_glwe);
 	return pvda_vec_znx_idft(module, res, l, a_dft, l);
 }
 
@@ -233,10 +206,9 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 
 	uint64_t acc = 0;
 	int64_t mask = (1LL << kappa) - 1;
-	for (uint64_t i = 1; i <= l && i <= l_max; i++)
+	for (uint64_t i = 1; i <= l && 63 + kappa >= i * kappa; i++)
 	{
-		acc += 1LL << (kappa - 1 - kappa * i);
-		//TODO: bug, fix (case kappa - 1 - kappa * i < 0 is not correct)
+		acc += 1ULL << (63 + kappa - kappa * i);
 	}
 
 	for (uint64_t p = 0; p < nn; p++)

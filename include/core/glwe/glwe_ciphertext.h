@@ -4,21 +4,22 @@
 #include <stdint.h>
 
 #include "bivariate_polynomial.h"
-#include "rng.h"
+#include "glwe_params.h"
+#include "spqlios_alias.h"
 
-//! bivGLWE PART (begin)
+// bivGLWE PART (begin)
 
 typedef struct glwe_ciphertext
 {
-	const GLWEParams* params;  // bivGLWE parameters
-	VecBiv* vec;               // Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
+	const GLWEParams* params;  ///< bivGLWE parameters
+	VecBiv* vec;               ///< Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
 } GLWECiphertext;
 
 /**
  * @brief Creates a bivGLWE, filled with 0.
  *
  * @param params_glwe The bivGLWE parameters.
- * @return GLWECiphertext*
+ * @return The newly allocated object
  */
 GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 
@@ -36,8 +37,8 @@ void delete_glwe(GLWECiphertext* glwe);
  * @param result The result normalized bivGLWE ciphertext.
  * @param glwe The bivGLWE ciphertext.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
@@ -64,19 +65,26 @@ void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECip
 int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe);
 
 /**
+ * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertext
  *
- * TODO
+ * Critically, it is not a pointer to a contiguous PolyBiv! Due to the memory
+ * layout of GLWECiphertext, it is strided, that is, there are other data
+ * between the different limbs of the polynomial
  *
+ * @param glwe_ct The GLWECiphertext from which to retrieve the start of a bivariate polynomial
+ * @param pos The number of the polynomial whose starts is to be retrieved
+ *
+ * @return PolyBiv* The start of a strided bivariate polynomial
  *
  */
 PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
 
-//! bivGLWE IN DFT PART (begin)
+// bivGLWE IN DFT PART (begin)
 
 typedef struct glwe_ciphertext_dft
 {
-	const GLWEParams* params;  // bivGLWE parameters
-	VecBivDFT* vec;            // Vector in the DFT
+	const GLWEParams* params;  ///< bivGLWE parameters
+	VecBivDFT* vec;            ///< Vector in the DFT
 } GLWECiphertextDFT;
 
 /**
@@ -123,16 +131,22 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
  * @param u The Zn[X] polynomial.
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval 0 otherwise.
  */
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
                         const GLWECiphertextDFT* glwe_dft);
 
 /**
+ * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertextDFT
+ * Critically, it is not a pointer to a contiguous PolyBivDFT! Due to the memory
+ * layout of GLWECiphertextDFT, it is strided, that is, there are other data
+ * between the different limbs of the polynomial
  *
- * TODO
+ * @param glwe_dft The GLWECiphertext from which to retrieve the start of a bivariate polynomial
+ * @param pos The number of the polynomial whose starts is to be retrieved
  *
+ * @return PolyBivDFT* The start of a strided bivariate polynomial
  *
  */
 PolyBivDFT* glwe_extract_start_poly_dft(const GLWECiphertextDFT* glwe_dft, uint64_t pos);
@@ -158,7 +172,7 @@ int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLW
  */
 int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
 
-//! COMMON PART (begin)
+// COMMON PART (begin)
 
 /**
  * @brief Compute the polynomial product of c and d, component-wise in the DFT domain.

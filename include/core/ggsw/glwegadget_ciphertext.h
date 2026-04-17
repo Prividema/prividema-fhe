@@ -1,0 +1,63 @@
+#ifndef PARTIALGGSW_CIPHERTEXT_H
+#define PARTIALGGSW_CIPHERTEXT_H
+
+#include "bivariate_polynomial.h"
+#include "ggsw_params.h"
+
+typedef struct glwegadget_ciphertext
+{
+	const GLWEGadgetParams* params;
+	MatBiv* mat;  // matrix of size n_limbs x l_tilde
+} GLWEGadgetCiphertext;
+
+/**
+ * @brief creates a new GLWEGadget ciphertext
+ *
+ * @param params The parameters
+ *
+ */
+GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
+
+/**
+ * @brief Returns the number of coefficients in a GLWEGadgetCiphertext
+ *
+ * @param params_glwegadget The parameters
+ *
+ */
+uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget);
+
+/**
+ * @brief Deletes a GLWEGadget ciphertext
+ *
+ * Remember that it does not own the underlying parameters
+ *
+ * @param glwegadget_ct The ciphertext to delete
+ *
+ */
+void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
+
+typedef struct glwegadget_ciphertext_prepared
+{
+	const GLWEGadgetParams* params;
+	MatBivDFT* mat;  // matrix of size n_limbs x l_tilde
+} GLWEGadgetCiphertextPrep;
+
+/**
+ * @brief creates a new preparet GLWEGadget
+ *
+ * @param params The parameters
+ *
+ */
+GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params);
+
+/**
+ * @brief Deletes a prepared GLWEGadget
+ *
+ * Remember that it does not own the underlying parameters
+ *
+ * @param glwegadget_prep_ct The ciphertext to delete
+ *
+ */
+void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct);
+
+#endif  // PARTIALGGSW_CIPHERTEXT_H

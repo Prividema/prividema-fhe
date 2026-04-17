@@ -27,7 +27,7 @@ void test_univ_biv_rnx(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		univ_rnx_to_biv(params_glwe, m_biv, m);
+		univ_rnx_to_biv(params_glwe, m_biv, m, 0);
 		benchmark::DoNotOptimize(m_biv);
 	}
 
@@ -122,7 +122,7 @@ void test_biv_univ_rnx(benchmark::State& state)
 	PolyUnivRnX* m_back = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv      = new_biv_poly(params_glwe);
 	normal_random_vec(m, NBASE, 0.0, 0.1);
-	univ_rnx_to_biv(params_glwe, m_biv, m);
+	univ_rnx_to_biv(params_glwe, m_biv, m, 0);
 
 	for (auto _ : state)
 	{

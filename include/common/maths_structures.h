@@ -6,14 +6,15 @@
 // |                                           |
 // =============================================
 
-/**
- * In this library, the name of a variable follow this principle :
+/*
+ * In this library, an attempt is made to name variables as follows :
  *
- * var                : the elements of the variable are in the bivariate space.
- * var_dft            : the elements of the variable are bivariates elements in the DFT domain.
- * var_univariate     : the variable is a Zn[X] polynomial.
- * var_univariate_RnX : the variable is a Rn[X] polynomial.
- * var_univariate_dft : the variable is a Zn[X] polynomial in the DFT domain.
+ * var          : the elements of the variable are in the bivariate space.
+ * var_dft      : the elements of the variable are bivariates elements in the DFT domain.
+ * var_univ     : the variable is a Zn[X] polynomial.
+ * var_univ_rnx : the variable is a Rn[X] polynomial.
+ * var_univ_tnx : the variable is a Tn[X] polynomial using fixed point representation.
+ * var_univ_dft : the variable is a Zn[X] polynomial in the DFT domain.
  */
 
 // =============================================
@@ -30,7 +31,7 @@
 typedef uint64_t PolyUnivTnX;
 
 /**
- * @brief Represents a vector of the above
+ * @brief Represents a vector of univariate \f$\mathbb{T}_n[X]\f$ elements
  */
 typedef uint64_t VecUnivTnX;
 
