@@ -82,7 +82,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 			           "error addition failed in ggsw encryption");
 
 			// Compute the base-2^kappa decomposition of tmp_sp1
-			CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1), "univ_to_biv failed in compute_phase_ij");
+			CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1, 0),
+			           "univ_to_biv failed in compute_phase_ij");
 		}
 		// Get the pointer for the result position
 		VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);

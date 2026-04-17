@@ -127,7 +127,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval 0 otherwise.
  */
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ);
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset);
 
 /**
  * @brief Performs the DFT of a bivariate polynomial

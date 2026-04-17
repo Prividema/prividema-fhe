@@ -71,7 +71,7 @@ PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 	pol_univ[0] = ldexp(1.0, -params_glwe->kappa);
 
 	// Compute pol_univ's base-2params->kappa normalized decomposition
-	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
 	// Asserts pol_computed = Y
 	cr_assert(eq(int, pol_computed[0], 1), "pol_computed[%ld, %ld] = %ld ", 0, 1, pol_computed[0]);
@@ -97,7 +97,7 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	normal_random_vec(pol_univ, params_glwe->nn, 0.0, 1e-2);
 
 	// Computes pol_univ's base-2params->kappa normalized decomposition
-	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
 	double err_length = glwe_bivariate_epsilon(params_glwe) + 3 * DBL_EPSILON;
 
@@ -128,7 +128,7 @@ PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 
 	normal_random_vec(pol_univ, params_glwe->nn, 0.0, 1e-2);
 
-	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ);
+	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
 	biv_to_univ_rnx(params_glwe, pol_univ_computed, pol_computed);
 

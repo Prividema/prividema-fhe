@@ -35,7 +35,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
 
-	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ),
+	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
 	           "univ to biv conversion failed in normal random biv poly generation");
 
 	status = 0;
@@ -125,7 +125,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 		}
 }
 
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ)
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset)
 {
 	int status = -1;
 
@@ -149,9 +149,10 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		double tmp = pol_univ[p] + acc;
 
 		if (tmp < 0) tmp -= floor(tmp);
-		for (uint64_t i = 1; i <= l && i <= l_max; i++)
+		for (uint64_t i = 1; i <= k_offset; ++i) res[(i - 1) * nn + p] = 0;
+		for (uint64_t i = 1; i + k_offset <= l && i <= l_max; i++)
 		{
-			res[(i - 1) * nn + p] = (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
+			res[(i + k_offset - 1) * nn + p] = (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
 		}
 	}
 
