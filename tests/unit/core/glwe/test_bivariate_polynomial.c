@@ -319,6 +319,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
+
 //! BIV POLY PART (begin)
 
 /**

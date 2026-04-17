@@ -15,3 +15,4 @@ double torus_distance(double a, double b)
 }
 
 uint64_t u64_round_up_div(uint64_t num, uint64_t div) { return (num + (div - 1)) / div; }
+int32_t i32_round_up_div(int32_t num, int32_t div) { return (num + (div - 1)) / div; }

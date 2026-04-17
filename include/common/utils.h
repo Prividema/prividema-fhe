@@ -60,6 +60,7 @@
 double torus_distance(double a, double b);
 
 uint64_t u64_round_up_div(uint64_t num, uint64_t step);
+int32_t i32_round_up_div(int32_t num, int32_t step);
 
 /**
  * @brief Generic macro to compute an integer division with rounding up when the remainder is non-zero.
@@ -68,6 +69,6 @@ uint64_t u64_round_up_div(uint64_t num, uint64_t step);
  * @param step The divisior
  *
  */
-#define INT_ROUND_UP_DIV(num, step) _Generic((num), uint64_t: u64_round_up_div)(num, step)
+#define INT_ROUND_UP_DIV(num, step) _Generic((num), uint64_t: u64_round_up_div, int32_t: i32_round_up_div)(num, step)
 
 #endif  // UTILS_H

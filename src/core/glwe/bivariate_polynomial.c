@@ -5,8 +5,10 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/select.h>
 #include <sys/types.h>
 
+#include "glwe_params.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -123,7 +125,8 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 		}
 }
 
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset)
+int univ_rnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ,
+                                  int64_t k_offset)
 {
 	int status = -1;
 
@@ -224,5 +227,102 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 		}
 	}
 
+	return 0;
+}
+
+static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
+{
+	if (offset > 63) return 0;
+	assert(offset <= 63);
+	num >>= offset;
+	return num & ((1ULL << len) - 1);
+}
+
+static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
+{
+	uint64_t shift_amt = 63 - offset;
+	int64_t s          = ((int64_t)(num << shift_amt)) >> shift_amt;
+	return ((s ^ -sgn) + sgn);
+}
+
+void _biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t dst_sl, const GLWEParams* params)
+{
+	int sgn = (stnx_num & (1UL << 63)) != 0;  //retrieve sign
+	stnx_num &= ((1UL << 63) - 1);            //strip sign
+	assert(!(stnx_num & (1L << 63)));
+
+	int kappa = (int)params->kappa;
+	assert(kappa <= 63);
+	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);
+	int n_l      = INT_ROUND_UP_DIV(63, kappa);
+	int k_offset = last_l * kappa - lsb_pos;
+	assert(k_offset >= 0 && k_offset < kappa);
+
+	uint64_t mask = 0;
+
+	for (uint64_t i = 1; i <= n_l && (i * kappa - 1 - k_offset) < 64; ++i)
+	{
+		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
+	}
+
+	//assert((mask & (1UL << 63)) == 0);
+
+	stnx_num += mask;
+	stnx_num ^= mask;
+
+	int l_a = glwe_params_l_a(params);
+	for (int i = l_a - 1; i >= last_l; --i)
+	{
+		dst[i * dst_sl] = 0;
+	}
+
+	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;
+	for (int i = min_i; last_l - 1 - i >= 0; ++i)
+	{
+		uint64_t s;
+		if (i == 0)
+		{
+			uint64_t stnxt_tmp = stnx_num << k_offset;
+			s                  = select_bits(stnxt_tmp, 0, kappa);
+		}
+		else
+		{
+			s = select_bits(stnx_num, i * kappa - k_offset, kappa);
+		}
+		int64_t s2                     = sgn_ext(s, kappa - 1, sgn);
+		dst[(last_l - 1 - i) * dst_sl] = s2;
+	}
+}
+
+#define DOUBLE_SGN_AND_MANTISSA_BMASK ((1UL << 63) + (1UL << 52) - 1)
+// Test test test
+void biv_to_univ_rnx_new(const GLWEParams* params, double val, PolyBiv* biv)
+{
+	uint64_t s_val;
+	val -= trunc(val);
+	memcpy(&s_val, &val, sizeof(double));
+	int exp = (int)select_bits(s_val, 52, 11);
+	exp -= 1023;
+	s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
+	s_val |= (1UL << 52);
+	_biv_decomp_internal(s_val, 52 - exp, biv, 1, params);
+}
+
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset)
+{
+	uint64_t nn = params_glwe->nn;
+	int kappa   = (int)params_glwe->kappa;
+	for (int p = 0; p < nn; ++p)
+	{
+		double val = pol_univ[p];
+		uint64_t s_val;
+		val -= trunc(val);
+		memcpy(&s_val, &val, sizeof(double));
+		int exp = (int)select_bits(s_val, 52, 11);
+		exp -= 1023;
+		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
+		s_val |= (1UL << 52);
+		_biv_decomp_internal(s_val, 52 - exp + kappa * k_offset, res + p, nn, params_glwe);
+	}
 	return 0;
 }
