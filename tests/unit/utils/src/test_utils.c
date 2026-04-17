@@ -48,7 +48,7 @@ struct criterion_test_params default_params_fn()
 	     .sigma                     = 0},  // toy params, let default sigma
 	    {.nn                        = (1 << 14),
 	     .k                         = 1,
-	     .kappa                     = 12,
+	     .kappa                     = 19,
 	     .ciphertext_nb_limbs       = 15l * 2,
 	     .ciphertext_nb_limbs_tilde = 15l * 2,
 	     .sigma                     = 0},  // lattigo params, default sigma

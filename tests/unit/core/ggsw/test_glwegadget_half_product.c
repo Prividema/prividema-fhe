@@ -26,9 +26,11 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	sigma              = 0;
 	params_glwe->sigma = 0;
 
-	double biv_epsilon         = glwe_bivariate_epsilon(params_glwe);
-	double err_length          = params_glwe->nn * (3 * DBL_EPSILON) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
-	double critical_err_length = params_glwe->nn * (5 * DBL_EPSILON) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
+	double biv_epsilon = glwe_bivariate_epsilon(params_glwe);
+	double err_length =
+	    params_glwe->nn * (2 * DBL_EPSILON + biv_epsilon) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
+	double critical_err_length =
+	    params_glwe->nn * (3 * DBL_EPSILON + biv_epsilon) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft               = alloc_glwe_secret_key_dft(params_glwe);
