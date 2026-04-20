@@ -4,6 +4,7 @@
 
 extern "C" {
 #include "bivariate_polynomial.h"
+#include "glwe_params.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 }
@@ -33,6 +34,9 @@ void test_univ_biv_rnx(benchmark::State& state)
 
 	delete_univ_rnx(m);
 	free(m_biv);
+
+	delete_glwe_params(params_glwe);
+	pvda_delete_module_info(module);
 }
 
 BENCHMARK(test_univ_biv_rnx);
@@ -57,7 +61,11 @@ void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 	}
 
 	delete_univ_rnx(m);
+	delete_univ_tnx(m_tnx);
 	free(m_biv);
+
+	delete_glwe_params(params_glwe);
+	pvda_delete_module_info(module);
 }
 
 BENCHMARK(test_univ_biv_rnx_via_tnx);
@@ -81,6 +89,9 @@ void test_univ_biv_tnx(benchmark::State& state)
 
 	delete_univ_tnx(m);
 	free(m_biv);
+
+	delete_glwe_params(params_glwe);
+	pvda_delete_module_info(module);
 }
 
 BENCHMARK(test_univ_biv_tnx);
@@ -107,6 +118,9 @@ void test_biv_univ_tnx(benchmark::State& state)
 	delete_univ_tnx(m_back);
 	delete_univ_tnx(m);
 	free(m_biv);
+
+	delete_glwe_params(params_glwe);
+	pvda_delete_module_info(module);
 }
 
 BENCHMARK(test_biv_univ_tnx);
@@ -133,6 +147,9 @@ void test_biv_univ_rnx(benchmark::State& state)
 	delete_univ_rnx(m);
 	delete_univ_rnx(m_back);
 	free(m_biv);
+
+	delete_glwe_params(params_glwe);
+	pvda_delete_module_info(module);
 }
 
 BENCHMARK(test_biv_univ_rnx);
