@@ -18,8 +18,20 @@ typedef struct ggsw_ct_params
 {
 	/// GLWE Parameters.
 	const GLWEParams* params_glwe;
-	uint64_t k_tilde;  // k_tilde = 1 for RGSW (by default k=k_tilde=1)
+	/**
+	 * By default k = k_tilde, which for RGSW is = 1
+	 */
+	uint64_t k_tilde;
+	/**
+	 * kappa tilde, the exponent that will be used to multiply the message by (negative) powers of 2 thereof.
+	 *
+	 * Imporntantly, kappa and kappa_tilde are different parameters of a GGSW Ciphertext, one encodes the radix size and the other
+	 * the powers used to multiply the message repeatedly.
+	 */
 	uint64_t kappa_tilde;
+	/**
+	 *Number of total limbs in the GGSWParams. This is, therefore, l_tilde_a * k_tilde + l_tilde_b
+	 */
 	uint64_t ciphertext_nb_limbs_tilde;
 } GGSWParams;
 
@@ -29,7 +41,7 @@ typedef struct ggsw_ct_params
  * @param params_glwe    The GLWE parameters.
  * @param k_tilde        The number of polynomials in the secret key.
  * @param kappa_tilde    Kappa tilde
- * @param nb_limbs_tilde l_tilde_a * k + l_tilde_b
+ * @param nb_limbs_tilde l_tilde_a * k_tilde + l_tilde_b
  *
  * @return A Pointer to the set of GGSW Parameters.
  */
@@ -123,8 +135,8 @@ typedef struct glwegadget_params
 {
 	/// GLWE parameters.
 	const GLWEParams* params_glwe;
-	uint64_t kappa_tilde;  // (2^kappa) = 2^-kappa_tilde.
-	uint64_t l_tilde;      // The precision.
+	uint64_t kappa_tilde;  ///< Kappa tilde as in the papers
+	uint64_t l_tilde;      ///< The precision, l_tilde as in the papers
 } GLWEGadgetParams;
 
 /**

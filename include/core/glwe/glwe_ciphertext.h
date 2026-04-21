@@ -72,7 +72,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT
  * between the different limbs of the polynomial
  *
  * @param glwe_ct The GLWECiphertext from which to retrieve the start of a bivariate polynomial
- * @param pos The number of the polynomial whose starts is to be retrieved
+ * @param pos The index of the polynomial whose start is to be retrieved
  *
  * @return PolyBiv* The start of a strided bivariate polynomial
  *

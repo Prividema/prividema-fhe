@@ -21,7 +21,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
                               const PolyUniv* m_univ);
 
 /**
- * @brief Encrypts a univariate integer pollynomial into a GLWEGadget
+ * @brief Encrypts a univariate integer polynomial into a GLWEGadget
  * (also known as halfGGSW in the k=1 case)
  *
  *  TODO: implement
