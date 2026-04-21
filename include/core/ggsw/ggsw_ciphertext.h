@@ -30,8 +30,8 @@ typedef struct ggsw_ciphertext
  *
  * @param params_ggsw A Pointer to the GGSW parameters.
  *
- * @retval • `NULL` if malloc failed inside the function.
- * @retval • The Allocated GGSW ciphertext filled with 0 otherwise.
+ * @retval NULL if malloc failed inside the function.
+ * @retval non-NULL The Allocated GGSW ciphertext filled with 0 otherwise.
  */
 GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw);
 
@@ -124,8 +124,8 @@ typedef struct ggsw_ciphertext_dft
  *
  * @param params_ggsw A Pointer to the GGSW parameters.
  *
- * @retval • `NULL` if malloc failed inside the function.
- * @retval • The Allocated GGSW ciphertext filled with 0 otherwise.
+ * @retval NULL if malloc failed inside the function.
+ * @retval non-NULL The Allocated GGSW ciphertext filled with 0 otherwise.
  */
 GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw);
 
