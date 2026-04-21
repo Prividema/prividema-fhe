@@ -45,11 +45,33 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECipherte
 /**
  * @brief Adds two bivGLWE ciphertexts.
  *
+ * @param module Additionnal information for backend.
  * @param result The result bivGLWE ciphertext.
  * @param glwe_lhs The left-hand side bivGLWE ciphertext.
  * @param glwe_rhs The right-hand side bivGLWE ciphertext.
  */
-void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECiphertext* glwe_rhs);
+void add_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
+              const GLWECiphertext* glwe_rhs);
+
+/**
+ * @brief Subtracts two bivGLWE ciphertexts.
+ *
+ * @param module Additionnal information for backend.
+ * @param result The result bivGLWE ciphertext.
+ * @param glwe_lhs The left-hand side bivGLWE ciphertext.
+ * @param glwe_rhs The right-hand side bivGLWE ciphertext.
+ */
+void sub_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
+              const GLWECiphertext* glwe_rhs);
+
+/**
+ * @brief Negates (inverts the sign of) a GLWE
+ *
+ * @param module Additionnal information for backend.
+ * @param result The result bivGLWE ciphertext.
+ * @param glwe The left-hand side bivGLWE ciphertext.
+ */
+void negate_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
 /**
  * @brief Multiply a bivGLWE ciphertext by a Zn[X] polynomial.
