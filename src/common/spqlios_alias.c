@@ -7,7 +7,7 @@
 #include "utils.h"
 #include "vec_znx_arithmetic.h"
 
-MODULE* pvda_new_module_info(uint64_t N) { return new_module_info(N, FFT64); }
+MODULE* pvda_new_module_info(uint64_t nn) { return new_module_info(nn, FFT64); }
 
 void pvda_delete_module_info(MODULE* module)
 {
