@@ -69,7 +69,10 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 		VecBiv* result_glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
 		GLWECiphertext glwe_normalize = {.params = params_glwe, .vec = result_glwe_vec};
 
-		normalize_glwe(module, &glwe_normalize, &glwe_normalize);
+		VecBiv* input_glwe_vec         = ggsw_retrieve_bivglwe(ggsw, j, i);
+		GLWECiphertext input_normalize = {.params = ggsw->params->params_glwe, .vec = input_glwe_vec};
+
+		normalize_glwe(module, &glwe_normalize, &input_normalize);
 	}
 
 	status = 0;
