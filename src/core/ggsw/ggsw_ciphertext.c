@@ -182,7 +182,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	ggsw_mat = malloc(ggsw_bytes(params_ggsw));
 	CHECK_ALLOC(ggsw_mat, "malloc in const_mult_ggsw_dft");
 
-	// Computes ggsw_mat = iDFT(ggsw_mat_dft). Then computes :
+	// Computes ggsw_mat = iDFT(ggsw_mat_dft).
 	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, ggsw_dft->mat, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw_dft");
 
