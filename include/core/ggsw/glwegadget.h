@@ -6,7 +6,7 @@
 #include "glwegadget_ciphertext.h"
 
 /**
- * @brief Encrypts a univariate integer pollynomial into a GLWEGadget
+ * @brief Encrypts a univariate integer polynomial into a GLWEGadget
  * (also known as halfGGSW in the k=1 case)
  *
  * @param module The underlying compute module

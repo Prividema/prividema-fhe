@@ -11,10 +11,10 @@
  *
  * var          : the elements of the variable are in the bivariate space.
  * var_dft      : the elements of the variable are bivariates elements in the DFT domain.
- * var_univ     : the variable is a Zn[X] polynomial.
- * var_univ_rnx : the variable is a Rn[X] polynomial.
- * var_univ_tnx : the variable is a Tn[X] polynomial using fixed point representation.
- * var_univ_dft : the variable is a Zn[X] polynomial in the DFT domain.
+ * var_univ     : the variable is a \ZnX polynomial.
+ * var_univ_rnx : the variable is a \RnX polynomial.
+ * var_univ_tnx : the variable is a \TnX polynomial using fixed point representation.
+ * var_univ_dft : the variable is a \ZnX polynomial in the DFT domain.
  */
 
 // =============================================
@@ -24,66 +24,47 @@
 // =============================================
 
 /**
- * @brief Represents a \f$\mathbb{T}_n[X]\f$ polynomial, by means of
- * coefficients which are the numerators of a fraction with denominator 2^64
- * @note `Length = N` for a polynomial in \f$\mathbb{T}_n[X]\f$.
+ * @brief Represents a \TnX polynomial, by means of
+ * coefficients which are the numerators of a fraction with denominator \f$2^{64}\f$
+ * @note The implicit lenght is \N for a polynomial in \TnX
  */
 typedef uint64_t PolyUnivTnX;
 
 /**
- * @brief Represents a vector of univariate \f$\mathbb{T}_n[X]\f$ elements
+ * @brief Represents a vector of univariate \TnX polynomials (flattened, each encoded as in PolyUnivTnX)
  */
 typedef uint64_t VecUnivTnX;
 
 /**
- * @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial.
- * @note `Length = N` for a polynomial in \f$\mathbb{R}_n[X]\f$.
+ * @brief Represents a \RnX polynomial.
+ * @note The implicit lenght is \N for a polynomial in \RnX
  */
 typedef double PolyUnivRnX;
 
 /**
- * @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial vector.
- * @note `Length = (k+1) * N` for a TRLWE.
- * @note `Length = k * N` for a TRLWE secret key.
+ * @brief Represents a vector of univariate \RnX polynomial (flattened, each encoded as in PolyUnivRnX)
  */
 typedef double VecUnivRnX;
 
-/** @brief Represents a \f$\mathbb{R}_n[X]\f$ polynomial vector.
- *  @note `Length = (k+1) * N` for a bivGLWE.
- *  @note `Length = k * N` for a bivGLWE.
- */
-typedef int64_t VecUniv;
-
-/** @brief Represents a \f$\mathbb{Z}_n[X]\f$ polynomial.
- *  @note `Length = N` for a polynomial in \f$\mathbb{Z}_n[X]\f$.
+/**
+ * @brief Represents a \ZnX polynomial
  */
 typedef int64_t PolyUniv;
 
-/** @brief Represents a \f$\mathbb{Z}_n[X]\f$ univariate polynomial vector.
- *  @note `Length = k * N` for a bivGLWE secret key.
+/**
+ * @brief Represents a vector of \ZnX polynomials (flattened, each encoded as in PolyUniv)
  */
 typedef int64_t VecUniv;
 
-/** @brief Represents a univariate bivGGSW.
- *  @note `Length = n_limbs_tilde * k * N` for a bivGGSW.
- */
-typedef int64_t MatUniv;
-
-/** @brief Represents a \f$\mathbb{Z}_n[X]\f$ polynomial in the DFT domain.
- *  @note `Length = N` for a polynomial in \f$\mathbb{Z}_n[X]\f$.
+/**
+ * @brief Represents a univariate polynomial in the DFT domain.
  */
 typedef double PolyUnivDFT;
 
-/** @brief Represents a univariate \f$\mathbb{Z}_n[X]\f$ polynomial vector in the DFT domain.
- *  @note `Length = (k+1) * N` for a bivGLWE.
- *  @note `Length = k * N` for a bivGLWE secret key.
+/**
+ * @brief Represents a vector of univariate polynomials in the DFT domain (flattened, each encoded as in PolyUnivDFT)
  */
 typedef double VecUnivDFT;
-
-/** @brief Represents a univariate bivGGSW in the DFT domain.
- *  @note `Length = n_limbs_tilde * (k+1) * N` for a bivGGSW.
- */
-typedef double MatUnivDFT;
 
 // =============================================
 // |                                           |
@@ -91,33 +72,33 @@ typedef double MatUnivDFT;
 // |                                           |
 // =============================================
 
-/** @brief Represents a bivariate polynomial.
- *  @note `Length = l * N` for bivariate polynomial in \f$\mathbb{Z}_n[X, Y]\f$.
+/**
+ * @brief Represents a bivariate polynomial.
  */
 typedef int64_t PolyBiv;
 
-/** @brief Represents a bivariate polynomial vector.
- *  @note `Length = l * (k+1) * N` for a bivGLWE.
+/**
+ * @brief Represents a bivariate polynomial vector (flattened).
  */
 typedef int64_t VecBiv;
 
-/** @brief Represents a bivariate polynomial matrix.
- *  @note `Length = n_limbs_tilde * l * (k+1) * N.
+/**
+ * @brief Represents a bivariate polynomial matrix (flattened)
  */
 typedef int64_t MatBiv;
 
-/** @brief Represents a bivariate polynomial in the DFT domain.
- *  @note `Length = l*N`.
+/**
+ * @brief Represents a bivariate polynomial in the DFT domain.
  */
 typedef double PolyBivDFT;
 
-/** @brief Represents a bivariate polynomial vector in the DFT domain.
- *  @note `Length = l * (k+1) * N` for a bivGLWE.
+/**
+ *  @brief Represents a bivariate polynomial vector in the DFT domain.
  */
 typedef double VecBivDFT;
 
-/** @brief Represents a bivariate polynomial matrix in the DFT domain.
- *  @note `Length = n_limbs_tilde * l * (k+1) * N` for a bivGGSW.
+/**
+ * @brief Represents a bivariate polynomial matrix in the DFT domain.
  */
 typedef double MatBivDFT;
 
@@ -132,7 +113,7 @@ typedef double MatBivDFT;
  *
  * @param pol     A Pointer to the Bivariate Polynomial.
  * @param pol_sl  The stride length : The step to jump from the beggining to the next polynomial.
- * @param nn       The degree of the chosen cyclotomic polynomial.
+ * @param nn      The degree of the chosen cyclotomic polynomial.
  * @param l       The degree in Y.
  */
 void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t nn, int64_t l);

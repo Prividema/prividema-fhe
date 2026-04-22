@@ -14,7 +14,7 @@
 // =============================================
 
 /**
- * @brief Generates an uniform random number between [-2^(nb_bits-1), 2^(nb_bits-1))
+ * @brief Generates an uniform random number in [-2^(nb_bits-1), 2^(nb_bits-1))
  *
  * @param result  The resulting uniformly sampled integer
  * @param nb_bits The number of bits of the result
@@ -43,11 +43,11 @@ int rand_normal(double* result, double mu, double sigma);
 // =============================================
 
 /**
- * @brief Generates a uniformly random Zn[X] polynomial
+ * @brief Generates a uniformly random \ZnX polynomial
  *
  * Coefficients are uniformly sampled in range [-2^(nb_bits-1), 2^(nb_bits-1))
  *
- * @param res     The result uniformly drawn Zn[X] polynomial.
+ * @param res     The result uniformly drawn \ZnX polynomial.
  * @param N       Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
  * @param nb_bits Number of randomness bits per coefficient.
  *
@@ -63,7 +63,7 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits);
  * elements with a uniformly sampled random integer of nb_bits, between
  * [-2^(nb_bits-1), 2^(nb_bits-1))
  *
- * @param limb_len The size of each limb. A common value could be N or k*N (to fill the A's)
+ * @param limb_len The size of each limb. A common value could be \N or \f$kN\f$ (to fill the A's)
  * @param res      The result.
  * @param nb_limbs The number of limbs. In other words, how many times we fill limb_len words.
  * @param res_sl   The stride (in elements) between two consecutive result limbs.
@@ -88,7 +88,6 @@ int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  *
- * @note For each call to this function, we'll generate a new seed.
  */
 int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);
 
@@ -112,7 +111,7 @@ int normal_random_vec(double* res, int64_t res_size, double mu, double sigma);
  * res and vec can be the same vector for in-place addition
  *
  * @param res       The result.
- * @param res_size  The number of elements in the vectors.
+ * @param vec_size  The number of elements in the vectors.
  * @param vec       The input vector.
  * @param mu        The mean parameter of the distribution.
  * @param sigma     The standard deviation of the distribution.
