@@ -1,107 +1,54 @@
-@page glwe_bivariate_ciphertext Bivariate GLWE Ciphertext
-
-# Bivariate GLWE Documentation
+# Bivariate GLWE
 
 This file documents the internal representation of a bivariate GLWE ciphertext used in the library.
 
-## Notations
+## Notation
 
-### Polynomials
+See [the bivariate polynomial documentation's memory representation section](\ref bivariate-notation) for the notation used throughout.
 
-Let P(X) be a polynomial in \ZnX.
+## Memory layout
 
-A GLWE ciphertext \f$\in (\mathbb{Z}_N[X])^k\f$ encodes a polynomial in @p X
-with coefficients in \f$\mathbb{Z}\f$.
+A torus GLWE encryption of m is \f$ \glwe(m) = \left( a_0, a_1, \dots, a_{k-1}, b \right) \f$, where  \f$ a_i \in \tnx \f$.
+It is common to define \f$ a_k := b \f$ for convenience.
 
-A bivariate GLWE ciphertext \f$\in (\mathbb{Z}_n[X])^k\f$ encodes a polynomial
-in @p X with coefficients in \f$\mathbb{Z}\f$.
+In the library, GLWEs are laid out in memory as to also have a prefix property.
+Thus, if the decomposition in limbs of eg. \f$ a_0 \f$ in limbs \f$ \limbd{j}{a_0} \f$
+ is \f$ {a_0} := \left(\limbd{1}{a_0}, \dots , \limbd{\ell_A}{a_0}\right) \f$,
+then \f$ \glwe(m) \f$ is encoded when \f$ l_A = l_b \f$ as the follow matrix flattened in a row-major order:
 
-It generalizes the classical bivGLWE ciphertext by organizing the
-polynomial coefficients along a second dimension @p Y, allowing
-structured decompositions and gadget-based constructions.
+\f[
+\begin{split}
+\glwe(m) & = \begin{bmatrix}
+  \limbd{1}{a_0} & \limbd{1}{a_1} & \dots & \limbd{1}{a_{k-1}} & \limbd{1}{b} \\
+  \limbd{2}{a_0} & \limbd{2}{a_1} & \dots & \limbd{2}{a_{k-1}} & \limbd{2}{b} \\
+  \vdots        & \vdots        & \ddots & \vdots & \vdots \\
+  \limbd{l_A-1}{a_0} & \limbd{l_A-1}{a_1} & \dots & \limbd{l_A-1}{a_{k-1}} & \limbd{l_b-1}{b} \\
+  \limbd{l_A}{a_0} & \limbd{l_A}{a_1} & \dots & \limbd{l_A}{a_{k-1}} & \limbd{l_b}{b}
+\end{bmatrix} \\
+&  \\
+ & = \begin{bmatrix}
+  \limbd{1}{a_0} & \dots & \limbd{1}{a_{k-1}} & \limbd{1}{b} & \limbd{2}{a_0} & \limbd{2}{a_1} & \dots & \dots & \limbd{l_A}{a_{k-1}} & \limbd{l_b}{b}
+\end{bmatrix}
+\end{split}
+\f]
 
-The ciphertext is represented as a flattened array of coefficients
-corresponding to the polynomials:
+Prividema-lib also supports \f$ l_A = l_b + 1\f$ (only other possibility), in which case, the memory layout is:
 
-@verbatim
-(a_0(Y), a_1(Y), ..., a_{k-1}(Y), b(Y))
-@endverbatim
+\f[
 
-where each @p a_i(Y) and @p b(Y) are univariate polynomials in @p Y.
-
-@section glwe_bivariate_structure Internal structure
-
-The ciphertext is stored in a single contiguous array @p ct of
-length @p n_limbs.
-
-@verbatim
-ct = [ a_0[0], a_1[0], ..., a_k[0] ]
-       a_0[1], a_1[1], ..., a_k[1],
-       ...
-
-@endverbatim
-
-The index mapping is defined as follows:
-
-- Let @p k be the bivGLWE dimension
-- Let @p n_limbs be the total number of limbs
-- Let:
-  - @p l_a = floor((n_limbs + 1) / (k + 1))
-  - @p l_b = n_limbs - k * l_a
-
-For a given position @p p in @p ct:
-
-@verbatim
-i = p % (k + 1)          // polynomial index
-j = floor(p / (k + 1))  // Y-degree index
-@endverbatim
-
-The coefficient corresponds to:
-
-@verbatim
-ct[p] = a_i[j]
-@endverbatim
-
-where:
-
-- @p i in [0, k-1] refers to polynomial @p a_i
-- @p i = k refers to the polynomial @p b
-
-@section glwe_bivariate_polynomials Polynomial interpretation
-
-The ciphertext encodes the following polynomials in @p Y:
-
-@verbatim
-a_0(Y) = a_0[0] + a_0[1] Y + ... + a_0[l_a - 1] Y^{l_a - 1}
-a_1(Y) = a_1[0] + a_1[1] Y + ... + a_1[l_a - 1] Y^{l_a - 1}
-...
-a_{k-1}(Y) = a_{k-1}[0] + ... + a_{k-1}[l_a - 1] Y^{l_a - 1}
-
-b(Y) = b[0] + b[1] Y + ... + b[l_b - 1] Y^{l_b - 1}
-@endverbatim
-
-The polynomial @p b(Y) may have a different degree bound than the
-@p a_i(Y) polynomials.
-
-@section glwe_bivariate_precision Precision and decomposition
-
-The ciphertext precision is controlled by the parameter:
-
-@verbatim
-L = l_b * kappa
-@endverbatim
-
-where @p kappa is the base decomposition parameter.
-
-This structure is particularly suited for gadget decompositions
-and bivariate constructions appearing in advanced homomorphic
-encryption schemes.
-
-@section glwe_bivariate_summary Summary
-
-A bivariate bivGLWE ciphertext can be viewed as:
-
-- A bivGLWE ciphertext whose coefficients are polynomials in @p Y
-- A matrix-like organization flattened into a 1D array
-- A flexible structure enabling precision control and gadget-based
-  operations
+\begin{split}
+\glwe(m) & = \begin{bmatrix}
+  \limbd{1}{a_0} & \limbd{1}{a_1} & \dots & \limbd{1}{a_{k-1}} & \limbd{1}{b} \\
+  \limbd{2}{a_0} & \limbd{2}{a_1} & \dots & \limbd{2}{a_{k-1}} & \limbd{2}{b} \\
+  \vdots        & \vdots        & \ddots & \vdots & \vdots \\
+  \limbd{l_A-1}{a_0} & \limbd{l_A-1}{a_1} & \dots & \limbd{l_A-1}{a_{k-1}} & \limbd{l_b}{b} \\
+  \limbd{l_A}{a_0} & \limbd{l_A}{a_1} & \dots & \limbd{l_A}{a_{k-1}} &
+\end{bmatrix}\\
+& \\
+& =
+  \begin{bmatrix}
+  \limbd{1}{a_0} & \limbd{1}{a_1} & \dots & \limbd{1}{a_{k-1}} & \limbd{1}{b} &
+  \limbd{2}{a_0} & \limbd{2}{a_1} & \dots & \dots & \limbd{l_A}{a_{k-1}}
+\end{bmatrix}
+\end{split}
+\f]
