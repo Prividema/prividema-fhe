@@ -120,8 +120,19 @@ passes when in reality no tests are being run at all).
 
 ## Structure
 
+The library is to be divided in the following layers:
+
+- Backend (TODO): will contain an abstraction layer over the underlying library or hardware that is used for heavy optimisations
+- Common: Utility code, functions that belong to no particular scheme/problem/FHE concept.
+-Core: Where the code for basic mathematical constructs will go
+  - GLWE: functions and code for GLWE operations
+  - GGSW: functions and code for GGSW and (related) GLWEGadget opeartions
+- Schemes (TODO): The different FHE schemes that can be implemented using the above problems
+  
 ## Security
 
 ## Docker
+
+TODO/TBD
 
 ## References
