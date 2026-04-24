@@ -34,9 +34,9 @@ typedef struct glwe_prep_secret_key
 /**
  * @brief Creates a GLWE Secret key.
  *
- * @param params_glswe the glwe params for the key
+ * @param params_glwe The glwe params for the key
  *
- * @return GLWESecretKeyDFT*
+ * @return A pointer to the newly allocated object or NULL if it failed to do so.
  */
 GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
 
@@ -48,7 +48,7 @@ GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
  * @param nb_bits  Bit-size of coefficients: coefficients are sampled uniformly
  *                 in the range [-2^nb_bits, 2^nb_bits).
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits);
@@ -78,6 +78,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  *
  * @param params_glwe the glwe params for the key
  *
+ * @return A pointer to the newly allocated object or NULL if it failed.
  */
 GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe);
 
@@ -85,7 +86,7 @@ GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe);
  * @brief Returns a pointer to the k'th polynomial in the secret key
  *
  *
- * @param sk  The secret key
+ * @param sk_dft  The secret key in the DFT domain
  * @param pos The position to retrieve (from 0 to k-1)
  *
  * @return    A pointer to the beggining of the pos-th polynomial in the key

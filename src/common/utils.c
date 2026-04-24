@@ -3,18 +3,6 @@
 #include <math.h>
 #include <stdint.h>
 
-double binomial_tail(uint64_t nn, double p, int k)
-{
-	double mu    = nn * p;
-	double sigma = sqrt(nn * p * (1.0 - p));
-
-	double r = ceil(mu * k);
-
-	double z = (r - 0.5 - mu) / sigma;
-
-	return 0.5 * erfc(z / sqrt(2.0));
-}
-
 double torus_distance(double a, double b)
 {
 	a -= floor(a);

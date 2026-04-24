@@ -47,10 +47,12 @@ void test_ggsw_encrypt(benchmark::State& state)
 	delete_univ(m);
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
 	free(result_biv);
 	delete_univ_rnx(result_univ);
+	delete_ggsw(ggsw_computed);
 }
 
 BENCHMARK(test_ggsw_encrypt);

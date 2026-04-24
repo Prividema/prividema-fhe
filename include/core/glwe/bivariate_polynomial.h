@@ -7,7 +7,7 @@
 // BIV POLY PART (begin)
 
 /**
- * @brief Returns the number of coefficient in bivariate polynomial.
+ * @brief Returns the number of coefficients in bivariate polynomial.
  *
  * @param params_glwe The bivGLWE parameters.
  * @return uint64_t
@@ -17,7 +17,7 @@
 uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
 
 /**
- * @brief Creates an allocated bivariate polynomial
+ * @brief Creates a bivariate polynomial
  *
  * @param params_glwe The bivGLWE parameters.
  */
@@ -33,7 +33,7 @@ PolyBiv* new_biv_poly(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  * @param result The result bivariate polynomial.
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
 int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
@@ -46,16 +46,18 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
  * to the parameters
  *
  * @param params_glwe The bivGLWE parameters.
+ * @param result     The output bivariate polynomial
  * @param precision The maximum degree in Y of the polynomial.
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval 0 otherwise.
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int64_t precision);
 
 /**
  * @brief Adds two bivariate polynomial and puts it in res.
  *
+ * @param module The underlying compute module.
  * @param params_glwe The bivGLWE parameters.
  * @param res The result bivariate polynomial.
  * @param a The left-hand side bivariate polynomial.
@@ -91,7 +93,7 @@ PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  * @param result_dft The result bivarariate polynomial in the DFT domain.
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
 int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft);
@@ -101,8 +103,8 @@ int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_gl
 /**
  * @brief Returns the number of bytes needed to store a bivariate polynomial.
  *
- * @param params_glwe The bivGLWE parameters.
- * @return uint64_t
+ * @param params_glwe The GLWE parameters.
+ * @return The bytes needed to store a bivariate polynomial with the given parameters
  *
  * @note The number of bytes needed to store a bivariate polynomial is the same in and out of the DFT domain.
  */
@@ -118,14 +120,15 @@ uint64_t poly_biv_bytes(const GLWEParams* params_glwe);
 void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol);
 
 /**
- * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Rn[X].
+ * @brief Computes the bivariate decompositionof a polynomial in \RnX.
  *
  * @param params_glwe The bivGLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_univ The univariate polynomial.
+ * @param k_offset How many \K to offset the result. In other words, the output will be
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval 0 otherwise.
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset);
 

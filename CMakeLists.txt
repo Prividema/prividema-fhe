@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 project(prividema-fhe)
 
-cmake_policy(SET CMP0069 NEW)
 # ----------------------------------------
 # Include FetchContent for external dependencies
 # Enable testing framework
@@ -115,6 +114,13 @@ add_subdirectory(src)
 # ----------------------------------------
 if(BUILD_TESTS)
   message(STATUS "Building Test Files")
+  if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    message(WARNING
+    "Upstream Criterion 2.4.3 (and possibly older versions) have a bug where Release (optimized) builds"
+    "can have their parameterized tests be optimized away (deleted).\n"
+    "PATCH YOUR LOCAL CRITERION INSTALLATION OR COMPILE IN Debug MODE IF YOU WANT TO RUN THE TESTS!"
+    )
+  endif()
   add_subdirectory(tests)
 endif()
 
