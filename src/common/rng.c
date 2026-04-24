@@ -145,10 +145,10 @@ cleanup:
 	return -1;
 }
 
-int uniform_random_pol_znx(PolyUniv* res, uint64_t N, uint64_t nb_bits)
+int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits)
 {
-	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * N), "rng error");
-	for (uint64_t p = 0; p < N; p++)
+	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
+	for (uint64_t p = 0; p < nn; p++)
 	{
 		reduce_uniform_n(res + p, (int)nb_bits);
 	}

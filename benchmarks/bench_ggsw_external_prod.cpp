@@ -8,6 +8,7 @@ extern "C" {
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
 #include "glwe.h"
+#include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -51,14 +52,19 @@ void test_ggsw_ext_prod(benchmark::State& state)
 		benchmark::DoNotOptimize(glwe_computed);
 	}
 
-	delete_univ(m);
-	delete_glwe(glwe_computed);
-	pvda_delete_module_info(module);
-	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_dft(sk_dft);
+	delete_univ(m);
+	delete_glwe(glwe_input);
+	delete_glwe(glwe_computed);
+	delete_ggsw(ggsw);
 	free(result_biv);
 	delete_univ_rnx(result_univ);
+	delete_univ_rnx(m_glwe);
+
+	pvda_delete_module_info(module);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
 }
 
 BENCHMARK(test_ggsw_ext_prod);

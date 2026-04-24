@@ -69,7 +69,10 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 		VecBiv* result_glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
 		GLWECiphertext glwe_normalize = {.params = params_glwe, .vec = result_glwe_vec};
 
-		normalize_glwe(module, &glwe_normalize, &glwe_normalize);
+		VecBiv* input_glwe_vec         = ggsw_retrieve_bivglwe(ggsw, j, i);
+		GLWECiphertext input_normalize = {.params = ggsw->params->params_glwe, .vec = input_glwe_vec};
+
+		normalize_glwe(module, &glwe_normalize, &input_normalize);
 	}
 
 	status = 0;
@@ -182,7 +185,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	ggsw_mat = malloc(ggsw_bytes(params_ggsw));
 	CHECK_ALLOC(ggsw_mat, "malloc in const_mult_ggsw_dft");
 
-	// Computes ggsw_mat = iDFT(ggsw_mat_dft). Then computes :
+	// Computes ggsw_mat = iDFT(ggsw_mat_dft).
 	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, ggsw_dft->mat, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw_dft");
 

@@ -51,12 +51,23 @@
  *
  * In other words, abs( (a mod 1) - (b mod 1))
  * Mostly used in tests
+ *
+ * @param a An element in the torus
+ * @param b Another element in the torus
+ *
+ * @returns The (shortest) distance between the two elements in the torus
  */
 double torus_distance(double a, double b);
 
 uint64_t u64_round_up_div(uint64_t num, uint64_t step);
 
+/**
+ * @brief Generic macro to compute an integer division with rounding up when the remainder is non-zero.
+ *
+ * @param num The dividend
+ * @param step The divisior
+ *
+ */
 #define INT_ROUND_UP_DIV(num, step) _Generic((num), uint64_t: u64_round_up_div)(num, step)
 
-double binomial_tail(uint64_t nn, double p, int k);
 #endif  // UTILS_H

@@ -9,10 +9,22 @@
 
 // bivGLWE PART (begin)
 
+/**
+ * @brief A GLWE ciphertext, using bivariate base-2K form
+ */
 typedef struct glwe_ciphertext
 {
-	const GLWEParams* params;  ///< bivGLWE parameters
-	VecBiv* vec;               ///< Represents a vector of size (k + 1) * l with coefficients that are in Zn[X]
+	const GLWEParams* params;  ///< GLWE parameters
+
+	/**
+	 * @brief Represents a vector of size (k + 1) * l with coefficients that are in \ZnX
+	 *
+	 * Data layout is limb-major, ie, all the coefficients for a power of \f$ 2^{iK} \f$
+	 *  are strored contiguously after the ones from \f$ 2^{(i-1)K} \f$ and before \f$ 2^{(i+1)K} \f$
+	 * (see dedicated document for details)
+	 *
+	 */
+	VecBiv* vec;
 } GLWECiphertext;
 
 /**
@@ -34,10 +46,10 @@ void delete_glwe(GLWECiphertext* glwe);
  * @brief Normalizes a bivGLWE ciphertext.
  *
  * @param module Additionnal information for backend.
- * @param result The result normalized bivGLWE ciphertext.
+ * @param res The result normalized bivGLWE ciphertext.
  * @param glwe The bivGLWE ciphertext.
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
 int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
@@ -45,22 +57,22 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECipherte
 /**
  * @brief Adds two bivGLWE ciphertexts.
  *
- * @param result The result bivGLWE ciphertext.
+ * @param res The result bivGLWE ciphertext.
  * @param glwe_lhs The left-hand side bivGLWE ciphertext.
  * @param glwe_rhs The right-hand side bivGLWE ciphertext.
  */
 void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECiphertext* glwe_rhs);
 
 /**
- * @brief Multiply a bivGLWE ciphertext by a Zn[X] polynomial.
+ * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial.
  *
  * @param module Additionnal information for backend.
- * @param result The result bivGLWE ciphertext.
- * @param u The Zn[X] polynomial.
- * @param glwe The bivGLWE ciphertext.
+ * @param res The result GLWE ciphertext.
+ * @param u The \ZnX polynomial.
+ * @param glwe The GLWE ciphertext.
  *
- * @retval - `-1` if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval - `0` otherwise.
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
  */
 int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe);
 
@@ -72,49 +84,52 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT
  * between the different limbs of the polynomial
  *
  * @param glwe_ct The GLWECiphertext from which to retrieve the start of a bivariate polynomial
- * @param pos The number of the polynomial whose starts is to be retrieved
+ * @param pos The index of the polynomial whose start is to be retrieved
  *
- * @return PolyBiv* The start of a strided bivariate polynomial
+ * @return The start of a strided bivariate polynomial
  *
  */
 PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
 
 // bivGLWE IN DFT PART (begin)
 
+/**
+ * @brief A GLWE ciphertext in the DFT domain, encoded using bivariate base-2K form
+ */
 typedef struct glwe_ciphertext_dft
 {
-	const GLWEParams* params;  ///< bivGLWE parameters
-	VecBivDFT* vec;            ///< Vector in the DFT
+	const GLWEParams* params;  ///< GLWE parameters
+	VecBivDFT* vec;  ///< Vector in the DFT domain. See GLWECiphertext for layout details, DFT is performed per-limb
 } GLWECiphertextDFT;
 
 /**
- * @brief The number of coefficient in a bivariate bivGLWE ciphertext in the DFT domain.
+ * @brief The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
  *
  * @param params_glwe The bivGLWE parameters.
- * @return int64_t
+ * @return The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
- * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
+ * \ZnX, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 uint64_t glwe_coef_number_dft(const GLWEParams* params_glwe);
 
 /**
  * @brief Creates a new empty bivGLWE ciphertext.
  *
- * @param params_glwe The bivGLWE parameters.
- * @return GLWECiphertextDFT*
+ * @param params_glwe The GLWE parameters.
+ * @return A pointer to the new object or NULL in case of a failure
  */
 GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params_glwe);
 
 /**
- * @brief Deletes a bivGLWE ciphertext, but not the parameters.
+ * @brief Deletes a GLWE ciphertext, but not its parameters.
  *
- * @param glwe The bivGLWE ciphertext.
+ * @param glwe The GLWE ciphertext.
  */
 void delete_glwe_dft(GLWECiphertextDFT* glwe);
 
 /**
- * @brief Adds two bivGLWE ciphertext.
+ * @brief Adds two bivGLWE ciphertexts.
  *
  * @param res_dft The result bivGLWE ciphertext in the DFT domain.
  * @param glwe_lhs_dft The left-hand side bivGLWE ciphertext in the DFT domain.
@@ -124,14 +139,14 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
                   const GLWECiphertextDFT* glwe_rhs_dft);
 
 /**
- * @brief Multiply a bivGLWE ciphertext by a Zn[X] polynomial in the DFT domain.
+ * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial in the DFT domain.
  *
  * @param module Additionnal information for backend.
  * @param res_dft The result bivGLWE ciphertext in the DFT domain.
- * @param u The Zn[X] polynomial.
+ * @param u The \ZnX polynomial.
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
@@ -185,7 +200,7 @@ int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECip
  * @param d_dft The right-hand side polynomial in the DFT domain.
  * @param d_size The right-hand size of c_dft.
  *
- * @note `res_dft = ( DFT(c_0) * DFT(d_0) , ... , DFT(c_smin) * DFT(d_smin) , 0's)`. There are enough 0's to match the
+ * @remark `res_dft = ( DFT(c_0) * DFT(d_0) , ... , DFT(c_smin) * DFT(d_smin) , 0's)`. There are enough 0's to match the
  * size of res_dft.
  */
 void mult_vec_znx_dft(const MODULE* module, double* res_dft, int64_t res_size, const double* c_dft, int64_t c_size,

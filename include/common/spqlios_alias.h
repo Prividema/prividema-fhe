@@ -47,7 +47,7 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
 // |                                           |
 // =============================================
 
-MODULE* pvda_new_module_info(uint64_t N);
+MODULE* pvda_new_module_info(uint64_t nn);
 
 void pvda_delete_module_info(MODULE* module);
 

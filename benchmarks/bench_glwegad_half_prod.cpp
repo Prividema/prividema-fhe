@@ -108,12 +108,14 @@ void test_glwegad_half_prod_dft(benchmark::State& state)
 	}
 
 	free(m);
+	free(m_dft);
 	delete_univ(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 
 	delete_glwegadget(glwegad);
 	delete_glwegadget_prep(glwegad_prep);
 	delete_glwe(glwe);
+	delete_glwe_dft(glwe_dft);
 
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
