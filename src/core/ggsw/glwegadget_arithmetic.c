@@ -1,3 +1,5 @@
+#include "glwegadget_arithmetic.h"
+
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -7,7 +9,6 @@
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -18,7 +19,6 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 {
 	int status = -1;
 
-	//TODO: assert size compatibility
 	size_t nrows = glwegadget_prep_ct->params->l_tilde;
 	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
 	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
@@ -42,7 +42,6 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
 {
 	int status = -1;
 
-	//TODO: assert size compatibility
 	size_t nrows = glwegadget_prep_ct->params->l_tilde;
 	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
 

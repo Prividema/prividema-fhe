@@ -199,7 +199,7 @@ cleanup:
 
 int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma)
 {
-	// TODO: possible performance improvement here
+	// Possible performance improvement here
 	for (int i = 0; i < vec_size; i++)
 	{
 		double tmp;

@@ -42,7 +42,6 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 	free(ggsw);
 }
 
-// TODO: add inline qualifier
 VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i)
 {
 	// bivGLWE parameters

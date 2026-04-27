@@ -79,7 +79,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
  * @brief Encrypts a univariate integer polynomial into a GLWEGadget
  * (also known as halfGGSW in the k=1 case)
  *
- *  TODO: implement
+ *  TODO: not yet implemented
  *
  * @param module The underlying compute module
  * @param result The resulting GLWEGadget ciphertext

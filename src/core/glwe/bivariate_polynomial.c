@@ -31,7 +31,6 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 
-	//TODO: generate directly? Use tnx? Seems like it could use improvement
 	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
 	           "random normal vec generation failed");
 

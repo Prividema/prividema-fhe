@@ -45,7 +45,6 @@ PvdaParamTest(mult_vec_znx_dft, size_equal_one, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Variables
-	// TODO: WONTFIX
 	int64_t* prod_computed    = calloc(poly_univ_bytes(params_glwe), 1);
 	int64_t* pol_lhs          = calloc(poly_univ_bytes(params_glwe), 1);
 	int64_t* pol_rhs          = calloc(poly_univ_bytes(params_glwe), 1);
@@ -104,7 +103,6 @@ PvdaParamTest(mult_vec_znx_dft, random_size, default_params_fn)
 	}
 
 	// Variables
-	// TODO: WONTFIX
 	int64_t* component_wise_mult    = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	int64_t* vec_lhs                = calloc(poly_univ_bytes(params_glwe) * size, 1);
 	int64_t* vec_rhs                = calloc(poly_univ_bytes(params_glwe) * size, 1);
@@ -186,7 +184,6 @@ PvdaParamTest(new_glwe, basic, default_params_fn)
 /**
  * @brief Tests whether add_glwe adds two bivGLWE ciphertexts.
  *
- * TODO: this could be improved. This is testing not the addition of valid GLWEs but of the underlying data.
  */
 PvdaParamTest(add_glwe, basic, default_params_fn)
 {
@@ -221,7 +218,6 @@ PvdaParamTest(add_glwe, basic, default_params_fn)
 /**
  * @brief Tests whether sub_glwe subtracts two bivGLWE ciphertexts.
  *
- * TODO: this could be improved. This is testing not the subtraction of valid GLWEs but of the underlying data.
  */
 PvdaParamTest(sub_glwe, basic, default_params_fn)
 {
