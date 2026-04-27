@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#include "maths_structures.h"
+
 // =============================================
 // |                                           |
 // |      Aliases for spqlios structures       |
@@ -49,7 +51,7 @@ MODULE* pvda_new_module_info(uint64_t nn);
 
 void pvda_delete_module_info(MODULE* module);
 
-double* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size);
+VecUnivDFT* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size);
 
 void pvda_vec_znx_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
                       uint64_t a_sl);
@@ -64,9 +66,9 @@ void pvda_delete_vec_znx_big(int64_t* res);
 
 double* pvda_new_svp_ppol(const MODULE* module);
 
-void pvda_svp_prepare(const MODULE* module, double* prepared_pol, const int64_t* pol);
+void pvda_svp_prepare(const MODULE* module, PolyUnivDFT* prepared_pol, const int64_t* pol);
 
-void pvda_svp_apply_dft(const MODULE* module, const double* res, uint64_t res_size, const double* prepared_pol,
+void pvda_svp_apply_dft(const MODULE* module, const double* res, uint64_t res_size, const PolyUnivDFT* prepared_pol,
                         const int64_t* a, uint64_t a_size, uint64_t a_sl);
 
 void pvda_delete_svp_ppol(double* res);
@@ -76,10 +78,10 @@ double* pvda_new_vmp_pmat(const MODULE* module, uint64_t nrows, uint64_t ncols);
 int pvda_vmp_prepare_contiguous(const MODULE* module, double* pmat, const int64_t* mat, uint64_t nrows, uint64_t ncols);
 
 int pvda_vmp_apply_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
-                       uint64_t a_sl, const double* pmat, uint64_t nrows, uint64_t ncols);
+                       uint64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols);
 
-int pvda_vmp_apply_dft_to_dft(const MODULE* module, double* res, const uint64_t res_size, const double* a_dft,
-                              uint64_t a_size, const double* pmat, const uint64_t nrows, const uint64_t ncols);
+int pvda_vmp_apply_dft_to_dft(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
+                              uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols);
 
 void pvda_delete_vmp_pmat(double* pmat);
 

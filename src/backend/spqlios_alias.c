@@ -15,7 +15,7 @@ void pvda_delete_module_info(MODULE* module)
 	delete_module_info(module);
 }
 
-double* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size) { return (double*)new_vec_znx_dft(module, size); }
+VecUnivDFT* pvda_new_vec_znx_dft(const MODULE* module, uint64_t size) { return (double*)new_vec_znx_dft(module, size); }
 
 void pvda_vec_znx_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
                       uint64_t a_sl)
@@ -96,7 +96,7 @@ void pvda_delete_vmp_pmat(double* pmat)
 }
 
 int pvda_vmp_apply_dft(const MODULE* module, double* res, uint64_t res_size, const int64_t* a, uint64_t a_size,
-                       uint64_t a_sl, const double* pmat, uint64_t nrows, uint64_t ncols)
+                       uint64_t a_sl, const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols)
 {
 	int status         = -1;
 	uint8_t* tmp_space = malloc(vmp_apply_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
@@ -110,8 +110,8 @@ cleanup:
 	return status;
 }
 
-int pvda_vmp_apply_dft_to_dft(const MODULE* module, double* res, const uint64_t res_size, const double* a_dft,
-                              uint64_t a_size, const double* pmat, const uint64_t nrows, const uint64_t ncols)
+int pvda_vmp_apply_dft_to_dft(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
+                              uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols)
 {
 	int status         = -1;
 	uint8_t* tmp_space = malloc(vmp_apply_dft_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
