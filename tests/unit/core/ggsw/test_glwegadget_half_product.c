@@ -12,7 +12,7 @@
 #include "ggsw_params.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "glwegadget.h"
+#include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
 #include "rng.h"
 #include "test_utils.h"
