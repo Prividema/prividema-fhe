@@ -21,16 +21,18 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 /**
  * @brief Adds two GGSW ciphertexts that have the same parameters.
  *
+ * @param module    Additional information for backend.
  * @param result    The resulting GGSWCiphertext
  * @param ggsw_lhs  One of the input GGSWCiphertext
  * @param ggsw_rhs  The other input GGSWCiphertext
  */
-void add_ggsw(GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs);
+void add_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs,
+              const GGSWCiphertext* ggsw_rhs);
 
 /**
  * @brief Multiplies a GGSW ciphertext by a constant in \ZnX
  *
- * @param module    Additionnal information for backend.
+ * @param module    Additional information for backend.
  * @param result    The resulting GGSWCiphertext
  * @param ggsw      The input GGSWCiphertext.
  * @param cte       The constant in \ZnX
