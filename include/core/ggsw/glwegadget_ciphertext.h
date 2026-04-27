@@ -6,6 +6,14 @@
 #include "glwe_key.h"
 
 /**
+ *
+ * @file glwegadget_ciphertext.h
+ *
+ * @brief Definition of a GLWEGadget ciphertext, creation, destruction, encryption and transformations thereof
+ *
+ */
+
+/**
  * @brief A GLWEGadget ciphertext
  */
 typedef struct glwegadget_ciphertext

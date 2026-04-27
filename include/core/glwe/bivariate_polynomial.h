@@ -5,6 +5,14 @@
 #include "maths_structures.h"
 #include "spqlios_alias.h"
 
+/**
+ *
+ * @file bivariate_polynomial.h
+ *
+ * @brief Operations on bivariate polynomials
+ *
+ */
+
 // BIV POLY PART (begin)
 
 /**

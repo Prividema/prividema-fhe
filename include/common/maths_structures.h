@@ -1,3 +1,6 @@
+#ifndef MATHS_STRUCTURES_H
+#define MATHS_STRUCTURES_H
+
 #include <stdint.h>
 
 // =============================================
@@ -152,3 +155,5 @@ void printf_poly_univ_RnX(double* pol, int64_t nn);
  * @param nn           The degree of the chosen cyclotomic polynomial.
  */
 void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t nn);
+
+#endif

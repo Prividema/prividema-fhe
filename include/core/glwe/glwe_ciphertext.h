@@ -8,6 +8,13 @@
 #include "glwe_params.h"
 #include "spqlios_alias.h"
 
+/**
+ * @file glwe_ciphertext.h
+ *
+ * In this header file, we define the structures representing bivariate GLWE ciphertext in both DFT and coefficient forms,
+ * encryption operations to them, decryption, allocation and deallocation and accessors to their components.
+ */
+
 // bivGLWE PART (begin)
 
 /**
