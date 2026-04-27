@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "bivariate_polynomial.h"
+#include "glwe_key.h"
 #include "glwe_params.h"
 #include "spqlios_alias.h"
 
@@ -43,62 +44,61 @@ GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 void delete_glwe(GLWECiphertext* glwe);
 
 /**
- * @brief Normalizes a bivGLWE ciphertext.
+ * @brief Encrypts a phase (message + noise) and puts it in result.
  *
  * @param module Additionnal information for backend.
- * @param res The result normalized bivGLWE ciphertext.
+ * @param result The result bivariate ciphertext.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param phase message + noise.
+ *
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  0 othwerwise.
+ */
+int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                              const PolyBiv* phase);
+
+/**
+ * @brief Encrypts a univariate message
+ *
+ * @param module Additionnal information for backend.
+ * @param result The result bivariate ciphertext.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param m_univ_rnx  The univariate secret message to encrypt
+ *
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  0 othwerwise.
+ */
+int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                            const PolyUnivRnX* m_univ_rnx);
+
+/**
+ * @brief Encrypts a univariate message
+ *
+ * @param module Additionnal information for backend.
+ * @param result The result bivariate ciphertext.
+ * @param sk_dft The secret key in the DFT domain.
+ * @param m_univ_tnx  The univariate secret message to encrypt
+ *
+ * @retval -1 if an error occurs.
+ * @retval  -0 othwerwise.
+ */
+int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+                            const PolyUnivTnX* m_univ_tnx);
+
+/**
+ * @brief Decrypts the ciphertext into the
+ * bivariate phase (message + noise) and puts it in result.
+ *
+ * @param module Additionnal information for backend.
+ * @param result The bivariate phase.
+ * @param sk_dft The secret key in the DFT domain.
  * @param glwe The bivGLWE ciphertext.
  *
- * @retval -1 if an error occurs
- * @retval 0 otherwise.
+ * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
+ * @retval  0 othwerwise.
  */
-int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
-
-/**
- * @brief Adds two bivariate GLWE ciphertexts.
- *
-
- * @param module Additionnal information for backend.
- * @param res The result GLWE ciphertext.
- * @param glwe_lhs The left-hand side GLWE ciphertext.
- * @param glwe_rhs The right-hand side GLWE ciphertext.
- */
-void add_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
-              const GLWECiphertext* glwe_rhs);
-
-/**
- * @brief Subtracts two bivariate GLWE ciphertexts.
- *
- * @param module Additionnal information for backend.
- * @param res The result GLWE ciphertext.
- * @param glwe_lhs The left-hand side GLWE ciphertext.
- * @param glwe_rhs The right-hand side GLWE ciphertext.
- */
-void sub_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
-              const GLWECiphertext* glwe_rhs);
-
-/**
- * @brief Negates (inverts the sign of) a GLWE
- *
- * @param module Additionnal information for backend.
- * @param res The result GLWE ciphertext (can be the same as the input for in-place negation).
- * @param glwe The GLWE ciphertext to invert.
- */
-void negate_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
-
-/**
- * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial.
- *
- * @param module Additionnal information for backend.
- * @param res The result GLWE ciphertext.
- * @param u The \ZnX polynomial.
- * @param glwe The GLWE ciphertext.
- *
- * @retval -1 if an error occurs
- * @retval 0 otherwise.
- */
-int const_mult_glwe(const MODULE* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe);
-
+int glwe_secret_decrypt(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
+                        const GLWECiphertext* glwe);
 /**
  * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertext
  *
@@ -126,17 +126,6 @@ typedef struct glwe_ciphertext_dft
 } GLWECiphertextDFT;
 
 /**
- * @brief The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
- *
- * @param params_glwe The bivGLWE parameters.
- * @return The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
- *
- * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
- * \ZnX, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
- */
-uint64_t glwe_coef_number_dft(const GLWEParams* params_glwe);
-
-/**
  * @brief Creates a new empty bivGLWE ciphertext.
  *
  * @param params_glwe The GLWE parameters.
@@ -150,30 +139,6 @@ GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params_glwe);
  * @param glwe The GLWE ciphertext.
  */
 void delete_glwe_dft(GLWECiphertextDFT* glwe);
-
-/**
- * @brief Adds two bivGLWE ciphertexts.
- *
- * @param res_dft The result bivGLWE ciphertext in the DFT domain.
- * @param glwe_lhs_dft The left-hand side bivGLWE ciphertext in the DFT domain.
- * @param glwe_rhs_dft The right-hand side bivGLWE ciphertext in the DFT domain.
- */
-void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_dft,
-                  const GLWECiphertextDFT* glwe_rhs_dft);
-
-/**
- * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param res_dft The result bivGLWE ciphertext in the DFT domain.
- * @param u The \ZnX polynomial.
- * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
-                        const GLWECiphertextDFT* glwe_dft);
 
 /**
  * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertextDFT
@@ -209,24 +174,5 @@ int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLW
  *
  */
 int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
-
-// COMMON PART (begin)
-
-/**
- * @brief Compute the polynomial product of c and d, component-wise in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param res_dft The result in the DFT domain.
- * @param res_size The result's size.
- * @param c_dft The left-hand side polynomial in the DFT domain .
- * @param c_size The left-hand size of c_dft.
- * @param d_dft The right-hand side polynomial in the DFT domain.
- * @param d_size The right-hand size of c_dft.
- *
- * @remark `res_dft = ( DFT(c_0) * DFT(d_0) , ... , DFT(c_smin) * DFT(d_smin) , 0's)`. There are enough 0's to match the
- * size of res_dft.
- */
-void mult_vec_znx_dft(const MODULE* module, double* res_dft, int64_t res_size, const double* c_dft, int64_t c_size,
-                      const double* d_dft, int64_t d_size);
 
 #endif  // bivGLWE_CIPHERTEXT_H

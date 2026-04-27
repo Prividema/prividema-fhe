@@ -43,4 +43,6 @@ uint64_t glwe_params_bytes(const GLWEParams* params)
 }
 uint64_t glwe_coef_number(const GLWEParams* params) { return glwe_params_n_limbs(params) * params->nn; }
 
+uint64_t glwe_coef_number_dft(const GLWEParams* params) { return glwe_params_n_limbs(params) * params->nn / 2; }
+
 double glwe_bivariate_epsilon(const GLWEParams* params) { return ldexp(1.0, -glwe_params_l_a(params) * params->kappa); }
