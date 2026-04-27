@@ -186,7 +186,7 @@ PvdaParamTest(new_glwe, basic, default_params_fn)
 /**
  * @brief Tests whether add_glwe adds two bivGLWE ciphertexts.
  *
- * TODO: this is bad. This is testing not the addition of valid GLWEs but of the underlying data.
+ * TODO: this could be improved. This is testing not the addition of valid GLWEs but of the underlying data.
  */
 PvdaParamTest(add_glwe, basic, default_params_fn)
 {
@@ -221,7 +221,7 @@ PvdaParamTest(add_glwe, basic, default_params_fn)
 /**
  * @brief Tests whether sub_glwe subtracts two bivGLWE ciphertexts.
  *
- * TODO: this is bad. This is testing not the subtraction of valid GLWEs but of the underlying data.
+ * TODO: this could be improved. This is testing not the subtraction of valid GLWEs but of the underlying data.
  */
 PvdaParamTest(sub_glwe, basic, default_params_fn)
 {

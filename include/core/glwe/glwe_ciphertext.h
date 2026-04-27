@@ -81,7 +81,7 @@ void sub_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* g
  * @brief Negates (inverts the sign of) a GLWE
  *
  * @param module Additionnal information for backend.
- * @param result The result GLWE ciphertext (can be the same as the input for in-place negation).
+ * @param res The result GLWE ciphertext (can be the same as the input for in-place negation).
  * @param glwe The GLWE ciphertext to invert.
  */
 void negate_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
