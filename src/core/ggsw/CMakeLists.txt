@@ -19,7 +19,7 @@ add_library(PVDA_GGSW SHARED ${GGSW_SRCS})
 set_target_properties(PVDA_GGSW PROPERTIES OUTPUT_NAME pvdaggsw)
 
 # Link dependencies: bivGGSW depends on GLWE, libspqlios, and COMMON
-target_link_libraries(PVDA_GGSW PRIVATE PVDA_GLWE libspqlios PVDA_COMMON)
+target_link_libraries(PVDA_GGSW PRIVATE PVDA_GLWE libspqlios PVDA_COMMON PVDA_BACKEND)
 
 # Include directories
 target_include_directories(PVDA_GGSW

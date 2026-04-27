@@ -6,7 +6,7 @@
 #include <sys/types.h>
 
 #include "glwe_params.h"
-#include "rng.h"
+#include "maths_structures.h"
 
 /*
  * Asserts (and fails a test if not met) the following condition:

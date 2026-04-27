@@ -3,8 +3,7 @@
 #include <float.h>
 
 #include "bivariate_polynomial.h"
-#include "common/spqlios_alias.h"
-#include "core/glwe/glwe_arithmetic.h"
+#include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwe_transform_key.h"

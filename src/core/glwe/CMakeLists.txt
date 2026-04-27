@@ -20,7 +20,7 @@ add_library(PVDA_GLWE SHARED ${GLWE_SRCS})
 set_target_properties(PVDA_GLWE PROPERTIES OUTPUT_NAME pvdaglwe)
 
 # Link dependencies
-target_link_libraries(PVDA_GLWE PRIVATE libspqlios PVDA_COMMON)
+target_link_libraries(PVDA_GLWE PRIVATE libspqlios PVDA_COMMON PVDA_BACKEND)
 
 # Include directories
 target_include_directories(PVDA_GLWE

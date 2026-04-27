@@ -10,11 +10,6 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget)
-{
-	return params_glwegadget->l_tilde * glwe_coef_number(params_glwegadget->params_glwe);
-}
-
 GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params)
 {
 	GLWEGadgetCiphertext* glwegadget = calloc(sizeof(GLWEGadgetCiphertext), 1);

@@ -7,7 +7,6 @@
 #include "glwe_arithmetic.h"
 #include "glwe_params.h"
 #include "rng.h"
-#include "spqlios_alias.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 

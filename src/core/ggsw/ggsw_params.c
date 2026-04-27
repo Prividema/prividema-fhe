@@ -41,6 +41,11 @@ cleanup:
 
 void* delete_glwegadget_params(GLWEGadgetParams* params) { free(params); }
 
+uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget)
+{
+	return params_glwegadget->l_tilde * glwe_coef_number(params_glwegadget->params_glwe);
+}
+
 uint64_t ggsw_num_rows(const GGSWParams* params) { return params->ciphertext_nb_limbs_tilde; };
 
 uint64_t ggsw_params_l_tilde_a(const GGSWParams* params)

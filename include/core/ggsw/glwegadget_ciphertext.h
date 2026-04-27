@@ -23,14 +23,6 @@ typedef struct glwegadget_ciphertext
 GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
 
 /**
- * @brief Returns the number of coefficients in a GLWEGadgetCiphertext
- *
- * @param params_glwegadget The parameters
- *
- */
-uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget);
-
-/**
  * @brief Deletes a GLWEGadget ciphertext
  *
  * Remember that it does not own the underlying parameters

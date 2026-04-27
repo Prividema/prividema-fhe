@@ -3,14 +3,12 @@
 #include <float.h>
 
 #include "bivariate_polynomial.h"
-#include "core/ggsw/ggsw_arithmetic.h"
-#include "core/ggsw/glwegadget_arithmetic.h"
-#include "core/glwe/glwe_arithmetic.h"
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwe_transform_key.h"
+#include "glwegadget_ciphertext.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
