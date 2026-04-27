@@ -4,10 +4,10 @@
 
 extern "C" {
 #include "bivariate_polynomial.h"
-#include "ggsw.h"
+#include "ggsw_arithmetic.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
-#include "glwe.h"
+#include "glwe_arithmetic.h"
 #include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "rng.h"

@@ -8,7 +8,7 @@
 
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
-#include "glwe.h"
+#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
 #include "glwegadget_ciphertext.h"
