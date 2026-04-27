@@ -2,9 +2,8 @@
 #include <criterion/new/assert.h>
 #include <stdlib.h>
 
-#include "common/logger.h"
-#include "common/rng.h"
 #include "core/glwe/glwe_params.h"
+#include "rng.h"
 #include "stat_utils.h"
 #include "test_utils.h"
 
@@ -116,7 +115,6 @@ PvdaParamTest(normal_random_vec, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	//TODO: RnX vec of size params_glwe->nn*params_glwe->k??
 	VecUnivRnX* pol_univ = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
 	cr_assert(pol_univ != NULL);
 

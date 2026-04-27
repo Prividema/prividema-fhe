@@ -46,14 +46,3 @@ void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t nn)
 		printf("\n");
 	}
 }
-
-void printf_secret_key(PolyUniv** sk_values, int64_t nn, int64_t k)
-{
-	printf("\n\nBegin Secret Key:\n");
-	for (uint64_t j = 0; j < k; j++)
-	{
-		printf("\n%ld-th component", j);
-		printf_poly_univ_ZnX(sk_values[j], nn);
-	}
-	printf("\n\nEnd Secret Key\n");
-}

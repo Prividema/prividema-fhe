@@ -86,7 +86,9 @@ cleanup:
 void add_glwe_dft(GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_lhs_dft,
                   const GLWECiphertextDFT* glwe_rhs_dft)
 {
-	//TODO: pvda_add
+	//TODO: It would be good to move this to SPQLIOS/other backend for faster addition
+	// Not being done right now due to header namespace clash if we blindly include
+	// spqlios rnx functions.
 	for (uint64_t t = 0; t < glwe_coef_number(result_dft->params); t++)
 		result_dft->vec[t] = glwe_lhs_dft->vec[t] + glwe_rhs_dft->vec[t];
 }
@@ -96,7 +98,6 @@ void mult_vec_znx_dft(const MODULE* module, double* result_dft, int64_t result_s
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 
-	// TODO: we SHOULD offload this to spqlios.
 	if (c_size <= d_size)
 	{
 		int64_t smin = c_size < result_size ? c_size : result_size;

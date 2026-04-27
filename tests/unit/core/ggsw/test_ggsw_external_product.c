@@ -15,7 +15,6 @@
 #include "utils.h"
 
 /** The test is done without error, it is a proof of concept*/
-//TODO: is it, though? SIGMA_TILDEBASE is NOT 0
 PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
@@ -41,7 +40,6 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	PolyBiv* um                       = new_biv_poly(params_glwe);
 	PolyUnivRnX* um_univ_RnX          = new_univ_rnx(params_glwe);
 
-	// TODO: WHY?
 	sk_ggsw->values[0] = 1;
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_glwe_dft, sk_ggsw);
 
@@ -62,7 +60,6 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	//Computes u*m manually
 	univ_coefs_to_dft(module, u_univ_dft, u_univ);
-	//TODO: why l_tilde?
 	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_dft, m,
 	                   ggsw_params_l_tilde_a(params_ggsw), params_glwe->nn);
 	univ_dft_to_coefs(module, um, um_dft);

@@ -8,7 +8,7 @@
     Implements a homomorphic selection (Mux) operation,
     where GGSW ciphertext sel is used to choose from c0 or c1
 
-    TODO: finish
+    TODO: unifinished
 */
 void tfhe_cmux(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
                const GGSWCiphertext* sel);

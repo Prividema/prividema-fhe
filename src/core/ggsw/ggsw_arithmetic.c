@@ -20,8 +20,7 @@
 
 int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw)
 {
-	int status = -1;
-	// TODO: assert input and output have equal params
+	int status                    = -1;
 	const GGSWParams* params_ggsw = result->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
@@ -49,7 +48,6 @@ cleanup:
 
 void add_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs)
 {
-	// TODO: move to spqlios
 	uint64_t nn = res->params->params_glwe->nn;
 	pvda_vec_znx_add(module, res->mat, ggsw_total_n_glwe_limbs(res->params), nn, ggsw_lhs->mat,
 	                 ggsw_total_n_glwe_limbs(ggsw_lhs->params), nn, ggsw_rhs->mat,
@@ -117,7 +115,6 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
 	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, ggsw_dft->mat, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw_dft");
 
-	//TODO: check this, it is quite strange
 	// Computes result_mat_dft = DFT(u) * DFT(iDFT(ggsw_mat_dft))) = DFT(u) * ggsw_mat_dft
 	pvda_svp_apply_dft(module, result_dft->mat, mat_size, u_dft, ggsw_mat, mat_size, nn);
 

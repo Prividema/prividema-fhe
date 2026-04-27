@@ -92,7 +92,6 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	PolyBiv* pol_computed = new_biv_poly(params_glwe);
 
 	// Draws normaly pol_univ in Rn[X] (!= torus)
-	// TODO: use a torus element instead of rnx?
 	normal_random_vec(pol_univ, params_glwe->nn, 0.0, 1e-2);
 
 	// Computes pol_univ's base-2params->kappa normalized decomposition
@@ -107,7 +106,6 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 		for (uint64_t i = 1; i <= glwe_params_l_a(params_glwe); i++)
 			pol_computed_p += ldexp((double)pol_computed[(i - 1) * params_glwe->nn + p], -i * params_glwe->kappa);
 
-		//TODO: double check this
 		cr_assert(epsilon_eq(dbl, torus_distance(pol_computed_p, pol_univ[p]), 0, err_length));
 	}
 

@@ -6,7 +6,6 @@
 void transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, GLWESecretKeyDFT* result_dft,
                                               const GLWESecretKey* sk)
 {
-	//TODO: this could be a single vec_znx_idft
 	for (uint64_t j = 0; j < sk->k; j++)
 		univ_coefs_to_dft(module, glwe_sk_extract_poly_dft(result_dft, j), glwe_sk_extract_poly(sk, j));
 }
