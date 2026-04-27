@@ -1,6 +1,21 @@
+#ifndef SPQLIOS_ALIAS_H
+#define SPQLIOS_ALIAS_H
+
 #include <stdint.h>
 
 #include "maths_structures.h"
+
+/**
+ *
+ * @file spqlios_alias.h
+ *
+ *
+ * Provides a very thin wrapper over spqlios functions
+ *
+ *
+ * @note For documentation on the functions in this file, refer to the splqios library
+ *
+ */
 
 // =============================================
 // |                                           |
@@ -100,3 +115,5 @@ int pvda_vec_znx_sub(const MODULE* module, int64_t* res, uint64_t res_size, uint
                      uint64_t a_size, uint64_t a_sl, const int64_t* b, uint64_t b_size, uint64_t b_sl);
 
 uint64_t pvda_module_extract_nn(const MODULE* module);
+
+#endif

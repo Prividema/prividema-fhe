@@ -4,6 +4,14 @@
 #include <stdint.h>
 
 /**
+ *
+ * @file glwe_params.h
+ *
+ * This file contains the definition of GLWE parameters, as well as accessor/helper functions for parameters
+ * that can be derived from them
+ */
+
+/**
  * @brief Parameters object for a GLWE problem/ciphertext
  *
  */

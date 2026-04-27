@@ -5,6 +5,15 @@
 #include "glwe_key.h"
 
 /**
+ *
+ * @file glwe_arithmetic.h
+ *
+ * @brief This file contains arithmetic operations on GLWE ciphertexts
+ *
+ *
+ */
+
+/**
  * @brief Normalizes a bivGLWE ciphertext.
  *
  * @param module Additionnal information for backend.

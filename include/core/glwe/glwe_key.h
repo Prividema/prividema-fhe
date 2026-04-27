@@ -4,6 +4,14 @@
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
 
+/**
+ *
+ * @file glwe_key.h
+ *
+ * @brief Definition and operations for GLWE/GLWEGadget/GGSW secret keys
+ *
+ */
+
 // bivGLWE SECRET KEY STRUCTURES
 
 /**

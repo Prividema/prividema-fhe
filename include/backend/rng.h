@@ -7,6 +7,14 @@
 #include "maths_structures.h"
 #include "spqlios_alias.h"
 
+/**
+ *
+ * @file rng.h
+ *
+ * Prividema random number generation (takes randomness from system source,
+ * provides functions to sample different distributions)
+ */
+
 // =============================================
 // |                                           |
 // |              Random Numbers               |

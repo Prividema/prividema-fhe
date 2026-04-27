@@ -4,6 +4,14 @@
 #include "glwe_params.h"
 
 /**
+ *
+ * @file ggsw_params.h
+ *
+ * This file contains the definition of GGSW parameters, as well as accessor/helper functions for parameters
+ * that can be derived from them
+ */
+
+/**
  * @struct GGSWParams
  *
  * @brief GGSW parameters.
