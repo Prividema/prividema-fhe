@@ -1,4 +1,4 @@
-#include "glwe.h"
+#include "glwe_arithmetic.h"
 
 #include <string.h>
 #include <sys/types.h>

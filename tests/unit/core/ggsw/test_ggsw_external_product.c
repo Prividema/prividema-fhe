@@ -3,8 +3,8 @@
 #include <float.h>
 
 #include "bivariate_polynomial.h"
-#include "core/ggsw/ggsw.h"
-#include "core/glwe/glwe.h"
+#include "core/ggsw/ggsw_arithmetic.h"
+#include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "core/glwe/glwe_transform_key.h"
 #include "ggsw_params.h"

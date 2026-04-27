@@ -1,8 +1,8 @@
 #ifndef TFHE_H
 #define TFHE_H
 
-#include "ggsw.h"
-#include "glwe.h"
+#include "ggsw_arithmetic.h"
+#include "glwe_arithmetic.h"
 
 /*
     Implements a homomorphic selection (Mux) operation,

@@ -4,7 +4,7 @@
 
 # Source files for GGSW
 set(GGSW_SRCS
-    ggsw.c
+    ggsw_arithmetic.c
     ggsw_ciphertext.c
     ggsw_params.c
     ggsw_key.c

@@ -1,4 +1,4 @@
-#include "ggsw.h"
+#include "ggsw_arithmetic.h"
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -8,7 +8,7 @@
 #include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
-#include "glwe.h"
+#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
