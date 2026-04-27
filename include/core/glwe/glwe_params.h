@@ -6,7 +6,6 @@
 /**
  * @brief Parameters object for a GLWE problem/ciphertext
  *
- *
  */
 typedef struct glwe_ct_params
 {

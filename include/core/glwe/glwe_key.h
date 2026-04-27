@@ -7,8 +7,8 @@
 // bivGLWE SECRET KEY STRUCTURES
 
 /**
- * @brief Structure that represents a bivGLWE secret key
- *
+ * @brief Structure that represents a GLWE secret key,
+ * which is also the same as a GGSW or GLWEGadget secret key
  */
 typedef struct glwe_secret_key
 {
@@ -18,7 +18,7 @@ typedef struct glwe_secret_key
 } GLWESecretKey;
 
 /**
- * @brief Structure that represents a bivGLWE secret key in DFT domain
+ * @brief Structure that represents a GLWE secret key in DFT domain
  */
 typedef struct glwe_prep_secret_key
 {
@@ -110,7 +110,6 @@ typedef struct glwe_ciphertext GLWECiphertext;
  * Composed of yy GLWE encryptions of 0
  *
  */
-
 typedef struct glwe_public_key
 {
 	uint64_t nn;          ///< Degree of the polynomials
