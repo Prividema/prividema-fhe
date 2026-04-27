@@ -8,7 +8,7 @@
  */
 
 #include "ggsw_params.h"
-#include "spqlios_alias.h"
+#include "maths_structures.h"
 
 /**
  * @brief GGSW Ciphertext in the coefficient space.

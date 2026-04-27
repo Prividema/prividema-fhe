@@ -161,4 +161,12 @@ GLWEGadgetParams* new_glwegadget_params(const GLWEParams* params, uint64_t kappa
  */
 void* delete_glwegadget_params(GLWEGadgetParams* params);
 
+/**
+ * @brief Returns the number of coefficients in a GLWEGadgetCiphertext
+ *
+ * @param params_glwegadget The parameters
+ *
+ */
+uint64_t glwegadget_coef_number(const GLWEGadgetParams* params_glwegadget);
+
 #endif  // bivGGSW_CT_PARAMS_H

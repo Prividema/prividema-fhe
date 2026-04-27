@@ -7,9 +7,8 @@
 #include <stdlib.h>
 
 #include "bivariate_polynomial.h"
-#include "common/rng.h"
-#include "common/spqlios_alias.h"
 #include "glwe_params.h"
+#include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
