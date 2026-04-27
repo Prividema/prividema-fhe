@@ -157,8 +157,7 @@ cleanup:
 	return -1;
 }
 
-//TODO: fix int64_t number of limbs and stride length
-int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits)
+int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
 		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
@@ -213,8 +212,7 @@ cleanup:
 	return -1;
 }
 
-//TODO: int64_t size
-int normal_random_vec(double* res, int64_t res_size, double mu, double sigma)
+int normal_random_vec(double* res, uint64_t res_size, double mu, double sigma)
 {
 	for (int i = 0; i < res_size; i++) CHECK_CALL(rand_normal(res + i, mu, sigma), "normal_random_vec failed");
 

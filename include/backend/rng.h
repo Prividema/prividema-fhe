@@ -75,7 +75,7 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
  * @retval  0 otherwise.
  *
  */
-int uniform_random_vec(uint64_t limb_len, int64_t* res, int64_t nb_limbs, int64_t res_sl, uint64_t nb_bits);
+int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits);
 
 /**
  * @brief Generates a random vector following a uniform distribution and return it in the DFT domain.
@@ -103,7 +103,7 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
  * @retval 0 otherwise.
 
  */
-int normal_random_vec(double* res, int64_t res_size, double mu, double sigma);
+int normal_random_vec(double* res, uint64_t res_size, double mu, double sigma);
 
 /**
  * @brief Adds a random normally sampled number to each element of vec

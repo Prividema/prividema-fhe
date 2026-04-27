@@ -62,7 +62,6 @@ double generate_sigma(PvdaTstParams* p);
 
 #define DELETE_PVDA_PARAMS_BASE    pvda_delete_module_info(module);
 
-// TODO: add support for l_a != l_b
 #define INIT_PVDA_PARAMS_GLWE(PRS)                   \
 	INIT_PVDA_PARAMS_BASE((PRS))                     \
 	double sigma            = generate_sigma((PRS)); \

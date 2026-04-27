@@ -122,8 +122,6 @@ int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECip
 {
 	int status = -1;
 
-	//TODO: test, for now untested
-
 	CHECK_CALL(pvda_vec_znx_idft(module, res_ct->vec, glwe_params_n_limbs(res_ct->params), glwe_dft->vec,
 	                             glwe_params_n_limbs(glwe_dft->params)),
 	           "iDFT failed for a GLWE");

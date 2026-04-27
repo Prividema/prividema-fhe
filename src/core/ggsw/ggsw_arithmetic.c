@@ -47,10 +47,13 @@ cleanup:
 	return status;
 }
 
-void add_ggsw(GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs)
+void add_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs)
 {
 	// TODO: move to spqlios
-	for (uint64_t t = 0; t < ggsw_coef_number(res->params); t++) res->mat[t] = ggsw_lhs->mat[t] + ggsw_rhs->mat[t];
+	uint64_t nn = res->params->params_glwe->nn;
+	pvda_vec_znx_add(module, res->mat, ggsw_total_n_glwe_limbs(res->params), nn, ggsw_lhs->mat,
+	                 ggsw_total_n_glwe_limbs(ggsw_lhs->params), nn, ggsw_rhs->mat,
+	                 ggsw_total_n_glwe_limbs(ggsw_rhs->params), nn);
 }
 
 int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft)
@@ -69,9 +72,6 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	GGSWCiphertextDFT* ggsw_tmp_dft = new_ggsw_dft(params_ggsw);
 
 	CHECK_ALLOC(ggsw_tmp_dft, "alloc in const_mult_ggsw");
-
-	//TODO: redundant logic?
-	pvda_vec_znx_dft(module, ggsw_tmp_dft->mat, mat_size, ggsw->mat, mat_size, nn);
 
 	pvda_svp_apply_dft(module, ggsw_tmp_dft->mat, mat_size, u_dft, ggsw->mat, mat_size, nn);
 
