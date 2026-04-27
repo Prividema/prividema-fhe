@@ -55,13 +55,36 @@ void delete_glwe(GLWECiphertext* glwe);
 int normalize_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
 /**
- * @brief Adds two bivGLWE ciphertexts.
+ * @brief Adds two bivariate GLWE ciphertexts.
  *
- * @param res The result bivGLWE ciphertext.
- * @param glwe_lhs The left-hand side bivGLWE ciphertext.
- * @param glwe_rhs The right-hand side bivGLWE ciphertext.
+
+ * @param module Additionnal information for backend.
+ * @param res The result GLWE ciphertext.
+ * @param glwe_lhs The left-hand side GLWE ciphertext.
+ * @param glwe_rhs The right-hand side GLWE ciphertext.
  */
-void add_glwe(GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECiphertext* glwe_rhs);
+void add_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
+              const GLWECiphertext* glwe_rhs);
+
+/**
+ * @brief Subtracts two bivariate GLWE ciphertexts.
+ *
+ * @param module Additionnal information for backend.
+ * @param res The result GLWE ciphertext.
+ * @param glwe_lhs The left-hand side GLWE ciphertext.
+ * @param glwe_rhs The right-hand side GLWE ciphertext.
+ */
+void sub_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
+              const GLWECiphertext* glwe_rhs);
+
+/**
+ * @brief Negates (inverts the sign of) a GLWE
+ *
+ * @param module Additionnal information for backend.
+ * @param res The result GLWE ciphertext (can be the same as the input for in-place negation).
+ * @param glwe The GLWE ciphertext to invert.
+ */
+void negate_glwe(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
 /**
  * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial.

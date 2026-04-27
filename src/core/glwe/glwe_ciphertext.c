@@ -1,6 +1,7 @@
 #include "glwe_ciphertext.h"
 
 #include <assert.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -62,10 +63,29 @@ cleanup:
 	return status;
 }
 
-void add_glwe(GLWECiphertext* result, const GLWECiphertext* glwe_lhs, const GLWECiphertext* glwe_rhs)
+void add_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
+              const GLWECiphertext* glwe_rhs)
 {
-	for (uint64_t p = 0; p < glwe_coef_number(result->params); p++)
-		result->vec[p] = glwe_lhs->vec[p] + glwe_rhs->vec[p];
+	uint64_t nn = result->params->nn;
+	pvda_vec_znx_add(module, result->vec, glwe_params_n_limbs(result->params), nn, glwe_lhs->vec,
+	                 glwe_params_n_limbs(glwe_lhs->params), nn, glwe_rhs->vec, glwe_params_n_limbs(glwe_rhs->params),
+	                 nn);
+}
+
+void sub_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
+              const GLWECiphertext* glwe_rhs)
+{
+	uint64_t nn = result->params->nn;
+	pvda_vec_znx_sub(module, result->vec, glwe_params_n_limbs(result->params), nn, glwe_lhs->vec,
+	                 glwe_params_n_limbs(glwe_lhs->params), nn, glwe_rhs->vec, glwe_params_n_limbs(glwe_rhs->params),
+	                 nn);
+}
+
+void negate_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe)
+{
+	uint64_t nn = result->params->nn;
+	pvda_vec_znx_negate(module, result->vec, glwe_params_n_limbs(result->params), nn, glwe->vec,
+	                    glwe_params_n_limbs(glwe->params), nn);
 }
 
 int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUnivDFT* u_dft, const GLWECiphertext* glwe)

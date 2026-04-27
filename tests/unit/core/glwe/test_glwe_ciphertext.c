@@ -186,7 +186,7 @@ PvdaParamTest(new_glwe, basic, default_params_fn)
 /**
  * @brief Tests whether add_glwe adds two bivGLWE ciphertexts.
  *
- * TODO: this is bad. This is testing not the addition of valid GLWEs but of the underlying data.
+ * TODO: this could be improved. This is testing not the addition of valid GLWEs but of the underlying data.
  */
 PvdaParamTest(add_glwe, basic, default_params_fn)
 {
@@ -204,7 +204,7 @@ PvdaParamTest(add_glwe, basic, default_params_fn)
 	                   params_glwe->kappa - 1);
 
 	// Computes glwe_lhs + glwe_rhs
-	add_glwe(sum_computed, glwe_lhs, glwe_rhs);
+	add_glwe(module, sum_computed, glwe_lhs, glwe_rhs);
 
 	// Asserts sum_computed = glwe_lhs + glwe_rhs
 	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++)
@@ -214,6 +214,41 @@ PvdaParamTest(add_glwe, basic, default_params_fn)
 	delete_glwe(glwe_lhs);
 	delete_glwe(glwe_rhs);
 	delete_glwe(sum_computed);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+/**
+ * @brief Tests whether sub_glwe subtracts two bivGLWE ciphertexts.
+ *
+ * TODO: this could be improved. This is testing not the subtraction of valid GLWEs but of the underlying data.
+ */
+PvdaParamTest(sub_glwe, basic, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	// Variables
+	GLWECiphertext* glwe_lhs     = new_glwe(params_glwe);
+	GLWECiphertext* glwe_rhs     = new_glwe(params_glwe);
+	GLWECiphertext* sub_observed = new_glwe(params_glwe);
+
+	// Draws in Zn[X] the bivGLWE's bivariate elements
+	uniform_random_vec(params_glwe->nn, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                   params_glwe->kappa - 1);
+	uniform_random_vec(params_glwe->nn, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                   params_glwe->kappa - 1);
+
+	// Computes glwe_lhs - glwe_rhs
+	sub_glwe(module, sub_observed, glwe_lhs, glwe_rhs);
+
+	// Asserts sum_computed = glwe_lhs - glwe_rhs
+	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++)
+		cr_assert(eq(i64, sub_observed->vec[t], glwe_lhs->vec[t] - glwe_rhs->vec[t]));
+
+	// Clean up
+	delete_glwe(glwe_lhs);
+	delete_glwe(glwe_rhs);
+	delete_glwe(sub_observed);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
