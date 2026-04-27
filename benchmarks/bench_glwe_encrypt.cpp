@@ -4,7 +4,7 @@
 
 extern "C" {
 #include "bivariate_polynomial.h"
-#include "glwe_arithmetic.h"
+#include "glwe_ciphertext.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"

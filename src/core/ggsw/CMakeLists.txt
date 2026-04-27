@@ -8,7 +8,7 @@ set(GGSW_SRCS
     ggsw_ciphertext.c
     ggsw_params.c
     ggsw_key.c
-    glwegadget.c
+    glwegadget_arithmetic.c
     glwegadget_ciphertext.c
 )
 
