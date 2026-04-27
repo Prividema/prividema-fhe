@@ -7,34 +7,6 @@
 #include "spqlios_alias.h"
 
 /**
- * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the
- * parameters in the result object.
- *
- * @param module      Additionnal information for backend.
- * @param result      The encrypted message.
- * @param sk_dft      The prepared secret key.
- * @param m_univ      The univariate message (in coefficient space).
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
-                        const PolyUniv* m_univ);
-
-/**
- * @brief Encrypts univariate \ZnX message m_univ into GGSW ciphertext res with parameters params
- *
- * TODO: implement in a future release
- *
- * @param module The backend module
- * @param result The resulting GGSWCiphertext
- * @param pk     The public key used for encryption
- * @param m_univ The univariate message to encrypt (in coefficient space)
- *
- * */
-int ggsw_public_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWEPublicKey* pk, const PolyUniv* m_univ);
-
-/**
  * @brief Normalizes a GGSW ciphertext.
  *
  * @param module Additionnal information for backend.
