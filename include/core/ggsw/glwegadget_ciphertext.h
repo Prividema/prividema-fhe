@@ -10,8 +10,13 @@
  */
 typedef struct glwegadget_ciphertext
 {
+	/// GLWEGadgetParams (parameters) of this ciphertext
 	const GLWEGadgetParams* params;
-	MatBiv* mat;  ///< matrix of size l_tilde * n_limbs, each row the contents of a GLWECiphertext
+
+	/// GLWEGadget data stored as a flattened row-major
+	/// matrix of size l_tilde * n_limbs, each row the contents of a GLWECiphertext
+	/// See \ref glwegadget_encoding "GLWEGadget's memory layout expanation" for more details
+	MatBiv* mat;
 } GLWEGadgetCiphertext;
 
 /**

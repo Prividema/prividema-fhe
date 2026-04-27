@@ -17,10 +17,18 @@
  */
 typedef struct ggsw_ciphertext
 {
-	/// GGSW parameters.
+	/// The GGSW parameters
 	const GGSWParams* params;
 
-	/// A matrix of size n_limbs_tilde \f$·\f$ n_limbs with coefficients that are in \ZnX
+	/// A flattened (in row-major fashion) matrix of size
+	/// n_limbs_tilde \f$·\f$ n_limbs with each element a polynomial \ZnX,
+	/// representing a GGSW ciphertext (as a series of GLWE ciphertexts).
+	/// It is NOT a concatenation of GLWEGadgets, as the strided
+	/// representation of them that this structure uses makes it have a prefix
+	/// property on the rows as well as the columns.
+	///
+	/// See \ref ggsw_encoding "the section on GGSW ciphertext encoding" for a
+	/// more in-depth explanation.
 	MatBiv* mat;
 
 } GGSWCiphertext;
