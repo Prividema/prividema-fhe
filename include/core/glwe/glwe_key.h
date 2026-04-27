@@ -2,7 +2,6 @@
 #define bivGLWE_KEY_H
 
 #include "bivariate_polynomial.h"
-#include "glwe_ciphertext.h"
 #include "glwe_params.h"
 
 // bivGLWE SECRET KEY STRUCTURES
@@ -100,12 +99,18 @@ PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t p
  */
 void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
+////////////////////
+// PUBLIC KEY
+////////////////////
+
+typedef struct glwe_ciphertext GLWECiphertext;
 /**
  * @brief Public bivGLWE key
  *
  * Composed of yy GLWE encryptions of 0
  *
  */
+
 typedef struct glwe_public_key
 {
 	uint64_t nn;          ///< Degree of the polynomials

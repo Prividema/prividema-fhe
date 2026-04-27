@@ -4,6 +4,7 @@
 
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_ciphertext.h"
+#include "glwe.h"
 #include "glwe_params.h"
 #include "rng.h"
 #include "spqlios_alias.h"
