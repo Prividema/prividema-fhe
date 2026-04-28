@@ -41,26 +41,26 @@ This library implements these novel techniques.
 
 In base-$2^K$, large numbers are decomposed as sums of smaller "limbs" or "digits", each of which is a multiple of a power of $2^K$.
 More precisely, any number $X$ can be decomposed as follows:
-$$x = \sum_{i=0}^{\ell-1} x_i 2^{K \cdot i}$$
+
+![x = \sum_{i=0}^{\ell-1} x_i 2^{K \cdot i}](docs/readme_resources/sum.svg)
 
 where $x_i$ are the limbs, each of which is a small integer (typically within the range $[-2^{K-1}, 2^{K-1})$,
 $K$ is the limb size and $\ell$ is the number of limbs, which depends on the precision required.
 
 In order to make the analysis of the base-$2^K$ representation easier and to make it more generic, Georgieva et al. [\[1\]] introduce the _Bivariate Polynomial Representation_.
-
 The idea is to represent approximation of polynomials in $\mathbb{R}[X]/(X^N+1)$ by elements of
 $\mathbb{Z}[X,Y]/(X^N+1)$ evaluated at some limb basis (e.g. $2^K$ to fall back to the base-$2^K$ case).
 
-More formally, the evaluation of the representation is obtained with the following function
-$$ \phi_K: \mathbb{Z}[X,Y]/(X^N+1) \mapsto \mathbb{R}[X]/(X^N+1), \quad P(X, Y) \mapsto P(X, 2^{-K}) ~, $$
-
 The main advantages of the base-$2^K$/bivariate representation are:
-    - faster computation of the external product (linear in terms of (i)DFT computations)
-    - fastest modulus rescale (we can simply drop limbs)
-    - use of base-2, which is easier to optimize on hardware
+
+- faster computation of the external product (linear in terms of (i)DFT computations)
+- fastest modulus rescale (we can simply drop limbs)
+- use of base-2, which is easier to optimize on hardware
+
 On the other hand, compared to RNS, base-$2^K$ has
-    - slower multiplication because of carry propagation
-    - larger keys because of the double decomposition
+
+- slower multiplication because of carry propagation
+- larger keys because of the double decomposition
 
 In particular, it means that the BGV of CKKS product $\otimes_*$ is slightly slower in bivariate representation. In isolation, base-$2^K$ multiplication is still faster as a multiplication is followed by an external product and a rescaling, which are faster in the latter representation.
 
@@ -108,3 +108,7 @@ A Docker image for building and testing the library will be provided in the futu
 ## References
 
 [\[1\]]: https://eprint.iacr.org/2023/771
+
+[OpenFHE]: https://openfhe.org/
+
+[Lattigo]: https://github.com/tuneinsight/lattigo
