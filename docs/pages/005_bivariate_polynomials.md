@@ -53,7 +53,7 @@ The fixed-point \TnX representation (called simply `tnx` in the codebase) can be
 in a more efficient way.
 
 Technically, it stores elements as the numerator of a fraction with implicit denominator \f$ 2^{-64} \f$.
-Since the elements are stores as a 2-complement integer, torus arithmetic is simply 2-complement arithmetic.
+Since the elements are stored as a 2-complement integers, torus arithmetic is simply its native 2-complement arithmetic.
 The values can be interpreted as signed or unsigned as desired, again thanks to 2-complement arithmetic.
 Thus, this format is the best for performance. It also has more bits of precision available than floating point.
 In contrast, however, it has a constant denominator, which means that an absolute error of up to \f$ 2^{-64} \f$

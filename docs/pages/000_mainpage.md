@@ -50,4 +50,4 @@ The library currently contains both a test suite and some benchmarks.
 The tests are implemented using the Criterion C framework and most of them have parametrized problem parameters (\N, \K, etc.).
 The benchmarks require a relatively modern C++ compiler as they use Google's benchmark library.
 
-The instructions can be found in @ref build_tests
+The instructions can be found in @ref build_tests .

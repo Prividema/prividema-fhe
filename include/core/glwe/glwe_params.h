@@ -22,10 +22,10 @@ typedef struct glwe_ct_params
 	uint64_t kappa;                ///< The \K for the base-\f$2^K\f$ representation
 	uint64_t ciphertext_nb_limbs;  ///< @brief Number of limbs across all polynomials.
 	                               ///<
-	                               ///< In other words, \f$ l_a \cdot k + l_b \f$.
+	                               ///< In other words, \f$ \ell_a \cdot k + \ell_b \f$.
 	                               ///<
-	                               ///< Only \l_a = \l_b and \l_a = \l_b + 1 are supported due to memory layout.
-	double sigma;                  ///< The standard deviation of the error distribution.
+	///< Only \f$ \ell_a = \ell_b \f$ and \f$ \ell_a = \ell_b + 1 \f$ are supported due to memory layout.
+	double sigma;  ///< The standard deviation of the error distribution.
 } GLWEParams;
 
 /**
@@ -34,7 +34,7 @@ typedef struct glwe_ct_params
  * @param nn The degree of the cyclotomic polynomial used for the modulo
  * @param k The number of \ZnX polynomials in a secret key.
  * @param kappa The exponent for the base-2^kappa representation.
- * @param n_limbs \f$ l_a \cdot k + l_b \f$
+ * @param n_limbs \f$ \ell_a \cdot k + \ell_b \f$
  * @param sigma The standard deviation of the error distribution.
  * @return The newly allocated parameters object, or NULL if it failed the allocation
  *
@@ -64,7 +64,7 @@ uint64_t glwe_params_l_b(const GLWEParams* params_glwe);
 
 /**
  * @brief Returns the number of limbs across all polynomials in a GLWE ciphertext
- * In other words, \f$ l_a \cdot k + l_b \f$
+ * In other words, \f$ \ell_a \cdot k + \ell_b \f$
  *
  * @param params_glwe The GLWE parameters.
  */
