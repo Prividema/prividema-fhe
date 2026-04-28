@@ -19,21 +19,62 @@ When complete, it will contain:
 
 ## Bivariate (base-2K) polynomial representation
 
-Most FHE library implementations make use of Residue Number System (RNS) representation to represent
-and efficiently compute the large polynomials that make up current lattice-based FHE schemes.
+FHE relies on efficient number representations and operations to achieve secure and high-performance computations. Two prominent approaches, Full-RNS (Residue Number System) and base-$2^K$ representation, have evolved as key techniques in optimizing FHE computations.
 
-TODO
+Full-RNS exploits the Chinese Remainder Theorem (CRT) to represent large numbers as modular residues over small, machine-friendly primes.
+Historically, this representation has also consistently given the best performances and this is why it is used in most of the most prominent FHE libraries like [OpenFHE] or [Lattigo].
+However, Full-RNS has notable limitations:
+
+- Prime Arithmetic Dependency: Modular arithmetic must handle computations across several primes, introducing inefficiencies in hardware optimization.
+- Noise Granularity: CRT-based representations lack fine-grained control over noise levels, limiting their adaptability for low-noise operations.
+- Complex Scaling: Modulus switching and truncation require additional steps, complicating transitions between precision levels.
+
+Although the benefits of RNS once outweighed the drawbacks compared to other representation systems, the situation has shifted in recent years.
+First, [Kim et al.] introduced the concept of double-gadget decomposition, which allows for more efficient external products.
+The core idea is to decompose _both_ operands of the product such that some of the operations can be performed in $ \mathbb{Z}[X]/(X^N+1)$
+directly instead of modulo a large prime $Q$.
+
+This significantly reduces the number of (unit) discrete Fourier transforms (DFTs) necessary for the external product, from quadratic to linear in the ciphertext level.
+The new method is particularly impactful for key-switching operations, achieving speedups of 1.2–2.3x and 2.1–3.3x over previous methods for different ring dimensions.
+Building on this concept, Georgieva et al. [\[1\]] presented the notions of _base-$2^K$_ and bivariate polynomial representations.
+This library implements these novel techniques.
+
+In base-$2^K$, large numbers are decomposed as sums of smaller "limbs" or "digits", each of which is a multiple of a power of $2^K$.
+More precisely, any number $X$ can be decomposed as follows:
+$$x = \sum_{i=0}^{\ell-1} x_i 2^{K \cdot i}$$
+
+where $x_i$ are the limbs, each of which is a small integer (typically within the range $[-2^{K-1}, 2^{K-1})$,
+$K$ is the limb size and $\ell$ is the number of limbs, which depends on the precision required.
+
+In order to make the analysis of the base-$2^K$ representation easier and to make it more generic, Georgieva et al. [\[1\]] introduce the _Bivariate Polynomial Representation_.
+
+The idea is to represent approximation of polynomials in $\mathbb{R}[X]/(X^N+1)$ by elements of
+$\mathbb{Z}[X,Y]/(X^N+1)$ evaluated at some limb basis (e.g. $2^K$ to fall back to the base-$2^K$ case).
+
+More formally, the evaluation of the representation is obtained with the following function
+$$ \phi_K: \mathbb{Z}[X,Y]/(X^N+1) \mapsto \mathbb{R}[X]/(X^N+1), \quad P(X, Y) \mapsto P(X, 2^{-K}) ~, $$
+
+The main advantages of the base-$2^K$/bivariate representation are:
+    - faster computation of the external product (linear in terms of (i)DFT computations)
+    - fastest modulus rescale (we can simply drop limbs)
+    - use of base-2, which is easier to optimize on hardware
+On the other hand, compared to RNS, base-$2^K$ has
+    - slower multiplication because of carry propagation
+    - larger keys because of the double decomposition
+
+In particular, it means that the BGV of CKKS product $\otimes_*$ is slightly slower in bivariate representation. In isolation, base-$2^K$ multiplication is still faster as a multiplication is followed by an external product and a rescaling, which are faster in the latter representation.
 
 ## Library Structure
 
 The library is to be divided in the following layers:
 
-- Backend (TODO): will contain an abstraction layer over the underlying library or hardware that is used for heavy optimisations
+- Backend : will contain an abstraction layer over the underlying library or hardware that is used for heavy optimisation.
+  At present only spqlios is supported
 - Common: Utility code, functions that belong to no particular scheme/problem/FHE concept.
 -Core: Where the code for basic mathematical constructs will go
   - GLWE: functions and code for GLWE operations
   - GGSW: functions and code for GGSW and (related) GLWEGadget opeartions
-- Schemes (TODO): The different FHE schemes that can be implemented using the above problems
+- Schemes: The different FHE schemes that can be implemented using the above problems
   
 Its implementation in C allows for close-to-the metal optimisations
 and maximum portability, due to the spread of C toolchains as well
@@ -42,13 +83,23 @@ Additionally, the library is structured in different layers that can be imported
 independently, providing the developer a choice on the level of abstraction
 that their application requires.
 
+![Block representation of the library's layers](docs/images/block.svg)
+
 ## Security
 
 TODO
 
-## Building and testing the library
+## Building
 
-Instructions for building and testing the library can be found in [BUILDING.md](BUILDING.md).
+Instructions for building the library can be found in [BUILDING.md](BUILDING.md).
+
+## Testing and benchmarks
+
+The library currently contains both a test suite and some benchmarks.
+The tests are implemented using the Criterion C framework and most of them have parametrized problem parameters (\N, \K, etc.).
+The benchmarks require a relatively modern C++ compiler as they use Google's benchmark library.
+
+The instructions can also be found in [BUILDING.md](BUILDING.md).
 
 ## Docker
 
@@ -56,4 +107,4 @@ A Docker image for building and testing the library will be provided in the futu
 
 ## References
 
-TODO
+[\[1\]]: https://eprint.iacr.org/2023/771
