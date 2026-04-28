@@ -13,8 +13,8 @@ It is common to define \f$ a_k := b \f$ for convenience.
 
 In the library, GLWEs are laid out in memory as to also have a prefix property (more on that below).
 Thus, if the decomposition in limbs of eg. \f$ a_0 \f$ in limbs \f$ \limbd{j}{a_0} \f$
- is \f$ {a_0} := \left(\limbd{1}{a_0}, \dots , \limbd{\ell_A}{a_0}\right) \f$,
-then \f$ \glwe(m) \f$ is encoded when \f$ \ell_A = \ell_b \f$ as the following matrix flattened in a row-major order:
+ is \f$ {a_0} := \left(\limbd{1}{a_0}, \dots , \limbd{\ell_a}{a_0}\right) \f$,
+then \f$ \glwe(m) \f$ is encoded when \f$ \ell_a = \ell_b \f$ as the following matrix flattened in a row-major order:
 
 \f[
 \begin{split}
@@ -22,15 +22,15 @@ then \f$ \glwe(m) \f$ is encoded when \f$ \ell_A = \ell_b \f$ as the following m
   \limbd{1}{a_0} & \limbd{1}{a_1} & \dots & \limbd{1}{a_{k-1}} & \limbd{1}{b} \\
   \limbd{2}{a_0} & \limbd{2}{a_1} & \dots & \limbd{2}{a_{k-1}} & \limbd{2}{b} \\
   \vdots        & \vdots        & \ddots & \vdots & \vdots \\
-  \limbd{\ell_A-1}{a_0} & \limbd{\ell_A-1}{a_1} & \dots & \limbd{\ell_A-1}{a_{k-1}} & \limbd{\ell_b-1}{b} \\
-  \limbd{\ell_A}{a_0} & \limbd{\ell_A}{a_1} & \dots & \limbd{\ell_A}{a_{k-1}} & \limbd{\ell_b}{b}
+  \limbd{\ell_a-1}{a_0} & \limbd{\ell_a-1}{a_1} & \dots & \limbd{\ell_a-1}{a_{k-1}} & \limbd{\ell_b-1}{b} \\
+  \limbd{\ell_a}{a_0} & \limbd{\ell_a}{a_1} & \dots & \limbd{\ell_a}{a_{k-1}} & \limbd{\ell_b}{b}
 \end{bmatrix} \\
 &  \\
  & = \flatGLWE{}
 \end{split}
 \f]
 
-Prividema-lib also supports \f$ \ell_A = \ell_b + 1\f$ (only other possibility), in which case, the memory layout is:
+Prividema-lib also supports \f$ \ell_a = \ell_b + 1\f$ (only other possibility), in which case, the memory layout is:
 
 \f[
 

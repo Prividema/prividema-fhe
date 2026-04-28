@@ -4,7 +4,10 @@
 /**
  * @file ggsw_ciphertext.h
  *
- * In this header file, we define the structures representing bivariate GGSW ciphertext in both DFT and coefficient forms.
+ * @brief Header containing GGSW ciphertext definition, allocation and deallocation as well as encryption
+ *
+ * Decryption is not implemented nor is is ever planned.
+ *
  */
 
 #include "ggsw_params.h"
