@@ -113,9 +113,9 @@ void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
 typedef struct glwe_ciphertext GLWECiphertext;
 /**
- * @brief Public bivGLWE key
+ * @brief Public bivariate GLWE key
  *
- * Composed of yy GLWE encryptions of 0
+ * Composed of yy bivariate GLWE encryptions of 0
  *
  */
 typedef struct glwe_public_key

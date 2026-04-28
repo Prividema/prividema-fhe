@@ -22,7 +22,7 @@
 // =============================================
 
 /**
- * @brief Generates an uniform random number in [-2^(nb_bits-1), 2^(nb_bits-1))
+ * @brief Generates a uniformly sampled random number in [-2^(nb_bits-1), 2^(nb_bits-1))
  *
  * @param result  The resulting uniformly sampled integer
  * @param nb_bits The number of bits of the result
@@ -33,7 +33,7 @@
 int rand_uniform(int64_t* result, uint64_t nb_bits);
 
 /**
- * @brief Generates a gaussian random number with the given parameters.
+ * @brief Generates a gaussianly sampled random number with the given parameters.
  *
  * @param result The resulting normally (Gaussian) sampled number
  * @param mu     The mean parameter for the distribution.

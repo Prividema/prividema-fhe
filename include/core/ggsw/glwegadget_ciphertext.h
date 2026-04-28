@@ -11,6 +11,17 @@
  *
  * @brief Definition of a GLWEGadget ciphertext, creation, destruction, encryption and transformations thereof
  *
+ * Decrytion is not implemented nor is it planned:
+ * GLWEGadgets are used as an input format for half-external products, not as the main format for encrypted data.
+ * They contain multiple encryptions of the same message multiplied by different constants.
+ * Thus, decrypting them does not seem to be a useful operation, nor a clearly-defined one:
+ * should we output all the products of the message by powers of \f$ 2^{\tilde{K}} \f$ ?
+ * Should we check that the decryption correctly gives us such a sequence of plaintexts?
+ *
+ * Given all of that, we decided not to provide a decryption function.
+ * If needed (as in the tests, which one can take as an example) the GLWE decryption function(s) can be used
+ * together with the glwegadget_extract_bivglwe function, but, again, outside of debugging it is
+ * higly unlikely one might need to to that.
  */
 
 /**
@@ -21,8 +32,10 @@ typedef struct glwegadget_ciphertext
 	/// GLWEGadgetParams (parameters) of this ciphertext
 	const GLWEGadgetParams* params;
 
+	/// @brief internal GLWEGadget data
 	/// GLWEGadget data stored as a flattened row-major
 	/// matrix of size l_tilde * n_limbs, each row the contents of a GLWECiphertext
+	///
 	/// See \ref glwegadget_encoding "GLWEGadget's memory layout expanation" for more details
 	MatBiv* mat;
 } GLWEGadgetCiphertext;
@@ -50,6 +63,7 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
  */
 typedef struct glwegadget_ciphertext_prepared
 {
+	/// GLWEGadgetParams (parameters) of this ciphertext
 	const GLWEGadgetParams* params;
 	MatBivDFT*
 	    mat;  ///< Prepared GLWEGadgetCiphertext matrix. Its layout is an internal implementation detail of the underlying compute engine

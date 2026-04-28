@@ -25,11 +25,11 @@ typedef struct glwe_ciphertext
 	const GLWEParams* params;  ///< GLWE parameters
 
 	/**
-	 * @brief Represents a vector of size (k + 1) * l with coefficients that are in \ZnX
+	 * @brief Represents a vector of size nb_limbs with coefficients that are in \ZnX
 	 *
 	 * Data layout is limb-major, ie, all the coefficients for a power of \f$ 2^{iK} \f$
 	 *  are strored contiguously after the ones from \f$ 2^{(i-1)K} \f$ and before \f$ 2^{(i+1)K} \f$
-	 * (see dedicated document for details)
+	 * (see dedicated document/page for details)
 	 *
 	 */
 	VecBiv* vec;

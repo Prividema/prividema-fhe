@@ -11,22 +11,23 @@
 
 ## To compile and run
 
-Here's an example of how to build and run the test in `core`, from the root of the project :
+Here's an example of how to build the library and run the tests:
 
 ```bash
 # Legacy method
 mkdir build;
 cd build;
 cmake .. -DBUILD_TESTS=ON;
-make;
-core/tests/hello
+make -j8;
+ctest;
 ```
 
 ```bash
 # Modern method 
 cmake -S . -B build -DBUILD_TESTS=ON;
 cmake --build build;
-build/core/tests/hello
+cd build;
+ctest;
 ```
 
 ### CMake options
@@ -41,7 +42,7 @@ ON/OFF options:
 - `BUILD_NATIVE`: Enables -march=native optimisations, makes output NON-portable
 - `PROFILING_OPTIONS`: Adds debugging options and info even in Release builds, intended for profiling traces
 
-### Building the tests
+### Building the tests {#build_tests}
 
 > [!WARNING]
 > Current Criterion versions have a bug that has tests disappear in Release builds.

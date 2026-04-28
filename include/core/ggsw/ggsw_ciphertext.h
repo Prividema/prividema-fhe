@@ -6,7 +6,9 @@
  *
  * @brief Header containing GGSW ciphertext definition, allocation and deallocation as well as encryption
  *
- * Decryption is not implemented nor is is ever planned.
+ * Decryption is not implemented nor is is planned.
+ * See the comments in glwegadget_ciphertext.h for the reasoning, which is the same for GGSWs.
+ *
  *
  */
 
@@ -54,9 +56,9 @@ GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw);
 void delete_ggsw(GGSWCiphertext* ggsw);
 
 /**
- * @brief Get the Bivariate GLWE Ciphertext inside the GGSW with the given values.
+ * @brief Get the bivariate GLWE Ciphertext inside the GGSW with the given values.
  *
- * As a Bivariate GGSW's matrix is :
+ * A bivariate GGSW's matrix is :
  *
  * - bivGLWE(DFT(-m * sk_j / 2^{\kappa_tilde * i})) for j < k.
  * - bivGLWE(DFT(m / 2^{\kappa_tilde * i}))         for j = k.
@@ -65,7 +67,7 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  *
  * @param ggsw_ct    A Pointer to The GGSW ciphertext
  * @param j 		  The j-th component of the secret key.
- * @param i 		  The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$
+ * @param i 		  The i in \f$ -m \cdot sk_j \cdot 2^{-i\kappatilde} \f$
  *
  * @return A Pointer to the associated Bivariate GLWE.
  */
