@@ -96,7 +96,7 @@ Instructions for building the library can be found in [BUILDING.md](BUILDING.md)
 ## Testing and benchmarks
 
 The library currently contains both a test suite and some benchmarks.
-The tests are implemented using the Criterion C framework and most of them have parametrized problem parameters (\N, \K, etc.).
+The tests are implemented using the Criterion C framework and most of them have parametrized problem parameters (N, K, etc.).
 The benchmarks require a relatively modern C++ compiler as they use Google's benchmark library.
 
 The instructions can also be found in [BUILDING.md](BUILDING.md).
