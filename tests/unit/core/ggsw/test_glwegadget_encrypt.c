@@ -1,0 +1,75 @@
+#include <criterion/criterion.h>
+#include <criterion/new/assert.h>
+#include <float.h>
+
+#include "bivariate_polynomial.h"
+#include "ggsw_params.h"
+#include "glwe_ciphertext.h"
+#include "glwe_key.h"
+#include "glwe_params.h"
+#include "glwe_transform_key.h"
+#include "glwegadget_ciphertext.h"
+#include "rng.h"
+#include "test_utils.h"
+#include "univariate_polynomial.h"
+
+/**
+ * @brief Tests ggsw_secret_encrpyt
+ *
+ */
+PvdaParamTest(glwegadgetsenc, works, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GGSWGAD(param);
+
+	double biv_epsilon         = glwe_bivariate_epsilon(params_glwe);
+	double err_length          = biv_epsilon + 3 * sigma + 3 * DBL_EPSILON;
+	double critical_err_length = biv_epsilon + 5 * sigma + 5 * DBL_EPSILON;
+	cr_log_info("error length = %e", err_length);
+
+	GLWESecretKey* sk                = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyDFT* sk_dft         = alloc_glwe_secret_key_dft(params_glwe);
+	GLWEGadgetCiphertext* glwegadget = new_glwegadget(params_glwegadget);
+	PolyUniv* m_univ                 = new_univ(params_glwe);
+	PolyUnivDFT* m_univ_dft          = new_univ_dft(module);
+
+	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
+	PolyUnivRnX* phase_observed_univ_rnx = new_univ_rnx(params_glwe);
+	PolyUnivRnX* phase_expected_univ_rnx = new_univ_rnx(params_glwe);
+	PolyUnivDFT* m_skj_univ_dft          = new_univ_dft(module);
+	PolyUniv* m_skj_univ                 = new_univ(params_glwe);
+
+	// Draws the message
+	uniform_glwe_secret_key(module, sk, 3);
+	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	uniform_random_pol_znx(m_univ, params_glwe->nn, params_glwe->kappa);
+
+	glwegadget_secret_encrypt(module, glwegadget, sk_dft, m_univ);
+
+	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
+	{
+		// Exctact the i'th glwe in the glwegadget and decrypt it. It should equal a phase of m / 2^{kappa*i}
+		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegadget, i)};
+		glwe_secret_decrypt(module, phase_computed, sk_dft, &glwe_ct);
+		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
+
+		// Computes the expected result  m / 2^{kappa_tilde * i}
+		for (uint64_t p = 0; p < params_glwe->nn; p++)
+			phase_expected_univ_rnx[p] = ldexp((double)m_univ[p], -(params_glwegadget->kappa_tilde * i));
+
+		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, err_length,
+		                                critical_err_length);
+	}
+
+	// Clean up
+	delete_univ_rnx(phase_observed_univ_rnx);
+	delete_univ_dft(m_skj_univ_dft);
+	delete_univ(m_skj_univ);
+	free(phase_computed);
+	delete_univ_rnx(phase_expected_univ_rnx);
+	delete_univ(m_univ);
+	delete_univ_dft(m_univ_dft);
+	delete_glwegadget(glwegadget);
+	delete_glwe_secret_key_dft(sk_dft);
+
+	DELETE_PVDA_PARAMS_GGSWGAD;
+}

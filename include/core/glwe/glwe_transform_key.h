@@ -4,11 +4,11 @@
 #include "glwe_key.h"
 
 /**
- * @brief Computes the secret key in the DFT domain.
+ * @brief Transforms a secret key from coefficient space to DFT
  *
  * @param module Additionnal information for backend.
- * @param result_dft The result bivGLWE secret key in the DFT domain.
- * @param sk The secret key out of the DFT domain.
+ * @param result_dft The resulting GLWE secret key in the DFT domain.
+ * @param sk The secret key in coefficient space
  */
 void transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, GLWESecretKeyDFT* result_dft,
                                               const GLWESecretKey* sk);

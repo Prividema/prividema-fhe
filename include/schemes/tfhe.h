@@ -1,14 +1,14 @@
 #ifndef TFHE_H
 #define TFHE_H
 
-#include "ggsw.h"
-#include "glwe.h"
+#include "ggsw_arithmetic.h"
+#include "glwe_arithmetic.h"
 
 /*
     Implements a homomorphic selection (Mux) operation,
     where GGSW ciphertext sel is used to choose from c0 or c1
 
-    TODO: finish
+    TODO: unifinished
 */
 void tfhe_cmux(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
                const GGSWCiphertext* sel);

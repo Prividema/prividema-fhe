@@ -4,28 +4,26 @@
 
 # Source files for GLWE
 set(GLWE_SRCS
-    glwe.c
+    glwe_arithmetic.c
     glwe_params.c
     glwe_ciphertext.c
     glwe_key.c
     glwe_transform_key.c
+    univariate_polynomial.c
     bivariate_polynomial.c
 )
 
 # Create a shared library named GLWE
-add_library(GLWE SHARED ${GLWE_SRCS})
+add_library(PVDA_GLWE SHARED ${GLWE_SRCS})
 
 # Set the output library name explicitly
-set_target_properties(GLWE PROPERTIES OUTPUT_NAME glwe)
+set_target_properties(PVDA_GLWE PROPERTIES OUTPUT_NAME pvdaglwe)
 
 # Link dependencies
-target_link_libraries(GLWE PRIVATE libspqlios COMMON)
+target_link_libraries(PVDA_GLWE PRIVATE libspqlios PVDA_COMMON PVDA_BACKEND)
 
 # Include directories
-target_include_directories(GLWE
+target_include_directories(PVDA_GLWE
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include/core/glwe/   # Public headers for consumers
-        ${PROJECT_SOURCE_DIR}/include/common/
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/  # Internal headers only
 )

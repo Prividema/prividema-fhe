@@ -1,0 +1,13 @@
+\newcommand{\kappatilde}{\tilde{K}}
+\newcommand{\limbd}[2]{\prescript{}{\scriptstyle #1}{#2}}
+\newcommand{\glwe}{\text{GLWE}}
+\newcommand{\ggsw}{\text{GGSW}}
+\newcommand{\glwegad}{\text{GLWEGadget}}
+\newcommand{\tnx}{\mathbb{T}_N[X]}
+\newcommand{\znx}{\mathbb{Z}_N[X]}
+\newcommand{\flatGLWE}[1]{\begin{bmatrix} \prescript{#1}{1}{a_0} & \dots & \prescript{#1}{1}{a_{k-1}} & \prescript{#1}{1}{b} & \prescript{#1}{2}{a_0} & \prescript{#1}{2}{a_1} & \dots & \dots & \prescript{#1}{l_A}{a_{k-1}} & \prescript{#1}{l_b}{b} \end{bmatrix}}
+
+\newcommand{\flatGLWEI}[2]{ \begin{bmatrix} \overset{#2}{\prescript{#1}{1}{a_0}} & \dots & \overset{#2}{\prescript{#1}{1}{a_{k-1}}} & \overset{#2}{\prescript{#1}{1}{b}} & \overset{#2}{\prescript{#1}{2}{a_0}} & \overset{#2}{\prescript{#1}{2}{a_1}} & \dots & \dots & \overset{#2}{\prescript{#1}{\ell_A}{a_{k-1}}} & \overset{#2}{\prescript{#1}{\ell_b}{b}} \end{bmatrix} }
+\newcommand{\flatGLWEV}[2]{ \begin{bmatrix} \prescript{#1}{1}{\overset{#2}{a_0}} & \dots & \prescript{#1}{1}{\overset{#2}{a_{k-1}}} & \prescript{#1}{1}{\overset{#2}{b}} & \prescript{#1}{2}{\overset{#2}{a_0}} & \prescript{#1}{2}{\overset{#2}{a_1}} & \dots & \dots & \prescript{#1}{l_A}{\overset{#2}{a_{k-1}}} & \prescript{#1}{\elll_b}{\overset{#2}{b}} \end{bmatrix} }
+
+\newcommand{\flatGLWEW}[2]{ \begin{bmatrix} \underset{#2}{\prescript{#1}{1}{a_0}} & \dots & \underset{#2}{\prescript{#1}{1}{a_{k-1}}} & \underset{#2}{\prescript{#1}{1}{b}} & \underset{#2}{\prescript{#1}{2}{a_0}} & \underset{#2}{\prescript{#1}{2}{a_1}} & \dots & \dots & \underset{#2}{\prescript{#1}{\ell_A}{a_{k-1}}} & \underset{#2}{\prescript{#1}{\ell_b}{b}} \end{bmatrix} }

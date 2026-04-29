@@ -46,8 +46,8 @@ void set_log_flag(unsigned char flag);
  * @param level The log level.
  * @param fmt A va_list with the string to format and its arguments.
  *
- * @retval • `-1` if the level is `LOG_ERROR`.
- * @retval • `0` otherwise.
+ * @retval -1 if the level is `LOG_ERROR`.
+ * @retval 0 otherwise.
  *
  * @note The formatting works like `printf`.
  */
@@ -69,8 +69,8 @@ int log_perror(const char* header);
  *
  * @param header The perror message header.
  *
- * @retval • `-1` if and only if the pointer is NULL..
- * @retval • `0` otherwise.
+ * @retval -1 if and only if the pointer is NULL..
+ * @retval 0 otherwise.
  */
 int log_is_null(void* ptr, const char* header);
 
