@@ -120,3 +120,10 @@ Inside the build directory will automatically run all tests.
 Make sure that you have abided by the above warning, as ctest will not by default
 tell you how many tests have been run in each file (and you might thing that everything
 passes when in reality no tests are being run at all).
+
+### Building the Documentation
+
+Follow the steps described above to build the library, having set the `BUILD_DOCS` option to `ON` (`cmake -DBUILD_DOCS=ON`).
+The documentation will be available at `build/docs/html` for the html version (start at `index.html`).
+There will also be a LaTeX/pdf version available at `build/docs/latex`. You will need to have a working LaTeX distribution
+for it. Then, inside said folder, you can run `make` and the pdf will be generated and output to file `refman.tex`.
