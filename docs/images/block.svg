@@ -2,8 +2,8 @@
 <svg
    version="1.1"
    width="900"
-   height="181"
-   viewBox="0 0 900 181"
+   height="400"
+   viewBox="0 0 900 400"
    id="svg67"
    sodipodi:docname="block.svg"
    inkscape:version="1.4.3 (0d15f75042, 2025-12-25)"
@@ -23,8 +23,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.1491713"
-     inkscape:cx="556.05288"
-     inkscape:cy="179.25962"
+     inkscape:cx="556.05287"
+     inkscape:cy="180.1298"
      inkscape:window-width="2048"
      inkscape:window-height="1078"
      inkscape:window-x="0"
@@ -35,7 +35,7 @@
      id="defs1" />
   <g
      id="g67"
-     transform="translate(350.48)">
+     transform="matrix(2.1902716,0,0,2.1902716,210.7173,0)">
     <g
        data-cell-id="0"
        id="g66">
