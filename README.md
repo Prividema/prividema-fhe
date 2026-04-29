@@ -4,7 +4,7 @@ Prividema-fhe is a cryptographic library designed to unify multiple homomorphic 
 When complete, it will contain:
 
 - A modular backend system that can efficiently delegate raw computations to:
-  - CPU libraries like SPQLIOS, that, for example, use AVX extensions
+  - CPU libraries like [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic), that, for example, use AVX extensions
   - GPU libraries
   - FPGAs
   - ...
@@ -89,7 +89,7 @@ that their application requires.
 
 Prividema-fhe implements RLWE- and GLWE-based cryptographic primitives and follows the standard IND-CPA security model when configured with appropriate parameters.
 
-To ensure adequate security levels, parameter selection should be performed carefully according to the target use case and security requirements. We recommend using the Lattice Estimator to evaluate and validate parameter choices against known lattice attacks
+To ensure adequate security levels, parameter selection should be performed carefully according to the target use case and security requirements. We recommend using the [Lattice Estimator](https://github.com/malb/lattice-estimator) to evaluate and validate parameter choices against known lattice attacks
 
 ## Building
 

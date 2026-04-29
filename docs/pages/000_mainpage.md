@@ -4,7 +4,7 @@ Prividema-fhe is a cryptographic library designed to unify multiple homomorphic 
 When complete, it will contain:
 
 - A modular backend system that can efficiently delegate raw computations to:
-  - CPU libraries like SPQLIOS, that, for example, use AVX extensions
+  - CPU libraries like [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic), that, for example, use AVX extensions
   - GPU libraries
   - FPGAs
   - ...
@@ -38,15 +38,15 @@ such as logging, error handling, and general helper functions.
 The library is implemented in C to enable low-level optimizations (using AVX). The widespread availability of C toolchains and the possibility of calling C functions through foreign function interfaces (FFI) from most programming languages make the library suitable for integration into diverse software environments. In addition, the independent structure of the layers allows developers to choose the appropriate level of abstraction for their applications while maintaining high performance and interoperability.
 The following figure shows the structure of the library.
 
-\image latex block.pdf "Block representation of the library's layers" width=0.55\textwidth
+\image latex diagram.pdf "A diagram of the library structure" width=\textwidth
 
-\image html block.svg "Block representation of the library's layers"
+\image html diagram.svg "A diagram of the library structure"
 
 ## Security
 
 Prividema-fhe implements RLWE- and GLWE-based cryptographic primitives and follows the standard IND-CPA security model when configured with appropriate parameters.
 
-To ensure adequate security levels, parameter selection should be performed carefully according to the target use case and security requirements. We recommend using the Lattice Estimator to evaluate and validate parameter choices against known lattice attacks
+To ensure adequate security levels, parameter selection should be performed carefully according to the target use case and security requirements. We recommend using the [Lattice Estimator](https://github.com/malb/lattice-estimator) to evaluate and validate parameter choices against known lattice attacks.
 
 ## Building
 
