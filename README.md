@@ -14,7 +14,7 @@ When complete, it will contain:
   - BFV/BGV
   - TFHE
   - CKKS
-  - Scheme-switching between the above (CHIMERA)
+  - Scheme-switching between the above (CHIMERA) [\[3\]]
   - Encoding and decoding functions from raw data to/from the polynomial representations that the schemes use
 
 ## Bivariate (base-2K) polynomial representation
@@ -30,7 +30,7 @@ However, Full-RNS has notable limitations:
 - Complex Scaling: Modulus switching and truncation require additional steps, complicating transitions between precision levels.
 
 Although the benefits of RNS once outweighed the drawbacks compared to other representation systems, the situation has shifted in recent years.
-First, [Kim et al.] introduced the concept of double-gadget decomposition, which allows for more efficient external products.
+First, Kim et al [\[2\]] introduced the concept of double-gadget decomposition, which allows for more efficient external products.
 The core idea is to decompose _both_ operands of the product such that some of the operations can be performed in Z\[X\]/(X^N+1)
 directly instead of modulo a large prime Q.
 
@@ -111,6 +111,24 @@ A Docker image for building and testing the library will be provided in the futu
 
 [\[1\]]: https://eprint.iacr.org/2023/771
 
+[\[2\]]: https://eprint.iacr.org/2023/413
+
+[\[3\]]: https://eprint.iacr.org/2018/758
+
 [OpenFHE]: https://openfhe.org/
 
 [Lattigo]: https://github.com/tuneinsight/lattigo
+
+\[1\] Mariya Georgieva Belorgey, Sergiu Carpov, Nicolas Gama, Sandra Guasch, and Dimitar
+Jetchev. Revisiting key decomposition techniques for fhe: Simpler, faster and more generic.
+In International Conference on the Theory and Application of Cryptology and Information
+Security, pages 176–207. Springer, 2024
+
+\[2\] Miran Kim, Dongwon Lee, Jinyeong Seo, and Yongsoo Song. Accelerating HE operations
+from key decomposition technique. In Helena Handschuh and Anna Lysyanskaya, editors,
+CRYPTO 2023, Part IV, volume 14084 of LNCS, pages 70–92, Santa Barbara, CA, USA,
+August 20–24, 2023. Springer, Cham, Switzerland.
+
+\[3\] Christina Boura, Nicolas Gama, Mariya Georgieva, and Dimitar Jetchev. Chimera:
+Combining ring-lwe-based fully homomorphic encryption schemes.
+Journal of Mathematical Cryptology, 14(1):316–338, 2020.
