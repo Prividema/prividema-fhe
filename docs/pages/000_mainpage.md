@@ -40,6 +40,12 @@ that their application requires.
 
 \image html block.svg "Block representation of the library's layers"
 
+## Security
+
+Prividema-fhe implements RLWE- and GLWE-based cryptographic primitives and follows the standard IND-CPA security model when configured with appropriate parameters.
+
+To ensure adequate security levels, parameter selection should be performed carefully according to the target use case and security requirements. We recommend using the Lattice Estimator to evaluate and validate parameter choices against known lattice attacks
+
 ## Building
 
 Instructions for building the library can be found in @ref building_lib
