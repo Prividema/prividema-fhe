@@ -126,4 +126,5 @@ passes when in reality no tests are being run at all).
 Follow the steps described above to build the library, having set the `BUILD_DOCS` option to `ON` (`cmake -DBUILD_DOCS=ON`).
 The documentation will be available at `build/docs/html` for the html version (start at `index.html`).
 There will also be a LaTeX/pdf version available at `build/docs/latex`. You will need to have a working LaTeX distribution
-for it. Then, inside said folder, you can run `make` and the pdf will be generated and output to file `refman.tex`.
+for it to generate a pdf.
+Then, inside said folder, you can run `make` and the pdf will be generated and output to file `refman.tex`.
