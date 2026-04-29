@@ -19,22 +19,24 @@ When complete, it will contain:
 
 ## Library Structure
 
-The library is to be divided in the following layers:
+The prividema-lib library is designed as a modular and layered framework to support a wide range of privacy-preserving applications. Some applications may require direct access to low-level mathematical primitives such as bivariate polynomial operations, GLWE, or GGSW, while others may benefit from higher-level implementations of complete FHE schemes such as TFHE, BFV, or CKKS. This layered design allows developers to use only the components required for their specific use case, reducing complexity and improving flexibility.
 
-- Backend : will contain an abstraction layer over the underlying library or hardware that is used for heavy optimisation.
-  At present only spqlios is supported
-- Common: Utility code, functions that belong to no particular scheme/problem/FHE concept.
--Core: Where the code for basic mathematical constructs will go
-  - GLWE: functions and code for GLWE operations
-  - GGSW: functions and code for GGSW and (related) GLWEGadget opeartions
-- Schemes: The different FHE schemes that can be implemented using the above problems
-  
-Its implementation in C allows for close-to-the metal optimisations
-and maximum portability, due to the spread of C toolchains as well
-as ability to call C functions (via an FFI) from most other programming languages.
-Additionally, the library is structured in different layers that can be imported
-independently, providing the developer a choice on the level of abstraction
-that their application requires.
+The library is organized into the following main layers:
+
+- Backend: This layer provides an abstraction over the underlying computational libraries and hardware used for performance-critical operations.
+It is responsible for heavy optimizations such as FFT/NTT computations and external products.
+At present, the library supports the spqlios-arithmetic spqlios-arithmetic backend, with future extensions planned for GPU- and FPGA-based acceleration from WP5.
+The layer also provides random number generation, since generating it efficiently is a platform-dependent problem.
+- Common: This layer contains utility code and shared functions that are not specific to any particular FHE scheme or cryptographic construction,
+such as logging, error handling, and general helper functions.
+- Core: This layer implements the fundamental mathematical structures and low-level cryptographic primitives:
+  - GLWE: functions and data structures for GLWE ciphertexts and operations
+  - GGSW / GLWEGadget: functions and implementations related to GGSW ciphertexts and GLWEGadget constructions
+- Schemes: This layer contains the implementation of complete FHE schemes built on top of the core primitives, including BFV, CKKS, TFHE, and scheme-switching mechanisms such as Chimera.
+- Applications: This layer implements the different privacy-preserving circuits required by the project such as Private Information Retrieval (PIR) and biometric authentication.
+
+The library is implemented in C to enable low-level optimizations (using AVX). The widespread availability of C toolchains and the possibility of calling C functions through foreign function interfaces (FFI) from most programming languages make the library suitable for integration into diverse software environments. In addition, the independent structure of the layers allows developers to choose the appropriate level of abstraction for their applications while maintaining high performance and interoperability.
+The following figure shows the structure of the library.
 
 \image latex block.pdf "Block representation of the library's layers" width=0.55\textwidth
 
