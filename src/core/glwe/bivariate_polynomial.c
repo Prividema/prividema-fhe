@@ -331,10 +331,11 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	return 0;
 }
 
-int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_univ, int64_t bit_offset)
+int univ_tnx_to_biv_sing(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_univ, int64_t bit_offset)
 {
 	uint64_t nn = params_glwe->nn;
 	int kappa   = (int)params_glwe->kappa;
+
 	for (int p = 0; p < nn; ++p)
 	{
 		uint64_t tnx_val = pol_univ[p];
@@ -345,4 +346,82 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 		biv_decomp_internal(snx_val, 63 + bit_offset, res + p, nn, params_glwe);
 	}
 	return 0;
+}
+
+inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, int lsb_pos, int64_t* dst,
+                                           int64_t dst_sl, const GLWEParams* params)
+{
+	uint64_t nn = params->nn;
+
+	int kappa = (int)params->kappa;
+	assert(kappa <= 63);
+	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);
+	int n_l      = INT_ROUND_UP_DIV(63, kappa);
+	int k_offset = last_l * kappa - lsb_pos;
+	assert(k_offset >= 0 && k_offset < kappa);
+
+	uint64_t mask = 0;
+
+	for (uint64_t i = 1; i <= n_l && (i * kappa - 1 - k_offset) < 64; ++i)
+	{
+		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
+	}
+
+	for (int p = 0; p < nn; ++p)
+	{
+		mag_vec[p] += mask;
+		mag_vec[p] ^= mask;
+	}
+
+	int l_a   = glwe_params_l_a(params);
+	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;
+	int maxi1 = last_l - 1;
+	int maxi2 = (63 + k_offset) / kappa;
+	int max_i = maxi1 < maxi2 ? maxi1 : maxi2;
+	for (int i = min_i; i <= max_i; ++i)
+	{
+		if (i == 0)
+			for (int p = 0; p < nn; ++p)
+			{
+				uint64_t stnxt_tmp                 = mag_vec[p] << k_offset;
+				uint64_t s                         = select_bits(stnxt_tmp, 0, kappa);
+				int64_t s2                         = sgn_ext(s, kappa - 1, sgn_vec[p]);
+				dst[(last_l - 1 - i) * dst_sl + p] = s2;
+			}
+		else
+			for (int p = 0; p < nn; ++p)
+			{
+				uint64_t s                         = select_bits(mag_vec[p], i * kappa - k_offset, kappa);
+				int64_t s2                         = sgn_ext(s, kappa - 1, sgn_vec[p]);
+				dst[(last_l - 1 - i) * dst_sl + p] = s2;
+			}
+	}
+}
+
+int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_univ, int64_t bit_offset)
+{
+	int status  = -1;
+	uint64_t nn = params_glwe->nn;
+	int kappa   = (int)params_glwe->kappa;
+
+	uint64_t* mag_vec = malloc(sizeof(uint64_t) * nn);
+	uint8_t* sgn_vec  = malloc(sizeof(uint8_t) * nn);
+	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
+
+	memset(res, 0, poly_biv_bytes(params_glwe));
+
+	for (int p = 0; p < nn; ++p)
+	{
+		uint64_t tnx_val = pol_univ[p];
+		uint64_t mask    = ((int64_t)tnx_val) >> 63;
+		uint64_t abs_val = (tnx_val ^ mask) - mask;
+		mag_vec[p]       = (abs_val >> 1);
+		sgn_vec[p]       = mask & 1;
+	}
+	biv_decomp_internal_vec(mag_vec, sgn_vec, 63 + bit_offset, res, nn, params_glwe);
+	status = 0;
+cleanup:
+	free(mag_vec);
+	free(sgn_vec);
+	return status;
 }
