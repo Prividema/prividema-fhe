@@ -109,6 +109,7 @@ cleanup:
 	free(glwe_biv_msg);
 	free(glwe_biv_err);
 	delete_univ_rnx(tmp_sp1);
+	delete_univ_rnx(tmp_err);
 
 	return status;
 }

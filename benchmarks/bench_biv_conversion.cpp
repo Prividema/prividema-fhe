@@ -85,7 +85,7 @@ void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 	for (auto _ : state)
 	{
 		univ_rnx_to_tnx(params_glwe, m_tnx, m);
-		univ_tnx_to_biv(params_glwe, m_biv, m_tnx);
+		univ_tnx_to_biv(params_glwe, m_biv, m_tnx, 0);
 		benchmark::DoNotOptimize(m_biv);
 	}
 
@@ -112,7 +112,7 @@ void test_univ_biv_tnx(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		univ_tnx_to_biv(params_glwe, m_biv, m);
+		univ_tnx_to_biv(params_glwe, m_biv, m, 0);
 		benchmark::DoNotOptimize(m_biv);
 	}
 
@@ -136,7 +136,7 @@ void test_biv_univ_tnx(benchmark::State& state)
 	PolyUnivTnX* m_back = new_univ_tnx(params_glwe);
 	PolyBiv* m_biv      = new_biv_poly(params_glwe);
 	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
-	univ_tnx_to_biv(params_glwe, m_biv, m);
+	univ_tnx_to_biv(params_glwe, m_biv, m, 0);
 
 	for (auto _ : state)
 	{

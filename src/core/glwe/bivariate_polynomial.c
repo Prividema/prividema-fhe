@@ -232,10 +232,9 @@ int univ_tnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, c
 
 static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
 {
-	if (offset > 63) return 0;
 	assert(offset <= 63);
-	num >>= offset;
-	return num & ((1ULL << len) - 1);
+
+	return (num >> offset) & ((1ULL << len) - 1);
 }
 
 static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
@@ -245,7 +244,8 @@ static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
 	return ((s ^ -sgn) + sgn);
 }
 
-void _biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t dst_sl, const GLWEParams* params)
+inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t dst_sl,
+                                       const GLWEParams* params)
 {
 	int sgn = (stnx_num & (1UL << 63)) != 0;  //retrieve sign
 	stnx_num &= ((1UL << 63) - 1);            //strip sign
@@ -275,7 +275,10 @@ void _biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t 
 	}
 
 	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;
-	for (int i = min_i; last_l - 1 - i >= 0; ++i)
+	int maxi1 = last_l - 1;
+	int maxi2 = (63 + k_offset) / kappa;
+	int max_i = maxi1 < maxi2 ? maxi1 : maxi2;
+	for (int i = min_i; i <= max_i; ++i)
 	{
 		uint64_t s;
 		if (i == 0)
@@ -290,6 +293,11 @@ void _biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t 
 		int64_t s2                     = sgn_ext(s, kappa - 1, sgn);
 		dst[(last_l - 1 - i) * dst_sl] = s2;
 	}
+	int min_i_2 = min_i > max_i + 1 ? min_i : max_i + 1;
+	for (int i = last_l - 1 - min_i_2; i >= 0; --i)
+	{
+		dst[i * dst_sl] = 0;
+	}
 }
 
 #define DOUBLE_SGN_AND_MANTISSA_BMASK ((1UL << 63) + (1UL << 52) - 1)
@@ -302,7 +310,7 @@ void biv_to_univ_rnx_new(const GLWEParams* params, double val, PolyBiv* biv)
 	exp -= 1023;
 	s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
 	s_val |= (1UL << 52);
-	_biv_decomp_internal(s_val, 52 - exp, biv, 1, params);
+	biv_decomp_internal(s_val, 52 - exp, biv, 1, params);
 }
 
 int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset)
@@ -318,7 +326,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		exp -= 1023;
 		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
 		s_val |= (1UL << 52);
-		_biv_decomp_internal(s_val, 52 - exp + bit_offset, res + p, nn, params_glwe);
+		biv_decomp_internal(s_val, 52 - exp + bit_offset, res + p, nn, params_glwe);
 	}
 	return 0;
 }
@@ -334,7 +342,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 		uint64_t abs_val = (tnx_val ^ mask) - mask;
 		uint64_t snx_val = (mask << 63) | (abs_val >> 1);
 
-		_biv_decomp_internal(snx_val, 63 + bit_offset, res + p, nn, params_glwe);
+		biv_decomp_internal(snx_val, 63 + bit_offset, res + p, nn, params_glwe);
 	}
 	return 0;
 }
