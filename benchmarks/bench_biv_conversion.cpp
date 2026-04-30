@@ -41,6 +41,35 @@ void test_univ_biv_rnx(benchmark::State& state)
 
 BENCHMARK(test_univ_biv_rnx);
 
+void test_biv_normalize(benchmark::State& state)
+{
+	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+
+	PolyUnivRnX* m = new_univ_rnx(params_glwe);
+	PolyBiv* m_biv = new_biv_poly(params_glwe);
+	normal_random_vec(m, NBASE, 0.0, 0.1);
+
+	univ_rnx_to_biv(params_glwe, m_biv, m, 0);
+
+	for (auto _ : state)
+	{
+		pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, m_biv, glwe_params_l_a(params_glwe), params_glwe->nn,
+		                              m_biv, glwe_params_l_a(params_glwe), params_glwe->nn);
+		benchmark::DoNotOptimize(m_biv);
+	}
+
+	delete_univ_rnx(m);
+	free(m_biv);
+
+	pvda_delete_module_info(module);
+	delete_glwe_params(params_glwe);
+}
+
+BENCHMARK(test_biv_normalize);
+
 void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
