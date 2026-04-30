@@ -81,14 +81,13 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
 	{
-		assert(params_glwegadget->kappa_tilde == params_glwe->kappa);
 		// Computes m_univ / 2^{kappa_tilde*i}
-		for (uint64_t p = 0; p < nn; p++) tmp_sp1[p] = ldexp((double)m_univ[p], -params_glwegadget->kappa_tilde);
+		for (uint64_t p = 0; p < nn; p++) tmp_sp1[p] = (double)m_univ[p];
 
 		CHECK_CALL(normal_random_vec(tmp_err, nn, 0.0, params_glwe->sigma),
 		           "Error addition failed in GLWEGadget encryption");
 
-		CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1, i - 1),
+		CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1, params_glwegadget->kappa_tilde * i),
 		           "univ_to_biv failed in compute_phase_ij");
 
 		CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_err, tmp_err, 0), "univ_to_biv failed in compute_phase_ij");

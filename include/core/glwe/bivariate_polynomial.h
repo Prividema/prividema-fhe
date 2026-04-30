@@ -126,12 +126,12 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
  * @param params_glwe The bivGLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_univ The univariate polynomial.
- * @param k_offset How many \K to offset the result. In other words, the output will be
+ * @param bit_offset How many times the input should be right-shifted (divided by 2)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset);
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset);
 
 /**
  * @brief Performs the DFT of a bivariate polynomial

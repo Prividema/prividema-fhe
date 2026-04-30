@@ -299,7 +299,6 @@ void _biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t 
 void biv_to_univ_rnx_new(const GLWEParams* params, double val, PolyBiv* biv)
 {
 	uint64_t s_val;
-	val -= trunc(val);
 	memcpy(&s_val, &val, sizeof(double));
 	int exp = (int)select_bits(s_val, 52, 11);
 	exp -= 1023;
@@ -308,7 +307,7 @@ void biv_to_univ_rnx_new(const GLWEParams* params, double val, PolyBiv* biv)
 	_biv_decomp_internal(s_val, 52 - exp, biv, 1, params);
 }
 
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset)
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset)
 {
 	uint64_t nn = params_glwe->nn;
 	int kappa   = (int)params_glwe->kappa;
@@ -316,13 +315,12 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	{
 		double val = pol_univ[p];
 		uint64_t s_val;
-		val -= trunc(val);
 		memcpy(&s_val, &val, sizeof(double));
 		int exp = (int)select_bits(s_val, 52, 11);
 		exp -= 1023;
 		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
 		s_val |= (1UL << 52);
-		_biv_decomp_internal(s_val, 52 - exp + kappa * k_offset, res + p, nn, params_glwe);
+		_biv_decomp_internal(s_val, 52 - exp + bit_offset, res + p, nn, params_glwe);
 	}
 	return 0;
 }
