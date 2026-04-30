@@ -24,7 +24,7 @@ void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX*
 	int big_error_count = 0;
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		double diff = torus_distance(a[p], b[p]);
+		double diff = rnx_torus_distance(a[p], b[p]);
 
 		cr_assert(lt(dbl, diff, critical_err), "Difference outside range (too big)");
 

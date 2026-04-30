@@ -41,7 +41,7 @@ void test_glwegad_half_prod(benchmark::State& state)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
 	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 12);
-	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
+	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);
 	glwegadget_prepare(module, glwegad_prep, glwegad);
@@ -94,7 +94,7 @@ void test_glwegad_half_prod_dft(benchmark::State& state)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
 	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 12);
-	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
+	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 	biv_coefs_to_dft(module, params_glwe, m_dft, m);
 
 	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);

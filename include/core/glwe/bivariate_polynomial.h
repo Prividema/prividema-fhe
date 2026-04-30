@@ -181,11 +181,12 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
  * @param params_glwe The bivGLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_tnx The univariate polynomial in fixed-point form
+ * @param bit_offset How many times the input should be right-shifted (divided by 2)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx);
+int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx, int64_t bit_offset);
 
 void _biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t dst_sl, const GLWEParams* params);
 

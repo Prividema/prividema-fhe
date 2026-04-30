@@ -199,7 +199,7 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 	return 0;
 }
 
-int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx)
+int univ_tnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx)
 {
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
@@ -265,8 +265,6 @@ void _biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t 
 		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
 	}
 
-	//assert((mask & (1UL << 63)) == 0);
-
 	stnx_num += mask;
 	stnx_num ^= mask;
 
@@ -321,6 +319,22 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
 		s_val |= (1UL << 52);
 		_biv_decomp_internal(s_val, 52 - exp + bit_offset, res + p, nn, params_glwe);
+	}
+	return 0;
+}
+
+int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_univ, int64_t bit_offset)
+{
+	uint64_t nn = params_glwe->nn;
+	int kappa   = (int)params_glwe->kappa;
+	for (int p = 0; p < nn; ++p)
+	{
+		uint64_t tnx_val = pol_univ[p];
+		uint64_t mask    = ((int64_t)tnx_val) >> 63;
+		uint64_t abs_val = (tnx_val ^ mask) - mask;
+		uint64_t snx_val = (mask << 63) | (abs_val >> 1);
+
+		_biv_decomp_internal(snx_val, 63 + bit_offset, res + p, nn, params_glwe);
 	}
 	return 0;
 }

@@ -57,7 +57,20 @@
  *
  * @returns The (shortest) distance between the two elements in the torus
  */
-double torus_distance(double a, double b);
+double rnx_torus_distance(double a, double b);
+
+/**
+ * @brief Computes the distance between two torus elements
+ *
+ * In other words, abs( (a mod 1) - (b mod 1))
+ * Mostly used in tests
+ *
+ * @param a An element in the torus
+ * @param b Another element in the torus
+ *
+ * @returns The (shortest) distance between the two elements in the torus
+ */
+uint64_t tnx_torus_distance(uint64_t a, uint64_t b);
 
 uint64_t u64_round_up_div(uint64_t num, uint64_t step);
 int32_t i32_round_up_div(int32_t num, int32_t step);

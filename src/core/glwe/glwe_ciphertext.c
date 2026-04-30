@@ -246,7 +246,7 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
 	CHECK_CALL(univ_rnx_to_tnx(result->params, univ_phase, err), "Error in rnx to tnx error conversion for encryption");
 	pvda_vec_znx_add(module, univ_phase, 1, nn, univ_phase, 1, nn, m_univ_tnx, 1, nn);
 
-	CHECK_CALL(univ_tnx_to_biv(result->params, biv_phase, univ_phase),
+	CHECK_CALL(univ_tnx_to_biv(result->params, biv_phase, univ_phase, 0),
 	           "failed univ to biv conversion in glwe encryption");
 	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_dft, biv_phase), "masking failed in glwe encryption");
 
