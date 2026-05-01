@@ -214,20 +214,19 @@ cleanup:
 int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
                             const PolyUnivRnX* m_univ_rnx)
 {
-	int status              = -1;
-	PolyBiv* biv_phase      = new_biv_poly(result->params);
-	PolyUnivRnX* univ_phase = new_univ_rnx(result->params);
+	int status         = -1;
+	PolyBiv* biv_phase = new_biv_poly(result->params);
+	CHECK_ALLOC(biv_phase, "Bivariate phase allocation failed in GLWE encryption");
 
-	CHECK_CALL(add_normal_random_vec(univ_phase, result->params->nn, m_univ_rnx, 0.0, result->params->sigma),
-	           "failed to add the error in glwe encryption");
-	CHECK_CALL(univ_rnx_to_biv(result->params, biv_phase, univ_phase, 0),
+	CHECK_CALL(univ_rnx_to_biv(result->params, biv_phase, m_univ_rnx, 0),
 	           "failed univ to biv conversion in glwe encryption");
+	CHECK_CALL(add_biv_noise(module, result->params, biv_phase, biv_phase), "Noise addition failed in GLWE encryption");
+
 	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_dft, biv_phase), "masking failed in glwe encryption");
 
 	status = 0;
 cleanup:
 	free(biv_phase);
-	delete_univ_rnx(univ_phase);
 	return status;
 }
 
@@ -236,25 +235,18 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
 {
 	int status = -1;
 
-	uint64_t nn = result->params->nn;
+	uint64_t nn        = result->params->nn;
+	PolyBiv* biv_phase = new_biv_poly(result->params);
+	CHECK_ALLOC(biv_phase, "Bivariate phase allocation failed in GLWE encryption");
 
-	PolyBiv* biv_phase      = new_biv_poly(result->params);
-	PolyUnivRnX* err        = new_univ_rnx(result->params);
-	PolyUnivTnX* univ_phase = new_univ_tnx(result->params);
-
-	CHECK_CALL(normal_random_vec(err, nn, 0.0, result->params->sigma), "failed to add the error in glwe encryption");
-	CHECK_CALL(univ_rnx_to_tnx(result->params, univ_phase, err), "Error in rnx to tnx error conversion for encryption");
-	pvda_vec_znx_add(module, univ_phase, 1, nn, univ_phase, 1, nn, m_univ_tnx, 1, nn);
-
-	CHECK_CALL(univ_tnx_to_biv(result->params, biv_phase, univ_phase, 0),
+	CHECK_CALL(univ_tnx_to_biv(result->params, biv_phase, m_univ_tnx, 0),
 	           "failed univ to biv conversion in glwe encryption");
+	CHECK_CALL(add_biv_noise(module, result->params, biv_phase, biv_phase), "Noise addition failed in GLWE encryption");
 	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_dft, biv_phase), "masking failed in glwe encryption");
 
 	status = 0;
 cleanup:
 	free(biv_phase);
-	delete_univ_rnx(err);
-	delete_univ_tnx(univ_phase);
 	return status;
 }
 

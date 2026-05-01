@@ -70,6 +70,29 @@ void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 	pvda_vec_znx_add(module, res, l_a, nn, a, l_a, nn, b, l_a, nn);
 }
 
+int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+{
+	int status = -1;
+
+	PolyUnivRnX* tmp_err = new_univ_rnx(params_glwe);
+	PolyBiv* biv_err     = new_biv_poly(params_glwe);
+
+	CHECK_ALLOC(tmp_err, "Failed alloc");
+	CHECK_ALLOC(biv_err, "Failed alloc");
+
+	CHECK_CALL(normal_random_vec(tmp_err, params_glwe->nn, 0.0, params_glwe->sigma), "Error generation failed");
+
+	CHECK_CALL(univ_rnx_to_biv(params_glwe, biv_err, tmp_err, 0), "univ_to_biv failed in compute_phase_ij");
+
+	add_biv_poly(module, params_glwe, res, a, biv_err);
+
+	status = 0;
+cleanup:
+	delete_univ_rnx(tmp_err);
+	free(biv_err);
+	return status;
+}
+
 //! BIV POLY IN DFT PART (begin)
 
 uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe)
@@ -372,6 +395,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	uint64_t* mag_vec = malloc(sizeof(uint64_t) * nn);
 	uint8_t* sgn_vec  = malloc(sizeof(uint8_t) * nn);
 	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
+	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
 
 	memset(res, 0, poly_biv_bytes(params_glwe));
 
@@ -384,6 +408,35 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 		sgn_vec[p]       = mask & 1;
 	}
 	biv_decomp_internal_vec(mag_vec, sgn_vec, 63 + bit_offset, res, nn, params_glwe);
+	status = 0;
+cleanup:
+	free(mag_vec);
+	free(sgn_vec);
+	return status;
+}
+
+int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv* pol_univ, int64_t bit_offset)
+{
+	int status  = -1;
+	uint64_t nn = params_glwe->nn;
+	int kappa   = (int)params_glwe->kappa;
+
+	uint64_t* mag_vec = malloc(sizeof(uint64_t) * nn);
+	uint8_t* sgn_vec  = malloc(sizeof(uint8_t) * nn);
+	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
+	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
+
+	memset(res, 0, poly_biv_bytes(params_glwe));
+
+	for (int p = 0; p < nn; ++p)
+	{
+		uint64_t tnx_val = pol_univ[p];
+		uint64_t mask    = ((int64_t)tnx_val) >> 63;
+		uint64_t abs_val = (tnx_val ^ mask) - mask;
+		mag_vec[p]       = abs_val;
+		sgn_vec[p]       = mask & 1;
+	}
+	biv_decomp_internal_vec(mag_vec, sgn_vec, bit_offset, res, nn, params_glwe);
 	status = 0;
 cleanup:
 	free(mag_vec);

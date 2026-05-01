@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "rng.h"
@@ -72,9 +73,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 	uint64_t nn = params_glwe->nn;
 
 	PolyUnivRnX* tmp_sp1  = new_univ_rnx(params_glwe);
-	PolyUnivRnX* tmp_err  = new_univ_rnx(params_glwe);
 	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
-	PolyBiv* glwe_biv_err = new_biv_poly(params_glwe);
 
 	CHECK_ALLOC(tmp_sp1, "alloc failed in GLWEGadget encryption");
 	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
@@ -82,17 +81,11 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
 	{
 		// Computes m_univ / 2^{kappa_tilde*i}
-		for (uint64_t p = 0; p < nn; p++) tmp_sp1[p] = (double)m_univ[p];
 
-		CHECK_CALL(normal_random_vec(tmp_err, nn, 0.0, params_glwe->sigma),
-		           "Error addition failed in GLWEGadget encryption");
-
-		CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1, params_glwegadget->kappa_tilde * i),
+		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, m_univ, params_glwegadget->kappa_tilde * i),
 		           "univ_to_biv failed in compute_phase_ij");
 
-		CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_err, tmp_err, 0), "univ_to_biv failed in compute_phase_ij");
-
-		add_biv_poly(module, params_glwe, glwe_biv_msg, glwe_biv_msg, glwe_biv_err);
+		add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg);
 
 		// Get the pointer for the result position
 		VecBiv* glwe_vec       = glwegadget_extract_bivglwe(result, i);
@@ -107,9 +100,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 cleanup:
 	free(glwe_biv_msg);
-	free(glwe_biv_err);
 	delete_univ_rnx(tmp_sp1);
-	delete_univ_rnx(tmp_err);
 
 	return status;
 }

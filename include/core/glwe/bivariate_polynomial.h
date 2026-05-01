@@ -67,6 +67,19 @@ int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int6
 void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
                   const PolyBiv* b);
 
+/**
+ * @brief Adds noise to the bivariate polynomial
+ *
+ * @param module The underlying compute module.
+ * @param params_glwe The GLWE parameters (which decide the noise)
+ * @param res The result bivariate polynomial, can be the same as the input
+ * @param a The input bivariate polynomial.
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
+int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a);
+
 // BIV POLY IN DFT PART (begin)
 
 /**
@@ -175,5 +188,18 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
  * @retval 0 otherwise.
  */
 int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx, int64_t bit_offset);
+
+/**
+ * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Zn[X].
+ *
+ * @param params_glwe The bivGLWE parameters.
+ * @param res The bivariate decomposition.
+ * @param pol_tnx The univariate polynomial in fixed-point form
+ * @param bit_offset How many times the input should be right-shifted (divided by 2)
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
+ */
+int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv* pol_univ, int64_t bit_offset);
 
 #endif  // BIVARIATE_POLYNOMIAL_H
