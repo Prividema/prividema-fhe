@@ -37,7 +37,7 @@ void test_glwegad_encrypt(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
-	uniform_random_vec(NBASE, m, 1, NBASE, 4);
+	uniform_random_pol_znx(m, NBASE, 4);
 
 	for (auto _ : state)
 	{

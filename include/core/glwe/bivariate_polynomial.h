@@ -59,7 +59,7 @@ int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int6
  * @brief Adds two bivariate polynomial and puts it in res.
  *
  * @param module The underlying compute module.
- * @param params_glwe The bivGLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res The result bivariate polynomial.
  * @param a The left-hand side bivariate polynomial.
  * @param b The right-hand side bivariate polynomial.
@@ -86,18 +86,6 @@ uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  */
 PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe);
-
-/**
- * @brief Computes a random normal bivariate polynomial in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param params_glwe The bivGLWE parameters.
- * @param result_dft The result bivarariate polynomial in the DFT domain.
- *
- * @retval -1 if an error occurs
- * @retval 0 otherwise.
- */
-int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft);
 
 // COMMON PART (begin)
 

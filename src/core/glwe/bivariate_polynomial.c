@@ -86,23 +86,6 @@ cleanup:
 	return NULL;
 }
 
-int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft)
-{
-	int status = -1;
-
-	PolyBiv* rd_pol = new_biv_poly(params_glwe);
-	CHECK_ALLOC(rd_pol, "rd_pol malloc failed in normal_random_biv_poly_dft");
-
-	CHECK_CALL(normal_random_biv_poly(params_glwe, rd_pol), "normal_random_biv_poly failed in normal_biv_poly_dft.");
-	biv_coefs_to_dft(module, params_glwe, result_dft, rd_pol);
-
-	status = 0;
-cleanup:
-	free(rd_pol);
-
-	return status;
-}
-
 //! COMMON PART (begin)
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
@@ -169,7 +152,7 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
 	pvda_vec_znx_dft(module, res_dft, l, a, l, nn);
-	return 1;
+	return 0;
 }
 
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
@@ -331,23 +314,6 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	return 0;
 }
 
-int univ_tnx_to_biv_sing(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_univ, int64_t bit_offset)
-{
-	uint64_t nn = params_glwe->nn;
-	int kappa   = (int)params_glwe->kappa;
-
-	for (int p = 0; p < nn; ++p)
-	{
-		uint64_t tnx_val = pol_univ[p];
-		uint64_t mask    = ((int64_t)tnx_val) >> 63;
-		uint64_t abs_val = (tnx_val ^ mask) - mask;
-		uint64_t snx_val = (mask << 63) | (abs_val >> 1);
-
-		biv_decomp_internal(snx_val, 63 + bit_offset, res + p, nn, params_glwe);
-	}
-	return 0;
-}
-
 inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, int lsb_pos, int64_t* dst,
                                            int64_t dst_sl, const GLWEParams* params)
 {
@@ -356,13 +322,12 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 	int kappa = (int)params->kappa;
 	assert(kappa <= 63);
 	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);
-	int n_l      = INT_ROUND_UP_DIV(63, kappa);
 	int k_offset = last_l * kappa - lsb_pos;
 	assert(k_offset >= 0 && k_offset < kappa);
 
 	uint64_t mask = 0;
 
-	for (uint64_t i = 1; i <= n_l && (i * kappa - 1 - k_offset) < 64; ++i)
+	for (uint64_t i = 1; (i * kappa - 1 - k_offset) < 64; ++i)
 	{
 		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
 	}

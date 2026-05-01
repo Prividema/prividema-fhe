@@ -167,7 +167,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_random_vec(params_glwe->nn, (PolyUniv*)pol_univ, 1, params_glwe->nn, 64);
+	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -195,7 +195,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_random_vec(params_glwe->nn, (PolyUniv*)pol_univ, 1, params_glwe->nn, 64);
+	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -222,7 +222,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_random_vec(params_glwe->nn, (PolyUniv*)pol_univ, 1, params_glwe->nn, 12);
+	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
