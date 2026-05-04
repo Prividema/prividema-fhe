@@ -2,6 +2,7 @@
 #include <criterion/new/assert.h>
 
 #include "ggsw_params.h"
+#include "glwe_params.h"
 
 #define NBASE            1024
 #define KBASE            8
@@ -22,7 +23,7 @@
 // Test normalize_ggsw
 Test(new_ggsw_params, basic)
 {
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_FAST_UNIFORM);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	cr_assert(params_ggsw != NULL);

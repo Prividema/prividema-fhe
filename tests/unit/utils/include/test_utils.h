@@ -62,10 +62,11 @@ double generate_sigma(PvdaTstParams* p);
 
 #define DELETE_PVDA_PARAMS_BASE    pvda_delete_module_info(module);
 
-#define INIT_PVDA_PARAMS_GLWE(PRS)                   \
-	INIT_PVDA_PARAMS_BASE((PRS))                     \
-	double sigma            = generate_sigma((PRS)); \
-	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs, sigma);
+#define INIT_PVDA_PARAMS_GLWE(PRS)        \
+	INIT_PVDA_PARAMS_BASE((PRS))          \
+	double sigma = generate_sigma((PRS)); \
+	GLWEParams* params_glwe =             \
+	    new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs, sigma, NOISE_FAST_UNIFORM);
 
 #define DELETE_PVDA_PARAMS_GLWE \
 	DELETE_PVDA_PARAMS_BASE     \

@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+typedef enum noise_type_t { NOISE_FAST_UNIFORM, NOISE_UNIFORM, NOISE_BINOMIAL, NOISE_NORMAL } NoiseType;
+
 /**
  * @brief Parameters object for a GLWE problem/ciphertext
  *
@@ -18,7 +20,14 @@ typedef struct glwe_ct_params
 	                               ///< In other words, \f$ l_a \cdot k + l_b \f$.
 	                               ///<
 	                               ///< Only \l_a = \l_b and \l_a = \l_b + 1 are supported due to memory layout.
-	double sigma;                  ///< The standard deviation of the error distribution.
+	union {
+		double normal_sigma;
+		uint64_t binomial_n;
+		int64_t uniform_range;
+		uint64_t fast_uniform_nb_bits;
+	};
+
+	NoiseType noise_type;  ///< The type of noise that will be used for encryption
 } GLWEParams;
 
 /**
@@ -29,10 +38,12 @@ typedef struct glwe_ct_params
  * @param kappa The exponent for the base-2^kappa representation.
  * @param n_limbs \f$ l_a \cdot k + l_b \f$
  * @param sigma The standard deviation of the error distribution.
+ * @param noise_type The type of noise that will be used for encryption
  * @return The newly allocated parameters object, or NULL if it failed the allocation
  *
  */
-GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma);
+GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma,
+                            NoiseType noise_type);
 
 /**
  * @brief Deletes the set of bivGLWE parameters.

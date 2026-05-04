@@ -5,6 +5,7 @@
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
+#include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -21,7 +22,7 @@ void test_encrypt_rnx(benchmark::State& state)
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
 
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
@@ -55,7 +56,7 @@ void test_encrypt_tnx(benchmark::State& state)
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
 
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);

@@ -33,7 +33,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 
-	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->sigma),
+	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
 	           "random normal vec generation failed");
 
 	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
@@ -80,7 +80,7 @@ int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 	CHECK_ALLOC(tmp_err, "Failed alloc");
 	CHECK_ALLOC(biv_err, "Failed alloc");
 
-	CHECK_CALL(normal_random_vec(tmp_err, params_glwe->nn, 0.0, params_glwe->sigma), "Error generation failed");
+	CHECK_CALL(normal_random_vec(tmp_err, params_glwe->nn, 0.0, params_glwe->normal_sigma), "Error generation failed");
 
 	CHECK_CALL(univ_rnx_to_biv(params_glwe, biv_err, tmp_err, 0), "univ_to_biv failed in compute_phase_ij");
 

@@ -5,6 +5,7 @@
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
+#include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -26,7 +27,7 @@ void test_benchmark(benchmark::State& state)
 
 	//! Parameters
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
 
 	//! Variables
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);

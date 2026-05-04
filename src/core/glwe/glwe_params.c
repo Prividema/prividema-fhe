@@ -6,7 +6,8 @@
 #include "logger.h"
 #include "utils.h"
 
-GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb_limbs, double sigma)
+GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb_limbs, double sigma,
+                            NoiseType noise_type)
 {
 	GLWEParams* params = malloc(sizeof(GLWEParams));
 	CHECK_ALLOC(params, "params' malloc failed in new_glwe_ct_params");
@@ -15,7 +16,19 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb
 	params->k                   = k;
 	params->kappa               = kappa;
 	params->ciphertext_nb_limbs = nb_limbs;
-	params->sigma               = sigma;
+	params->noise_type          = noise_type;
+
+	switch (noise_type)
+	{
+		case NOISE_FAST_UNIFORM:
+			// Placeholder sigma
+			params->normal_sigma = sigma;
+			break;
+		default:
+			free(params);
+			log_message(LOG_ERROR, "Trying to use a non-implemented noise type");
+			return NULL;
+	}
 
 	return params;
 cleanup:

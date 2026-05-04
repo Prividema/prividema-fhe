@@ -7,6 +7,7 @@ extern "C" {
 #include "ggsw_arithmetic.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
+#include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -23,7 +24,7 @@ void test_ggsw_encrypt(benchmark::State& state)
 	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);

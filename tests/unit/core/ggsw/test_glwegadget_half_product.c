@@ -20,8 +20,8 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	sigma              = 0;
-	params_glwe->sigma = 0;
+	sigma                     = 0;
+	params_glwe->normal_sigma = 0;
 
 	double biv_epsilon = glwe_bivariate_epsilon(params_glwe);
 	double err_length =

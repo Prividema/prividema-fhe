@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "glwe_params.h"
-#include "logger.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "utils.h"

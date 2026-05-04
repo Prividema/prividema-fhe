@@ -12,7 +12,7 @@ int main()
 {
 	printf("Hello example private match!\n");
 
-	GLWEParams* params_glwe = new_glwe_params(1, 1, 19, 2 * 400, 0);
+	GLWEParams* params_glwe = new_glwe_params(1, 1, 19, 2 * 400, 0, NOISE_FAST_UNIFORM);
 
 	PolyUnivRnX* rnx_final = new_univ_rnx(params_glwe);
 	PolyBiv* biv           = new_biv_poly(params_glwe);

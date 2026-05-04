@@ -1,7 +1,6 @@
 #include "glwegadget_ciphertext.h"
 
 #include <assert.h>
-#include <math.h>
 #include <stdlib.h>
 
 #include "bivariate_polynomial.h"
