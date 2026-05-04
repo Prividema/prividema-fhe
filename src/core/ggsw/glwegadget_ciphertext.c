@@ -72,16 +72,13 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 	uint64_t nn = params_glwe->nn;
 
-	PolyUnivRnX* tmp_sp1  = new_univ_rnx(params_glwe);
 	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
 
-	CHECK_ALLOC(tmp_sp1, "alloc failed in GLWEGadget encryption");
 	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
 
 	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
 	{
 		// Computes m_univ / 2^{kappa_tilde*i}
-
 		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, m_univ, params_glwegadget->kappa_tilde * i),
 		           "univ_to_biv failed in compute_phase_ij");
 
@@ -100,7 +97,6 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 cleanup:
 	free(glwe_biv_msg);
-	delete_univ_rnx(tmp_sp1);
 
 	return status;
 }
