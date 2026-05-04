@@ -46,6 +46,16 @@
 		}                              \
 	} while (0)
 
+#define CHECK_CALL_LABEL(expr, m, label) \
+	do                                   \
+	{                                    \
+		if ((expr) < 0)                  \
+		{                                \
+			log_message(LOG_ERROR, m);   \
+			goto label;                  \
+		}                                \
+	} while (0)
+
 /**
  * @brief Computes the distance between two torus elements
  *
