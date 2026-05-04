@@ -60,7 +60,7 @@ Test(tnx_rnx_encoding, known_bounded_values)
 	PolyUnivRnX rnx_computed[4];
 	PolyUnivTnX tnx_computed[4];
 
-	GLWEParams* params_glwe = new_glwe_params(4, 1, 4, 1, 0, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(4, 1, 4, 2, 0.25, NOISE_FAST_UNIFORM);
 
 	univ_rnx_to_tnx(params_glwe, tnx_computed, rnx_values);
 	univ_tnx_to_rnx(params_glwe, rnx_computed, tnx_values);
@@ -81,7 +81,7 @@ Test(tnx_rnx_encoding, known_outbounded_values)
 
 	PolyUnivTnX tnx_computed[5];
 
-	GLWEParams* params_glwe = new_glwe_params(5, 1, 4, 1, 0, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(5, 1, 4, 1, 0.25, NOISE_FAST_UNIFORM);
 
 	univ_rnx_to_tnx(params_glwe, tnx_computed, rnx_values);
 

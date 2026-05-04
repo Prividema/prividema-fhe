@@ -6,6 +6,7 @@
 #include <criterion/parameterized.h>
 #include <math.h>
 
+#include "glwe_params.h"
 #include "math.h"
 #include "utils.h"
 
@@ -13,7 +14,7 @@ double generate_sigma(PvdaTstParams* p)
 {
 	if (p->sigma > 0.0) return p->sigma;
 	if (p->sigma < 0.0) return ldexp(1.0, (int)p->sigma);
-	return ldexp(1.0, -(p->ciphertext_nb_limbs / 2 + 1) * p->kappa);
+	return ldexp(1.0, 4 - ((p->ciphertext_nb_limbs + 1) / (p->k + 1)) * p->kappa);
 }
 
 void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,

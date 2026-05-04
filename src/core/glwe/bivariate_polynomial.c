@@ -9,6 +9,7 @@
 #include <sys/types.h>
 
 #include "glwe_params.h"
+#include "logger.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -70,15 +71,15 @@ void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 	pvda_vec_znx_add(module, res, l_a, nn, a, l_a, nn, b, l_a, nn);
 }
 
-int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+int add_biv_normal_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	int status = -1;
 
 	PolyUnivRnX* tmp_err = new_univ_rnx(params_glwe);
 	PolyBiv* biv_err     = new_biv_poly(params_glwe);
 
-	CHECK_ALLOC(tmp_err, "Failed alloc");
-	CHECK_ALLOC(biv_err, "Failed alloc");
+	CHECK_ALLOC(tmp_err, "Failed alloc in normal noise generation");
+	CHECK_ALLOC(biv_err, "Failed alloc in normal noise generation");
 
 	CHECK_CALL(normal_random_vec(tmp_err, params_glwe->nn, 0.0, params_glwe->normal_sigma), "Error generation failed");
 
@@ -91,6 +92,54 @@ cleanup:
 	delete_univ_rnx(tmp_err);
 	free(biv_err);
 	return status;
+}
+
+int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+{
+	int status = -1;
+
+	uint64_t nn = params_glwe->nn;
+
+	int64_t* err = new_univ(params_glwe);
+
+	CHECK_ALLOC(err, "Failed alloc in fast uniform noise generation");
+
+	if (params_glwe->fast_uniform_nb_bits)
+		CHECK_CALL(uniform_random_pol_znx(err, nn, params_glwe->fast_uniform_nb_bits),
+		           "Uniform noise generation failed");
+	else
+	{
+		log_message(LOG_WARN, "Using error/noise with stdev 0");
+		memset(err, 0, nn * sizeof(int64_t));
+	}
+	PolyUniv* last_limb_res = res + nn * (glwe_params_l_a(params_glwe) - 1);
+	PolyUniv* last_limb_a   = a + nn * (glwe_params_l_a(params_glwe) - 1);
+
+	if (res != a) memcpy(res, a, poly_biv_bytes(params_glwe));
+
+	pvda_vec_znx_add(module, last_limb_res, 1, nn, last_limb_a, 1, nn, err, 1, nn);
+
+	status = 0;
+cleanup:
+	free(err);
+
+	return status;
+}
+
+int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+{
+	switch (params_glwe->noise_type)
+	{
+		case NOISE_FAST_UNIFORM:
+			return add_biv_fast_uni_noise(module, params_glwe, res, a);
+		case NOISE_NORMAL:
+			return add_biv_normal_noise(module, params_glwe, res, a);
+		default:
+			RAISE_ERROR("Noise type not implemented");
+	}
+	return 0;
+cleanup:
+	return -1;
 }
 
 //! BIV POLY IN DFT PART (begin)

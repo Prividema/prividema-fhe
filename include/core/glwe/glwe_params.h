@@ -75,6 +75,13 @@ uint64_t glwe_params_l_b(const GLWEParams* params_glwe);
 uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
 
 /**
+ * @brief Returns the standard deviation of the noise that is added for encryption
+ *
+ * @param params_glwe The GLWE parameters.
+ */
+double glwe_params_stdev(const GLWEParams* params_glwe);
+
+/**
  * @brief The number of bytes needed to store a GLWE ciphertext in bivariate form.
  *
  * @param params_glwe The GLWE parameters.
