@@ -20,7 +20,7 @@ extern "C" {
 
 void test_benchmark(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	// Since the message is drawn in Zn[X,Y], there is no decomposition error. Thus, the error should be smaller than 3*sigma 99.73% of the time
 	double err_length = 3 * sigma;

@@ -20,7 +20,7 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb
 	double rescaled_noise = ldexp(sigma, (int)kappa * (int)glwe_params_l_a(params));
 
 	if (rescaled_noise > ldexp(1.0, 63)) RAISE_ERROR("Noise did not fit in the bivariate parameters (too big)");
-	if (rescaled_noise < 1) RAISE_ERROR("Noise did not fit in bivariate parameters (too small)");
+	if (rescaled_noise < 1 && sigma != 0) RAISE_ERROR("Noise did not fit in bivariate parameters (too small)");
 
 	switch (noise_type)
 	{
@@ -29,6 +29,10 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb
 			double range                 = sqrt(3.0) * rescaled_noise;
 			uint64_t log_2               = ceil(log2(range));
 			params->fast_uniform_nb_bits = log_2;
+			break;
+		}
+		case NOISE_NORMAL: {
+			params->normal_sigma = sigma;
 			break;
 		}
 		default:

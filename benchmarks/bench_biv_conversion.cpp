@@ -17,7 +17,7 @@ extern "C" {
 
 void test_univ_biv_rnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
@@ -43,7 +43,7 @@ BENCHMARK(test_univ_biv_rnx);
 
 void test_biv_normalize(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
@@ -72,7 +72,7 @@ BENCHMARK(test_biv_normalize);
 
 void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
@@ -101,7 +101,7 @@ BENCHMARK(test_univ_biv_rnx_via_tnx);
 
 void test_univ_biv_tnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
@@ -127,7 +127,7 @@ BENCHMARK(test_univ_biv_tnx);
 
 void test_biv_univ_tnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
@@ -156,7 +156,7 @@ BENCHMARK(test_biv_univ_tnx);
 
 void test_biv_univ_rnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);

@@ -21,7 +21,7 @@ extern "C" {
 
 void test_ggsw_encrypt(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
