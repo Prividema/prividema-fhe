@@ -10,6 +10,7 @@ set(GGSW_SRCS
     ggsw_key.c
     glwegadget_arithmetic.c
     glwegadget_ciphertext.c
+    glwegadget_key.c
 )
 
 # Create a shared library named GGSW

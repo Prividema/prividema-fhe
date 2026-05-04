@@ -177,6 +177,14 @@ int pvda_vec_znx_sub(const MODULE* module, int64_t* res, uint64_t res_size, uint
 	vec_znx_sub(module, res, res_size, res_sl, a, a_size, a_sl, b, b_size, b_sl);
 	return 0;
 }
+
+int pvda_vec_znx_automorphism(const MODULE* module, const int64_t p, int64_t* res, uint64_t res_size, uint64_t res_sl,
+                              const int64_t* a, uint64_t a_size, uint64_t a_sl)
+{
+	vec_znx_automorphism(module, p, res, res_size, res_sl, a, a_size, a_sl);
+	return 0;
+}
+
 /*
 int pvda_vec_rnx_negate(const MODULE* module, double* res, uint64_t res_size, uint64_t res_sl, const double* a,
                         uint64_t a_size, uint64_t a_sl)

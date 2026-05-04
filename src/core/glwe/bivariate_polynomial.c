@@ -27,6 +27,15 @@ cleanup:
 	return NULL;
 }
 
+PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l)
+{
+	PolyBiv* pol = calloc(params_glwe->nn * biv_l, sizeof(int64_t));
+	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
+	return pol;
+cleanup:
+	return NULL;
+}
+
 int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
 {
 	int status = -1;

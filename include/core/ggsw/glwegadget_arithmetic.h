@@ -4,6 +4,7 @@
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
 #include "glwegadget_ciphertext.h"
+#include "glwegadget_key.h"
 
 /**
  * @brief Computes the half-external product between a GLWEGadget and
@@ -34,5 +35,23 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
  */
 int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft);
+
+int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
+                             const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
+
+/**
+ * @brief Performs the automorphism of a GLWE ciphertext , ie, sets its polynomials a(X, Y) to a(X^p, Y)
+ *
+ * @param module             The backend module
+ * @param result             The resulting GLWE ciphertext
+ * @param automorphism_ksk An encryption of the secret key after having applied the automorphism to it
+ * @param glwe The input ciphertext
+ * @param automorphism_p The p value for the automorphism
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
+int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
+                            const GLWECiphertext* glwe, int automorphism_p);
 
 #endif  // !DEBUG
