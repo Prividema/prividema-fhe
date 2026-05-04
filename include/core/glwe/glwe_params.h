@@ -3,7 +3,18 @@
 
 #include <stdint.h>
 
-typedef enum noise_type_t { NOISE_FAST_UNIFORM, NOISE_UNIFORM, NOISE_BINOMIAL, NOISE_NORMAL } NoiseType;
+/**
+ *
+ * @brief enum for the available distributions to sample the error/noise used in FHE encryption operations
+ *
+ */
+typedef enum noise_type_t {
+	NOISE_FAST_UNIFORM,  ///< Uniform noise, with the range being restricted to powers of 2. The smallest suitable one is selected from sigma.
+	NOISE_UNIFORM,   ///< Uniform noise withouth the power-of-2 restriction in its internal sampling.
+	                 ///< This will make it significantly slower, albeit potentially more precise
+	NOISE_BINOMIAL,  ///< Binomial noise (on the last limb, with p=0.5, ie, symmetric)
+	NOISE_NORMAL     ///< Normal noise (implementation at the moment is a proof of concept)
+} NoiseType;
 
 /**
  * @brief Parameters object for a GLWE problem/ciphertext
@@ -21,10 +32,14 @@ typedef struct glwe_ct_params
 	                               ///<
 	                               ///< Only \l_a = \l_b and \l_a = \l_b + 1 are supported due to memory layout.
 	union {
-		double normal_sigma;
-		uint64_t binomial_n;
-		int64_t uniform_range;
-		uint64_t fast_uniform_nb_bits;
+		double normal_sigma;  ///< When the noise type is normal, this contains the stdev of the normal
+		uint64_t
+		    binomial_n;  ///< When the noise type is binomial, this contains the parameter n used to sample a binomial on the last limb
+		int64_t
+		    uniform_range;  ///< When a uniform noise is selected, this value encodes the limits of the uniform distribution to be added to the last limb
+		uint64_t
+		    fast_uniform_nb_bits;  ///< When a "fast" uniform noise type is selected, this contains the number of bits of uniform randomness
+		                           ///< that the last limb should have added
 	};
 
 	NoiseType noise_type;  ///< The type of noise that will be used for encryption
