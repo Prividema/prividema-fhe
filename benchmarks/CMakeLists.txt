@@ -7,7 +7,7 @@ FetchContent_Declare(
   benchmark
   GIT_REPOSITORY https://github.com/google/benchmark.git
   GIT_TAG        v1.9.5
-  CMAKE_ARGS     -DBENCHMARK_ENABLE_GTEST_TESTS=OFF
+  CMAKE_ARGS     -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF
 )
 FetchContent_MakeAvailable(benchmark)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
