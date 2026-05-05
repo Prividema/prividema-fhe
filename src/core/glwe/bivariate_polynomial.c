@@ -466,7 +466,13 @@ cleanup:
 
 int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv* pol_univ, int64_t bit_offset)
 {
-	int status  = -1;
+	int status = -1;
+	if (bit_offset <= 0)
+	{
+		log_message(LOG_INFO,
+		            "A ZnX polynomial is being converted to bivariate with negative or 0 bit_offset. "
+		            "The result will always be 0 in that case");
+	}
 	uint64_t nn = params_glwe->nn;
 	int kappa   = (int)params_glwe->kappa;
 

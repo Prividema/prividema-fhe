@@ -167,7 +167,7 @@ int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial. The result is in fixed-point representation.
  *
- * @param params_glwe The bivGLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res_tnx The result univariate polynomial in Tn[X].
  * @param pol The input bivariate polynomial.
  *
@@ -179,7 +179,7 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Tn[X].
  *
- * @param params_glwe The bivGLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_tnx The univariate polynomial in fixed-point form
  * @param bit_offset How many times the input should be right-shifted (divided by 2)
@@ -192,9 +192,15 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Zn[X].
  *
- * @param params_glwe The bivGLWE parameters.
+ * ZnX elements themselves don't fit in the Torus (or equivalently, they are all congruent to 0).
+ * However, if a bit_offset is provided, elements are divided before being put in the torus.
+ * In that case, they can (and often will) be non-zero.
+ *
+ * The function is only well-defined for polynomials with coefficients in (-2^63, 2^63)
+ *
+ * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
- * @param pol_tnx The univariate polynomial in fixed-point form
+ * @param pol_tnx The univariate ZnX polynomial with coefficients in (-2^63, 2^63)
  * @param bit_offset How many times the input should be right-shifted (divided by 2)
  *
  * @retval -1 if an error occurs
