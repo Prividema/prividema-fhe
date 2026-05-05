@@ -4,7 +4,7 @@
 ## Requirements
 
 - CMake version 3.10
-- [Criterion](https://github.com/Snaipe/Criterion) if you want to if you want to run the unit tests. In this case make sure that pkg-config is also installed for portability between different OS.
+- [Criterion](https://github.com/Snaipe/Criterion) optionally to run the unit tests. In this case make sure that pkg-config is also installed for portability between different OS.
 - For Windows users, also make sure that [Cryptography API: Next Generation](https://learn.microsoft.com/en-us/windows/win32/seccng/cng-portal) is installed, as it is required for the random number generator.
 
 - [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) will be installed automatically by CMake if github.com is reachable.
@@ -118,7 +118,7 @@ ctest
 
 Inside the build directory will automatically run all tests.
 Make sure that you have abided by the above warning, as ctest will not by default
-tell you how many tests have been run in each file (and you might thing that everything
+tell you how many tests have been run in each file (one might think that everything
 passes when in reality no tests are being run at all).
 
 ### Building the Documentation
