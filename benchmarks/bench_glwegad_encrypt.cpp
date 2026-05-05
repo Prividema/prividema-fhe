@@ -29,20 +29,20 @@ void test_glwegad_encrypt(benchmark::State& state)
 	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft               = alloc_glwe_secret_key_dft(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyUniv* m                            = new_univ(params_glwe);
 	GLWEGadgetCiphertext* glwegad_computed = new_glwegadget(params_glwegad);
 	PolyBiv* result_biv                    = new_biv_poly(params_glwe);
 	PolyUnivRnX* result_univ               = new_univ_rnx(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 3);
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_pol_znx(m, NBASE, 4);
 
 	for (auto _ : state)
 	{
-		glwegadget_secret_encrypt(module, glwegad_computed, sk_dft, m);
+		glwegadget_secret_encrypt(module, glwegad_computed, sk_prep, m);
 		benchmark::DoNotOptimize(glwegad_computed);
 	}
 
@@ -51,7 +51,7 @@ void test_glwegad_encrypt(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegad);
 	delete_glwe_secret_key(sk);
-	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_prepared(sk_prep);
 	free(result_biv);
 	delete_univ_rnx(result_univ);
 	delete_glwegadget(glwegad_computed);

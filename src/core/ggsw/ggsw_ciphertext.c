@@ -52,7 +52,7 @@ VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i)
 	return ggsw_ct->mat + ((i - 1) * (k_tilde + 1) + j) * glwe_coef_number(params_glwe);
 }
 
-int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ)
 {
 	int status = -1;
@@ -92,7 +92,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 			if (j < params_glwe->k)
 			{
 				// Computes DFT(msg * sk_j)
-				mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
+				mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_prepared_sk_extract_poly_dft(sk_prep, j), 1,
+				                 m_univ_dft, 1);
 
 				// Computes -DFT(msg * sk_j)
 				for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
@@ -114,7 +115,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 		GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
-		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_dft, glwe_biv_msg),
+		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
 		           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
 	}
 

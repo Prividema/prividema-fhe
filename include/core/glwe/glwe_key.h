@@ -22,11 +22,12 @@ typedef struct glwe_secret_key
  */
 typedef struct glwe_prep_secret_key
 {
-	uint64_t nn;         ///< Degree of the polynomials
-	uint64_t k;          ///< Number of polynomials of degree nn in key
-	VecUnivDFT* values;  ///< Flattened vector of the k polynomials of degree nn
+	uint64_t nn;           ///< Degree of the polynomials
+	uint64_t k;            ///< Number of polynomials of degree nn in key
+	VecUniv* values_coef;  ///< Flattened vector of the k polynomials of degree nn
+	VecUnivDFT* values;    ///< Flattened vector of the k polynomials of degree nn
 
-} GLWESecretKeyDFT;
+} GLWESecretKeyPrepared;
 
 // COEF SPACE PART (begin)
 
@@ -70,34 +71,44 @@ PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
  */
 void delete_glwe_secret_key(GLWESecretKey* sk);
 
-// DFT SPACE PART (begin)
+// Prepared secret key form
 
 /**
- * @brief Creates a GLWE Secret key in the DFT domain.
+ * @brief Creates a prepared GLWE secret key
  *
  * @param params_glwe the glwe params for the key
  *
  * @return A pointer to the newly allocated object or NULL if it failed.
  */
-GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe);
+GLWESecretKeyPrepared* alloc_glwe_secret_key_prepared(GLWEParams* params_glwe);
+
+/**
+ * @brief Returns a pointer to the k'th polynomial in the prepared secret key
+ *
+ *
+ * @param sk_prep  The prepared secret key
+ * @param pos The position to retrieve (from 0 to k-1)
+ *
+ * @return    A pointer to the beggining of the pos-th polynomial in the key, in DFT form
+ */
+PolyUnivDFT* glwe_prepared_sk_extract_poly_dft(const GLWESecretKeyPrepared* sk_prep, uint64_t pos);
 
 /**
  * @brief Returns a pointer to the k'th polynomial in the secret key
  *
  *
- * @param sk_dft  The secret key in the DFT domain
+ * @param sk_prep  The prepared secret key
  * @param pos The position to retrieve (from 0 to k-1)
  *
- * @return    A pointer to the beggining of the pos-th polynomial in the key
+ * @return    A pointer to the beggining of the pos-th polynomial in the key, in coefficient form
  */
-PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos);
-
+PolyUniv* glwe_prepared_sk_extract_poly_coefs(const GLWESecretKeyPrepared* sk_prep, uint64_t pos);
 /**
- * @brief Deletes a secret key in the DFT domain.
+ * @brief Deletes a prepared secret key
  *
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  */
-void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
+void delete_glwe_secret_key_prepared(GLWESecretKeyPrepared* sk_prep);
 
 ////////////////////
 // PUBLIC KEY

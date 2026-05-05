@@ -28,7 +28,7 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(params_glwe);
+	GLWESecretKeyPrepared* sk_prep       = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyBiv* m                           = new_biv_poly(params_glwe);
 	PolyBiv* err                         = new_biv_poly(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
@@ -39,7 +39,7 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 
 	//Draw key and message
 	uniform_glwe_secret_key(module, sk, 3);
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 	uniform_random_biv_poly(params_glwe, m, glwe_params_l_a(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
@@ -48,8 +48,8 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 	// Encrypt and decrypt the message
 	normal_random_biv_poly(params_glwe, err);
 	add_biv_poly(module, params_glwe, phase, m, err);
-	glwe_secret_encrypt_phase(module, glwe_observed, sk_dft, phase);
-	glwe_secret_decrypt(module, phase_observed, sk_dft, glwe_observed);
+	glwe_secret_encrypt_phase(module, glwe_observed, sk_prep, phase);
+	glwe_secret_decrypt(module, phase_observed, sk_prep, glwe_observed);
 	biv_to_univ_rnx(params_glwe, phase_observed_univ_RnX, phase_observed);
 
 	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
@@ -62,7 +62,7 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 	free(err);
 	free(m);
 	delete_glwe_secret_key(sk);
-	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_prepared(sk_prep);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -82,7 +82,7 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft             = alloc_glwe_secret_key_dft(params_glwe);
+	GLWESecretKeyPrepared* sk_prep       = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyBiv* m                           = new_biv_poly(params_glwe);
 	PolyBiv* err                         = new_biv_poly(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
@@ -93,15 +93,15 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 
 	//Draw message (in RnX) and key
 	uniform_glwe_secret_key(module, sk, 3);
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 	normal_random_vec(m_univ_RnX, params_glwe->nn, 0.0, 0.1);
 
 	//Encrypt said message
 	univ_rnx_to_biv(params_glwe, m, m_univ_RnX, 0);
 	normal_random_biv_poly(params_glwe, err);
 	add_biv_poly(module, params_glwe, phase, m, err);
-	glwe_secret_encrypt_phase(module, glwe_observed, sk_dft, phase);
-	glwe_secret_decrypt(module, phase_observed, sk_dft, glwe_observed);
+	glwe_secret_encrypt_phase(module, glwe_observed, sk_prep, phase);
+	glwe_secret_decrypt(module, phase_observed, sk_prep, glwe_observed);
 	biv_to_univ_rnx(params_glwe, phase_observed_univ_RnX, phase_observed);
 
 	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
@@ -114,7 +114,7 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 	free(err);
 	free(m_univ_RnX);
 	delete_glwe_secret_key(sk);
-	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_prepared(sk_prep);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }

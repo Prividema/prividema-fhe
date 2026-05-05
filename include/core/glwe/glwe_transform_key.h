@@ -10,7 +10,6 @@
  * @param result_dft The resulting GLWE secret key in the DFT domain.
  * @param sk The secret key in coefficient space
  */
-void transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, GLWESecretKeyDFT* result_dft,
-                                              const GLWESecretKey* sk);
+void glwe_sk_prepare(const MODULE* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk);
 
 #endif  //GLWE_TRANSFORM_KEY_H

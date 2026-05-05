@@ -27,23 +27,23 @@ void test_ggsw_ext_prod(benchmark::State& state)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
-	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
-	PolyUniv* m                   = new_univ(params_glwe);
-	GLWECiphertext* glwe_input    = new_glwe(params_glwe);
-	GLWECiphertext* glwe_computed = new_glwe(params_glwe);
-	GGSWCiphertext* ggsw          = new_ggsw(params_ggsw);
-	PolyBiv* result_biv           = new_biv_poly(params_glwe);
-	PolyUnivRnX* result_univ      = new_univ_rnx(params_glwe);
-	PolyUnivRnX* m_glwe           = new_univ_rnx(params_glwe);
+	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	PolyUniv* m                    = new_univ(params_glwe);
+	GLWECiphertext* glwe_input     = new_glwe(params_glwe);
+	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
+	GGSWCiphertext* ggsw           = new_ggsw(params_ggsw);
+	PolyBiv* result_biv            = new_biv_poly(params_glwe);
+	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
+	PolyUnivRnX* m_glwe            = new_univ_rnx(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 3);
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_vec(NBASE, m, 1, NBASE, 4);
 	normal_random_vec(m_glwe, NBASE, 0.0, 0.1);
-	ggsw_secret_encrypt(module, ggsw, sk_dft, m);
-	glwe_secret_encrypt_rnx(module, glwe_input, sk_dft, m_glwe);
+	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
+	glwe_secret_encrypt_rnx(module, glwe_input, sk_prep, m_glwe);
 
 	for (auto _ : state)
 	{
@@ -52,7 +52,7 @@ void test_ggsw_ext_prod(benchmark::State& state)
 	}
 
 	delete_glwe_secret_key(sk);
-	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_prepared(sk_prep);
 	delete_univ(m);
 	delete_glwe(glwe_input);
 	delete_glwe(glwe_computed);

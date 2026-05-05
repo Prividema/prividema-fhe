@@ -66,13 +66,13 @@ VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i);
  *
  * @param module      Additionnal information for backend.
  * @param result      The encrypted message.
- * @param sk_dft      The prepared secret key.
+ * @param sk_prep      The prepared secret key.
  * @param m_univ      The univariate message (in coefficient space).
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ);
 
 /**

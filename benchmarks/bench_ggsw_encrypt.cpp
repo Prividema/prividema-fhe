@@ -27,21 +27,21 @@ void test_ggsw_encrypt(benchmark::State& state)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
-	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
-	PolyUniv* m                   = new_univ(params_glwe);
-	GGSWCiphertext* ggsw_computed = new_ggsw(params_ggsw);
-	PolyBiv* result_biv           = new_biv_poly(params_glwe);
-	PolyUnivRnX* result_univ      = new_univ_rnx(params_glwe);
+	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	PolyUniv* m                    = new_univ(params_glwe);
+	GGSWCiphertext* ggsw_computed  = new_ggsw(params_ggsw);
+	PolyBiv* result_biv            = new_biv_poly(params_glwe);
+	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 3);
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_vec(NBASE, m, 1, NBASE, 4);
 
 	for (auto _ : state)
 	{
-		ggsw_secret_encrypt(module, ggsw_computed, sk_dft, m);
+		ggsw_secret_encrypt(module, ggsw_computed, sk_prep, m);
 		benchmark::DoNotOptimize(ggsw_computed);
 	}
 
@@ -50,7 +50,7 @@ void test_ggsw_encrypt(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 	delete_glwe_secret_key(sk);
-	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_prepared(sk_prep);
 	free(result_biv);
 	delete_univ_rnx(result_univ);
 	delete_ggsw(ggsw_computed);
