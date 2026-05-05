@@ -42,7 +42,6 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	PolyBiv* um_observed                   = new_biv_poly(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
 	PolyBiv* m                             = new_biv_poly(params_glwe);
-	PolyBiv* m2                            = new_biv_poly(params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;
@@ -74,4 +73,19 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed);
 
 	pvda_assert_polynomial_distance(params_glwe, um_observed_rnx, um_expected_rnx, err_length, critical_err_length);
+
+	delete_glwe_secret_key(sk);
+	delete_glwe_secret_key_prepared(sk_prep);
+	delete_glwe(glwe);
+	delete_glwegadget(glwegad);
+	delete_glwegadget_prep(glwegad_prep);
+	delete_univ(u_univ);
+	delete_univ_tnx(m_univ_tnx);
+	delete_univ_rnx(m_univ_rnx);
+	delete_univ_tnx(um_expected_tnx);
+	delete_univ_rnx(um_expected_rnx);
+	free(um_observed);
+	delete_univ_rnx(um_observed_rnx);
+	free(m);
+	DELETE_PVDA_PARAMS_GGSWGAD;
 }
