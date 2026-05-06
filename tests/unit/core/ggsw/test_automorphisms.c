@@ -77,25 +77,27 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
-	//int auto_ps[] = {1,3,5,7,9,13,21,29,45,91};
+	int auto_ps[] = {1, 3, 5, 7, 9, 13, 21, 29, 45, 91, -1, -3};
 
-	int auto_p = 7;
+	for (int i = 0; i < sizeof(auto_ps) / sizeof(auto_ps[0]); ++i)
+	{
+		int auto_p = auto_ps[i];
+		prepare_automorphism_key(module, auto_ksk, sk_prep, auto_p);
 
-	prepare_automorphism_key(module, auto_ksk, sk_prep, auto_p);
+		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct, auto_p);
+		normalize_glwe(module, glwe_norm, glwe_res);
 
-	glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct, auto_p);
-	normalize_glwe(module, glwe_norm, glwe_res);
+		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
+		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
 
-	glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
-	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+		pvda_vec_znx_automorphism(module, auto_p, m_expected_tnx, 1, params_glwe->nn, m_univ_tnx, 1, params_glwe->nn);
 
-	pvda_vec_znx_automorphism(module, auto_p, m_expected_tnx, 1, params_glwe->nn, m_univ_tnx, 1, params_glwe->nn);
+		int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
+		int noise_bits        = decomp_noise_bits > 0 ? decomp_noise_bits : 1;
 
-	int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
-	int noise_bits        = decomp_noise_bits > 0 ? decomp_noise_bits : 1;
-
-	for (int i = 0; i < params_glwe->nn; ++i)
-		assert_tnx_close_enough(m_observed_tnx[i], m_expected_tnx[i], decomp_noise_bits);
+		for (int p = 0; p < params_glwe->nn; ++p)
+			assert_tnx_close_enough(m_observed_tnx[p], m_expected_tnx[p], decomp_noise_bits);
+	}
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);

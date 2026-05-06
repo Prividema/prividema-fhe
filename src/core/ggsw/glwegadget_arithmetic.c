@@ -111,7 +111,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 	size_t nrows        = automorphism_ksk->params->l_tilde;
 	uint64_t l_b_result = glwe_params_l_b(result->params);
 
-	// This is the maxumum internal precision of the result.
+	// This is the maximum internal precision of the result.
 	// It is the maximum of the input b precision and the number of columns (GLWEGaget l_tilde precision) in the
 	// key-switching key
 	uint64_t biv_l = l_b_result > nrows ? l_b_result : nrows;
@@ -161,7 +161,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 			pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe_extract_start_poly(glwe, i),
 			                          glwe_params_l_a(glwe->params), (k + 1) * nn);
 
-			// result = halfProd(C_auto(s), auto(a))
+			// result = halfProd(C_auto(s_i), auto(a_i))
 			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, automorphism_ksk->enc_s[i], auto_tmp),
 			                 "half product in automorphism failed", cleanup2);
 
