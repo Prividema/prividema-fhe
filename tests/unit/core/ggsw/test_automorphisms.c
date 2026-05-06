@@ -37,21 +37,6 @@ PvdaParamTest(automorphism, generate_ksk, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
 
-void assert_tnx_close_enough(uint64_t a, uint64_t b, uint64_t bits)
-{
-	uint64_t diff = tnx_torus_distance(a, b);
-	if (bits >= 64)
-	{
-		uint64_t max_diff = 1;
-		cr_assert(le(u64, diff, max_diff));
-	}
-	else
-	{
-		uint64_t max_diff = 1ULL << (64 - bits);
-		cr_assert(lt(u64, diff, max_diff));
-	}
-}
-
 PvdaParamTest(automorphism, no_noise, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
