@@ -70,7 +70,7 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
  * @brief Computes the external product between a GLWE and a GGSW.
  *
  * @param module Additionnal information for backend.
- * @param result The GLWE result ciphertext.
+ * @param result The GLWE result ciphertext. Can be the same as the input
  * @param glwe   The GLWE input ciphertext.
  * @param ggsw   The GGSW input ciphertext.
  *

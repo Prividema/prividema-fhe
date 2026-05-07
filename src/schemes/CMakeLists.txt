@@ -3,13 +3,16 @@
 # ----------------------------------------
 
 # Create SCHEMES library
-add_library(SCHEMES scheme.c)
+add_library(PVDA_SCHEMES
+scheme.c
+tfhe.c)
 
 # Set the output library name explicitly
-set_target_properties(SCHEMES PROPERTIES OUTPUT_NAME scheme)
+set_target_properties(PVDA_SCHEMES PROPERTIES OUTPUT_NAME pvda_schemes)
 
+target_link_libraries(PVDA_SCHEMES PRIVATE libspqlios PVDA_COMMON PVDA_BACKEND PVDA_CORE)
 # Include directories
-target_include_directories(SCHEMES
-    INTERFACE
+target_include_directories(PVDA_SCHEMES
+    PUBLIC
         ${PROJECT_SOURCE_DIR}/include/schemes   # Public headers for consumers
 )

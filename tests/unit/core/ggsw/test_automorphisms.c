@@ -56,7 +56,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	GLWECiphertext* glwe_res    = new_glwe(params_glwe);
 	GLWECiphertext* glwe_norm   = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
@@ -78,7 +78,6 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 		pvda_vec_znx_automorphism(module, auto_p, m_expected_tnx, 1, params_glwe->nn, m_univ_tnx, 1, params_glwe->nn);
 
 		int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
-		int noise_bits        = decomp_noise_bits > 0 ? decomp_noise_bits : 1;
 
 		for (int p = 0; p < params_glwe->nn; ++p)
 			assert_tnx_close_enough(m_observed_tnx[p], m_expected_tnx[p], decomp_noise_bits);
