@@ -25,10 +25,10 @@ int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphe
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
 	// Normalization of the bivGGSW ciphertext
-	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
+	for (uint64_t limb_i = 0; limb_i < ggsw_num_rows(params_ggsw); ++limb_i)
 	{
-		uint64_t i = ij / (params_ggsw->k_tilde + 1) + 1;
-		uint64_t j = (ij % (params_ggsw->k_tilde + 1));
+		uint64_t i = limb_i / (params_ggsw->k_tilde + 1) + 1;
+		uint64_t j = (limb_i % (params_ggsw->k_tilde + 1));
 		// The pointer to biGLWE(-m * sk_j * Y^i)
 		VecBiv* result_glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
 		GLWECiphertext glwe_normalize = {.params = params_glwe, .vec = result_glwe_vec};
@@ -134,9 +134,7 @@ int ggsw_external_product(const MODULE* module,
 {
 	int status = -1;
 
-	// Degree of chosen cyclotomic polynomial
 	uint64_t nn = result->params->nn;
-
 	// The bivGGSW ciphertext ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs
 	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
 	// As the result of the vector-matrix product glwe * ggsw,
@@ -144,25 +142,21 @@ int ggsw_external_product(const MODULE* module,
 	uint64_t nrows = ggsw_num_rows(ggsw->params);
 	uint64_t ncols = glwe_params_n_limbs(ggsw->params->params_glwe);
 
-	// Variables
 	MatBivDFT* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
 	VecBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
-	                               //
-	ggsw_pmat = malloc(ggsw_bytes(ggsw->params));
+	ggsw_pmat             = malloc(ggsw_bytes(ggsw->params));
+	result_dft            = malloc(glwe_params_bytes(ggsw->params->params_glwe));
+
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
 
-	result_dft = malloc(glwe_params_bytes(ggsw->params->params_glwe));
 	CHECK_ALLOC(result_dft, "result's malloc failed in ggsw_external_product");
 
-	// Prepares bivGGSW ciphertext
 	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols),
 	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
-	// Computes ExternalProduct(glwe, ggsw)
 	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, nrows, nn, ggsw_pmat, nrows, ncols),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
-	// Computes the bivGGSW ciphertext out of the DFT domain
 	CHECK_CALL(pvda_vec_znx_idft(module, result->vec, ncols, result_dft, ncols),
 	           "vec_znx_idft_p failed in ggsw_external_product");
 

@@ -21,14 +21,17 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 {
 	int status = -1;
 
-	size_t nrows = glwegadget_prep_ct->params->l_tilde;
-	uint64_t nn  = glwegadget_prep_ct->params->params_glwe->nn;
-	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+	size_t nrows     = glwegadget_prep_ct->params->l_tilde;
+	uint64_t nn      = glwegadget_prep_ct->params->params_glwe->nn;
+	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+	size_t ncols_out = glwe_params_n_limbs(result->params);
 
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params);
+	CHECK_ALLOC(glwe_dft, "Allocation failed in half-product");
 
-	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols, a, nrows, nn, glwegadget_prep_ct->mat, nrows, ncols),
-	           "vmp apply falied in half product");
+	CHECK_CALL(
+	    pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, a, nrows, nn, glwegadget_prep_ct->mat, nrows, ncols_in),
+	    "vmp apply falied in half product");
 
 	CHECK_CALL(glwe_dft_to_coef(module, result, glwe_dft),
 	           "conversion from GLWE DFT to coefs failed in GLWEGadget half product");
@@ -44,11 +47,12 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
 {
 	int status = -1;
 
-	size_t nrows = glwegadget_prep_ct->params->l_tilde;
-	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+	size_t nrows     = glwegadget_prep_ct->params->l_tilde;
+	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+	size_t ncols_out = glwe_params_n_limbs(result_dft->params);
 
-	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols, (double*)a_dft, nrows, glwegadget_prep_ct->mat,
-	                                     nrows, ncols),
+	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols_out, (double*)a_dft, nrows,
+	                                     glwegadget_prep_ct->mat, nrows, ncols_in),
 	           "vmp apply falied in half product");
 
 	status = 0;
@@ -65,8 +69,10 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
 	uint64_t nn = glwe_key->nn;
 
 	GLWEGadgetCiphertext* glwegad_tmp = new_glwegadget(automorphism_ksk->params);
+	PolyUniv* auto_sk_tmp             = new_univ(automorphism_ksk->params->params_glwe);
+
 	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in automorphism KSK preparation");
-	PolyUniv* auto_sk_tmp = new_univ(automorphism_ksk->params->params_glwe);
+	CHECK_ALLOC(auto_sk_tmp, "Allocation failed in automorphism KSK preparation");
 
 	automorphism_ksk->automorphism_p = automorphism_p;
 
@@ -79,8 +85,10 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
 		                          glwe_prepared_sk_extract_poly_coefs(glwe_key, i), 1, nn);
 
 		//GLWEGadget(sigma_p(sk_i))
-		glwegadget_secret_encrypt(module, glwegad_tmp, glwe_key, auto_sk_tmp);
-		glwegadget_prepare(module, gadget_ciph, glwegad_tmp);
+		CHECK_CALL(glwegadget_secret_encrypt(module, glwegad_tmp, glwe_key, auto_sk_tmp),
+		           "GLWEGadget encryption failed in autmorphism KSK preparation");
+		CHECK_CALL(glwegadget_prepare(module, gadget_ciph, glwegad_tmp),
+		           "GLWEGadget preparation failed in automorphism KSK preparation");
 	}
 
 	status = 0;
@@ -118,6 +126,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 	if (k == 1)
 	{
 		PolyBiv* auto_tmp = new_biv_poly_custom_l(result->params, biv_l);
+		CHECK_ALLOC(auto_tmp, "Allocation failed in automorphism");
 
 		// auto_tmp = auto_p(a)
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe->vec, glwe_params_l_a(glwe->params),
@@ -147,13 +156,16 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		PolyBiv* auto_tmp        = new_biv_poly_custom_l(result->params, biv_l);
 		GLWECiphertext* glwe_tmp = new_glwe(result->params);
 
+		CHECK_ALLOC_LABEL(auto_tmp, "Allocation failed in automorphism", cleanup2);
+		CHECK_ALLOC_LABEL(glwe_tmp, "GLWE allocation failed in automorphism", cleanup2);
+
 		// auto_tmp = auto_p(a_0)
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe_extract_start_poly(glwe, 0),
 		                          glwe_params_l_a(glwe->params), (k + 1) * nn);
 
 		// result = halfProd(C_auto(s), auto(a_0))
-		CHECK_CALL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
-		           "half product in automorphism failed");
+		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
+		                 "half product in automorphism failed", cleanup2);
 
 		for (int i = 1; i < k; ++i)
 		{
