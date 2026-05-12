@@ -26,7 +26,7 @@ typedef struct ggsw_ciphertext
 	const GGSWParams* params;
 
 	/// A flattened (in row-major fashion) matrix of size
-	/// n_limbs_tilde \f$·\f$ n_limbs with each element a polynomial \ZnX,
+	/// n_limbs_tilde \f$ \cdot \f$ n_limbs with each element a polynomial \ZnX,
 	/// representing a GGSW ciphertext (as a series of GLWE ciphertexts).
 	/// It is NOT a concatenation of GLWEGadgets, as the strided
 	/// representation of them that this structure uses makes it have a prefix
@@ -153,7 +153,7 @@ void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
  *
  * @param ggsw_dft_ct   The GGSW ciphertext
  * @param j 		  The j-th component of the secret key.
- * @param i 		  The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$
+ * @param i 		  The i in \f$ -m \cdot sk_j \cdot 2^{-i\kappatilde} \f$
  *
  * @return A pointer to the associated bivGLWEDFT
  */

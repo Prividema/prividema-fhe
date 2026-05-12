@@ -44,9 +44,9 @@ typedef struct glwe_ciphertext
 GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 
 /**
- * @brief Deletes a bivGLWE ciphertext, but the bivGLWE parameters.
+ * @brief Deletes a bivariate GLWE ciphertext.
  *
- * @param glwe The bivGLWE ciphertext.
+ * @param glwe The bivariate GLWE ciphertext.
  */
 void delete_glwe(GLWECiphertext* glwe);
 
@@ -65,7 +65,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, cons
                               const PolyBiv* phase);
 
 /**
- * @brief Encrypts a univariate message
+ * @brief Encrypts a univariate message in RnX form
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
@@ -79,7 +79,7 @@ int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const 
                             const PolyUnivRnX* m_univ_rnx);
 
 /**
- * @brief Encrypts a univariate message
+ * @brief Encrypts a univariate message in TnX form
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
@@ -154,7 +154,7 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe);
  * between the different limbs of the polynomial
  *
  * @param glwe_dft The GLWECiphertext from which to retrieve the start of a bivariate polynomial
- * @param pos The number of the polynomial whose starts is to be retrieved
+ * @param pos The index of the polynomial whose starts is to be retrieved
  *
  * @return PolyBivDFT* The start of a strided bivariate polynomial
  *

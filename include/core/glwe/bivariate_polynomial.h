@@ -18,10 +18,10 @@
 /**
  * @brief Returns the number of coefficients in bivariate polynomial.
  *
- * @param params_glwe The bivGLWE parameters.
+ * @param params_glwe The bivariate GLWE parameters.
  * @return uint64_t
  *
- * @note The number of coefficient is the same in and out of the DFT domain.
+ * @note The number of coefficients is the same in and out of the DFT domain.
  */
 uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
 
@@ -51,7 +51,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
  * @brief Computes a random uniform bivariate polynomial.
  *
  * By "random uniform" it is meant that the coefficients of the polynomial before
- * the base-2k decomposition have been sampled from a distribution according
+ * the base-2k decomposition have been sampled from a uniform distribution according
  * to the parameters
  *
  * @param params_glwe The bivGLWE parameters.
@@ -64,7 +64,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
 int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int64_t precision);
 
 /**
- * @brief Adds two bivariate polynomial and puts it in res.
+ * @brief Adds two bivariate polynomials and puts the result in res.
  *
  * @param module The underlying compute module.
  * @param params_glwe The bivGLWE parameters.
@@ -78,13 +78,13 @@ void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 // BIV POLY IN DFT PART (begin)
 
 /**
- * @brief The number of coefficient in bivariate polynomial.
+ * @brief The number of coefficients in bivariate polynomial.
  *
- * @param params_glwe The bivGLWE parameters.
- * @return uint64_t
+ * @param params_glwe The bivariate GLWE parameters.
+ * @return The nubmer of coefficients in a bivariate polynomial
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
- * Zn[X], due to conjugate symmetry when the polynomial has real (or integer) coefficients.
+ * \ZnX, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
 uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe);
 
@@ -123,7 +123,7 @@ uint64_t poly_biv_bytes(const GLWEParams* params_glwe);
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial.
  *
  * @param params_glwe The bivGLWE parameters.
- * @param res_univ The result univariate polynomial in Rn[X].
+ * @param res_univ The result univariate polynomial in \RnX.
  * @param pol The input bivariate polynomial.
  */
 void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol);

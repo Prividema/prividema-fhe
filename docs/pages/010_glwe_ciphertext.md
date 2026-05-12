@@ -30,7 +30,7 @@ then \f$ \glwe(m) \f$ is encoded when \f$ \ell_a = \ell_b \f$ as the following m
 \end{split}
 \f]
 
-Prividema-lib also supports \f$ \ell_a = \ell_b + 1\f$ (only other possibility), in which case, the memory layout is:
+Prividema-/lib also supports $ \ell_a = \ell_b + 1$, which is the only other allowed possibility in Prividema-/lib other than the aforementioned $ \ell_a = \ell_b$. In that case, the memory layout is:
 
 \f[
 

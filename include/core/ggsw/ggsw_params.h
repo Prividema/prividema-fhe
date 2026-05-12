@@ -95,7 +95,7 @@ uint64_t ggsw_params_l_tilde_a(const GGSWParams* params);
 uint64_t ggsw_params_l_tilde_b(const GGSWParams* params);
 
 /**
- * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext.
+ * @brief Computes the number of coefficients in a bivariate GGSW ciphertext.
  *
  * @param params_ggsw The GGSW parameters.
  *
