@@ -11,23 +11,12 @@
 
 ## To compile and run
 
-Here's an example of how to build the library and run the tests:
+An example of how to build the library and run the tests:
 
 ```bash
-# Legacy method
-mkdir build;
-cd build;
-cmake .. -DBUILD_TESTS=ON;
-make -j8;
-ctest;
-```
-
-```bash
-# Modern method 
 cmake -S . -B build -DBUILD_TESTS=ON;
 cmake --build build;
-cd build;
-ctest;
+ctest --test-dir build --output-on-failure
 ```
 
 ### CMake options
@@ -68,11 +57,6 @@ ON/OFF options:
         mkdir build
         meson setup build
         sudo meson install -C build
-
- 1. Verify installation:
-
-        ls /usr/include/criterion
-        ls /usr/lib/libcriterion*
 
  Notes:
 
@@ -118,8 +102,8 @@ ctest
 
 Inside the build directory will automatically run all tests.
 Make sure that you have abided by the above warning, as ctest will not by default
-tell you how many tests have been run in each file (one might think that everything
-passes when in reality no tests are being run at all).
+tell you how many tests have been run in each file.
+If the aforementioned bug has not been patched/worked around, or for any other reasons some tests are not being run, you might not notice if using ctest to automatically run the tests.
 
 ### Building the Documentation
 

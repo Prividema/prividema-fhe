@@ -87,10 +87,10 @@ uint64_t glwe_params_bytes(const GLWEParams* params_glwe);
 uint64_t glwe_coef_number(const GLWEParams* params_glwe);
 
 /**
- * @brief The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
+ * @brief The number of coefficients in a bivariate GLWE ciphertext in the DFT domain.
  *
- * @param params_glwe The bivGLWE parameters.
- * @return The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
+ * @param params_glwe The bivariate GLWE parameters.
+ * @return The number of coefficients in a bivariate GLWE ciphertext in the DFT domain.
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * \ZnX, due to conjugate symmetry when the polynomial has real (or integer) coefficients.

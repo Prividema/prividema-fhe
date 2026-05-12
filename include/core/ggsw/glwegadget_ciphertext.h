@@ -51,8 +51,6 @@ GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
 /**
  * @brief Deletes a GLWEGadget ciphertext
  *
- * Remember that it does not own the underlying parameters
- *
  * @param glwegadget_ct The ciphertext to delete
  *
  */
@@ -79,8 +77,6 @@ GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params);
 
 /**
  * @brief Deletes a prepared GLWEGadget
- *
- * Remember that it does not own the underlying parameters
  *
  * @param glwegadget_prep_ct The ciphertext to delete
  *

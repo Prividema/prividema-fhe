@@ -115,7 +115,7 @@ typedef double MatBivDFT;
  * @brief Prints a Bivariate Polynomial.
  *
  * @param pol     A Pointer to the Bivariate Polynomial.
- * @param pol_sl  The stride length : The step to jump from the beggining to the next polynomial.
+ * @param pol_sl  The stride length : The step to jump from the beginning to the next polynomial.
  * @param nn      The degree of the chosen cyclotomic polynomial.
  * @param l       The degree in Y.
  */

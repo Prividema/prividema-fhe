@@ -39,7 +39,7 @@ of \f$ 2^{-53} \approx 1.1 \cdot 10^{-16} \f$, and a range of magnitudes from ap
 > This is very important if one plans on adding FHE noise in \RnX: all noise below approximately \f$ 1.1 \cdot 10^{-16}\f$ times
 > the value to which it is being added (be it \f$ as\f$, \f$ m \f$ or \f$ as + m \f$) will be discarded!!
 
-The \RnX representation can be used for both elements in the torus as well as general real numbers.
+The \RnX representation can be used for elements in the torus as well as general real numbers.
 Performance-wise, it is one of the least efficient representations due to being floating point.
 
 Moreover, it is prone to underflow errors when used for torus elements (warning box above):
@@ -61,6 +61,8 @@ should be assumed.
 
 ## Bivariate polynomials
 
+This section details the notable architectural details of the bivariate polynomial representation, specifically addressing precision constraints, overflow management, and the flattened memory allocation layout in the following subsections.
+
 ### A note on precision and overflows
 
 Internally, bivariate polynomials use `int64_t` for their elements (thus have 64bits of precision).
@@ -76,7 +78,8 @@ The backend will probably impose tighter bounds in most cases, yet the following
   2 \cdot (K-1) \cdot \log_2(N) < 63
 \f]
 
-which is just imposing the following:
+which results from the following inequality, itself the result of imposing that all coefficients of the
+result are able to be represented in a `int64_t`:
 
 \f[
 \| A \cdot B \|_\infty \leq \max_{i}  \sum_{j + k \equiv i \pmod{N}} \left| a_{j} \cdot b_{k} \right| \leq 2^{63} - 1
@@ -86,7 +89,7 @@ which is just imposing the following:
 
 As stated, bivariate polynomial coefficients are stored as `int64_t` values.
 For a single bivariate polynomial, the coefficients are stored in a limb-major fashion.
-In other words, if we have decomposition of \f$A \f$ which is \f$ A_{biv}(X,Y) = \sum a_{i,j} X^i Y^j \f$ such that
+In other words, if we have decomposition of \f$A \f$ which is \f$ A_{biv}(X,Y) = \sum_{i=0}^{N-1} \sum_{j=1}^{\ell} a_{i,j} X^i Y^j  \f$ such that
 \f$ A_{biv}(X, 2^{-K}) = A(X) \f$, we store coefficients as follows (flattened in a row-major order):
 
 \f[
@@ -106,7 +109,7 @@ Or, if we define as shorthand \f$ \limbd{j}{a} := \left(a_{0, j}, \dots , a_{N-1
 \end{bmatrix}
 \f]
 
-Where every \f$ \limbd{j}{a} \f$ is a limb, that is, a univariate polynomial.
+Where every \f$ \limbd{j}{a} \in \texttt{int64_t}_N[X] f$ is a limb, that is, a univariate polynomial.
 
 This representation of bivariate polynomials has what is called the "prefix property":
 if we omit later limbs, the result is still a representation of the same polynomial, just with less precision.
