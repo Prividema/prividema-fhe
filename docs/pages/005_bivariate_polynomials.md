@@ -109,7 +109,7 @@ Or, if we define as shorthand \f$ \limbd{j}{a} := \left(a_{0, j}, \dots , a_{N-1
 \end{bmatrix}
 \f]
 
-Where every \f$ \limbd{j}{a} \in \texttt{int64_t}_N[X] f$ is a limb, that is, a univariate polynomial.
+Where every \f$ \limbd{j}{a} \in \texttt{int64_t}_N[X] \f$ is a limb, that is, a univariate polynomial.
 
 This representation of bivariate polynomials has what is called the "prefix property":
 if we omit later limbs, the result is still a representation of the same polynomial, just with less precision.
