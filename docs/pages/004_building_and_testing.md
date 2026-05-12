@@ -3,10 +3,8 @@
 
 ## Requirements
 
-- CMake version 3.10
+- CMake version 3.14+
 - [Criterion](https://github.com/Snaipe/Criterion) optionally to run the unit tests. In this case make sure that pkg-config is also installed for portability between different OS.
-- For Windows users, also make sure that [Cryptography API: Next Generation](https://learn.microsoft.com/en-us/windows/win32/seccng/cng-portal) is installed, as it is required for the random number generator.
-
 - [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) will be installed automatically by CMake if github.com is reachable.
 
 ## To compile and run
@@ -49,7 +47,6 @@ ON/OFF options:
  1. Install Meson (required for building Criterion):
 
         sudo apt install meson
-
  1. Clone and build Criterion (optional if you want latest version):
 
         git clone <https://github.com/Snaipe/Criterion.git>
@@ -67,24 +64,10 @@ ON/OFF options:
  1. Install Criterion using Homebrew (recommended):
 
         brew install criterion
-
  2. Ensure Meson is installed (required by Criterion):
 
         brew install meson
-
- 3. Verify installation:
-
-     _Apple Silicon (arm64)_
-
-        ls /opt/homebrew/include/criterion
-        ls /opt/homebrew/lib/libcriterion*
-
-    _Intel macOS_
-
-        ls /usr/local/include/criterion
-        ls /usr/local/lib/libcriterion*
-
- 4. Optional: build from source
+ 3. Optional: build from source
 
         git clone <https://github.com/Snaipe/Criterion.git>
         cd Criterion/
