@@ -9,6 +9,5 @@ void glwe_sk_prepare(const MODULE* module, GLWESecretKeyPrepared* result_dft, co
 {
 	uint64_t sk_size = sk->nn * sk->k * sizeof(PolyUniv);
 	memcpy(result_dft->values_coef, sk->values, sk_size);
-	for (uint64_t j = 0; j < sk->k; j++)
-		univ_coefs_to_dft(module, glwe_prepared_sk_extract_poly_dft(result_dft, j), glwe_sk_extract_poly(sk, j));
+	pvda_vec_znx_dft(module, result_dft->values, sk->k, sk->values, sk->k, sk->nn);
 }
