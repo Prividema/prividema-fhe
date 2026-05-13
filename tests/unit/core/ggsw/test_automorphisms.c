@@ -11,12 +11,10 @@
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
-#include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 PvdaParamTest(automorphism, generate_ksk, default_params_fn)
 {
@@ -34,6 +32,7 @@ PvdaParamTest(automorphism, generate_ksk, default_params_fn)
 	cr_assert(c == 0);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
+	delete_automorphism_ksk(auto_ksk);
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
 
@@ -93,6 +92,8 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	delete_glwe(glwe_ct);
 	delete_glwe(glwe_norm);
 	delete_glwe(glwe_res);
+
+	free(m_auto);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }

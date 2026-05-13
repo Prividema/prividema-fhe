@@ -18,7 +18,33 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-PvdaParamTest(trace_expand, no_noise, default_params_fn)
+struct criterion_test_params trace_params_fn()
+{
+	static PvdaTstParams default_params[] = {
+	    {.nn                        = 1024,
+	     .k                         = 1,
+	     .kappa                     = 4,
+	     .ciphertext_nb_limbs       = 8l * 2,
+	     .ciphertext_nb_limbs_tilde = 8l * 2,
+	     .sigma                     = 0},  // toy params, let default sigma
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5,
+	     .ciphertext_nb_limbs_tilde = 9l * 5,
+	     .sigma                     = 0},  // k > 1 params
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5 - 1,
+	     .ciphertext_nb_limbs_tilde = 9l * 5 - 1,
+	     .sigma                     = 0},  // k > 1 l_a != l_b params
+
+	};
+
+	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
+}
+PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
