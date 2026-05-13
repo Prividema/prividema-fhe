@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "ggsw_params.h"
+#include "glwegadget_ciphertext.h"
 #include "utils.h"
 
 static inline int allocate_prepared_gadget_array(GLWEGadgetParams* params, GLWEGadgetCiphertextPrep** array, int n)
@@ -17,7 +18,7 @@ static inline int allocate_prepared_gadget_array(GLWEGadgetParams* params, GLWEG
 cleanup:
 	for (int i = 0; i < n; ++i)
 	{
-		free(array[i]);
+		delete_glwegadget_prep(array[i]);
 	}
 	return -1;
 }
@@ -47,7 +48,7 @@ void delete_automorphism_ksk(GLWEAutomorphismKSK* automorphism_ksk)
 	if (!automorphism_ksk) return;
 	for (int i = 0; i < automorphism_ksk->params->params_glwe->k; ++i)
 	{
-		free(automorphism_ksk->enc_s[i]);
+		delete_glwegadget_prep(automorphism_ksk->enc_s[i]);
 	}
 	free((void*)automorphism_ksk->enc_s);
 	free(automorphism_ksk);
