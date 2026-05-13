@@ -39,7 +39,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	PolyBiv* um                       = new_biv_poly(params_glwe);
 	PolyUnivRnX* um_univ_RnX          = new_univ_rnx(params_glwe);
 
-	sk_ggsw->values[0] = 1;
+	uniform_glwe_secret_key(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Draws uniformly both messages
