@@ -94,6 +94,7 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
 	status = 0;
 cleanup:
 	delete_glwegadget(glwegad_tmp);
+	delete_univ(auto_sk_tmp);
 	return status;
 }
 
@@ -194,5 +195,57 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		delete_glwe(glwe_tmp);
 	}
 
+	return status;
+}
+
+int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
+                            const GLWEAutomorphismKSK** automporphism_ksks, int ksks_size)
+{
+	int status = -1;
+
+	uint64_t nn = glwe_ct->params->nn;
+
+	glwe_copy(results[0], glwe_ct);
+
+	GLWECiphertext* tmp_glwe = new_glwe(glwe_ct->params);
+	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
+	GLWECiphertext* tmp_glwe2 = new_glwe(glwe_ct->params);
+	CHECK_ALLOC(tmp_glwe2, "Temp memory alloc in trace expansion failed");
+
+	glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[nn + 1], results[0], nn + 1);
+
+	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
+
+	sub_glwe(module, tmp_glwe, results[0], tmp_glwe);
+	pvda_vec_znx_rotate(module, -1, tmp_glwe->vec, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec,
+	                    glwe_params_n_limbs(tmp_glwe->params), nn);
+	normalize_glwe(module, results[1], tmp_glwe);
+	normalize_glwe(module, results[0], tmp_glwe2);
+
+	for (uint64_t p = 2; p < res_size; p *= 2)
+	{
+		int64_t auto_p = (int64_t)nn / p + 1;
+		int64_t dip    = p;
+		// TODO: remove ifs, do proper stopping condition
+		for (uint64_t b = 0; b < p; ++b)
+		{
+			assert(auto_p < ksks_size);
+			assert(b < res_size);
+			glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[auto_p], results[b], auto_p);
+
+			add_glwe(module, tmp_glwe2, results[b], tmp_glwe);
+
+			sub_glwe(module, tmp_glwe, results[b], tmp_glwe);
+			pvda_vec_znx_rotate(module, -p, tmp_glwe->vec, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec,
+			                    glwe_params_n_limbs(tmp_glwe->params), nn);
+			if (b + dip < res_size) normalize_glwe(module, results[b + dip], tmp_glwe);
+			normalize_glwe(module, results[b], tmp_glwe2);
+		}
+	}
+
+	status = 0;
+cleanup:
+	delete_glwe(tmp_glwe);
+	delete_glwe(tmp_glwe2);
 	return status;
 }

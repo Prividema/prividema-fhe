@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
@@ -36,6 +37,12 @@ void delete_glwe(GLWECiphertext* glwe)
 	if (!glwe) return;
 	free(glwe->vec);
 	free(glwe);
+}
+
+void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src)
+{
+	dst->params = src->params;
+	memcpy(dst->vec, src->vec, glwe_coef_number(src->params) * sizeof(int64_t));
 }
 
 PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos)

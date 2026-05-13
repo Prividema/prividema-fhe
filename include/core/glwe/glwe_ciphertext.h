@@ -44,6 +44,14 @@ GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 void delete_glwe(GLWECiphertext* glwe);
 
 /**
+ * @brief Copies a GLWE ciphertext
+ *
+ * @param src The source GLWE ciphertext
+ * @param dst The destination GLWE ciphertext
+ */
+void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
+
+/**
  * @brief Encrypts a phase (message + noise) and puts it in result.
  *
  * @param module Additionnal information for backend.

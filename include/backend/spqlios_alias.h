@@ -102,4 +102,7 @@ int pvda_vec_znx_sub(const MODULE* module, int64_t* res, uint64_t res_size, uint
 int pvda_vec_znx_automorphism(const MODULE* module, const int64_t p, int64_t* res, uint64_t res_size, uint64_t res_sl,
                               const int64_t* a, uint64_t a_size, uint64_t a_sl);
 
+int pvda_vec_znx_rotate(const MODULE* module, const int64_t p, int64_t* res, uint64_t res_size, uint64_t res_sl,
+                        const int64_t* a, uint64_t a_size, uint64_t a_sl);
+
 uint64_t pvda_module_extract_nn(const MODULE* module);
