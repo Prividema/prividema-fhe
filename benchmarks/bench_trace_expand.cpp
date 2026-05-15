@@ -16,10 +16,10 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 12)
+#define NBASE      (1 << 14)
 #define KBASE      1
 #define KAPPABASE  19
-#define NLIMBSBASE (4 * 2)
+#define NLIMBSBASE (15 * 2)
 #define LBASE      NLIMBSBASE / (KBASE + 1)
 
 void test_expand_trance(benchmark::State& state)

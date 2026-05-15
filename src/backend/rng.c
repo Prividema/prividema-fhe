@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include <openssl/rand.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -52,8 +53,8 @@ int read_rand(uint64_t* result, size_t bytes)
 // For Linux
 #elif defined(__linux__)
 
-	size_t rand_bytes = getrandom(result, bytes, 0);
-	if (rand_bytes != bytes) return -1;
+	size_t rand_bytes = RAND_bytes((uint8_t*)result, bytes);
+	if (rand_bytes != 1) return -1;
 	return 0;
 
 // I don't know what system this block below would be (and it would be quite slow)

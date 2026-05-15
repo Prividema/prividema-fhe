@@ -103,6 +103,8 @@ FetchContent_Declare(
 set(ENABLE_TESTING OFF CACHE BOOL "Disable Tests" FORCE)
 FetchContent_MakeAvailable(spqlios)
 
+
+find_package(OpenSSL REQUIRED)
 # ----------------------------------------
 # Add main source directory
 # ----------------------------------------

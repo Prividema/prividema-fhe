@@ -11,7 +11,7 @@ rng.c)
 # Set the output library name explicitly
 set_target_properties(PVDA_BACKEND PROPERTIES OUTPUT_NAME pvdabackend)
 
-target_link_libraries(PVDA_BACKEND PRIVATE libspqlios PVDA_COMMON)
+target_link_libraries(PVDA_BACKEND PRIVATE libspqlios PVDA_COMMON OpenSSL::Crypto)
 
 # Include directories
 target_include_directories(PVDA_BACKEND

@@ -16,7 +16,7 @@ extern "C" {
 #define NBASE      (1 << 16)
 #define KBASE      1
 #define KAPPABASE  19
-#define LBASE      15
+#define LBASE      91
 #define NLIMBSBASE (LBASE * 2)
 
 void test_ggsw_ext_prod(benchmark::State& state)
