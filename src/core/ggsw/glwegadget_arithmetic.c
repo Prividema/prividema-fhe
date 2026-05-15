@@ -225,9 +225,9 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 	for (uint64_t p = 2; p < res_size; p *= 2)
 	{
 		int64_t auto_p = (int64_t)nn / p + 1;
-		int64_t dip    = p;
-		// TODO: remove ifs, do proper stopping condition
-		for (uint64_t b = 0; b < p; ++b)
+		int64_t dist   = p;
+		uint64_t b;
+		for (b = 0; b < p && b + dist < res_size; ++b)
 		{
 			assert(auto_p < ksks_size);
 			assert(b < res_size);
@@ -238,8 +238,18 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 			sub_glwe(module, tmp_glwe, results[b], tmp_glwe);
 			pvda_vec_znx_rotate(module, -p, tmp_glwe->vec, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec,
 			                    glwe_params_n_limbs(tmp_glwe->params), nn);
-			if (b + dip < res_size) normalize_glwe(module, results[b + dip], tmp_glwe);
+			normalize_glwe(module, results[b + dist], tmp_glwe);
 			normalize_glwe(module, results[b], tmp_glwe2);
+		}
+		for (; b < p; ++b)
+		{
+			assert(auto_p < ksks_size);
+			assert(b < res_size);
+			glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[auto_p], results[b], auto_p);
+
+			add_glwe(module, tmp_glwe, results[b], tmp_glwe);
+
+			normalize_glwe(module, results[b], tmp_glwe);
 		}
 	}
 
