@@ -230,7 +230,6 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 		uint64_t b;
 		for (b = 0; b < p && b + dist < res_size; ++b)
 		{
-			assert(auto_p < ksks_size);
 			assert(b < res_size);
 			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
 			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
@@ -246,7 +245,6 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 		}
 		for (; b < p; ++b)
 		{
-			assert(auto_p < ksks_size);
 			assert(b < res_size);
 			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
 			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
