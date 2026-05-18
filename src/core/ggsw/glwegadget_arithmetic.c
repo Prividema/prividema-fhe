@@ -231,6 +231,7 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 		{
 			assert(auto_p < ksks_size);
 			assert(b < res_size);
+			CHECK_ALLOC(automporphism_ksks[auto_p], "Required automorphism KSK not provided to expand trace function");
 			glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[auto_p], results[b], auto_p);
 
 			add_glwe(module, tmp_glwe2, results[b], tmp_glwe);
@@ -245,6 +246,7 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 		{
 			assert(auto_p < ksks_size);
 			assert(b < res_size);
+			CHECK_ALLOC(automporphism_ksks[auto_p], "Required automorphism KSK not provided to expand trace function");
 			glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[auto_p], results[b], auto_p);
 
 			add_glwe(module, tmp_glwe, results[b], tmp_glwe);
