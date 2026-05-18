@@ -65,12 +65,15 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 
 	int bundled[] = {2, 4, 3, 5, 14, params_glwe->nn, params_glwe->nn - 1};
 
-	GLWEAutomorphismKSK** ksks = calloc(2 * params_glwe->nn, sizeof(GLWEAutomorphismKSK*));
+	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+
+	calloc(2 * params_glwe->nn, sizeof(GLWEAutomorphismKSK*));
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		ksks[p]   = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksks[p], sk_prep, p);
+		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
+		prepare_automorphism_key(module, ksk, sk_prep, p);
+		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{
@@ -89,7 +92,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 			results[i] = new_glwe(params_glwe);
 		}
 
-		glwegadget_trace_expand(module, results, bund, glwe_ct, (const GLWEAutomorphismKSK**)ksks, 2 * params_glwe->nn);
+		glwegadget_trace_expand(module, results, bund, glwe_ct, ksks);
 
 		int a = 1;
 		for (int i = 0; i < bund; ++i)
@@ -108,12 +111,8 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 		}
 		free(results);
 	}
-	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
-	{
-		int64_t p = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		delete_automorphism_ksk(ksks[p]);
-	}
-	free(ksks);
+
+	delete_automorphism_ksk_collection(ksks, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);

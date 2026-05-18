@@ -11,6 +11,7 @@
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
 #include "glwegadget_ciphertext.h"
+#include "glwegadget_key.h"
 #include "logger.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -199,7 +200,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 }
 
 int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
-                            const GLWEAutomorphismKSK** automporphism_ksks, int ksks_size)
+                            const GLWEAutomorphismKSKCollection* ksks)
 {
 	int status = -1;
 
@@ -212,7 +213,7 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 	GLWECiphertext* tmp_glwe2 = new_glwe(glwe_ct->params);
 	CHECK_ALLOC(tmp_glwe2, "Temp memory alloc in trace expansion failed");
 
-	glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[nn + 1], results[0], nn + 1);
+	glwegadget_automorphism(module, tmp_glwe, glwegadget_ksk_collection_get_key(ksks, nn + 1), results[0], nn + 1);
 
 	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
 
@@ -231,8 +232,9 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 		{
 			assert(auto_p < ksks_size);
 			assert(b < res_size);
-			CHECK_ALLOC(automporphism_ksks[auto_p], "Required automorphism KSK not provided to expand trace function");
-			glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[auto_p], results[b], auto_p);
+			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
+			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
+			glwegadget_automorphism(module, tmp_glwe, ksk, results[b], auto_p);
 
 			add_glwe(module, tmp_glwe2, results[b], tmp_glwe);
 
@@ -246,8 +248,9 @@ int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int 
 		{
 			assert(auto_p < ksks_size);
 			assert(b < res_size);
-			CHECK_ALLOC(automporphism_ksks[auto_p], "Required automorphism KSK not provided to expand trace function");
-			glwegadget_automorphism(module, tmp_glwe, automporphism_ksks[auto_p], results[b], auto_p);
+			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
+			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
+			glwegadget_automorphism(module, tmp_glwe, ksk, results[b], auto_p);
 
 			add_glwe(module, tmp_glwe, results[b], tmp_glwe);
 

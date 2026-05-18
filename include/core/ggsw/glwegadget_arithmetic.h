@@ -68,6 +68,6 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
                             const GLWECiphertext* glwe, int automorphism_p);
 
 int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
-                            const GLWEAutomorphismKSK** automporphism_ksks, int ksks_size);
+                            const GLWEAutomorphismKSKCollection* ksks);
 
 #endif  // !DEBUG

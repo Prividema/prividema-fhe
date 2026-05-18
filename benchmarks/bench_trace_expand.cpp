@@ -44,12 +44,13 @@ void test_expand_trance(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	GLWEAutomorphismKSK** ksks = (GLWEAutomorphismKSK**)calloc(2 * params_glwe->nn, sizeof(GLWEAutomorphismKSK*));
+	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		ksks[p]   = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksks[p], sk_prep, p);
+		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
+		prepare_automorphism_key(module, ksk, sk_prep, p);
+		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 	int bund = NBASE;
 
@@ -68,7 +69,7 @@ void test_expand_trance(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		glwegadget_trace_expand(module, results, bund, glwe_ct, (const GLWEAutomorphismKSK**)ksks, 2 * params_glwe->nn);
+		glwegadget_trace_expand(module, results, bund, glwe_ct, ksks);
 
 		benchmark::DoNotOptimize(results);
 	}
@@ -80,12 +81,7 @@ void test_expand_trance(benchmark::State& state)
 	}
 	free(results);
 
-	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
-	{
-		int64_t p = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		delete_automorphism_ksk(ksks[p]);
-	}
-	free(ksks);
+	delete_automorphism_ksk_collection(ksks, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);

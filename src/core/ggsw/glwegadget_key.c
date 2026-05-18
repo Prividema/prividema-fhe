@@ -1,5 +1,6 @@
 #include "glwegadget_key.h"
 
+#include <stdint.h>
 #include <stdlib.h>
 
 #include "ggsw_params.h"
@@ -52,4 +53,54 @@ void delete_automorphism_ksk(GLWEAutomorphismKSK* automorphism_ksk)
 	}
 	free((void*)automorphism_ksk->enc_s);
 	free(automorphism_ksk);
+}
+
+GLWEAutomorphismKSKCollection* new_automorphism_ksk_collection(uint64_t size)
+{
+	GLWEAutomorphismKSKCollection* collection = malloc(sizeof(GLWEAutomorphismKSKCollection));
+	CHECK_ALLOC(collection, "Failed allocation of KSK collection");
+	collection->keys = calloc(size, sizeof(GLWEAutomorphismKSK*));
+	CHECK_ALLOC(collection->keys, "Failed allocation of KSK collection");
+	collection->size = size;
+	return collection;
+
+cleanup:
+
+	if (collection) free(collection->keys);
+	free(collection);
+	return NULL;
+}
+
+GLWEAutomorphismKSK* glwegadget_ksk_collection_put_key(GLWEAutomorphismKSKCollection* collection,
+                                                       GLWEAutomorphismKSK* key, uint64_t pos)
+{
+	if (pos >= collection->size)
+	{
+		return (void*)-1;
+	}
+	GLWEAutomorphismKSK* tmp = collection->keys[pos];
+	collection->keys[pos]    = key;
+	return tmp;
+}
+
+GLWEAutomorphismKSK* glwegadget_ksk_collection_get_key(const GLWEAutomorphismKSKCollection* collection, uint64_t pos)
+{
+	if (pos >= collection->size) return NULL;
+	return collection->keys[pos];
+}
+
+uint64_t delete_automorphism_ksk_collection(GLWEAutomorphismKSKCollection* automorphism_ksk, int deallocate_ksks)
+{
+	uint64_t count = 0;
+	if (deallocate_ksks)
+	{
+		for (uint64_t i = 0; i < automorphism_ksk->size; ++i)
+		{
+			if (automorphism_ksk->keys[i]) ++count;
+			delete_automorphism_ksk(automorphism_ksk->keys[i]);
+		}
+	}
+	free(automorphism_ksk->keys);
+	free(automorphism_ksk);
+	return count;
 }
