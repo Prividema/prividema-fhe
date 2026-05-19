@@ -199,8 +199,8 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 	return status;
 }
 
-int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
-                            const GLWEAutomorphismKSKCollection* ksks)
+int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
+                      const GLWEAutomorphismKSKCollection* ksks)
 {
 	int status = -1;
 
@@ -263,8 +263,9 @@ cleanup:
 	return status;
 }
 
-int glwegadget_trace_expansion(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
-                               const GLWECiphertext* packed_glwegadget, const GLWEAutomorphismKSKCollection* auto_ksks)
+int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
+                                   const GLWECiphertext* packed_glwegadget,
+                                   const GLWEAutomorphismKSKCollection* auto_ksks)
 
 {
 	int status = -1;
@@ -293,7 +294,7 @@ int glwegadget_trace_expansion(const MODULE* module, GLWEGadgetCiphertext** resu
 		}
 	}
 
-	CHECK_CALL(glwegadget_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
+	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
 	           "glwegadget_trace_expand failed in a GGSW trace expansion");
 
 	status = 0;

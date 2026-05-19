@@ -172,9 +172,10 @@ cleanup:
 	return 0;
 }
 
-int ggsw_trace_expansion(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
-                         const GLWECiphertext* packed_glwegadget, const GLWEAutomorphismKSKCollection* auto_ksks,
-                         const GGSWCiphertext** sk_encryptions)
+int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
+                                        const GLWECiphertext* packed_glwegadget,
+                                        const GLWEAutomorphismKSKCollection* auto_ksks,
+                                        const GGSWCiphertext** sk_encryptions)
 {
 	assert(ggsw_params_l_tilde_a(results[0]->params) == l_tilde);
 	assert(ggsw_params_l_tilde_b(results[0]->params) == l_tilde);
@@ -204,7 +205,7 @@ int ggsw_trace_expansion(const MODULE* module, GGSWCiphertext** results, int res
 		}
 	}
 
-	CHECK_CALL(glwegadget_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
+	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
 	           "glwegadget_trace_expand failed in a GGSW trace expansion");
 
 	for (int res_num = 0; res_num < res_size; ++res_num)

@@ -69,7 +69,7 @@ void test_expand_trance(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		glwegadget_trace_expand(module, results, bund, glwe_ct, ksks);
+		glwe_trace_expand(module, results, bund, glwe_ct, ksks);
 
 		benchmark::DoNotOptimize(results);
 	}

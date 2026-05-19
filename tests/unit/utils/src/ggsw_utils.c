@@ -58,9 +58,13 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, max_err_length,
 		                                critical_err_length);
 	}
-	//TODO: avoid leaking memory
 
 	free(phase_computed);
+	delete_univ_rnx(phase_observed_univ_rnx);
+	delete_univ_rnx(phase_expected_univ_rnx);
+	delete_univ_dft(m_skj_univ_dft);
+	delete_univ_dft(m_univ_dft);
+	delete_univ(m_skj_univ);
 }
 
 void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad, const GLWESecretKeyPrepared* sk_prep,

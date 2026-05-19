@@ -91,7 +91,14 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
  */
 void glwegadget_public_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWEPublicKey* pk,
                                const PolyUniv* m_univ);
-
+/**
+ *
+ * Encrypts a univariate polynomial with at most d non-zero coefficients
+ * into a "packed GLWEGadget" GLWE ciphertext (see @ref )
+ *
+ *
+ *
+ */
 int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* result,
                                      const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,
                                      const PolyUniv* m_univ, uint64_t d);

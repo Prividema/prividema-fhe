@@ -88,8 +88,9 @@ int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GL
  *
  *
  */
-int ggsw_trace_expansion(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
-                         const GLWECiphertext* packed_glwegadget, const GLWEAutomorphismKSKCollection* auto_ksks,
-                         const GGSWCiphertext** sk_encryptions);
+int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
+                                        const GLWECiphertext* packed_glwegadget,
+                                        const GLWEAutomorphismKSKCollection* auto_ksks,
+                                        const GGSWCiphertext** sk_encryptions);
 
 #endif  // bivGGSW_H

@@ -98,7 +98,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 			results[i] = new_glwe(params_glwe);
 		}
 
-		glwegadget_trace_expand(module, results, bund, glwe_ct, ksks);
+		glwe_trace_expand(module, results, bund, glwe_ct, ksks);
 
 		int a = 1;
 		for (int i = 0; i < bund; ++i)
@@ -230,8 +230,8 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 			results[i] = new_ggsw(params_ggsw);
 		}
 
-		ggsw_trace_expansion(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks,
-		                     (const GGSWCiphertext**)ggsw_ksks);
+		packed_glwegadget_trace_expand_ggsw(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks,
+		                                    (const GGSWCiphertext**)ggsw_ksks);
 
 		PolyUniv* expected_b = new_univ(params_glwe);
 		for (int b = 0; b < bund; ++b)
@@ -322,7 +322,7 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 			results[i] = new_glwegadget(params_glwegadget);
 		}
 
-		glwegadget_trace_expansion(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks);
+		packed_glwegadget_trace_expand(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks);
 
 		PolyUniv* expected_b = new_univ(params_glwe);
 		for (int b = 0; b < bund; ++b)
