@@ -1,7 +1,9 @@
 #include "ggsw_arithmetic.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 
 #include "bivariate_polynomial.h"
@@ -11,6 +13,7 @@
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
+#include "glwegadget_arithmetic.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
@@ -167,4 +170,64 @@ cleanup:
 	free(ggsw_pmat);
 
 	return 0;
+}
+
+int ggsw_trace_expansion(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
+                         const GLWECiphertext* packed_glwegadget, const GLWEAutomorphismKSKCollection* auto_ksks,
+                         const GGSWCiphertext** sk_encryptions)
+{
+	assert(ggsw_params_l_tilde_a(results[0]->params) == l_tilde);
+	assert(ggsw_params_l_tilde_b(results[0]->params) == l_tilde);
+	int status = -1;
+	GLWECiphertext* results_glwe[res_size * l_tilde];
+	memset((uint8_t*)results_glwe, 0, sizeof(results_glwe));
+	int64_t k = (int64_t)packed_glwegadget->params->k;
+
+	/*
+	 * Create dummy GLWECiphertext for the k'th GLWEs in each GGSW, that is, the ones that contain a
+	 * m * 2^-jK.
+	 * In other words, we are storing the results as GLWEGadgets inside the GGSWs by using only
+	 * one every k GLWEs in a GGSW.
+	 * That way, since we fill every k'th GLWE in a GGSW, to convert this "strided" GLWEGadget into a
+	 * proper GGSW, it will suffice to generate the (-sk_i * m * 2^-jK) GLWEs that we are missing,
+	 * which we can do by means of an external products with encryptions of -sk_i
+	 */
+	for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
+	{
+		for (uint64_t res_num = 0; res_num < res_size; ++res_num)
+		{
+			GLWECiphertext* tmp = malloc(sizeof(GLWECiphertext));
+			CHECK_ALLOC(tmp, "Malloc failed in GGSW trace expansion");
+			tmp->params                                       = results[res_num]->params->params_glwe;
+			tmp->vec                                          = ggsw_retrieve_bivglwe(results[res_num], k, prec_lvl);
+			results_glwe[(prec_lvl - 1) * res_size + res_num] = tmp;
+		}
+	}
+
+	CHECK_CALL(glwegadget_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
+	           "glwegadget_trace_expand failed in a GGSW trace expansion");
+
+	for (int res_num = 0; res_num < res_size; ++res_num)
+	{
+		for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
+		{
+			GLWECiphertext in = {results[res_num]->params->params_glwe,
+			                     ggsw_retrieve_bivglwe(results[res_num], k, prec_lvl)};
+			for (int i = 0; i < k; ++i)
+			{
+				GLWECiphertext res = {results[res_num]->params->params_glwe,
+				                      ggsw_retrieve_bivglwe(results[res_num], i, prec_lvl)};
+				CHECK_CALL(ggsw_external_product(module, &res, &in, sk_encryptions[i]),
+				           "Relinearization external product failed in GGSW trace expansion");
+				CHECK_CALL(normalize_glwe(module, &res, &res), "Normalization failed in GGSW trace expansion");
+			}
+		}
+	}
+
+	status = 0;
+cleanup:
+	for (uint64_t i = 0; i < res_size; ++i)
+		for (uint64_t j = 0; j < l_tilde; ++j) free(results_glwe[i * l_tilde + j]);
+
+	return status;
 }

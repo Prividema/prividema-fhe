@@ -4,14 +4,21 @@
 #include <criterion/new/assert.h>
 #include <float.h>
 #include <stdint.h>
+#include <string.h>
+#include <sys/types.h>
 
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "core/glwe/glwe_transform_key.h"
+#include "ggsw_arithmetic.h"
+#include "ggsw_ciphertext.h"
+#include "ggsw_params.h"
+#include "ggsw_utils.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
+#include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
 #include "rng.h"
 #include "test_utils.h"
@@ -67,7 +74,6 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 
 	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
 
-	calloc(2 * params_glwe->nn, sizeof(GLWEAutomorphismKSK*));
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
@@ -121,6 +127,98 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_rnx(m_observed_rnx);
 	delete_univ_tnx(m_expected_tnx);
+	delete_glwe(glwe_ct);
+
+	DELETE_PVDA_PARAMS_GGSWGAD;
+}
+
+PvdaParamTest(ggsw_trace_expand, no_noise, trace_params_fn)
+{
+	INIT_PVDA_PARAMS_GGSWGAD(param);
+
+	params_glwe->fast_uniform_nb_bits = 0;
+	sigma                             = 0;
+	double biv_epsilon                = glwe_bivariate_epsilon(params_glwe);
+	double tst_epsilon                = DBL_EPSILON;
+	double multiplier                 = params_glwe->nn;
+	double max_err_length             = 3 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
+	double critical_err_length        = 5 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
+
+	uint64_t k  = params_glwe->k;
+	uint64_t nn = params_glwe->nn;
+
+	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+
+	PolyUniv* m_univ        = new_univ(params_glwe);
+	PolyBiv* biv_tmp        = new_biv_poly(params_glwe);
+	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
+
+	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_prepare(module, sk_prep, sk);
+
+	int bundled[] = {2, 4, 3, 5, 14, 1};
+
+	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+
+	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
+	{
+		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
+		prepare_automorphism_key(module, ksk, sk_prep, p);
+		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+	}
+
+	GGSWCiphertext** ggsw_ksks = calloc(k, sizeof(GGSWCiphertext*));
+	PolyUniv* neg_sk_i         = new_univ(params_glwe);
+	for (uint64_t i = 0; i < k; ++i)
+	{
+		ggsw_ksks[i] = new_ggsw(params_ggsw);
+		for (int p = 0; p < nn; ++p)
+		{
+			neg_sk_i[p] = -glwe_prepared_sk_extract_poly_coefs(sk_prep, i)[p];
+		}
+		ggsw_secret_encrypt(module, ggsw_ksks[i], sk_prep, neg_sk_i);
+	}
+	free(neg_sk_i);
+
+	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
+	{
+		int bund   = bundled[i];
+		int factor = 1 << (32 - __builtin_clz(bund - 1));
+
+		memset(m_univ, 0, poly_univ_bytes(params_glwe));
+
+		// Get the message in univariate RnX form for expected result
+		uniform_random_pol_znx(m_univ, bund, 1);
+
+		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
+
+		GGSWCiphertext** results = calloc(bund, sizeof(GGSWCiphertext*));
+		for (int i = 0; i < bund; ++i)
+		{
+			results[i] = new_ggsw(params_ggsw);
+		}
+
+		ggsw_trace_expansion(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks,
+		                     (const GGSWCiphertext**)ggsw_ksks);
+
+		PolyUniv* expected_b = new_univ(params_glwe);
+		for (int b = 0; b < bund; ++b)
+		{
+			memset(expected_b, 0, poly_univ_bytes(params_glwe));
+			expected_b[0] = factor * m_univ[b];
+			check_ggsw(module, params_glwe, params_ggsw, results[b], sk_prep, expected_b, max_err_length,
+			           critical_err_length);
+		}
+	}
+
+	delete_automorphism_ksk_collection(ksks, 1);
+
+	delete_glwe_secret_key(sk);
+	delete_glwe_secret_key_prepared(sk_prep);
+
+	free(biv_tmp);
 	delete_glwe(glwe_ct);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;

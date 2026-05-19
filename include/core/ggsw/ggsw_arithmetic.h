@@ -4,6 +4,7 @@
 #include "ggsw_ciphertext.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
+#include "glwegadget_key.h"
 #include "spqlios_alias.h"
 
 /**
@@ -79,5 +80,16 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
  */
 int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
                           const GGSWCiphertext* ggsw);
+
+/**
+ *
+ * Expands a packed GLWEGadget query into a collection of GGSWs
+ *
+ *
+ *
+ */
+int ggsw_trace_expansion(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
+                         const GLWECiphertext* packed_glwegadget, const GLWEAutomorphismKSKCollection* auto_ksks,
+                         const GGSWCiphertext** sk_encryptions);
 
 #endif  // bivGGSW_H
