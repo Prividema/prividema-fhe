@@ -70,4 +70,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 int glwegadget_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
                             const GLWEAutomorphismKSKCollection* ksks);
 
+int glwegadget_trace_expansion(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
+                               const GLWECiphertext* packed_glwegadget, const GLWEAutomorphismKSKCollection* auto_ksks);
+
 #endif  // !DEBUG

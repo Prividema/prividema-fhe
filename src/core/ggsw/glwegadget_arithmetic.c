@@ -262,3 +262,44 @@ cleanup:
 	delete_glwe(tmp_glwe2);
 	return status;
 }
+
+int glwegadget_trace_expansion(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
+                               const GLWECiphertext* packed_glwegadget, const GLWEAutomorphismKSKCollection* auto_ksks)
+
+{
+	int status = -1;
+	GLWECiphertext* results_glwe[res_size * l_tilde];
+	memset((uint8_t*)results_glwe, 0, sizeof(results_glwe));
+	int64_t k = (int64_t)packed_glwegadget->params->k;
+
+	/*
+	 * Create dummy GLWECiphertext for the k'th GLWEs in each GGSW, that is, the ones that contain a
+	 * m * 2^-jK.
+	 * In other words, we are storing the results as GLWEGadgets inside the GGSWs by using only
+	 * one every k GLWEs in a GGSW.
+	 * That way, since we fill every k'th GLWE in a GGSW, to convert this "strided" GLWEGadget into a
+	 * proper GGSW, it will suffice to generate the (-sk_i * m * 2^-jK) GLWEs that we are missing,
+	 * which we can do by means of an external products with encryptions of -sk_i
+	 */
+	for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
+	{
+		for (uint64_t res_num = 0; res_num < res_size; ++res_num)
+		{
+			GLWECiphertext* tmp = malloc(sizeof(GLWECiphertext));
+			CHECK_ALLOC(tmp, "Malloc failed in GGSW trace expansion");
+			tmp->params                                       = results[res_num]->params->params_glwe;
+			tmp->vec                                          = glwegadget_extract_bivglwe(results[res_num], prec_lvl);
+			results_glwe[(prec_lvl - 1) * res_size + res_num] = tmp;
+		}
+	}
+
+	CHECK_CALL(glwegadget_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
+	           "glwegadget_trace_expand failed in a GGSW trace expansion");
+
+	status = 0;
+cleanup:
+	for (uint64_t i = 0; i < res_size; ++i)
+		for (uint64_t j = 0; j < l_tilde; ++j) free(results_glwe[i * l_tilde + j]);
+
+	return status;
+}
