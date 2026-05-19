@@ -42,6 +42,9 @@ PvdaParamTest(tfhe_cmux, without_error, default_params_fn)
 
 	PolyUniv* m_sel = new_univ(params_glwe);
 
+	uniform_glwe_secret_key(module, sk_ggsw, 3);
+	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
+
 	uniform_random_pol_znx(m1, params_glwe->nn, 62);
 	uniform_random_pol_znx(m2, params_glwe->nn, 62);
 
@@ -58,7 +61,7 @@ PvdaParamTest(tfhe_cmux, without_error, default_params_fn)
 
 	biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
 
-	int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
+	int decomp_noise_bits = 15;  //TODO: put a real threshold
 	for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], m1[p], decomp_noise_bits);
 
 	//Case 1:
