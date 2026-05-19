@@ -157,7 +157,8 @@ int ggsw_external_product(const MODULE* module,
 	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols),
 	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
-	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, nrows, nn, ggsw_pmat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, glwe->params->ciphertext_nb_limbs, nn,
+	                              ggsw_pmat, nrows, ncols),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
 	CHECK_CALL(pvda_vec_znx_idft(module, result->vec, ncols, result_dft, ncols),

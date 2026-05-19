@@ -147,14 +147,15 @@ struct criterion_test_params trace_params2_fn()
 	     .ciphertext_nb_limbs       = 9l * 5,
 	     .ciphertext_nb_limbs_tilde = 9l * 5,
 	     .sigma                     = 0},  // k > 1 params
+
 	    /*
-	       {.nn                        = 1024,
-	        .k                         = 4,
-	        .kappa                     = 8,
-	        .ciphertext_nb_limbs       = 9l * 5 - 1,
-	        .ciphertext_nb_limbs_tilde = 9l * 5,
-	        .sigma                     = 0},  // k > 1 l_a != l_b params
-	    */
+	        {.nn                        = 1024,
+	         .k                         = 4,
+	         .kappa                     = 8,
+	         .ciphertext_nb_limbs       = 9l * 5 - 1,
+	         .ciphertext_nb_limbs_tilde = 9l * 5,
+	         .sigma                     = 0},  // k > 1 l_a != l_b params
+	     */
 
 	};
 
@@ -170,8 +171,8 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	double biv_epsilon                = glwe_bivariate_epsilon(params_glwe);
 	double tst_epsilon                = DBL_EPSILON;
 	double multiplier                 = params_glwe->nn;
-	double max_err_length             = 3 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
-	double critical_err_length        = 5 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
+	double max_err_length             = multiplier * tst_epsilon + 2 * biv_epsilon;
+	double critical_err_length        = multiplier * tst_epsilon + 2 * biv_epsilon;
 
 	uint64_t k  = params_glwe->k;
 	uint64_t nn = params_glwe->nn;
