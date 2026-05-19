@@ -46,7 +46,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m_univ);
 
-	check_ggsw(module, params_glwe, params_ggsw, ggsw, sk_prep, m_univ, max_err_length, critical_err_length);
+	check_ggsw(module, ggsw, sk_prep, m_univ, max_err_length, critical_err_length);
 
 	// Clean up
 	delete_univ(m_univ);

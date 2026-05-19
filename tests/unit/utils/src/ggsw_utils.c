@@ -3,15 +3,19 @@
 #include <string.h>
 
 #include "ggsw_ciphertext.h"
+#include "ggsw_params.h"
 #include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
+#include "glwe_params.h"
+#include "glwegadget_ciphertext.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-void check_ggsw(const MODULE* module, const GLWEParams* params_glwe, const GGSWParams* params_ggsw,
-                const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep, const PolyUniv* expected,
-                double max_err_length, double critical_err_length)
+void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
+                const PolyUniv* expected, double max_err_length, double critical_err_length)
 {
+	const GGSWParams* params_ggsw        = ggsw->params;
+	const GLWEParams* params_glwe        = params_ggsw->params_glwe;
 	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
 	PolyUnivRnX* phase_observed_univ_rnx = new_univ_rnx(params_glwe);
 	PolyUnivRnX* phase_expected_univ_rnx = new_univ_rnx(params_glwe);
@@ -33,7 +37,8 @@ void check_ggsw(const MODULE* module, const GLWEParams* params_glwe, const GGSWP
 
 		// Retrieves the phase, which should equal -m * sk_j / 2^{kappa_tilde * i}) + err
 		GLWECiphertext glwe_ct = {params_glwe, ggsw_retrieve_bivglwe(ggsw, sk_idx, prec_lvl)};
-		cr_assert(glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct) == 0);
+		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
+		cr_assert(code == 0);
 		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
 
 		// Computes -m * sk_j / 2^{i*kappa_tilde}
@@ -56,4 +61,36 @@ void check_ggsw(const MODULE* module, const GLWEParams* params_glwe, const GGSWP
 	//TODO: avoid leaking memory
 
 	free(phase_computed);
+}
+
+void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad, const GLWESecretKeyPrepared* sk_prep,
+                      const PolyUniv* expected, double max_err_length, double critical_err_length)
+{
+	const GLWEGadgetParams* params_glwegad = glwegad->params;
+	const GLWEParams* params_glwe          = params_glwegad->params_glwe;
+	PolyBiv* phase_computed                = new_biv_poly(params_glwe);
+	PolyUnivRnX* phase_observed_univ_rnx   = new_univ_rnx(params_glwe);
+	PolyUnivRnX* phase_expected_univ_rnx   = new_univ_rnx(params_glwe);
+
+	for (uint64_t prec_lvl = 1; prec_lvl < params_glwegad->l_tilde; ++prec_lvl)
+	{
+		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
+		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
+		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
+
+		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegad, prec_lvl)};
+		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
+		cr_assert(code == 0);
+		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
+
+		for (uint64_t p = 0; p < params_glwe->nn; p++)
+			phase_expected_univ_rnx[p] = ldexp((double)expected[p], -(params_glwegad->kappa_tilde * prec_lvl));
+
+		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, max_err_length,
+		                                critical_err_length);
+	}
+
+	free(phase_computed);
+	delete_univ_rnx(phase_expected_univ_rnx);
+	delete_univ_rnx(phase_observed_univ_rnx);
 }
