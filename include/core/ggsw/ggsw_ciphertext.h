@@ -52,13 +52,13 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  *
  * The function takes j and i and get the associated bivGLWE.
  *
- * @param ggsw_ct    A Pointer to The GGSW ciphertext
- * @param j 		  The j-th component of the secret key.
- * @param i 		  The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$
+ * @param ggsw_ct     A Pointer to The GGSW ciphertext
+ * @param sk_idx      The j-th component of the secret key.
+ * @param prec_lvl    The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$
  *
  * @return A Pointer to the associated Bivariate GLWE.
  */
-VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i);
+VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
 /**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the

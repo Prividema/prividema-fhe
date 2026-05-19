@@ -1,5 +1,6 @@
 #include "ggsw_ciphertext.h"
 
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -41,15 +42,17 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 	free(ggsw);
 }
 
-VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i)
+VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl)
 {
+	assert(prec_lvl >= 1);
+
 	// bivGLWE parameters
 	const GLWEParams* params_glwe = ggsw_ct->params->params_glwe;
 
 	// bivGGSW parameters
 	uint64_t k_tilde = ggsw_ct->params->k_tilde;
 
-	return ggsw_ct->mat + ((i - 1) * (k_tilde + 1) + j) * glwe_coef_number(params_glwe);
+	return ggsw_ct->mat + ((prec_lvl - 1) * (k_tilde + 1) + sk_idx) * glwe_coef_number(params_glwe);
 }
 
 int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
