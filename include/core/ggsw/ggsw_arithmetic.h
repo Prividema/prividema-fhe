@@ -60,8 +60,6 @@ int ggsw_unprepared_external_product(const MODULE* module, GLWECiphertext* resul
 /**
  * @brief Computes the external product between a GLWE and a GGSW.
  *
- * TODO: change input to DFT form one vmp dft_to_dft is implemented
- *
  * @param module Additionnal information for backend.
  * @param result The GLWE result ciphertext.
  * @param glwe   The GLWE input ciphertext.
