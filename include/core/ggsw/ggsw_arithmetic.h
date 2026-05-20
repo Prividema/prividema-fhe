@@ -78,9 +78,22 @@ int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, con
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
-                          const GGSWCiphertext* ggsw);
+int ggsw_unprepared_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+                                     const GGSWCiphertext* ggsw);
 
+/**
+ * @brief Computes the external product between a GLWE and a GGSW.
+ *
+ * @param module Additionnal information for backend.
+ * @param result The GLWE result ciphertext. Can be the same as the input
+ * @param glwe   The GLWE input ciphertext.
+ * @param ggsw   The GGSW input ciphertext.
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
+ */
+int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+                          const GGSWCiphertextDFT* ggsw_prepared);
 /**
  *
  * Expands a packed GLWEGadget query into a collection of GGSWs

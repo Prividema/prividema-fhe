@@ -47,7 +47,7 @@ void test_ggsw_ext_prod(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		ggsw_external_product(module, glwe_computed, glwe_input, ggsw);
+		ggsw_unprepared_external_product(module, glwe_computed, glwe_input, ggsw);
 		benchmark::DoNotOptimize(glwe_computed);
 	}
 
