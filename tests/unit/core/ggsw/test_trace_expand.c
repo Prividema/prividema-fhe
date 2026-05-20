@@ -199,18 +199,21 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 
-	GGSWCiphertext** ggsw_ksks = calloc(k, sizeof(GGSWCiphertext*));
-	PolyUniv* neg_sk_i         = new_univ(params_glwe);
+	GGSWCiphertextPrep** ggsw_ksks = calloc(k, sizeof(GGSWCiphertext*));
+	GGSWCiphertext* ggsw_tmp       = new_ggsw(params_ggsw);
+	PolyUniv* neg_sk_i             = new_univ(params_glwe);
 	for (uint64_t i = 0; i < k; ++i)
 	{
-		ggsw_ksks[i] = new_ggsw(params_ggsw);
+		ggsw_ksks[i] = new_ggsw_prep(params_ggsw);
 		for (int p = 0; p < nn; ++p)
 		{
 			neg_sk_i[p] = -glwe_prepared_sk_extract_poly_coefs(sk_prep, i)[p];
 		}
-		ggsw_secret_encrypt(module, ggsw_ksks[i], sk_prep, neg_sk_i);
+		ggsw_secret_encrypt(module, ggsw_tmp, sk_prep, neg_sk_i);
+		ggsw_prepare(module, ggsw_ksks[i], ggsw_tmp);
 	}
 	free(neg_sk_i);
+	delete_ggsw(ggsw_tmp);
 
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{
@@ -232,7 +235,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		}
 
 		packed_glwegadget_trace_expand_ggsw(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks,
-		                                    (const GGSWCiphertext**)ggsw_ksks);
+		                                    (const GGSWCiphertextPrep**)ggsw_ksks);
 
 		PolyUniv* expected_b = new_univ(params_glwe);
 		for (int b = 0; b < bund; ++b)

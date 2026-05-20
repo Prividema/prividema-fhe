@@ -44,30 +44,6 @@ void add_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext
 int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* cte);
 
 /**
- * @brief Adds two GGSW ciphertexts in the DFT space  that have the same parameters
- *
- * @param result_dft   The resulting GGSWCiphertextDFT
- * @param ggsw_lhs_dft One of the input GGSWCiphertextDFT.
- * @param ggsw_rhs_dft The other GGSWCiphertextDFT.
- */
-void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_lhs_dft,
-                  const GGSWCiphertextDFT* ggsw_rhs_dft);
-
-/**
- * @brief Multiplies a GGSW ciphertext in the DFT space by a polynomial from \ZnX also in DFT space
- *
- * @param module    Additionnal information for backend.
- * @param result_dft The output GGSWCiphertextDFT
- * @param ggsw_dft      The input GGSWCiphertextDFT.
- * @param u_dft       The \ZnX polynomial in the DFT space.
- *
- * @retval -1 if an error occurs
- * @retval 0 otherwise
- */
-int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
-                        const PolyUnivDFT* u_dft);
-
-/**
  * @brief Computes the external product between a GLWE and a GGSW.
  *
  * @param module Additionnal information for backend.
@@ -84,16 +60,22 @@ int ggsw_unprepared_external_product(const MODULE* module, GLWECiphertext* resul
 /**
  * @brief Computes the external product between a GLWE and a GGSW.
  *
+ * TODO: change input to DFT form one vmp dft_to_dft is implemented
+ *
  * @param module Additionnal information for backend.
- * @param result The GLWE result ciphertext. Can be the same as the input
+ * @param result The GLWE result ciphertext.
  * @param glwe   The GLWE input ciphertext.
  * @param ggsw   The GGSW input ciphertext.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
+int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
+                                 const GGSWCiphertextPrep* ggsw_prepared);
+
 int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
-                          const GGSWCiphertextDFT* ggsw_prepared);
+                          const GGSWCiphertextPrep* ggsw_prepared);
+
 /**
  *
  * Expands a packed GLWEGadget query into a collection of GGSWs
@@ -104,6 +86,6 @@ int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GL
 int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
                                         const GLWEAutomorphismKSKCollection* auto_ksks,
-                                        const GGSWCiphertext** sk_encryptions);
+                                        const GGSWCiphertextPrep** sk_encryptions);
 
 #endif  // bivGGSW_H

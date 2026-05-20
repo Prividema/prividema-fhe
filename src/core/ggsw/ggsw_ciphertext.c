@@ -134,9 +134,9 @@ cleanup:
 }
 // bivGGSW DFT PART (begin)
 
-GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw)
+GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw)
 {
-	GGSWCiphertextDFT* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextDFT));
+	GGSWCiphertextPrep* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextPrep));
 	CHECK_ALLOC(ggsw_mat_dft, "malloc in new_ggsw_dft");
 
 	ggsw_mat_dft->params = params_ggsw;
@@ -151,20 +151,23 @@ cleanup:
 	return NULL;
 }
 
-void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
+void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft)
 {
 	if (!ggsw_dft) return;
 	free(ggsw_dft->mat);
 	free(ggsw_dft);
 }
-
-VecBivDFT* ggsw_retrieve_bivglwe_dft(GGSWCiphertextDFT* ggsw_dft_ct, int64_t j, int64_t i)
+int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
 {
-	// bivGLWE parameters
-	const GLWEParams* params_glwe = ggsw_dft_ct->params->params_glwe;
+	int status = -1;
 
-	// bivGGSW parameters
-	uint64_t k_tilde = ggsw_dft_ct->params->k_tilde;
+	size_t nrows = ggsw_prepared->params->ciphertext_nb_limbs_tilde;
+	size_t ncols = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
 
-	return ggsw_dft_ct->mat + ((i - 1) * (k_tilde + 1) + j) * 2 * glwe_coef_number_dft(params_glwe);
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_prepared->mat, ggsw_ct->mat, nrows, ncols),
+	           "VMP prepare for GLWEGadget prepare failed");
+
+	status = 0;
+cleanup:
+	return status;
 }

@@ -68,71 +68,30 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 	const GGSWParams* params_ggsw = result->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
-	uint64_t nn                     = params_glwe->nn;
-	int64_t mat_size                = ggsw_total_n_glwe_limbs(params_ggsw);
-	GGSWCiphertextDFT* ggsw_tmp_dft = new_ggsw_dft(params_ggsw);
+	uint64_t nn                       = params_glwe->nn;
+	int64_t mat_size                  = ggsw_total_n_glwe_limbs(params_ggsw);
+	GGSWCiphertextPrep* ggsw_tmp_prep = new_ggsw_prep(params_ggsw);
 
-	CHECK_ALLOC(ggsw_tmp_dft, "alloc in const_mult_ggsw");
+	CHECK_ALLOC(ggsw_tmp_prep, "alloc in const_mult_ggsw");
 
-	pvda_svp_apply_dft(module, ggsw_tmp_dft->mat, mat_size, u_dft, ggsw->mat, mat_size, nn);
+	pvda_svp_apply_dft(module, ggsw_tmp_prep->mat, mat_size, u_dft, ggsw->mat, mat_size, nn);
 
 	// Go back to Zn[X,Y]
-	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_tmp_dft->mat, mat_size),
+	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_tmp_prep->mat, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw");
 
 	status = 0;
 
 cleanup:
-	delete_ggsw_dft(ggsw_tmp_dft);
+	delete_ggsw_prep(ggsw_tmp_prep);
 
 	return status;
 }
 
-void add_ggsw_dft(GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_lhs_dft,
-                  const GGSWCiphertextDFT* ggsw_rhs_dft)
-{
-	for (uint64_t t = 0; t < ggsw_coef_number(result_dft->params); t++)
-		result_dft->mat[t] = ggsw_lhs_dft->mat[t] + ggsw_rhs_dft->mat[t];
-}
-
-int const_mult_ggsw_dft(const MODULE* module, GGSWCiphertextDFT* result_dft, const GGSWCiphertextDFT* ggsw_dft,
-                        const PolyUnivDFT* u_dft)
-{
-	int status = -1;
-
-	// Variables
-	MatBiv* ggsw_mat = NULL;
-
-	// bivGGSW & bivGLWEparams
-	const GGSWParams* params_ggsw = result_dft->params;
-	const GLWEParams* params_glwe = params_ggsw->params_glwe;
-
-	uint64_t nn       = params_glwe->nn;
-	uint64_t mat_size = ggsw_total_n_glwe_limbs(params_ggsw);
-
-	// Temporary bivGGSW ciphertext
-	ggsw_mat = malloc(ggsw_bytes(params_ggsw));
-	CHECK_ALLOC(ggsw_mat, "malloc in const_mult_ggsw_dft");
-
-	// Computes ggsw_mat = iDFT(ggsw_mat_dft).
-	CHECK_CALL(pvda_vec_znx_idft(module, ggsw_mat, mat_size, ggsw_dft->mat, mat_size),
-	           "vec_znx_idft_p failed in const_mult_ggsw_dft");
-
-	// Computes result_mat_dft = DFT(u) * DFT(iDFT(ggsw_mat_dft))) = DFT(u) * ggsw_mat_dft
-	pvda_svp_apply_dft(module, result_dft->mat, mat_size, u_dft, ggsw_mat, mat_size, nn);
-
-	status = 0;
-
-cleanup:
-	free(ggsw_mat);
-
-	return status;
-}
-
-int ggsw_external_product(const MODULE* module,
-                          GLWECiphertext* result,      // result
-                          const GLWECiphertext* glwe,  // bivGLWE ciphertext
-                          const GGSWCiphertext* ggsw   // bivGGSW ciphertext
+int ggsw_unprepared_external_product(const MODULE* module,
+                                     GLWECiphertext* result,      // result
+                                     const GLWECiphertext* glwe,  // bivGLWE ciphertext
+                                     const GGSWCiphertext* ggsw   // bivGGSW ciphertext
 )
 {
 	int status = -1;
@@ -170,13 +129,53 @@ cleanup:
 	free(result_dft);
 	free(ggsw_pmat);
 
-	return 0;
+	return status;
+}
+int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
+                                 const GGSWCiphertextPrep* ggsw_prepared)
+{
+	int status = -1;
+
+	uint64_t nn = result->params->nn;
+	// The bivGGSW ciphertext ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs
+	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
+	// As the result of the vector-matrix product glwe * ggsw,
+	// the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
+	uint64_t nrows = ggsw_num_rows(ggsw_prepared->params);
+	uint64_t ncols = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
+
+	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, ncols, glwe->vec, glwe->params->ciphertext_nb_limbs, nn,
+	                              ggsw_prepared->mat, nrows, ncols),
+	           "vmp_apply_dft_p failed in ggsw_external_product");
+
+	status = 0;
+
+cleanup:
+
+	return status;
+}
+int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+                          const GGSWCiphertextPrep* ggsw_prepared)
+{
+	int status = -1;
+
+	GLWECiphertextDFT* tmp_dft = new_glwe_dft(result->params);
+	CHECK_ALLOC(tmp_dft, "Failed allocation in ggsw external product to non-dft");
+
+	CHECK_CALL(ggsw_external_product_to_dft(module, tmp_dft, glwe, ggsw_prepared), "External product failed");
+	CHECK_CALL(glwe_dft_to_coef(module, result, tmp_dft), "Failed iDFT in ggsw product");
+
+	status = 0;
+cleanup:
+	delete_glwe_dft(tmp_dft);
+
+	return status;
 }
 
 int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
                                         const GLWEAutomorphismKSKCollection* auto_ksks,
-                                        const GGSWCiphertext** sk_encryptions)
+                                        const GGSWCiphertextPrep** sk_encryptions)
 {
 	assert(ggsw_params_l_tilde_a(results[0]->params) == l_tilde);
 	assert(ggsw_params_l_tilde_b(results[0]->params) == l_tilde);
