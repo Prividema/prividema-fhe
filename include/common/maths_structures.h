@@ -1,3 +1,5 @@
+#ifndef MATHS_STRUCTS
+#define MATHS_STRUCTS
 #include <stdint.h>
 
 // =============================================
@@ -75,7 +77,15 @@ typedef double VecUnivDFT;
 /**
  * @brief Represents a bivariate polynomial.
  */
-typedef int64_t PolyBiv;
+typedef int64_t PolyBivUnderlying;
+
+typedef struct poly_biv_t
+{
+	uint64_t nn;
+	uint64_t l;
+	int64_t stride;
+	PolyBivUnderlying* ptr;
+} PolyBiv;
 
 /**
  * @brief Represents a bivariate polynomial vector (flattened).
@@ -112,21 +122,8 @@ typedef double MatBivDFT;
  * @brief Prints a Bivariate Polynomial.
  *
  * @param pol     A Pointer to the Bivariate Polynomial.
- * @param pol_sl  The stride length : The step to jump from the beggining to the next polynomial.
- * @param nn      The degree of the chosen cyclotomic polynomial.
- * @param l       The degree in Y.
  */
-void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t nn, int64_t l);
-
-/**
- * @brief Prints a Vector of Bivariate Polynomial such as a bivGLWE ciphertext.
- *
- * @param pols          A Pointer to the vector.
- * @param pols_size     The size of the vector.
- * @param nn             The degree of the chosen cyclotomic polynomial.
- * @param l             The degree in Y.
- */
-void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size, int64_t nn, int64_t l);
+void printf_poly_biv(PolyBiv* pol);
 
 /**
  * @brief Prints a Univariate Polynomial in \f$\mathbb{Z}_n[X]\f$.
@@ -152,3 +149,4 @@ void printf_poly_univ_RnX(double* pol, int64_t nn);
  * @param nn           The degree of the chosen cyclotomic polynomial.
  */
 void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t nn);
+#endif

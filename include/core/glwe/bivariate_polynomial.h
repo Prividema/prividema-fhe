@@ -38,7 +38,6 @@ PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l);
  * the base-2k decomposition have been sampled from a normal distribution according
  * to the parameters
  *
- * @param params_glwe The bivGLWE parameters.
  * @param result The result bivariate polynomial.
  *
  * @retval -1 if an error occurs

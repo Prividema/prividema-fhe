@@ -12,6 +12,7 @@
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -74,7 +75,11 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
 		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
 
-		pvda_vec_znx_automorphism(module, auto_p, m_expected_tnx, 1, params_glwe->nn, m_univ_tnx, 1, params_glwe->nn);
+		//TODO: univ auto function
+		uint64_t nn            = params_glwe->nn;
+		PolyBiv m_expected_biv = {nn, 1, nn, (int64_t*)m_expected_tnx};
+		PolyBiv m_univ_biv     = {nn, 1, nn, (int64_t*)m_univ_tnx};
+		pvda_vec_znx_automorphism(module, auto_p, &m_expected_biv, &m_univ_biv);
 
 		int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
 

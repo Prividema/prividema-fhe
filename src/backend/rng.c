@@ -187,7 +187,8 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	pvda_vec_znx_dft(module, result_dft, vec_size, tmp_space, vec_size, nn);
+	PolyBiv tmp_biv = {nn, vec_size, nn, tmp_space};
+	pvda_vec_znx_dft(module, result_dft, vec_size, &tmp_biv);
 
 	status = 0;
 

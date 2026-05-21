@@ -41,7 +41,7 @@ PvdaParamTest(biv_to_univ_rnx, runs, default_params_fn)
 	PolyUnivRnX* pol_univ_computed = new_univ_rnx(params_glwe);
 
 	//Set the first limb for the first coefficient to 1, ie, first coefficient is set to 2^-kappa
-	pol[0] = 1;
+	pol->ptr[0] = 1;
 
 	biv_to_univ_rnx(params_glwe, pol_univ_computed, pol);
 
@@ -73,9 +73,9 @@ PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
 	// Asserts pol_computed = Y
-	cr_assert(eq(int, pol_computed[0], 1), "pol_computed[%ld, %ld] = %ld ", 0, 1, pol_computed[0]);
+	cr_assert(eq(int, pol_computed->ptr[0], 1), "pol_computed[%ld, %ld] = %ld ", 0, 1, pol_computed[0]);
 	for (uint64_t i = 1; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
-		cr_assert(eq(int, pol_computed[i], 0), "pol_computed[%ld, %ld] = %ld ", i / params_glwe->nn,
+		cr_assert(eq(int, pol_computed->ptr[i], 0), "pol_computed[%ld, %ld] = %ld ", i / params_glwe->nn,
 		          i % params_glwe->nn, pol_computed[i]);
 
 	delete_univ_rnx(pol_univ);
@@ -104,7 +104,7 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	{
 		double pol_computed_p = 0;
 		for (uint64_t i = 1; i <= glwe_params_l_a(params_glwe); i++)
-			pol_computed_p += ldexp((double)pol_computed[(i - 1) * params_glwe->nn + p], -i * params_glwe->kappa);
+			pol_computed_p += ldexp((double)pol_computed->ptr[(i - 1) * params_glwe->nn + p], -i * params_glwe->kappa);
 
 		cr_assert(epsilon_eq(dbl, rnx_torus_distance(pol_computed_p, pol_univ[p]), 0, err_length));
 	}
@@ -340,8 +340,8 @@ PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 	// i.e. that each coefficient is between -2^(params->kappa-1) (inclusive) and 2^(params->kappa-1) (exculsive)
 	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
 	{
-		cr_assert(lt(i64, pol[i], (1LL << (params_glwe->kappa - 1))));
-		cr_assert(ge(i64, pol[i], -(1LL << (params_glwe->kappa - 1))));
+		cr_assert(lt(i64, pol->ptr[i], (1LL << (params_glwe->kappa - 1))));
+		cr_assert(ge(i64, pol->ptr[i], -(1LL << (params_glwe->kappa - 1))));
 	}
 
 	free(pol);
@@ -368,7 +368,7 @@ PvdaParamTest(add_biv_poly, basic, default_params_fn)
 	// Asserts sum_computed = pol_lhs + pol_rhs
 	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
 	{
-		cr_assert(eq(i64, sum_observed[i], pol_lhs[i] + pol_rhs[i]));
+		cr_assert(eq(i64, sum_observed->ptr[i], pol_lhs->ptr[i] + pol_rhs->ptr[i]));
 	}
 
 	free(pol_lhs);

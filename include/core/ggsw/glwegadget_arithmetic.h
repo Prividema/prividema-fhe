@@ -67,6 +67,9 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
 int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
                             const GLWECiphertext* glwe, int automorphism_p);
 
+int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
+                           const GLWECiphertext* glwe_ct);
+
 int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
                       const GLWEAutomorphismKSKCollection* ksks);
 

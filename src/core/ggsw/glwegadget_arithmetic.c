@@ -30,9 +30,10 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params);
 	CHECK_ALLOC(glwe_dft, "Allocation failed in half-product");
 
-	CHECK_CALL(
-	    pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, a, nrows, nn, glwegadget_prep_ct->mat, nrows, ncols_in),
-	    "vmp apply falied in half product");
+	//TODO: check if assertion is necessary
+	assert(a->l == nrows);
+	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, a, glwegadget_prep_ct->mat, nrows, ncols_in),
+	           "vmp apply falied in half product");
 
 	CHECK_CALL(glwe_dft_to_coef(module, result, glwe_dft),
 	           "conversion from GLWE DFT to coefs failed in GLWEGadget half product");
@@ -82,8 +83,10 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
 		GLWEGadgetCiphertextPrep* gadget_ciph = automorphism_ksk->enc_s[i];
 
 		//sigma_p (sk_i)
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_sk_tmp, 1, nn,
-		                          glwe_prepared_sk_extract_poly_coefs(glwe_key, i), 1, nn);
+		//TODO: add univ automorphism?
+		PolyBiv auto_sk_biv  = {nn, 1, nn, auto_sk_tmp};
+		PolyBiv glwe_key_biv = {nn, 1, nn, glwe_prepared_sk_extract_poly_coefs(glwe_key, i)};
+		pvda_vec_znx_automorphism(module, automorphism_p, &auto_sk_biv, &glwe_key_biv);
 
 		//GLWEGadget(sigma_p(sk_i))
 		CHECK_CALL(glwegadget_secret_encrypt(module, glwegad_tmp, glwe_key, auto_sk_tmp),
@@ -131,8 +134,9 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		CHECK_ALLOC(auto_tmp, "Allocation failed in automorphism");
 
 		// auto_tmp = auto_p(a)
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe->vec, glwe_params_l_a(glwe->params),
-		                          2 * nn);
+
+		PolyBiv a = {nn, glwe_params_l_a(glwe->params), 2 * nn, glwe->vec};
+		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a);
 
 		// result = halfProd(C_auto(s), auto(a))
 		CHECK_CALL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
@@ -142,12 +146,13 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		negate_glwe(module, result, result);
 
 		// auto_tmp = auto_p(b)
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe_extract_start_poly(glwe, 1),
-		                          glwe_params_l_b(glwe->params), 2 * nn);
+
+		PolyBiv b = {nn, glwe_params_l_b(glwe->params), 2 * nn, glwe->vec + nn};
+		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &b);
 
 		// result += auto_tmp ==> result = -halfProc(c_auto(s), auto(a)) + (0, auto(b))
-		pvda_vec_znx_add(module, glwe_extract_start_poly(result, 1), l_b_result, 2 * nn,
-		                 glwe_extract_start_poly(result, 1), l_b_result, 2 * nn, auto_tmp, biv_l, nn);
+		PolyBiv result_b = {nn, l_b_result, 2 * nn, result->vec + nn};
+		pvda_vec_znx_add(module, &result_b, &result_b, auto_tmp);
 
 		status = 0;
 	cleanup:
@@ -162,8 +167,8 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		CHECK_ALLOC_LABEL(glwe_tmp, "GLWE allocation failed in automorphism", cleanup2);
 
 		// auto_tmp = auto_p(a_0)
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe_extract_start_poly(glwe, 0),
-		                          glwe_params_l_a(glwe->params), (k + 1) * nn);
+		PolyBiv a = {nn, glwe_params_l_a(glwe->params), (k + 1) * nn, glwe->vec};
+		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a);
 
 		// result = halfProd(C_auto(s), auto(a_0))
 		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
@@ -172,8 +177,8 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		for (int i = 1; i < k; ++i)
 		{
 			// auto_tmp = auto_p(a_i)
-			pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe_extract_start_poly(glwe, i),
-			                          glwe_params_l_a(glwe->params), (k + 1) * nn);
+			PolyBiv ai = {nn, glwe_params_l_a(glwe->params), (k + 1) * nn, glwe->vec + nn * i};
+			pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &ai);
 
 			// result = halfProd(C_auto(s_i), auto(a_i))
 			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, automorphism_ksk->enc_s[i], auto_tmp),
@@ -184,12 +189,13 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 
 		negate_glwe(module, result, result);
 		// auto_tmp = auto_p(b)
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, biv_l, nn, glwe_extract_start_poly(glwe, k),
-		                          glwe_params_l_b(glwe->params), (k + 1) * nn);
+
+		PolyBiv b = {nn, glwe_params_l_b(glwe->params), (k + 1) * nn, glwe->vec + k * nn};
+		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &b);
 
 		// result += auto_tmp ==> result = -sum_i(halfProc(c_auto(s), auto(a_i))) + (0, auto(b))
-		pvda_vec_znx_add(module, glwe_extract_start_poly(result, k), l_b_result, (k + 1) * nn,
-		                 glwe_extract_start_poly(result, k), l_b_result, (k + 1) * nn, auto_tmp, biv_l, nn);
+		PolyBiv result_b = {nn, l_b_result, (k + 1) * nn, result->vec + k * nn};
+		pvda_vec_znx_add(module, &result_b, &result_b, auto_tmp);
 		status = 0;
 	cleanup2:
 		free(auto_tmp);
@@ -218,8 +224,8 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
 	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
 
 	sub_glwe(module, tmp_glwe, results[0], tmp_glwe);
-	pvda_vec_znx_rotate(module, -1, tmp_glwe->vec, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec,
-	                    glwe_params_n_limbs(tmp_glwe->params), nn);
+	PolyBiv glwe_flattened = {nn, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec};
+	pvda_vec_znx_rotate(module, -1, &glwe_flattened, &glwe_flattened);
 	normalize_glwe(module, results[1], tmp_glwe);
 	normalize_glwe(module, results[0], tmp_glwe2);
 
@@ -238,8 +244,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
 			add_glwe(module, tmp_glwe2, results[b], tmp_glwe);
 
 			sub_glwe(module, tmp_glwe, results[b], tmp_glwe);
-			pvda_vec_znx_rotate(module, -p, tmp_glwe->vec, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec,
-			                    glwe_params_n_limbs(tmp_glwe->params), nn);
+			pvda_vec_znx_rotate(module, -p, &glwe_flattened, &glwe_flattened);
 			normalize_glwe(module, results[b + dist], tmp_glwe);
 			normalize_glwe(module, results[b], tmp_glwe2);
 		}
