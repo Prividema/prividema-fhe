@@ -3,7 +3,7 @@
 # ----------------------------------------
 
 # Create BACKEND shared library
-add_library(PVDA_BACKEND SHARED
+add_library(PVDA_BACKEND
 backend.c
 spqlios_alias.c
 rng.c)

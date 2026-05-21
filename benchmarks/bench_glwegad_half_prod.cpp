@@ -14,10 +14,10 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 16)
+#define NBASE      (1 << 15)
 #define KBASE      1
 #define KAPPABASE  19
-#define LBASE      15
+#define LBASE      46
 #define NLIMBSBASE (LBASE * 2)
 
 void test_glwegad_half_prod(benchmark::State& state)

@@ -10,7 +10,7 @@ set(UTEST_UTILS_SRCS
     src/ggsw_utils.c
 )
 
-add_library(PVDA_UTEST_UTILS SHARED ${UTEST_UTILS_SRCS})
+add_library(PVDA_UTEST_UTILS ${UTEST_UTILS_SRCS})
 
 # Set the output library name explicitly
 set_target_properties(PVDA_UTEST_UTILS PROPERTIES OUTPUT_NAME pvdautestutils)

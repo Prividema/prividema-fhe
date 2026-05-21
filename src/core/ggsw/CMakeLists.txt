@@ -14,7 +14,7 @@ set(GGSW_SRCS
 )
 
 # Create a shared library named GGSW
-add_library(PVDA_GGSW SHARED ${GGSW_SRCS})
+add_library(PVDA_GGSW ${GGSW_SRCS})
 
 # Set the output library name explicitly
 set_target_properties(PVDA_GGSW PROPERTIES OUTPUT_NAME pvdaggsw)
