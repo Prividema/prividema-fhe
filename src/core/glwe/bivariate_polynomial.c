@@ -21,7 +21,7 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_param
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe)
 {
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
-	CHECK_ALLOC(pol->ptr, "pol's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
 
 	pol->nn     = params_glwe->nn;
 	pol->l      = glwe_params_l_a(params_glwe);

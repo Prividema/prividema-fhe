@@ -7,6 +7,7 @@
  * This enumeration defines different flags that represent the log levels we can use while executing the program.
  * The user can choose the type of log by XORing the different flags in the enumeration.
  */
+#include <stdint.h>
 typedef enum {
 	/// Detailed diagnostic information for developers.
 	LOG_DEBUG = 0x1,
@@ -28,7 +29,7 @@ typedef enum {
  * The value is set by XORing the chosen flags in `LogLevel`.
  * Its default value is `0` which means no message will be displayed.
  */
-extern unsigned char LOG_FLAG;
+extern uint64_t LOG_FLAG;
 
 /**
  * @brief Sets the program's log flag.
