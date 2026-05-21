@@ -98,7 +98,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 	status = 0;
 
 cleanup:
-	free(glwe_biv_msg);
+	delete_biv(glwe_biv_msg);
 
 	return status;
 }
@@ -155,8 +155,8 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 	status = 0;
 
 cleanup:
-	free(glwe_biv_msg);
-	free(glwe_biv_tmp);
+	delete_biv(glwe_biv_msg);
+	delete_biv(glwe_biv_tmp);
 	free(pol_encrypt);
 
 	return status;

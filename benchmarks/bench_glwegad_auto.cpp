@@ -70,6 +70,8 @@ void test_glwegad_auto(benchmark::State& state)
 	delete_glwe(glwe_norm);
 	delete_glwe(glwe_res);
 
+	delete_biv(m_auto);
+
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);

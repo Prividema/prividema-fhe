@@ -52,7 +52,7 @@ void test_glwegad_encrypt(benchmark::State& state)
 	delete_glwegadget_params(params_glwegad);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	free(result_biv);
+	delete_biv(result_biv);
 	delete_univ_rnx(result_univ);
 	delete_glwegadget(glwegad_computed);
 }

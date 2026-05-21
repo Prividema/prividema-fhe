@@ -94,6 +94,7 @@ int pvda_vec_znx_add(const MODULE* module, PolyBiv* res, const PolyBiv* a, const
 
 int pvda_vec_znx_sub(const MODULE* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b);
 
+int pvda_znx_automorphism(const MODULE* module, const int64_t p, PolyUniv* res, const PolyUniv* a);
 int pvda_vec_znx_automorphism(const MODULE* module, const int64_t p, PolyBiv* res, const PolyBiv* a);
 
 int pvda_vec_znx_rotate(const MODULE* module, const int64_t p, PolyBiv* res, const PolyBiv* a);

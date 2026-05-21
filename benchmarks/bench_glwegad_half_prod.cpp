@@ -53,7 +53,7 @@ void test_glwegad_half_prod(benchmark::State& state)
 		benchmark::DoNotOptimize(glwe);
 	}
 
-	free(m);
+	delete_biv(m);
 	delete_univ(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 
@@ -107,7 +107,7 @@ void test_glwegad_half_prod_dft(benchmark::State& state)
 		benchmark::DoNotOptimize(glwe);
 	}
 
-	free(m);
+	delete_biv(m);
 	free(m_dft);
 	delete_univ(u_univ);
 	delete_univ_tnx(m_univ_tnx);

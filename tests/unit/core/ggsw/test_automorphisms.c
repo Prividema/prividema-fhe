@@ -76,10 +76,8 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
 
 		//TODO: univ auto function
-		uint64_t nn            = params_glwe->nn;
-		PolyBiv m_expected_biv = {nn, 1, nn, (int64_t*)m_expected_tnx};
-		PolyBiv m_univ_biv     = {nn, 1, nn, (int64_t*)m_univ_tnx};
-		pvda_vec_znx_automorphism(module, auto_p, &m_expected_biv, &m_univ_biv);
+		uint64_t nn = params_glwe->nn;
+		pvda_znx_automorphism(module, auto_p, m_expected_tnx, m_univ_tnx);
 
 		int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
 
@@ -98,7 +96,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	delete_glwe(glwe_norm);
 	delete_glwe(glwe_res);
 
-	free(m_auto);
+	delete_biv(m_auto);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }

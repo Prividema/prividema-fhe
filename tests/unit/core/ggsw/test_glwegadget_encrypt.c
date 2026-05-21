@@ -91,7 +91,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	                                critical_err_length);
 	// Clean up
 	delete_univ_rnx(phase_observed_univ_rnx);
-	free(phase_computed);
+	delete_biv(phase_computed);
 	delete_univ_rnx(phase_expected_univ_rnx);
 	delete_univ(m_univ);
 	delete_glwe_secret_key_prepared(sk_prep);

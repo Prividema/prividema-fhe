@@ -60,6 +60,8 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  */
 VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
+PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct);
+
 /**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the
  * parameters in the result object.

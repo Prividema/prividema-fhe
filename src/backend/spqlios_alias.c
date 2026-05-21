@@ -175,6 +175,11 @@ int pvda_vec_znx_sub(const MODULE* module, PolyBiv* res, const PolyBiv* a, const
 	return 0;
 }
 
+int pvda_znx_automorphism(const MODULE* module, const int64_t p, PolyUniv* res, const PolyUniv* a)
+{
+	vec_znx_automorphism(module, p, res, 1, 0, a, 1, 0);
+	return 0;
+}
 int pvda_vec_znx_automorphism(const MODULE* module, const int64_t p, PolyBiv* res, const PolyBiv* a)
 {
 	vec_znx_automorphism(module, p, res->ptr, res->l, res->stride, a->ptr, a->l, a->stride);

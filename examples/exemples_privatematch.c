@@ -42,7 +42,7 @@ int main()
 	if (final > 0.5) final -= 1;
 	printf("%.16e\n", final);
 
-	free(biv);
+	delete_biv(biv);
 	delete_univ_rnx(rnx_final);
 
 	delete_glwe_params(params_glwe);

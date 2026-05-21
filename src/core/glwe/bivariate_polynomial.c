@@ -35,6 +35,16 @@ cleanup:
 	return NULL;
 }
 
+void delete_biv(PolyBiv* biv)
+{
+	if (biv)
+	{
+		free(biv->ptr);
+		biv->ptr = NULL;
+	}
+	free(biv);
+}
+
 PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l)
 {
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
@@ -113,7 +123,7 @@ int add_biv_normal_noise(const MODULE* module, const GLWEParams* params_glwe, Po
 	status = 0;
 cleanup:
 	delete_univ_rnx(tmp_err);
-	free(biv_err);
+	delete_biv(biv_err);
 	return status;
 }
 

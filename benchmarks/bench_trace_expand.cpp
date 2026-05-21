@@ -179,7 +179,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
+	delete_biv(biv_tmp);
 	delete_glwe(glwe_ct);
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
@@ -265,7 +265,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
+	delete_biv(biv_tmp);
 	delete_glwe(glwe_ct);
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);

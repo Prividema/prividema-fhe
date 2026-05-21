@@ -23,6 +23,9 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  */
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe);
+
+void delete_biv(PolyBiv* biv);
+
 /**
  * @brief Creates an allocated bivariate polynomial
  *

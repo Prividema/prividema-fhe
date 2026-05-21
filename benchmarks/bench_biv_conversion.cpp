@@ -62,7 +62,7 @@ void test_biv_normalize(benchmark::State& state)
 	}
 
 	delete_univ_rnx(m);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
@@ -91,7 +91,7 @@ void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 
 	delete_univ_rnx(m);
 	delete_univ_tnx(m_tnx);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
@@ -117,7 +117,7 @@ void test_univ_biv_tnx(benchmark::State& state)
 	}
 
 	delete_univ_tnx(m);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
@@ -146,7 +146,7 @@ void test_biv_univ_tnx(benchmark::State& state)
 
 	delete_univ_tnx(m_back);
 	delete_univ_tnx(m);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
@@ -175,7 +175,7 @@ void test_biv_univ_rnx(benchmark::State& state)
 
 	delete_univ_rnx(m);
 	delete_univ_rnx(m_back);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);

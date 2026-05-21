@@ -7,6 +7,7 @@
 
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -43,6 +44,20 @@ void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src)
 {
 	dst->params = src->params;
 	memcpy(dst->vec, src->vec, glwe_coef_number(src->params) * sizeof(int64_t));
+}
+PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos)
+{
+	uint64_t nn = glwe_ct->params->nn;
+	uint64_t k  = glwe_ct->params->k;
+	uint64_t l  = pos == k ? glwe_params_l_b(glwe_ct->params) : glwe_params_l_a(glwe_ct->params);
+	PolyBiv ret = {nn, l, (int64_t)((k + 1) * nn), glwe_ct->vec + pos * nn};
+	return ret;
+}
+PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct)
+{
+	PolyBiv glwe_flattened = {glwe_ct->params->nn, glwe_params_n_limbs(glwe_ct->params), (int64_t)glwe_ct->params->nn,
+	                          glwe_ct->vec};
+	return glwe_flattened;
 }
 
 PolyBivDFT* glwe_extract_start_poly_dft(const GLWECiphertextDFT* glwe_dft, uint64_t pos)
@@ -123,7 +138,7 @@ cleanup:
 int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft)
 {
 	int status             = -1;
-	PolyBiv glwe_flattened = {res_ct->params->nn, glwe_params_n_limbs(res_ct->params), res_ct->params->nn, res_ct->vec};
+	PolyBiv glwe_flattened = glwe_flattened_biv(res_ct);
 
 	CHECK_CALL(pvda_vec_znx_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(glwe_dft->params)),
 	           "iDFT failed for a GLWE");
@@ -174,7 +189,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 			PolyUnivDFT* sk_j_univ_dft = glwe_prepared_sk_extract_poly_dft(sk_prep, j);
 
 			// Computes DFT(sk_j) * DFT(a_j)
-			PolyBiv a_j = {nn, l_a, (k + 1) * nn, glwe->vec + j * nn};
+			PolyBiv a_j = glwe_extract_poly_view(glwe, j);
 			pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_j);
 
 			// Undo DFT to retreive sk_j * a_j
@@ -188,7 +203,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 	{
 		PolyUnivDFT* sk_j_univ_dft = glwe_prepared_sk_extract_poly_dft(sk_prep, 0);
 
-		PolyBiv a_0 = {nn, l_a, (k + 1) * nn, glwe->vec};
+		PolyBiv a_0 = glwe_extract_poly_view(glwe, 0);
 		pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_0);
 
 		CHECK_CALL(pvda_vec_znx_idft(module, acc, as_j_dft, l_a),
@@ -198,7 +213,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 	add_biv_poly(module, params, acc, acc, phase);
 
 	// The pointer to the last row of the ciphertext vector (B)
-	PolyBiv b = {nn, l_b, (k + 1) * nn, glwe->vec + k * nn};
+	PolyBiv b = glwe_extract_poly_view(glwe, k);
 
 	// Normalize acc (B) and put it in the result variable
 	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, &b, acc),
@@ -207,9 +222,9 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 	status = 0;
 
 cleanup:
-	free(as_j);
+	delete_biv(as_j);
 	free(as_j_dft);
-	free(acc);
+	delete_biv(acc);
 
 	return status;
 }
@@ -229,7 +244,7 @@ int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const 
 
 	status = 0;
 cleanup:
-	free(biv_phase);
+	delete_biv(biv_phase);
 	return status;
 }
 
@@ -249,7 +264,7 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
 
 	status = 0;
 cleanup:
-	free(biv_phase);
+	delete_biv(biv_phase);
 	return status;
 }
 
@@ -281,8 +296,8 @@ int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyP
 		// The j-th component of the secret key in DFT form and the bivGLWE/GLW ciphertext respectively
 		PolyUnivDFT* sk_j_univ_dft = glwe_prepared_sk_extract_poly_dft(sk_prep, j);
 		//const PolyUniv* a_j        = glwe_extract_start_poly(glwe, j);
-		PolyBiv a_j = {nn, l_a, (k + 1) * nn, glwe->vec + j * nn};
 
+		PolyBiv a_j = glwe_extract_poly_view(glwe, j);
 		// Computes DFT(sk_j * a_j)
 
 		pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_j);
@@ -296,8 +311,7 @@ int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyP
 	}
 
 	// Computes acc = b - Sum_j{0,k-1}[sk_j * a_j]
-	//const PolyBiv* b = glwe_extract_start_poly(glwe, k);
-	PolyBiv b = {nn, l_b, (k + 1) * nn, glwe->vec + k * nn};
+	PolyBiv b = glwe_extract_poly_view(glwe, k);
 
 	// acc += b <=> acc = b - sum(sk_j*a_j)
 	pvda_vec_znx_add(module, acc, acc, &b);
@@ -308,9 +322,9 @@ int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyP
 	status = 0;
 
 cleanup:
-	free(as_j);
+	delete_biv(as_j);
 	free(as_j_dft);
-	free(acc);
+	delete_biv(acc);
 
 	return status;
 }

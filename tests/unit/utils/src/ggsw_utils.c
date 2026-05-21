@@ -60,7 +60,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 		                                critical_err_length);
 	}
 
-	free(phase_computed);
+	delete_biv(phase_computed);
 	delete_univ_rnx(phase_observed_univ_rnx);
 	delete_univ_rnx(phase_expected_univ_rnx);
 	delete_univ_dft(m_skj_univ_dft);
@@ -95,7 +95,7 @@ void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad,
 		                                critical_err_length);
 	}
 
-	free(phase_computed);
+	delete_biv(phase_computed);
 	delete_univ_rnx(phase_expected_univ_rnx);
 	delete_univ_rnx(phase_observed_univ_rnx);
 }

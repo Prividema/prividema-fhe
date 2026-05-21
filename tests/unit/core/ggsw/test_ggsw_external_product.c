@@ -68,11 +68,11 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	pvda_assert_polynomial_distance(params_glwe, um_observed_univ_rnx, um_univ_rnx, err_length, critical_err_length);
 
 	// Clean up
-	free(m);
+	delete_biv(m);
 	delete_univ(u_univ);
 	delete_univ_dft(u_univ_dft);
-	free(phase_observed);
-	free(um);
+	delete_biv(phase_observed);
+	delete_biv(um);
 	delete_univ_rnx(um_univ_rnx);
 	free(um_dft);
 	delete_univ_rnx(um_observed_univ_rnx);

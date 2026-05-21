@@ -84,8 +84,8 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_tnx(um_expected_tnx);
 	delete_univ_rnx(um_expected_rnx);
-	free(um_observed);
+	delete_biv(um_observed);
 	delete_univ_rnx(um_observed_rnx);
-	free(m);
+	delete_biv(m);
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }

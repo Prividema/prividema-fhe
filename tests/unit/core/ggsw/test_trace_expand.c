@@ -123,7 +123,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
+	delete_biv(biv_tmp);
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_rnx(m_observed_rnx);
 	delete_univ_tnx(m_expected_tnx);
@@ -181,7 +181,6 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
-	PolyBiv* biv_tmp        = new_biv_poly(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -251,7 +250,6 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
 	delete_glwe(glwe_ct);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;
@@ -276,7 +274,6 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
-	PolyBiv* biv_tmp        = new_biv_poly(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -342,7 +339,6 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
 	delete_glwe(glwe_ct);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;

@@ -52,7 +52,7 @@ PvdaParamTest(biv_to_univ_rnx, runs, default_params_fn)
 	for (uint64_t p = 1; p < params_glwe->nn; p++)
 		cr_assert(eq(dbl, pol_univ_computed[p], 0), "pol_univ_computed[%ld] = %ld ", p, pol_univ_computed[p]);
 
-	free(pol);
+	delete_biv(pol);
 	delete_univ_rnx(pol_univ_computed);
 
 	DELETE_PVDA_PARAMS_GLWE;
@@ -79,7 +79,7 @@ PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 		          i % params_glwe->nn, pol_computed[i]);
 
 	delete_univ_rnx(pol_univ);
-	free(pol_computed);
+	delete_biv(pol_computed);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -110,7 +110,7 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	}
 
 	delete_univ_rnx(pol_univ);
-	free(pol_computed);
+	delete_biv(pol_computed);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -138,7 +138,7 @@ PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 	}
 
 	delete_univ_rnx(pol_univ);
-	free(pol_computed);
+	delete_biv(pol_computed);
 	delete_univ_rnx(pol_univ_computed);
 
 	DELETE_PVDA_PARAMS_GLWE;
@@ -165,7 +165,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	}
 
 	delete_univ_tnx(pol_univ);
-	free(pol_computed);
+	delete_biv(pol_computed);
 	delete_univ_tnx(pol_univ_computed);
 
 	DELETE_PVDA_PARAMS_GLWE;
@@ -193,7 +193,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 	}
 
 	delete_univ_tnx(pol_univ);
-	free(pol_computed);
+	delete_biv(pol_computed);
 	delete_univ_tnx(pol_univ_computed);
 
 	DELETE_PVDA_PARAMS_GLWE;
@@ -220,7 +220,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	}
 
 	delete_univ_tnx(pol_univ);
-	free(pol_computed);
+	delete_biv(pol_computed);
 	delete_univ_tnx(pol_univ_computed);
 
 	DELETE_PVDA_PARAMS_GLWE;
@@ -259,7 +259,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 	delete_univ_rnx(rnx_values);
 	delete_univ_tnx(tnx_values);
 	delete_univ_tnx(tnx_final);
-	free(biv);
+	delete_biv(biv);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -288,7 +288,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
 	pvda_assert_polynomial_distance(params_glwe, rnx_final, rnx_values, 3 * DBL_EPSILON + biv_err,
 	                                4 * DBL_EPSILON + biv_err);
 
-	free(biv);
+	delete_biv(biv);
 	delete_univ_rnx(rnx_values);
 	delete_univ_tnx(tnx_values);
 	delete_univ_rnx(rnx_final);
@@ -322,7 +322,7 @@ PvdaParamTest(normal_random_biv_poly, does_not_crash, default_params_fn)
 
 	cr_assert(eq(int, status, 0, "normal_random_biv failed."));
 
-	free(pol);
+	delete_biv(pol);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -344,7 +344,7 @@ PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 		cr_assert(ge(i64, pol->ptr[i], -(1LL << (params_glwe->kappa - 1))));
 	}
 
-	free(pol);
+	delete_biv(pol);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -371,9 +371,9 @@ PvdaParamTest(add_biv_poly, basic, default_params_fn)
 		cr_assert(eq(i64, sum_observed->ptr[i], pol_lhs->ptr[i] + pol_rhs->ptr[i]));
 	}
 
-	free(pol_lhs);
-	free(pol_rhs);
-	free(sum_observed);
+	delete_biv(pol_lhs);
+	delete_biv(pol_rhs);
+	delete_biv(sum_observed);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }

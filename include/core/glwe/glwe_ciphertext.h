@@ -6,6 +6,7 @@
 #include "bivariate_polynomial.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 #include "spqlios_alias.h"
 
 // bivGLWE PART (begin)
@@ -51,6 +52,9 @@ void delete_glwe(GLWECiphertext* glwe);
  */
 void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
 
+PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
+
+PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct);
 /**
  * @brief Encrypts a phase (message + noise) and puts it in result.
  *
@@ -107,20 +111,6 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
  */
 int glwe_secret_decrypt(const MODULE* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe);
-/**
- * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertext
- *
- * Critically, it is not a pointer to a contiguous PolyBiv! Due to the memory
- * layout of GLWECiphertext, it is strided, that is, there are other data
- * between the different limbs of the polynomial
- *
- * @param glwe_ct The GLWECiphertext from which to retrieve the start of a bivariate polynomial
- * @param pos The index of the polynomial whose start is to be retrieved
- *
- * @return The start of a strided bivariate polynomial
- *
- */
-PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
 
 // bivGLWE IN DFT PART (begin)
 

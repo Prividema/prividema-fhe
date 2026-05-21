@@ -17,23 +17,16 @@ int normalize_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphe
 	int status = -1;
 
 	// bivGLWE parameters
-	uint64_t nn    = result->params->nn;
 	uint64_t k     = result->params->k;
 	uint64_t kappa = result->params->kappa;
-	uint64_t l_a   = glwe_params_l_a(result->params);
-	uint64_t l_b   = glwe_params_l_b(result->params);
 
-	for (uint64_t j = 0; j < k; j++)
+	for (uint64_t j = 0; j <= k; j++)
 	{
-		PolyBiv a_biv   = {nn, l_a, (k + 1) * nn, glwe->vec + j * nn};
-		PolyBiv res_biv = {nn, l_a, (k + 1) * nn, result->vec + j * nn};
-		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, &res_biv, &a_biv),
+		PolyBiv aj_biv  = glwe_extract_poly_view(glwe, j);
+		PolyBiv res_biv = glwe_extract_poly_view(result, j);
+		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, &res_biv, &aj_biv),
 		           "vec_znx_normalize_base2k_p failed in normalize_glwe");
 	}
-	PolyBiv b_biv   = {nn, l_b, (k + 1) * nn, glwe->vec + k * nn};
-	PolyBiv res_biv = {nn, l_b, (k + 1) * nn, result->vec + k * nn};
-	CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, &res_biv, &b_biv),
-	           "vec_znx_normalize_base2k_p failed in normalize_glwe");
 	status = 0;
 
 cleanup:
@@ -44,28 +37,26 @@ cleanup:
 void add_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
               const GLWECiphertext* glwe_rhs)
 {
-	uint64_t nn           = result->params->nn;
-	PolyBiv lhs_flattened = {nn, glwe_params_n_limbs(glwe_lhs->params), nn, glwe_lhs->vec};
-	PolyBiv rhs_flattened = {nn, glwe_params_n_limbs(glwe_rhs->params), nn, glwe_rhs->vec};
-	PolyBiv res_flattened = {nn, glwe_params_n_limbs(result->params), nn, result->vec};
+	PolyBiv lhs_flattened = glwe_flattened_biv(glwe_lhs);
+	PolyBiv rhs_flattened = glwe_flattened_biv(glwe_rhs);
+	PolyBiv res_flattened = glwe_flattened_biv(result);
 	pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 void sub_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
               const GLWECiphertext* glwe_rhs)
 {
-	uint64_t nn           = result->params->nn;
-	PolyBiv lhs_flattened = {nn, glwe_params_n_limbs(glwe_lhs->params), nn, glwe_lhs->vec};
-	PolyBiv rhs_flattened = {nn, glwe_params_n_limbs(glwe_rhs->params), nn, glwe_rhs->vec};
-	PolyBiv res_flattened = {nn, glwe_params_n_limbs(result->params), nn, result->vec};
+	PolyBiv lhs_flattened = glwe_flattened_biv(glwe_lhs);
+	PolyBiv rhs_flattened = glwe_flattened_biv(glwe_rhs);
+	PolyBiv res_flattened = glwe_flattened_biv(result);
 	pvda_vec_znx_sub(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 void negate_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe)
 {
 	uint64_t nn            = result->params->nn;
-	PolyBiv glwe_flattened = {nn, glwe_params_n_limbs(glwe->params), nn, glwe->vec};
-	PolyBiv res_flattened  = {nn, glwe_params_n_limbs(result->params), nn, result->vec};
+	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
+	PolyBiv res_flattened  = glwe_flattened_biv(result);
 	pvda_vec_znx_negate(module, &res_flattened, &glwe_flattened);
 }
 
@@ -79,7 +70,7 @@ int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUniv
 	CHECK_ALLOC(u_glwe_dft, "u_glwe_dft's malloc failed in const_mult_glwe.");
 
 	// Computes DFT(u * glwe)
-	PolyBiv glwe_flattened = {nn, glwe_params_n_limbs(glwe->params), nn, glwe->vec};
+	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
 	pvda_svp_apply_dft(module, u_glwe_dft->vec, glwe_params_n_limbs(result->params), u_dft, &glwe_flattened);
 
 	// Computes it out of the DFT domain

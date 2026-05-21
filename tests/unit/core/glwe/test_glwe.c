@@ -55,12 +55,12 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
 
 	free(phase_observed_univ_RnX);
-	free(phase_observed);
+	delete_biv(phase_observed);
 	delete_glwe(glwe_observed);
-	free(phase);
+	delete_biv(phase);
 	free(m_univ_RnX);
-	free(err);
-	free(m);
+	delete_biv(err);
+	delete_biv(m);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
@@ -107,11 +107,11 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
 
 	free(phase_observed_univ_RnX);
-	free(phase_observed);
+	delete_biv(phase_observed);
 	delete_glwe(glwe_observed);
-	free(phase);
-	free(m);
-	free(err);
+	delete_biv(phase);
+	delete_biv(m);
+	delete_biv(err);
 	free(m_univ_RnX);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
