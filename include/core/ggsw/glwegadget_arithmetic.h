@@ -52,6 +52,8 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
 int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
 
+int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
+                GLWESecretKeyPrepared* old_key);
 /**
  * @brief Performs the automorphism of a GLWE ciphertext , ie, sets its polynomials a(X, Y) to a(X^p, Y)
  *

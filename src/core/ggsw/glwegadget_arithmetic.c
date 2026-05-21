@@ -9,6 +9,7 @@
 #include "ggsw_params.h"
 #include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
+#include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
@@ -63,6 +64,37 @@ cleanup:
 	return status;
 }
 
+int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
+                GLWESecretKeyPrepared* old_key)
+{
+	int status = -1;
+
+	uint64_t k  = new_key->k;
+	uint64_t nn = new_key->nn;
+
+	GLWEGadgetCiphertext* glwegad_tmp = new_glwegadget(ksk->params);
+
+	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in automorphism KSK preparation");
+
+	ksk->automorphism_p = 0;
+
+	for (int i = 0; i < k; ++i)
+	{
+		GLWEGadgetCiphertextPrep* gadget_ciph = ksk->enc_s[i];
+
+		//GLWEGadget(sigma_p(sk_i))
+		CHECK_CALL(
+		    glwegadget_secret_encrypt(module, glwegad_tmp, new_key, glwe_prepared_sk_extract_poly_coefs(old_key, i)),
+		    "GLWEGadget encryption failed in autmorphism KSK preparation");
+		CHECK_CALL(glwegadget_prepare(module, gadget_ciph, glwegad_tmp),
+		           "GLWEGadget preparation failed in automorphism KSK preparation");
+	}
+
+	status = 0;
+cleanup:
+	delete_glwegadget(glwegad_tmp);
+	return status;
+}
 int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p)
 {
@@ -200,6 +232,71 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		delete_glwe(glwe_tmp);
 	}
 
+	return status;
+}
+
+int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* ksk,
+                           const GLWECiphertext* glwe_ct)
+{
+	int status = -1;
+
+	uint64_t k = result->params->k;
+
+	if (k == 1)
+	{
+		PolyBiv a = glwe_extract_poly_view(glwe_ct, 0);
+		//result = GLWE_k(k_new) \hp a
+		//result = C_k(k_new) \hp a
+		CHECK_CALL(glwegadget_half_prod(module, result, ksk->enc_s[0], &a), "half product in automorphism failed");
+
+		// result = - (C_k(k_new) \hp a)
+		negate_glwe(module, result, result);
+
+		PolyBiv b        = glwe_extract_poly_view(glwe_ct, k);
+		PolyBiv result_b = glwe_extract_poly_view(result, k);
+		//result = (0, b) - result = (0, b) - (C_k(k_new) \hp a)
+		pvda_vec_znx_add(module, &result_b, &result_b, &b);
+
+		status = 0;
+	cleanup:;
+	}
+	else
+	{
+		GLWECiphertext* glwe_tmp = new_glwe(result->params);
+
+		CHECK_ALLOC_LABEL(glwe_tmp, "GLWE allocation failed in automorphism", cleanup2);
+
+		PolyBiv a_0 = glwe_extract_poly_view(glwe_ct, 0);
+
+		//result = GLWE_k(k_new[0]) \hp a_0
+		//result = C_k(k_new[0]) \hp a_0
+		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, ksk->enc_s[0], &a_0),
+		                 "half product in automorphism failed", cleanup2);
+
+		for (int i = 1; i < k; ++i)
+		{
+			PolyBiv a_i = glwe_extract_poly_view(glwe_ct, i);
+
+			//result += C_k(k_new[i]) \hp a_i
+			//result = sum_{j=0}^{j=i} (C_k(k_new[j]) \hp a_j) (LOOP INVARIANT)
+			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, ksk->enc_s[i], &a_i),
+			                 "half product in automorphism failed", cleanup2);
+
+			add_glwe(module, result, result, glwe_tmp);
+		}
+
+		//result = -sum_{j=0}^{j=k-1} (C_k(k_new[j]) \hp a_j)
+		negate_glwe(module, result, result);
+
+		PolyBiv b        = glwe_extract_poly_view(glwe_ct, k);
+		PolyBiv result_b = glwe_extract_poly_view(result, k);
+		pvda_vec_znx_add(module, &result_b, &result_b, &b);
+		status = 0;
+	cleanup2:
+		delete_glwe(glwe_tmp);
+	}
+
+	status = 0;
 	return status;
 }
 
