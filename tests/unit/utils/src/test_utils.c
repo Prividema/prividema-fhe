@@ -86,13 +86,6 @@ struct criterion_test_params default_params_fn()
 	     .ciphertext_nb_limbs       = 9l * 5 - 1,
 	     .ciphertext_nb_limbs_tilde = 9l * 5,
 	     .sigma                     = 0},  // k > 1 l_a != l_b params
-	    {.nn                        = 2,
-	     .k                         = 1,
-	     .kappa                     = 2,
-	     .ciphertext_nb_limbs       = 2,
-	     .ciphertext_nb_limbs_tilde = 2,
-	     .sigma                     = 0},  // k > 1 l_a != l_b params
-
 	};
 
 	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));

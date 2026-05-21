@@ -186,7 +186,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 
 		status = 0;
 	cleanup:
-		free(auto_tmp);
+		delete_biv(auto_tmp);
 	}
 	else
 	{
@@ -228,7 +228,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		pvda_vec_znx_add(module, &result_b, &result_b, auto_tmp);
 		status = 0;
 	cleanup2:
-		free(auto_tmp);
+		delete_biv(auto_tmp);
 		delete_glwe(glwe_tmp);
 	}
 
