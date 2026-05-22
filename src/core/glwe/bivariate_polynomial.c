@@ -48,7 +48,7 @@ void delete_biv(PolyBiv* biv)
 PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l)
 {
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
-	CHECK_ALLOC(pol->ptr, "pol's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
 
 	pol->nn     = params_glwe->nn;
 	pol->l      = biv_l;
