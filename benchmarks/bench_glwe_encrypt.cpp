@@ -11,13 +11,7 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 14)
-#define KBASE      1
-#define KAPPABASE  19
-#define NLIMBSBASE (15 * 2)
-#define LBASE      NLIMBSBASE / (KBASE + 1)
-#define SIGMABITS  4  //bits of sigma in the last limb. Should not affect performance
-#define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
+#include "params.h"
 
 void test_encrypt_rnx(benchmark::State& state)
 {

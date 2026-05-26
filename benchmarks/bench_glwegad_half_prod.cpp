@@ -14,13 +14,7 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 16)
-#define KBASE      1
-#define KAPPABASE  19
-#define LBASE      91
-#define NLIMBSBASE (LBASE * 2)
-#define SIGMABITS  4  //bits of sigma in the last limb. Should not affect performance
-#define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
+#include "params.h"
 
 void test_glwegad_half_prod(benchmark::State& state)
 {
