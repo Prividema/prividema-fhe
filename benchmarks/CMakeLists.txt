@@ -30,3 +30,7 @@ foreach(bench_file ${BENCH_FILES})
   target_include_directories(${bench_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 endforeach()
+
+add_executable(bench_all ${BENCH_FILES})
+target_link_libraries(bench_all PRIVATE PVDA_COMMON PVDA_GLWE PVDA_GGSW PVDA_BACKEND libspqlios benchmark::benchmark_main)
+target_include_directories(bench_all PRIVATE ${PROJECT_SOURCE_DIR}/include)

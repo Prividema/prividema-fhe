@@ -1,6 +1,8 @@
 #ifndef PARAMS_H
 #define PARAMS_H
 
+#include <cmath>
+
 #define NBASE      (1 << 14)
 #define KBASE      1
 #define KAPPABASE  19

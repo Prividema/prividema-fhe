@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
@@ -13,7 +11,7 @@ extern "C" {
 
 #include "params.h"
 
-void test_encrypt_rnx(benchmark::State& state)
+void bench_encrypt_rnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -44,9 +42,9 @@ void test_encrypt_rnx(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_encrypt_rnx);
+BENCHMARK(bench_encrypt_rnx);
 
-void test_encrypt_tnx(benchmark::State& state)
+void bench_encrypt_tnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -77,9 +75,9 @@ void test_encrypt_tnx(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_encrypt_tnx);
+BENCHMARK(bench_encrypt_tnx);
 
-void test_encrypt_tnx_normalnoise(benchmark::State& state)
+void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 {
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_NORMAL);
@@ -109,4 +107,4 @@ void test_encrypt_tnx_normalnoise(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_encrypt_tnx_normalnoise);
+BENCHMARK(bench_encrypt_tnx_normalnoise);

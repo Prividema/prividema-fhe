@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
@@ -13,15 +11,9 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 14)
-#define KBASE      1
-#define KAPPABASE  19
-#define NLIMBSBASE (15 * 2)
-#define LBASE      NLIMBSBASE / (KBASE + 1)
-#define SIGMABITS  4  //bits of sigma in the last limb. Should not affect performance
-#define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
+#include "params.h"
 
-void test_ggsw_encrypt(benchmark::State& state)
+void bench_ggsw_encrypt(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -57,4 +49,4 @@ void test_ggsw_encrypt(benchmark::State& state)
 	delete_ggsw(ggsw_computed);
 }
 
-BENCHMARK(test_ggsw_encrypt);
+BENCHMARK(bench_ggsw_encrypt);

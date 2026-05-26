@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
@@ -13,7 +11,7 @@ extern "C" {
 
 #include "params.h"
 
-void test_benchmark(benchmark::State& state)
+void bench_enc_dec_rnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -50,4 +48,4 @@ void test_benchmark(benchmark::State& state)
 	delete_univ_rnx(result_univ);
 }
 
-BENCHMARK(test_benchmark);
+BENCHMARK(bench_enc_dec_rnx);

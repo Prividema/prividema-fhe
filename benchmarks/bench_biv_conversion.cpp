@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
@@ -11,7 +9,7 @@ extern "C" {
 
 #include "params.h"
 
-void test_univ_biv_rnx(benchmark::State& state)
+void bench_univ_biv_rnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -34,9 +32,9 @@ void test_univ_biv_rnx(benchmark::State& state)
 	pvda_delete_module_info(module);
 }
 
-BENCHMARK(test_univ_biv_rnx);
+BENCHMARK(bench_univ_biv_rnx);
 
-void test_biv_normalize(benchmark::State& state)
+void bench_biv_normalize(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -62,9 +60,9 @@ void test_biv_normalize(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 }
 
-BENCHMARK(test_biv_normalize);
+BENCHMARK(bench_biv_normalize);
 
-void test_univ_biv_rnx_via_tnx(benchmark::State& state)
+void bench_univ_biv_rnx_via_tnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -90,9 +88,9 @@ void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 	pvda_delete_module_info(module);
 }
 
-BENCHMARK(test_univ_biv_rnx_via_tnx);
+BENCHMARK(bench_univ_biv_rnx_via_tnx);
 
-void test_univ_biv_tnx(benchmark::State& state)
+void bench_univ_biv_tnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -115,9 +113,9 @@ void test_univ_biv_tnx(benchmark::State& state)
 	pvda_delete_module_info(module);
 }
 
-BENCHMARK(test_univ_biv_tnx);
+BENCHMARK(bench_univ_biv_tnx);
 
-void test_biv_univ_tnx(benchmark::State& state)
+void bench_biv_univ_tnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -143,9 +141,9 @@ void test_biv_univ_tnx(benchmark::State& state)
 	pvda_delete_module_info(module);
 }
 
-BENCHMARK(test_biv_univ_tnx);
+BENCHMARK(bench_biv_univ_tnx);
 
-void test_biv_univ_rnx(benchmark::State& state)
+void bench_biv_univ_rnx(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -171,4 +169,4 @@ void test_biv_univ_rnx(benchmark::State& state)
 	pvda_delete_module_info(module);
 }
 
-BENCHMARK(test_biv_univ_rnx);
+BENCHMARK(bench_biv_univ_rnx);

@@ -16,7 +16,7 @@ extern "C" {
 
 #include "params.h"
 
-void test_glwegad_half_prod(benchmark::State& state)
+void bench_glwegad_half_prod(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -64,9 +64,9 @@ void test_glwegad_half_prod(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_glwegad_half_prod);
+BENCHMARK(bench_glwegad_half_prod);
 
-void test_glwegad_half_prod_dft(benchmark::State& state)
+void bench_glwegad_half_prod_dft(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
@@ -120,4 +120,4 @@ void test_glwegad_half_prod_dft(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_glwegad_half_prod_dft);
+BENCHMARK(bench_glwegad_half_prod_dft);

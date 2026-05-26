@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
@@ -15,7 +13,7 @@ extern "C" {
 
 #include "params.h"
 
-void test_ggsw_ext_prod(benchmark::State& state)
+void bench_ggsw_ext_prod(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -61,4 +59,4 @@ void test_ggsw_ext_prod(benchmark::State& state)
 	delete_ggsw_params(params_ggsw);
 }
 
-BENCHMARK(test_ggsw_ext_prod);
+BENCHMARK(bench_ggsw_ext_prod);

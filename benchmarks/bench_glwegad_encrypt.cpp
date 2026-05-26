@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
@@ -16,7 +14,7 @@ extern "C" {
 
 #include "params.h"
 
-void test_glwegad_encrypt(benchmark::State& state)
+void bench_glwegad_encrypt(benchmark::State& state)
 {
 	MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
@@ -52,4 +50,4 @@ void test_glwegad_encrypt(benchmark::State& state)
 	delete_glwegadget(glwegad_computed);
 }
 
-BENCHMARK(test_glwegad_encrypt);
+BENCHMARK(bench_glwegad_encrypt);
