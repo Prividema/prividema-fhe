@@ -18,13 +18,14 @@ extern "C" {
 #define KAPPABASE  19
 #define LBASE      15
 #define NLIMBSBASE (LBASE * 2)
+#define SIGMABITS  4  //bits of sigma in the last limb. Should not affect performance
+#define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
 
 void test_ggsw_ext_prod(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);

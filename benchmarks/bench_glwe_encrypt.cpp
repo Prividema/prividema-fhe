@@ -16,13 +16,14 @@ extern "C" {
 #define KAPPABASE  19
 #define NLIMBSBASE (15 * 2)
 #define LBASE      NLIMBSBASE / (KBASE + 1)
+#define SIGMABITS  4  //bits of sigma in the last limb. Should not affect performance
+#define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
 
 void test_encrypt_rnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
@@ -53,10 +54,9 @@ BENCHMARK(test_encrypt_rnx);
 
 void test_encrypt_tnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
@@ -87,10 +87,8 @@ BENCHMARK(test_encrypt_tnx);
 
 void test_encrypt_tnx_normalnoise(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_NORMAL);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_NORMAL);
 
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);

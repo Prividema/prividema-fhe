@@ -17,19 +17,15 @@ extern "C" {
 #define NLIMBSBASE (15 * 2)
 #define LBASE      NLIMBSBASE / (KBASE + 1)
 #define SIGMABASE  -(LBASE / 2 + 1) * KAPPABASE
+#define SIGMABITS  4  //bits of sigma in the last limb. Should not affect performance
+#define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
 
 void test_benchmark(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
-	// Since the message is drawn in Zn[X,Y], there is no decomposition error. Thus, the error should be smaller than 3*sigma 99.73% of the time
-	double err_length = 3 * sigma;
-
-	//! Parameters
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
-
-	//! Variables
 	GLWESecretKey* sk             = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_dft      = alloc_glwe_secret_key_dft(params_glwe);
 	PolyUnivRnX* m                = new_univ_rnx(params_glwe);
@@ -37,8 +33,6 @@ void test_benchmark(benchmark::State& state)
 	PolyBiv* result_biv           = new_biv_poly(params_glwe);
 	PolyUnivRnX* result_univ      = new_univ_rnx(params_glwe);
 
-	//! Draws each input variable
-	// Draws uniformly in (Cm[X])^k the secret key
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
