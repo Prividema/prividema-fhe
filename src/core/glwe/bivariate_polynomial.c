@@ -398,7 +398,7 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 	}
 }
 
-// IEEE 754 double precision mask for sign (1<<63) and magnitude (bits[51:0])
+// IEEE 754 double precision mask for sign (bit 63) and mantissa (bits[51:0])
 #define DOUBLE_SGN_AND_MANTISSA_BMASK ((1UL << 63) + (1UL << 52) - 1)
 
 int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset)
@@ -413,7 +413,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		// directly with the IEEE 754 memory layout
 		memcpy(&s_val, &val, sizeof(double));
 
-		// IEEE 754 exponent
+		// IEEE 754 exponent (select bits and undo 1023 fixed offset)
 		int exp = (int)select_bits(s_val, 52, 11);
 		exp -= 1023;
 
@@ -452,14 +452,16 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 	assert(kappa <= 63);
 
 	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);  // limb number wehre lsb_pos falls
-	int k_offset = last_l * kappa - lsb_pos;
+	int k_offset = last_l * kappa - lsb_pos;          // position (bit) in the last written limb where lsb_pos falls
+	// Equivalently, number of bits in the last limb that are to the right of it and thus will be 0
 	assert(k_offset >= 0 && k_offset < kappa);
 
 	uint64_t mask = 0;
 
+	// Compute the offset-carry mask that converts [0, 2^-K) into [-2^(K-1), -2^(K-1))
 	for (uint64_t i = 1; (i * kappa - 1 - k_offset) < 64; ++i)
 	{
-		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
+		mask += 1ULL << (i * kappa - 1 - k_offset);
 	}
 
 	// Add the mask and xor by it to do the conversion from [0, 2^-K) to [-2^(K-1), -2^(K-1))
@@ -489,7 +491,8 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 		if (i == 0)
 			for (int p = 0; p < nn; ++p)
 			{
-				// For the least significant limb, take into account rightmost truncated bits
+				// For the least significant limb, take into account the rightmost bits that need to be set to 0 due to
+				// lsb_pos/k_offset
 				uint64_t stnxt_tmp                 = mag_vec[p] << k_offset;
 				uint64_t s                         = select_bits(stnxt_tmp, 0, kappa);
 				int64_t s2                         = sgn_ext(s, kappa - 1, sgn_vec[p]);
@@ -498,7 +501,11 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 		else
 			for (int p = 0; p < nn; ++p)
 			{
-				uint64_t s                         = select_bits(mag_vec[p], i * kappa - k_offset, kappa);
+				// Select the correspoding K bit group
+				uint64_t s = select_bits(mag_vec[p], i * kappa - k_offset, kappa);
+				// Extend the K-bit 2-complement value (that the mask generated) into 64 bits,
+				// and invert the sign if the input sign was negative
+				// This step is what makes the output be in [-2^-(K-1), 2^-(K-1)] instead of [-2^-(K-1), 2^-(K-1))
 				int64_t s2                         = sgn_ext(s, kappa - 1, sgn_vec[p]);
 				dst[(last_l - 1 - i) * dst_sl + p] = s2;
 			}

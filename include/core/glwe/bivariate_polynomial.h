@@ -124,6 +124,9 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 /**
  * @brief Computes the bivariate decompositionof a polynomial in \RnX.
  *
+ * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
+ * the normalized [-2^(K-1), 2^(K-1))
+ *
  * @param params_glwe The bivGLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_univ The univariate polynomial.
@@ -179,6 +182,9 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Tn[X].
  *
+ * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
+ * the normalized [-2^(K-1), 2^(K-1))
+ *
  * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_tnx The univariate polynomial in fixed-point form
@@ -198,9 +204,12 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
  * The function is only well-defined for polynomials with coefficients in (-2^63, 2^63)
  * due to the internal conversion function used.
  *
+ * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
+ * the normalized [-2^(K-1), 2^(K-1))
+ *
  * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
- * @param pol_tnx The univariate ZnX polynomial with coefficients in (-2^63, 2^63)
+ * @param pol_tnx The univariate ZnX polynomial with coefficients in (-2^62, 2^62)
  * @param bit_offset How many times the input should be right-shifted (divided by 2).
  *
  * @retval -1 if an error occurs
