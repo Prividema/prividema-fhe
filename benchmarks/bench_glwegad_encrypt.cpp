@@ -24,8 +24,8 @@ void test_glwegad_encrypt(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
-	MODULE* module                   = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe          = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);

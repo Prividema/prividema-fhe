@@ -12,8 +12,8 @@
 
 Test(new_glwe_ct_params, basic)
 {
-	GLWEParams* params =
-	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, 3 - LBASE * KAPPABASE), NOISE_FAST_UNIFORM);
+	GLWEParams* params = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, 3 - LBASE * KAPPABASE),
+	                                     NOISE_UNIFORM_POWER_OF_TWO);
 
 	cr_assert(eq(int, params != NULL, 1));
 	cr_assert(eq(i64, params->nn, NBASE));

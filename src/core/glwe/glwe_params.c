@@ -24,7 +24,7 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb
 
 	switch (noise_type)
 	{
-		case NOISE_FAST_UNIFORM: {
+		case NOISE_UNIFORM_POWER_OF_TWO: {
 			// Placeholder sigma
 			double range                 = sqrt(3.0) * rescaled_noise;
 			uint64_t log_2               = ceil(log2(range));
@@ -63,7 +63,7 @@ double glwe_params_stdev(const GLWEParams* params_glwe)
 {
 	switch (params_glwe->noise_type)
 	{
-		case NOISE_FAST_UNIFORM:
+		case NOISE_UNIFORM_POWER_OF_TWO:
 			return NAN;
 		case NOISE_UNIFORM:
 			return NAN;

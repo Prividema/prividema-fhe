@@ -20,7 +20,7 @@ void test_univ_biv_rnx(benchmark::State& state)
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 
 	PolyUnivRnX* m = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv = new_biv_poly(params_glwe);
@@ -46,7 +46,7 @@ void test_biv_normalize(benchmark::State& state)
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 
 	PolyUnivRnX* m = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv = new_biv_poly(params_glwe);
@@ -75,7 +75,7 @@ void test_univ_biv_rnx_via_tnx(benchmark::State& state)
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 
 	PolyUnivRnX* m     = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv     = new_biv_poly(params_glwe);
@@ -104,7 +104,7 @@ void test_univ_biv_tnx(benchmark::State& state)
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 
 	PolyUnivTnX* m = new_univ_tnx(params_glwe);
 	PolyBiv* m_biv = new_biv_poly(params_glwe);
@@ -130,7 +130,7 @@ void test_biv_univ_tnx(benchmark::State& state)
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 
 	PolyUnivTnX* m      = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_back = new_univ_tnx(params_glwe);
@@ -159,7 +159,7 @@ void test_biv_univ_rnx(benchmark::State& state)
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 
 	PolyUnivRnX* m      = new_univ_rnx(params_glwe);
 	PolyUnivRnX* m_back = new_univ_rnx(params_glwe);

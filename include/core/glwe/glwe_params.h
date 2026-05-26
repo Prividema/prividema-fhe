@@ -9,7 +9,7 @@
  *
  */
 typedef enum noise_type_t {
-	NOISE_FAST_UNIFORM,  ///< Uniform noise, with the range being restricted to powers of 2. The smallest suitable one is selected from sigma.
+	NOISE_UNIFORM_POWER_OF_TWO,  ///< Uniform noise, with the range being restricted to powers of 2. The smallest suitable one is selected from sigma.
 	NOISE_UNIFORM,   ///< Uniform noise withouth the power-of-2 restriction in its internal sampling.
 	                 ///< This will make it significantly slower, albeit potentially more precise
 	NOISE_BINOMIAL,  ///< Binomial noise (on the last limb, with p=0.5, ie, symmetric)

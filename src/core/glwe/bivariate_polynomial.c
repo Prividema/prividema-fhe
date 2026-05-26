@@ -130,7 +130,7 @@ int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 {
 	switch (params_glwe->noise_type)
 	{
-		case NOISE_FAST_UNIFORM:
+		case NOISE_UNIFORM_POWER_OF_TWO:
 			return add_biv_fast_uni_noise(module, params_glwe, res, a);
 		case NOISE_NORMAL:
 			return add_biv_normal_noise(module, params_glwe, res, a);
