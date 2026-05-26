@@ -190,18 +190,18 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx, int64_t bit_offset);
 
 /**
- * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Zn[X].
+ * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Zn[X] divided by a power of 2.
  *
- * ZnX elements themselves don't fit in the Torus (or equivalently, they are all congruent to 0).
- * However, if a bit_offset is provided, elements are divided before being put in the torus.
- * In that case, they can (and often will) be non-zero.
+ * Since ZnX elements themselves don't fit in the Torus (or equivalently, they are all congruent to 0),
+ * this function is only useful if called with bit_offset >= 1.
  *
  * The function is only well-defined for polynomials with coefficients in (-2^63, 2^63)
+ * due to the internal conversion function used.
  *
  * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_tnx The univariate ZnX polynomial with coefficients in (-2^63, 2^63)
- * @param bit_offset How many times the input should be right-shifted (divided by 2)
+ * @param bit_offset How many times the input should be right-shifted (divided by 2).
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
