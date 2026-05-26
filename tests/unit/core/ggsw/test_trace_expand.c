@@ -156,6 +156,12 @@ struct criterion_test_params trace_params2_fn()
 	     .ciphertext_nb_limbs       = 9l * 5,
 	     .ciphertext_nb_limbs_tilde = 9l * 5,
 	     .sigma                     = 0},  // k > 1 params
+	    {.nn                        = 256,
+	     .k                         = 1,
+	     .kappa                     = 19,
+	     .ciphertext_nb_limbs       = 15l * 2,
+	     .ciphertext_nb_limbs_tilde = 15l * 2,
+	     .sigma                     = 0},  // k > 1 params
 
 	    /*
 	        {.nn                        = 1024,
@@ -180,8 +186,8 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	double biv_epsilon                = glwe_bivariate_epsilon(params_glwe);
 	double tst_epsilon                = DBL_EPSILON;
 	double multiplier                 = params_glwe->nn;
-	double max_err_length             = multiplier * tst_epsilon + 2 * biv_epsilon;
-	double critical_err_length        = multiplier * tst_epsilon + 2 * biv_epsilon;
+	double max_err_length             = 2 * biv_epsilon;
+	double critical_err_length        = 2 * biv_epsilon;
 
 	uint64_t k  = params_glwe->k;
 	uint64_t nn = params_glwe->nn;
@@ -225,9 +231,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{
-		int bund      = bundled[i];
-		int logfactor = bund * params_glwegadget->l_tilde;
-		int factor    = 1 << (32 - __builtin_clz(logfactor - 1));
+		int bund = bundled[i];
 
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
