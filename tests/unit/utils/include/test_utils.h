@@ -51,10 +51,11 @@ typedef struct pvda_tst_params_t
 /**
  * Internal use function to fill the sigma value of PvdaTstParams and get its value.
  *
- * Since sigma can be specified as a power, the actual stdev or left to a default to be
- * computed according to the other params, this function does that.
+ * The stdev can be specified in three ways:
  *
- *
+ * - A value of 0 will generate the default sigma, which is going to be 4 bits in the last limb: 2^(4-K*l_a)
+ * - A positive value is taken as-is as a double
+ * - A negative values is interpreted as an exponent r and sigma is set to 2^-r
  */
 double generate_sigma(PvdaTstParams* p);
 

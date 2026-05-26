@@ -16,7 +16,10 @@ double generate_sigma(PvdaTstParams* p)
 {
 	if (p->sigma > 0.0) return p->sigma;
 	if (p->sigma < 0.0) return ldexp(1.0, (int)p->sigma);
-	return ldexp(1.0, 4 - ((p->ciphertext_nb_limbs + 1) / (p->k + 1)) * p->kappa);
+
+	// If p == 0 defaut sigma which has arbitrarily chosen to be 4 bits of the last limb: 2^(4-K*l_a)
+	int64_t l_a = ((p->ciphertext_nb_limbs + 1) / (p->k + 1));
+	return ldexp(1.0, 4 - l_a * p->kappa);
 }
 
 void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
