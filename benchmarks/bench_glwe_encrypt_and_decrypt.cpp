@@ -10,6 +10,7 @@ extern "C" {
 }
 
 #include "params.h"
+#include "utils.hpp"
 
 void bench_enc_dec_rnx(benchmark::State& state)
 {
@@ -28,7 +29,7 @@ void bench_enc_dec_rnx(benchmark::State& state)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	//The input message, for now sampled normally since we cannot sample uniformly in the torus right now
-	normal_random_vec(m, NBASE, 0.0, 0.1);
+	rnx_random_vec(m, params_glwe);
 
 	for (auto _ : state)
 	{

@@ -12,6 +12,7 @@ extern "C" {
 }
 
 #include "params.h"
+#include "utils.hpp"
 
 void bench_ggsw_ext_prod(benchmark::State& state)
 {
@@ -34,7 +35,7 @@ void bench_ggsw_ext_prod(benchmark::State& state)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
 	uniform_random_vec(NBASE, m, 1, NBASE, 4);
-	normal_random_vec(m_glwe, NBASE, 0.0, 0.1);
+	rnx_random_vec(m_glwe, params_glwe);
 	ggsw_secret_encrypt(module, ggsw, sk_dft, m);
 	glwe_secret_encrypt_rnx(module, glwe_input, sk_dft, m_glwe);
 

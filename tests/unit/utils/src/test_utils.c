@@ -8,6 +8,8 @@
 
 #include "glwe_params.h"
 #include "math.h"
+#include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 double generate_sigma(PvdaTstParams* p)
@@ -69,6 +71,24 @@ struct criterion_test_params default_params_fn()
 	};
 
 	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
+}
+
+int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe)
+{
+	int status = -1;
+
+	PolyUnivTnX* tmp_tnx = new_univ_tnx(params_glwe);
+
+	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
+	// the memory representation is the same for isomprphic values
+	uniform_random_pol_znx((PolyUniv*)tmp_tnx, params_glwe->nn, 64);
+
+	univ_tnx_to_rnx(params_glwe, res, tmp_tnx);
+
+	status = 0;
+cleanup:
+	free(tmp_tnx);
+	return status;
 }
 /*
 

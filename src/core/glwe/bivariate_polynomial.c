@@ -71,29 +71,6 @@ void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 	pvda_vec_znx_add(module, res, l_a, nn, a, l_a, nn, b, l_a, nn);
 }
 
-int add_biv_normal_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
-{
-	int status = -1;
-
-	PolyUnivRnX* tmp_err = new_univ_rnx(params_glwe);
-	PolyBiv* biv_err     = new_biv_poly(params_glwe);
-
-	CHECK_ALLOC(tmp_err, "Failed alloc in normal noise generation");
-	CHECK_ALLOC(biv_err, "Failed alloc in normal noise generation");
-
-	CHECK_CALL(normal_random_vec(tmp_err, params_glwe->nn, 0.0, params_glwe->normal_sigma), "Error generation failed");
-
-	CHECK_CALL(univ_rnx_to_biv(params_glwe, biv_err, tmp_err, 0), "univ_to_biv failed in compute_phase_ij");
-
-	add_biv_poly(module, params_glwe, res, a, biv_err);
-
-	status = 0;
-cleanup:
-	delete_univ_rnx(tmp_err);
-	free(biv_err);
-	return status;
-}
-
 int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	int status = -1;
@@ -132,8 +109,6 @@ int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 	{
 		case NOISE_UNIFORM_POWER_OF_TWO:
 			return add_biv_fast_uni_noise(module, params_glwe, res, a);
-		case NOISE_NORMAL:
-			return add_biv_normal_noise(module, params_glwe, res, a);
 		default:
 			RAISE_ERROR("Noise type not implemented");
 	}
@@ -505,7 +480,7 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 				uint64_t s = select_bits(mag_vec[p], i * kappa - k_offset, kappa);
 				// Extend the K-bit 2-complement value (that the mask generated) into 64 bits,
 				// and invert the sign if the input sign was negative
-				// This step is what makes the output be in [-2^-(K-1), 2^-(K-1)] instead of [-2^-(K-1), 2^-(K-1))
+				// This step is what makes the output be in [-2^(K-1), 2^(K-1)] instead of [-2^(K-1), 2^(K-1))
 				int64_t s2                         = sgn_ext(s, kappa - 1, sgn_vec[p]);
 				dst[(last_l - 1 - i) * dst_sl + p] = s2;
 			}

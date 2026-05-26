@@ -10,6 +10,7 @@ extern "C" {
 }
 
 #include "params.h"
+#include "utils.hpp"
 
 void bench_encrypt_rnx(benchmark::State& state)
 {
@@ -25,8 +26,7 @@ void bench_encrypt_rnx(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, 3);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 
-	//The input message, for now sampled normally since we cannot sample uniformly in the torus right now
-	normal_random_vec(m, NBASE, 0.0, 0.1);
+	rnx_random_vec(m, params_glwe);
 
 	for (auto _ : state)
 	{
@@ -107,4 +107,5 @@ void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(bench_encrypt_tnx_normalnoise);
+// Benchmark ommited until normal noise implementation
+//BENCHMARK(bench_encrypt_tnx_normalnoise);

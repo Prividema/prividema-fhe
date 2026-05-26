@@ -117,4 +117,17 @@ struct criterion_test_params default_params_fn();
                                                                                   \
 	ParameterizedTest(PvdaTstParams* param, suite_name, test_name)
 
+/**
+ * @brief Generates a RnX random vector uniformly sampled between -0.5 and 0.5
+ *
+ * No cryptographic guarantees are given about the output randomness
+ *
+ * @param res       The result.
+ * @param res_size  The number of elements in the vector.
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
+
+ */
+int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe);
 #endif

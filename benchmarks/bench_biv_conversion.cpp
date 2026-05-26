@@ -6,8 +6,8 @@ extern "C" {
 #include "rng.h"
 #include "univariate_polynomial.h"
 }
-
 #include "params.h"
+#include "utils.hpp"
 
 void bench_univ_biv_rnx(benchmark::State& state)
 {
@@ -17,7 +17,7 @@ void bench_univ_biv_rnx(benchmark::State& state)
 
 	PolyUnivRnX* m = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv = new_biv_poly(params_glwe);
-	normal_random_vec(m, NBASE, 0.0, 0.1);
+	rnx_random_vec(m, params_glwe);
 
 	for (auto _ : state)
 	{
@@ -42,7 +42,8 @@ void bench_biv_normalize(benchmark::State& state)
 
 	PolyUnivRnX* m = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv = new_biv_poly(params_glwe);
-	normal_random_vec(m, NBASE, 0.0, 0.1);
+
+	rnx_random_vec(m, params_glwe);
 
 	univ_rnx_to_biv(params_glwe, m_biv, m, 0);
 
@@ -71,7 +72,7 @@ void bench_univ_biv_rnx_via_tnx(benchmark::State& state)
 	PolyUnivRnX* m     = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv     = new_biv_poly(params_glwe);
 	PolyUnivTnX* m_tnx = new_univ_tnx(params_glwe);
-	normal_random_vec(m, NBASE, 0.0, 0.1);
+	rnx_random_vec(m, params_glwe);
 
 	for (auto _ : state)
 	{
@@ -152,7 +153,7 @@ void bench_biv_univ_rnx(benchmark::State& state)
 	PolyUnivRnX* m      = new_univ_rnx(params_glwe);
 	PolyUnivRnX* m_back = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv      = new_biv_poly(params_glwe);
-	normal_random_vec(m, NBASE, 0.0, 0.1);
+	rnx_random_vec(m, params_glwe);
 	univ_rnx_to_biv(params_glwe, m_biv, m, 0);
 
 	for (auto _ : state)
