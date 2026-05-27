@@ -348,14 +348,23 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 	}
 
 	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;
-	int maxi1 = last_l - 1;
-	int maxi2 = (63 + k_offset) / kappa;
-	int max_i = maxi1 < maxi2 ? maxi1 : maxi2;
-	for (int i = min_i; i <= max_i; ++i)
+
+	// The number of (potentially) non-zero limbs we have to write to is the minimum between:
+	int max_limbs_due_depth = last_l;  // The number of limbs from most significant to the one containing lsb_pos
+
+	int max_limbs_due_input_bits =
+	    INT_ROUND_UP_DIV(63 + k_offset, kappa);  // Number of limbs that the magnitude can have non-zero values for,
+	// due to using (at most) 63 bits for the magnitude and the least significant limb having its k_offset LSBs set to 0
+
+	int nb_limbs_to_write =
+	    max_limbs_due_depth < max_limbs_due_input_bits ? max_limbs_due_depth : max_limbs_due_input_bits;
+	for (int i = min_i; i < nb_limbs_to_write; ++i)
 	{
 		uint64_t s;
 		if (i == 0)
 		{
+			// For the least significant limb, take into account the rightmost bits that need to be set to 0 due to
+			// lsb_pos/k_offset
 			uint64_t stnxt_tmp = stnx_num << k_offset;
 			s                  = select_bits(stnxt_tmp, 0, kappa);
 		}
@@ -363,10 +372,13 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 		{
 			s = select_bits(stnx_num, i * kappa - k_offset, kappa);
 		}
+		// Extend the K-bit 2-complement value (that the mask generated) into 64 bits,
+		// and invert the sign if the input sign was negative
+		// This step is what makes the output be in [-2^(K-1), 2^(K-1)] instead of [-2^(K-1), 2^(K-1))
 		int64_t s2                     = sgn_ext(s, kappa - 1, sgn);
 		dst[(last_l - 1 - i) * dst_sl] = s2;
 	}
-	int min_i_2 = min_i > max_i + 1 ? min_i : max_i + 1;
+	int min_i_2 = min_i > nb_limbs_to_write + 1 ? min_i : nb_limbs_to_write + 1;
 	for (int i = last_l - 1 - min_i_2; i >= 0; --i)
 	{
 		dst[i * dst_sl] = 0;
@@ -395,8 +407,8 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		// IEEE 754 significand
 		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
 
-		// Add implicit bit (in the case of denormal numbers, this makes the computation be wrong by)
-		// the minimum non-denormal distance, which is a somewhat graceful fail behaviour
+		// Add implicit bit. In the case of denormal numbers, this makes the computation wrong by
+		// the minimum non-denormal distance, which is a somewhat graceful failing
 		s_val |= (1UL << 52);
 
 		biv_decomp_internal(s_val, 52 - exp + bit_offset, res + p, nn, params_glwe);
@@ -408,11 +420,14 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
  * Converts a vector of signs and another of mangintudes of tnx values into a bivariate polynomial/vector while
  * putting the LSB of the stnx value in the position of exponent 2^-lsb_pos
  *
+ * This function (as opposed to the non-vec variant), expects the output vector to have been
+ * zeroed before being called for performance reasons.
+ *
  * @param mag_vec A contigious vector of the magnitudes of the input values
  * @param sgn_vec A contigious vector of the signs of the input values
  * @param lsb_pos Position where the LSB of the inputs should be placed. One should use 63 if no shift is to be performed,
  * but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
- * @param dst The destination bivariate polynomial
+ * @param dst The destination bivariate polynomial, which should be given with all coefficients set to 0
  * @param dst_sl The stride between occurrences of different limbs of the same coefficient in the output.
  * @param params the glwe params (used to get l_a and kappa)
  *
@@ -426,7 +441,7 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 	int kappa = (int)params->kappa;
 	assert(kappa <= 63);
 
-	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);  // limb number wehre lsb_pos falls
+	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);  // limb number where lsb_pos falls
 	int k_offset = last_l * kappa - lsb_pos;          // position (bit) in the last written limb where lsb_pos falls
 	// Equivalently, number of bits in the last limb that are to the right of it and thus will be 0
 	assert(k_offset >= 0 && k_offset < kappa);
@@ -456,12 +471,15 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 	// or l_a if l_a is smaller
 	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;  // min_i = max (last_l - l_a, 0)
 
-	// We should stop at either:
-	int maxi1 = last_l - 1;               // Last limb corresponds to position 0, limb 1, most significant limb
-	int maxi2 = (63 + k_offset) / kappa;  // Number of limbs that the magnitude can have non-zero values for,
-	                                      // as retrieved from the number of bits used
-	int max_i = maxi1 < maxi2 ? maxi1 : maxi2;
-	for (int i = min_i; i <= max_i; ++i)
+	// The number of (potentially) non-zero limbs we have to write to is the minimum between:
+	int max_limbs_due_depth = last_l;  // The number of limbs from most significant to the one containing lsb_pos
+	int max_limbs_due_to_input_bits =
+	    INT_ROUND_UP_DIV(63 + k_offset, kappa);  // Number of limbs that the magnitude can have non-zero values for,
+	// due to using (at most) 63 bits for the magnitude and the least significant limb having its k_offset LSBs set to 0
+	int nb_limbs_to_write =
+	    max_limbs_due_depth < max_limbs_due_to_input_bits ? max_limbs_due_depth : max_limbs_due_to_input_bits;
+
+	for (int i = min_i; i < nb_limbs_to_write; ++i)
 	{
 		if (i == 0)
 			for (int p = 0; p < nn; ++p)
@@ -476,7 +494,7 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 		else
 			for (int p = 0; p < nn; ++p)
 			{
-				// Select the correspoding K bit group
+				// Select the corresponding K bit group
 				uint64_t s = select_bits(mag_vec[p], i * kappa - k_offset, kappa);
 				// Extend the K-bit 2-complement value (that the mask generated) into 64 bits,
 				// and invert the sign if the input sign was negative
