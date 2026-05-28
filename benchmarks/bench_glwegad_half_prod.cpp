@@ -6,6 +6,7 @@ extern "C" {
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
 #include "ggsw_params.h"
+#include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
@@ -13,18 +14,15 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 16)
-#define KBASE      1
-#define KAPPABASE  19
-#define LBASE      91
-#define NLIMBSBASE (LBASE * 2)
+#include "params.h"
+#define MBITS 12  //Bit size of m
+#define UBITS 6   //Bit size of u
 
-void test_glwegad_half_prod(benchmark::State& state)
+void bench_glwegad_half_prod(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
-
-	MODULE* module                      = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe             = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
@@ -37,11 +35,11 @@ void test_glwegad_half_prod(benchmark::State& state)
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyBiv* m                             = new_biv_poly(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
-	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 12);
-	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
+	uniform_random_pol_znx(u_univ, params_glwe->nn, UBITS);
+	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
+	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);
 	glwegadget_prepare(module, glwegad_prep, glwegad);
@@ -68,15 +66,15 @@ void test_glwegad_half_prod(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_glwegad_half_prod);
+BENCHMARK(bench_glwegad_half_prod);
 
-void test_glwegad_half_prod_dft(benchmark::State& state)
+void bench_glwegad_half_prod_dft(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, -(LBASE / 2 + 1) * KAPPABASE);
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
-	MODULE* module                      = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe             = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma);
-	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
@@ -90,11 +88,11 @@ void test_glwegad_half_prod_dft(benchmark::State& state)
 	PolyBiv* m                             = new_biv_poly(params_glwe);
 	PolyBivDFT* m_dft                      = new_biv_poly_dft(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
-	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 12);
-	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
+	uniform_random_pol_znx(u_univ, params_glwe->nn, UBITS);
+	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
+	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 	biv_coefs_to_dft(module, params_glwe, m_dft, m);
 
 	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);
@@ -124,4 +122,4 @@ void test_glwegad_half_prod_dft(benchmark::State& state)
 	delete_glwe_secret_key_dft(sk_dft);
 }
 
-BENCHMARK(test_glwegad_half_prod_dft);
+BENCHMARK(bench_glwegad_half_prod_dft);

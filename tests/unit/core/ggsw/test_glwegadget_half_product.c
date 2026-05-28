@@ -20,8 +20,8 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	sigma              = 0;
-	params_glwe->sigma = 0;
+	sigma                             = 0;
+	params_glwe->fast_uniform_nb_bits = 0;
 
 	double biv_epsilon = glwe_bivariate_epsilon(params_glwe);
 	double err_length =
@@ -52,7 +52,7 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
 	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
 	uniform_random_pol_znx(m_univ_tnx, params_glwe->nn, 62);
-	univ_tnx_to_biv(params_glwe, m, m_univ_tnx);
+	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	memset(um_expected_tnx, 0, poly_univ_rnx_bytes(params_glwe));
 	for (int i = 0; i < params_glwe->nn; ++i)

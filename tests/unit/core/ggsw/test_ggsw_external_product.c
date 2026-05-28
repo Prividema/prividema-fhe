@@ -12,7 +12,6 @@
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 /** The test is done without error, it is a proof of concept*/
 PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
@@ -20,10 +19,10 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	INIT_PVDA_PARAMS_GGSW(param);
 
 	//! Variance of the error's normal distributions
-	params_glwe->sigma         = 0;
-	sigma                      = 0;
-	double err_length          = glwe_bivariate_epsilon(params_glwe) + 3 * sigma + 3 * DBL_EPSILON;
-	double critical_err_length = glwe_bivariate_epsilon(params_glwe) + 5 * sigma + 5 * DBL_EPSILON;
+	params_glwe->fast_uniform_nb_bits = 0;
+	sigma                             = 0;
+	double err_length                 = glwe_bivariate_epsilon(params_glwe) + 3 * sigma + 3 * DBL_EPSILON;
+	double critical_err_length        = glwe_bivariate_epsilon(params_glwe) + 5 * sigma + 5 * DBL_EPSILON;
 
 	GLWESecretKey* sk_ggsw            = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyDFT* sk_glwe_dft     = alloc_glwe_secret_key_dft(params_glwe);

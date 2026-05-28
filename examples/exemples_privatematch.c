@@ -1,8 +1,2 @@
-#include <stdio.h>
 
-int main()
-{
-	printf("Hello example private match!\n");
-
-	return 0;
-}
+int main() { return 0; }

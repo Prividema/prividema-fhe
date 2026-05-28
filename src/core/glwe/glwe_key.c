@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "glwe_params.h"
-#include "logger.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "utils.h"
@@ -34,7 +33,7 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(uniform_random_vec(nn, glwe_sk_extract_poly(sk, 0), sk->k, nn, nb_bits),
+	CHECK_CALL(uniform_random_pol_znx(sk->values, nn * sk->k, nb_bits),
 	           "random vector generation failed in key generation");
 
 	return 0;

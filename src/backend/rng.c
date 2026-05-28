@@ -96,51 +96,31 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 	return 0;
 }
 
-/*
-    Approximate inverse error function (erfinv) using Winitzki
-    approximation
-
-    If you have a uniform random variable X which is uniformly distributed
-    between 0 and 1, you can map it to any distribution by using its inverse CDF.
-
-    Since the iCDF of the normal distribution can be expressed with erfinv.
-    We use this function for performance purpose.
-
-    See Winitzki's paper called "A handy approximation for the error
-    function and its inverse" or https://en.wikipedia.org/wiki/Error_function.
- */
-double erfinv(double x)
-{
-	double a           = 0.147;
-	double ln_1minusx2 = log(1.0 - x * x);
-	double term1       = (2 / (M_PI * a)) + (ln_1minusx2 / 2.0);
-	double term2       = ln_1minusx2 / a;
-	return (x > 0 ? 1 : -1) * sqrt(sqrt(term1 * term1 - term2) - term1);
-}
-
-/*
-    This function transforms a uniformly sampled variable into a normally
-    distributed variable using the inverse Cumulative Distribution Function
-    (CDF).
- */
 int rand_normal(double* result, double mu, double sigma)
 {
+	RAISE_ERROR("Normal number generation not implemented");
+	/*
+	// This function used to transforms a uniformly sampled variable into a normally
+	// distributed variable using the inverse Cumulative Distribution Function
+	// (CDF).
+	// Its implementation has been removed since it used an approximation of the iCDF
 	// Generate a uniform number in [0, 2^64]
-	uint64_t uniform;
-	CHECK_CALL(read_rand(&uniform, 8), "Rng failed in rand_normal");
+	  uint64_t uniform;
+	  CHECK_CALL(read_rand(&uniform, 8), "Rng failed in rand_normal");
 
-	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
-	double uu = ((double)uniform) / ((double)UINT64_MAX);
+	  // Scale uniform in (0,1) to U : U still follows a uniform distribution.
+	  double uu = ((double)uniform) / ((double)UINT64_MAX);
 
-	// Compute Z the inverse CDF of the normal distribution applied to U.
-	double zz = sqrt(2.0) * erfinv(2.0 * uu - 1.0);
+	  // Compute Z the inverse CDF of the normal distribution applied to U.
+	  double zz = sqrt(2.0) * erfinv(2.0 * uu - 1.0);
 
-	// Scale and Shift with mu and sigma.
-	// Z follows a normal distribution in (0,1)
-	// Thus result will follow (mu, sigma)
-	*result = mu + sigma * zz;
+	  // Scale and Shift with mu and sigma.
+	  // Z follows a normal distribution in (0,1)
+	  // Thus result will follow (mu, sigma)
+	  *result = mu + sigma * zz;
 
-	return 0;
+	  return 0;
+  */
 cleanup:
 	return -1;
 }

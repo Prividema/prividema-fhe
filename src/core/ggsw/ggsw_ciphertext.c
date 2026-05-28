@@ -1,6 +1,5 @@
 #include "ggsw_ciphertext.h"
 
-#include <math.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -72,15 +71,12 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	PolyUnivDFT* m_univ_dft     = new_univ_dft(module);   // DFT(msg)
 	PolyUnivDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
 	PolyUniv* m_skj_univ        = new_univ(params_glwe);  // -msg * sk_j
-	// compute_phase_ij requires some extra temp space
-	PolyUnivRnX* tmp_sp1 = new_univ_rnx(params_glwe);
 	// Temp space for -m * sk * 2^{-kappa_tilde}
 	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
 
 	CHECK_ALLOC(m_univ_dft, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(m_skj_univ_dft, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(m_skj_univ, "malloc failed in ggsw_secret_encrypt");
-	CHECK_ALLOC(tmp_sp1, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)
@@ -106,16 +102,12 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 				           "vec_znx_idft_p failed in compute_phase_ij");
 			}
 
-			// Computes m_skj_univ / 2^{kappa_tilde*i}
-			for (uint64_t p = 0; p < nn; p++)
-				tmp_sp1[p] = ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->kappa_tilde * i);
-
-			CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
-			           "error addition failed in ggsw encryption");
-
-			// Compute the base-2^kappa decomposition of tmp_sp1
-			CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1, 0),
+			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (k == j) ? m_univ : m_skj_univ,
+			                           params_ggsw->kappa_tilde * i),
 			           "univ_to_biv failed in compute_phase_ij");
+
+			CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+			           "Noise addition failed in GGSW encryption");
 		}
 		// Get the pointer for the result position
 		VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
@@ -130,7 +122,6 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 
 cleanup:
 	free(glwe_biv_msg);
-	delete_univ_rnx(tmp_sp1);
 	delete_univ_dft(m_skj_univ_dft);
 	delete_univ(m_skj_univ);
 	delete_univ_dft(m_univ_dft);

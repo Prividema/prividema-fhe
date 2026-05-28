@@ -60,7 +60,7 @@ Test(tnx_rnx_encoding, known_bounded_values)
 	PolyUnivRnX rnx_computed[4];
 	PolyUnivTnX tnx_computed[4];
 
-	GLWEParams* params_glwe = new_glwe_params(4, 1, 4, 1, 0);
+	GLWEParams* params_glwe = new_glwe_params(4, 1, 4, 2, 0.25, NOISE_UNIFORM_POWER_OF_TWO);
 
 	univ_rnx_to_tnx(params_glwe, tnx_computed, rnx_values);
 	univ_tnx_to_rnx(params_glwe, rnx_computed, tnx_values);
@@ -81,7 +81,7 @@ Test(tnx_rnx_encoding, known_outbounded_values)
 
 	PolyUnivTnX tnx_computed[5];
 
-	GLWEParams* params_glwe = new_glwe_params(5, 1, 4, 1, 0);
+	GLWEParams* params_glwe = new_glwe_params(5, 1, 4, 1, 0.25, NOISE_UNIFORM_POWER_OF_TWO);
 
 	univ_rnx_to_tnx(params_glwe, tnx_computed, rnx_values);
 
@@ -102,7 +102,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx, default_params_fn)
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
 
-	normal_random_vec(rnx_values, vec_size, 0, 0.2);
+	rnx_random_vec(rnx_values, params_glwe);
 	for (int i = 0; i < vec_size; ++i)
 	{
 		rnx_values[i] = rnx_values[i] - floor(rnx_values[i]);

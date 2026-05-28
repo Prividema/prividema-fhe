@@ -6,14 +6,20 @@
 #include <criterion/parameterized.h>
 #include <math.h>
 
+#include "glwe_params.h"
 #include "math.h"
+#include "rng.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 double generate_sigma(PvdaTstParams* p)
 {
 	if (p->sigma > 0.0) return p->sigma;
 	if (p->sigma < 0.0) return ldexp(1.0, (int)p->sigma);
-	return ldexp(1.0, -(p->ciphertext_nb_limbs / 2 + 1) * p->kappa);
+
+	// If p == 0 defaut sigma which has arbitrarily chosen to be 4 bits of the last limb: 2^(4-K*l_a)
+	int64_t l_a = ((p->ciphertext_nb_limbs + 1) / (p->k + 1));
+	return ldexp(1.0, 4 - l_a * p->kappa);
 }
 
 void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
@@ -24,7 +30,7 @@ void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX*
 	int big_error_count = 0;
 	for (uint64_t p = 0; p < params_glwe->nn; p++)
 	{
-		double diff = torus_distance(a[p], b[p]);
+		double diff = rnx_torus_distance(a[p], b[p]);
 
 		cr_assert(lt(dbl, diff, critical_err), "Difference outside range (too big)");
 
@@ -68,6 +74,24 @@ struct criterion_test_params default_params_fn()
 	};
 
 	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
+}
+
+int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe)
+{
+	int status = -1;
+
+	PolyUnivTnX* tmp_tnx = new_univ_tnx(params_glwe);
+
+	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
+	// the memory representation is the same for isomprphic values
+	uniform_random_pol_znx((PolyUniv*)tmp_tnx, params_glwe->nn, 64);
+
+	univ_tnx_to_rnx(params_glwe, res, tmp_tnx);
+
+	status = 0;
+cleanup:
+	free(tmp_tnx);
+	return status;
 }
 /*
 

@@ -67,13 +67,26 @@ int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int6
  * @brief Adds two bivariate polynomials and puts the result in res.
  *
  * @param module The underlying compute module.
- * @param params_glwe The bivGLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res The result bivariate polynomial.
  * @param a The left-hand side bivariate polynomial.
  * @param b The right-hand side bivariate polynomial.
  */
 void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
                   const PolyBiv* b);
+
+/**
+ * @brief Adds noise to the bivariate polynomial
+ *
+ * @param module The underlying compute module.
+ * @param params_glwe The GLWE parameters (which decide the noise)
+ * @param res The result bivariate polynomial, can be the same as the input
+ * @param a The input bivariate polynomial.
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
+int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a);
 
 // BIV POLY IN DFT PART (begin)
 
@@ -94,18 +107,6 @@ uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  */
 PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe);
-
-/**
- * @brief Computes a random normal bivariate polynomial in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param params_glwe The bivGLWE parameters.
- * @param result_dft The result bivarariate polynomial in the DFT domain.
- *
- * @retval -1 if an error occurs
- * @retval 0 otherwise.
- */
-int normal_random_biv_poly_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* result_dft);
 
 // COMMON PART (begin)
 
@@ -131,15 +132,18 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 /**
  * @brief Computes the bivariate decompositionof a polynomial in \RnX.
  *
+ * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
+ * the normalized [-2^(K-1), 2^(K-1))
+ *
  * @param params_glwe The bivGLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_univ The univariate polynomial.
- * @param k_offset How many \K to offset the result. In other words, the output will be
+ * @param bit_offset How many times the input should be right-shifted (divided by 2)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t k_offset);
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset);
 
 /**
  * @brief Performs the DFT of a bivariate polynomial
@@ -174,7 +178,7 @@ int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial. The result is in fixed-point representation.
  *
- * @param params_glwe The bivGLWE parameters.
+ * @param params_glwe The GLWE parameters.
  * @param res_tnx The result univariate polynomial in Tn[X].
  * @param pol The input bivariate polynomial.
  *
@@ -186,13 +190,39 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Tn[X].
  *
- * @param params_glwe The bivGLWE parameters.
+ * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
+ * the normalized [-2^(K-1), 2^(K-1))
+ *
+ * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_tnx The univariate polynomial in fixed-point form
+ * @param bit_offset How many times the input should be right-shifted (divided by 2)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx);
+int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx, int64_t bit_offset);
+
+/**
+ * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Zn[X] divided by a power of 2.
+ *
+ * Since ZnX elements themselves don't fit in the Torus (or equivalently, they are all congruent to 0),
+ * this function is only useful if called with bit_offset >= 1.
+ *
+ * The function is only well-defined for polynomials with coefficients in (-2^63, 2^63)
+ * due to the internal conversion function used.
+ *
+ * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
+ * the normalized [-2^(K-1), 2^(K-1))
+ *
+ * @param params_glwe The GLWE parameters.
+ * @param res The bivariate decomposition.
+ * @param pol_tnx The univariate ZnX polynomial with coefficients in (-2^62, 2^62)
+ * @param bit_offset How many times the input should be right-shifted (divided by 2).
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
+ */
+int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv* pol_univ, int64_t bit_offset);
 
 #endif  // BIVARIATE_POLYNOMIAL_H
