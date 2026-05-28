@@ -15,6 +15,8 @@ extern "C" {
 }
 
 #include "params.h"
+#define MBITS 12  //Bit size of m
+#define UBITS 6   //Bit size of u
 
 void bench_glwegad_half_prod(benchmark::State& state)
 {
@@ -33,10 +35,10 @@ void bench_glwegad_half_prod(benchmark::State& state)
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyBiv* m                             = new_biv_poly(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
-	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 12);
+	uniform_random_pol_znx(u_univ, params_glwe->nn, UBITS);
+	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);
@@ -86,10 +88,10 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 	PolyBiv* m                             = new_biv_poly(params_glwe);
 	PolyBivDFT* m_dft                      = new_biv_poly_dft(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
-	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
-	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 12);
+	uniform_random_pol_znx(u_univ, params_glwe->nn, UBITS);
+	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 	biv_coefs_to_dft(module, params_glwe, m_dft, m);
 
