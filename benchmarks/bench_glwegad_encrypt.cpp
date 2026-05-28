@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
@@ -14,18 +12,13 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 14)
-#define KBASE      1
-#define KAPPABASE  19
-#define NLIMBSBASE (15 * 2)
-#define LBASE      NLIMBSBASE / (KBASE + 1)
+#include "params.h"
 
-void test_glwegad_encrypt(benchmark::State& state)
+void bench_glwegad_encrypt(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module                   = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe          = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
@@ -57,4 +50,4 @@ void test_glwegad_encrypt(benchmark::State& state)
 	delete_glwegadget(glwegad_computed);
 }
 
-BENCHMARK(test_glwegad_encrypt);
+BENCHMARK(bench_glwegad_encrypt);

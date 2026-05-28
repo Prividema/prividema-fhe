@@ -23,8 +23,8 @@
 // Test normalize_ggsw
 Test(new_ggsw_params, basic)
 {
-	GLWEParams* params_glwe =
-	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, 4 - KAPPABASE * LBASE), NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, 4 - KAPPABASE * LBASE),
+	                                          NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, K_TILDEBASE, KAPPA_TILDEBASE, NLIMBS_TILDEBASE);
 
 	cr_assert(params_ggsw != NULL);

@@ -7,6 +7,13 @@
 #include "glwegadget_key.h"
 
 /**
+ * @file glwegadget_arithmetic.h
+ *
+ * @brief Arithmetic operations for GLWEGadgets
+ *
+ */
+
+/**
  * @brief Computes the half-external product between a GLWEGadget and
  * a GLWE ciphertext
  *

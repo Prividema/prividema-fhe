@@ -312,42 +312,47 @@ PvdaParamTest(poly_biv_coef_number, classic_params, default_params_fn)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
+/*
+// TEST DISABLED UNTIL NORMAL RNG IS REIMPLEMENTED
+
 PvdaParamTest(normal_random_biv_poly, does_not_crash, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(param);
+    INIT_PVDA_PARAMS_GLWE(param);
 
-	PolyBiv* pol = new_biv_poly(params_glwe);
+    PolyBiv* pol = new_biv_poly(params_glwe);
 
-	int status = normal_random_biv_poly(params_glwe, pol);
+    int status = normal_random_biv_poly(params_glwe, pol);
 
-	cr_assert(eq(int, status, 0, "normal_random_biv failed."));
+    cr_assert(eq(int, status, 0, "normal_random_biv failed."));
 
-	free(pol);
+    free(pol);
 
-	DELETE_PVDA_PARAMS_GLWE;
-}
+    DELETE_PVDA_PARAMS_GLWE;
+}*/
 
+/*
+// TEST DISABLED UNTIL NORMAL RNG IS REIMPLEMENTED
 PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 {
-	INIT_PVDA_PARAMS_GLWE(param);
+    INIT_PVDA_PARAMS_GLWE(param);
 
-	PolyBiv* pol = new_biv_poly(params_glwe);
+    PolyBiv* pol = new_biv_poly(params_glwe);
 
-	// Draw normaly pol in Zn[X,Y]
-	normal_random_biv_poly(params_glwe, pol);
+    // Draw normaly pol in Zn[X,Y]
+    normal_random_biv_poly(params_glwe, pol);
 
-	// Asserts pol is normalized.
-	// i.e. that each coefficient is between -2^(params->kappa-1) (inclusive) and 2^(params->kappa-1) (exculsive)
-	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
-	{
-		cr_assert(lt(i64, pol[i], (1LL << (params_glwe->kappa - 1))));
-		cr_assert(ge(i64, pol[i], -(1LL << (params_glwe->kappa - 1))));
-	}
+    // Asserts pol is normalized.
+    // i.e. that each coefficient is between -2^(params->kappa-1) (inclusive) and 2^(params->kappa-1) (exculsive)
+    for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)
+    {
+        cr_assert(lt(i64, pol[i], (1LL << (params_glwe->kappa - 1))));
+        cr_assert(ge(i64, pol[i], -(1LL << (params_glwe->kappa - 1))));
+    }
 
-	free(pol);
+    free(pol);
 
-	DELETE_PVDA_PARAMS_GLWE;
-}
+    DELETE_PVDA_PARAMS_GLWE;
+}*/
 
 /**
  * @brief Test add_biv_poly correctness with random normal polynomials
@@ -360,8 +365,8 @@ PvdaParamTest(add_biv_poly, basic, default_params_fn)
 	PolyBiv* pol_rhs      = new_biv_poly(params_glwe);
 	PolyBiv* sum_observed = new_biv_poly(params_glwe);
 
-	normal_random_biv_poly(params_glwe, pol_lhs);
-	normal_random_biv_poly(params_glwe, pol_rhs);
+	uniform_random_biv_poly(params_glwe, pol_lhs, glwe_params_l_a(params_glwe));
+	uniform_random_biv_poly(params_glwe, pol_rhs, glwe_params_l_a(params_glwe));
 
 	add_biv_poly(module, params_glwe, sum_observed, pol_lhs, pol_rhs);
 
