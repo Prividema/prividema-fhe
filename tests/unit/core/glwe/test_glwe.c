@@ -90,7 +90,7 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 	//Draw message (in RnX) and key
 	uniform_glwe_secret_key(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
-	normal_random_vec(m_univ_RnX, params_glwe->nn, 0.0, 0.1);
+	rnx_random_vec(m_univ_RnX, params_glwe);
 
 	//Encrypt said message
 	univ_rnx_to_biv(params_glwe, m, m_univ_RnX, 0);

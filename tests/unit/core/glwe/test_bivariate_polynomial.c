@@ -92,7 +92,7 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	PolyBiv* pol_computed = new_biv_poly(params_glwe);
 
 	// Draws normaly pol_univ in Rn[X] (!= torus)
-	normal_random_vec(pol_univ, params_glwe->nn, 0.0, 1e-2);
+	rnx_random_vec(pol_univ, params_glwe);
 
 	// Computes pol_univ's base-2params->kappa normalized decomposition
 	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
@@ -123,7 +123,7 @@ PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
 	PolyUnivRnX* pol_univ_computed = new_univ_rnx(params_glwe);
 
-	normal_random_vec(pol_univ, params_glwe->nn, 0.0, 1e-2);
+	rnx_random_vec(pol_univ, params_glwe);
 
 	univ_rnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -276,7 +276,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
 	PolyBiv* biv            = new_biv_poly(params_glwe);
 
-	normal_random_vec(rnx_values, vec_size, 0, 0.2);
+	rnx_random_vec(rnx_values, params_glwe);
 	for (int i = 0; i < vec_size; ++i)
 	{
 		rnx_values[i] = rnx_values[i] - floor(rnx_values[i]);
