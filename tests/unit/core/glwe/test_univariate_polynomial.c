@@ -102,7 +102,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx, default_params_fn)
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
 
-	normal_random_vec(rnx_values, vec_size, 0, 0.2);
+	rnx_random_vec(rnx_values, params_glwe);
 	for (int i = 0; i < vec_size; ++i)
 	{
 		rnx_values[i] = rnx_values[i] - floor(rnx_values[i]);
