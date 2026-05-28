@@ -4,6 +4,13 @@
 #include "glwe_key.h"
 
 /**
+ *
+ * @file glwe_transform_key.h
+ *
+ * Operations to transform a GLWE/GLWEGadget/GGSW secret key (only coef to DFT is needed for now)
+ */
+
+/**
  * @brief Transforms a secret key from coefficient space to DFT
  *
  * @param module Additionnal information for backend.

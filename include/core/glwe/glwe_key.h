@@ -4,11 +4,19 @@
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
 
+/**
+ *
+ * @file glwe_key.h
+ *
+ * @brief Definition and operations for GLWE/GLWEGadget/GGSW secret keys
+ *
+ */
+
 // bivGLWE SECRET KEY STRUCTURES
 
 /**
- * @brief Structure that represents a bivGLWE secret key
- *
+ * @brief Structure that represents a GLWE secret key,
+ * which is also the same as a GGSW or GLWEGadget secret key
  */
 typedef struct glwe_secret_key
 {
@@ -18,7 +26,7 @@ typedef struct glwe_secret_key
 } GLWESecretKey;
 
 /**
- * @brief Structure that represents a bivGLWE secret key in DFT domain
+ * @brief Structure that represents a GLWE secret key in DFT domain
  */
 typedef struct glwe_prep_secret_key
 {
@@ -53,13 +61,13 @@ GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits);
 
 /**
- * @brief Returns a pointer to the k'th polynomial in the secret key
+ * @brief Returns a pointer to the pos'th polynomial in the secret key
  *
  *
  * @param sk  The secret key
  * @param pos The position to retrieve (from 0 to k-1)
  *
- * @return    A pointer to the beggining of the pos-th polynomial in the key
+ * @return    A pointer to the beginning of the pos-th polynomial in the key
  */
 PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
 
@@ -82,13 +90,13 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
 GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe);
 
 /**
- * @brief Returns a pointer to the k'th polynomial in the secret key
+ * @brief Returns a pointer to the pos'th polynomial in the secret key
  *
  *
  * @param sk_dft  The secret key in the DFT domain
  * @param pos The position to retrieve (from 0 to k-1)
  *
- * @return    A pointer to the beggining of the pos-th polynomial in the key
+ * @return    A pointer to the beginning of the pos-th polynomial in the key
  */
 PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos);
 
@@ -105,12 +113,11 @@ void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft);
 
 typedef struct glwe_ciphertext GLWECiphertext;
 /**
- * @brief Public bivGLWE key
+ * @brief Public bivariate GLWE key
  *
- * Composed of yy GLWE encryptions of 0
+ * Composed of yy bivariate GLWE encryptions of 0
  *
  */
-
 typedef struct glwe_public_key
 {
 	uint64_t nn;          ///< Degree of the polynomials

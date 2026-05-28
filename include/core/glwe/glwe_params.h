@@ -4,6 +4,15 @@
 #include <stdint.h>
 
 /**
+ * @brief Parameters object for a GLWE problem/ciphertext
+ *
+ * @file glwe_params.h
+ *
+ * This file contains the definition of GLWE parameters, as well as accessor/helper functions for parameters
+ * that can be derived from them
+ */
+
+/**
  *
  * @brief enum for the available distributions to sample the error/noise used in FHE encryption operations
  *
@@ -19,7 +28,6 @@ typedef enum noise_type_t {
 /**
  * @brief Parameters object for a GLWE problem/ciphertext
  *
- *
  */
 typedef struct glwe_ct_params
 {
@@ -28,9 +36,9 @@ typedef struct glwe_ct_params
 	uint64_t kappa;                ///< The \K for the base-\f$2^K\f$ representation
 	uint64_t ciphertext_nb_limbs;  ///< @brief Number of limbs across all polynomials.
 	                               ///<
-	                               ///< In other words, \f$ l_a \cdot k + l_b \f$.
+	                               ///< In other words, \f$ \ell_a \cdot k + \ell_b \f$.
 	                               ///<
-	                               ///< Only \l_a = \l_b and \l_a = \l_b + 1 are supported due to memory layout.
+	///< Only \f$ \ell_a = \ell_b \f$ and \f$ \ell_a = \ell_b + 1 \f$ are supported due to memory layout.
 	union {
 		double normal_sigma;  ///< When the noise type is normal, this contains the stdev of the normal
 		uint64_t
@@ -51,7 +59,7 @@ typedef struct glwe_ct_params
  * @param nn The degree of the cyclotomic polynomial used for the modulo
  * @param k The number of \ZnX polynomials in a secret key.
  * @param kappa The exponent for the base-2^kappa representation.
- * @param n_limbs \f$ l_a \cdot k + l_b \f$
+ * @param n_limbs \f$ \ell_a \cdot k + \ell_b \f$
  * @param sigma The standard deviation of the error distribution.
  * @param noise_type The type of noise that will be used for encryption
  * @return The newly allocated parameters object, or NULL if it failed the allocation
@@ -83,7 +91,7 @@ uint64_t glwe_params_l_b(const GLWEParams* params_glwe);
 
 /**
  * @brief Returns the number of limbs across all polynomials in a GLWE ciphertext
- * In other words, \f$ l_a \cdot k + l_b \f$
+ * In other words, \f$ \ell_a \cdot k + \ell_b \f$
  *
  * @param params_glwe The GLWE parameters.
  */
@@ -113,10 +121,10 @@ uint64_t glwe_params_bytes(const GLWEParams* params_glwe);
 uint64_t glwe_coef_number(const GLWEParams* params_glwe);
 
 /**
- * @brief The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
+ * @brief The number of coefficients in a bivariate GLWE ciphertext in the DFT domain.
  *
- * @param params_glwe The bivGLWE parameters.
- * @return The number of coefficient in a bivariate GLWE ciphertext in the DFT domain.
+ * @param params_glwe The bivariate GLWE parameters.
+ * @return The number of coefficients in a bivariate GLWE ciphertext in the DFT domain.
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * \ZnX, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
