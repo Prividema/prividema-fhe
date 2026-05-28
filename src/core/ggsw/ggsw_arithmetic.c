@@ -232,3 +232,48 @@ cleanup:
 
 	return status;
 }
+
+int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results, int res_size,
+                                                 int l_tilde, const GLWECiphertext* packed_glwegadget,
+                                                 const GLWEAutomorphismKSKCollection* auto_ksks,
+                                                 const GGSWCiphertextPrep** sk_encryptions)
+{
+	int status = -1;
+
+	GGSWCiphertext** ggsws = calloc(res_size, sizeof(GGSWCiphertextPrep*));
+	CHECK_ALLOC(ggsws, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
+	const GGSWParams* params_ggsw = results[0]->params;
+	for (int r = 0; r < res_size; ++r)
+	{
+		ggsws[r] = new_ggsw(params_ggsw);
+		CHECK_ALLOC(ggsws[r], "GGSW allocation in trace expansion failed");
+	}
+
+	CHECK_CALL(packed_glwegadget_trace_expand_ggsw(module, ggsws, res_size, l_tilde, packed_glwegadget, auto_ksks,
+	                                               sk_encryptions),
+	           "GGSW trace expansion failed");
+
+	for (int r = 0; r < res_size; ++r)
+	{
+		if (!results[r])
+		{
+			results[r] = new_ggsw_prep(params_ggsw);
+			CHECK_ALLOC(results[r], "GGSW prepared allocation failed in trace expansion");
+		}
+		CHECK_CALL(ggsw_prepare(module, results[r], ggsws[r]), "GGSW preparation in trace expansion failed");
+		delete_ggsw(ggsws[r]);
+	}
+
+	free(ggsws);
+	return 0;
+cleanup:
+	if (ggsws)
+	{
+		for (int r = 0; r < res_size; ++r)
+		{
+			delete_ggsw(ggsws[r]);
+		}
+	}
+	free(ggsws);
+	return status;
+}
