@@ -24,8 +24,11 @@
  *                      product will behave correctly.
  *
  */
+int tfhe_cmux_unprepared(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+                         const GGSWCiphertext* sel, int normalize_sub);
+
 int tfhe_cmux(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
-              const GGSWCiphertext* sel, int normalize_sub);
+              const GGSWCiphertextPrep* sel, int normalize_sub);
 
 void tfhe_blindrotate(MODULE* module, GLWECiphertext* res, const GLWECiphertext*);
 

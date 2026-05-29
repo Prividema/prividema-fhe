@@ -55,7 +55,7 @@ PvdaParamTest(tfhe_cmux, without_error, default_params_fn)
 	memset(m_sel, 0, poly_univ_bytes(params_glwe));
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
-	tfhe_cmux(module, res, glwe1, glwe2, ggsw, 1);
+	tfhe_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
 
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
 
@@ -70,7 +70,7 @@ PvdaParamTest(tfhe_cmux, without_error, default_params_fn)
 	m_sel[0] = 1;
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
-	tfhe_cmux(module, res, glwe1, glwe2, ggsw, 1);
+	tfhe_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
 
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
 
