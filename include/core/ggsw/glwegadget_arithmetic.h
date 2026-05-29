@@ -60,7 +60,7 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
 
 /**
- * @brief Performs the automorphism of a GLWE ciphertext , ie, sets its polynomials a(X, Y) to a(X^p, Y)
+ * @brief Performs the automorphism of a GLWE ciphertext, i.e. sets its polynomials a(X, Y) to a(X^p, Y)
  *
  * @param module             The backend module
  * @param result             The resulting GLWE ciphertext
