@@ -104,8 +104,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 
 	if (!(automorphism_p & 1))  // if automorphism_p  is even
 	{
-		log_message(LOG_WARN,
-		            "Trying to perform an automorphism with even k. Program will continue with unpredictable results");
+		RAISE_ERROR("Trying to perform an automorphism with even k");
 	}
 
 	if (automorphism_p != automorphism_ksk->automorphism_p)
