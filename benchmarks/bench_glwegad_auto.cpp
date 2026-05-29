@@ -48,7 +48,7 @@ void test_glwegad_auto(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct, auto_p);
+		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct);
 		benchmark::DoNotOptimize(glwe_res);
 	}
 

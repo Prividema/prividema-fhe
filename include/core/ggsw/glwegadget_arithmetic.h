@@ -64,14 +64,14 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
  *
  * @param module             The backend module
  * @param result             The resulting GLWE ciphertext
- * @param automorphism_ksk   An encryption of the secret key after having applied the automorphism to it
+ * @param automorphism_ksk   An encryption of the secret key after having applied the automorphism to it.
+ *                           The function retrieves the p value from it.
  * @param glwe               The input ciphertext
- * @param automorphism_p     The p value for the automorphism
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
 int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
-                            const GLWECiphertext* glwe, int automorphism_p);
+                            const GLWECiphertext* glwe);
 
 #endif  // !DEBUG

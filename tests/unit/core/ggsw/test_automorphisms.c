@@ -69,7 +69,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 		int auto_p = auto_ps[i];
 		prepare_automorphism_key(module, auto_ksk, sk_prep, auto_p);
 
-		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct, auto_p);
+		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct);
 		normalize_glwe(module, glwe_norm, glwe_res);
 
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
