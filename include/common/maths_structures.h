@@ -1,3 +1,6 @@
+#ifndef MATHS_STRUCTURES_H
+#define MATHS_STRUCTURES_H
+
 #include <stdint.h>
 
 // =============================================
@@ -112,7 +115,7 @@ typedef double MatBivDFT;
  * @brief Prints a Bivariate Polynomial.
  *
  * @param pol     A Pointer to the Bivariate Polynomial.
- * @param pol_sl  The stride length : The step to jump from the beggining to the next polynomial.
+ * @param pol_sl  The stride length : The step to jump from the beginning to the next polynomial.
  * @param nn      The degree of the chosen cyclotomic polynomial.
  * @param l       The degree in Y.
  */
@@ -152,3 +155,5 @@ void printf_poly_univ_RnX(double* pol, int64_t nn);
  * @param nn           The degree of the chosen cyclotomic polynomial.
  */
 void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t nn);
+
+#endif

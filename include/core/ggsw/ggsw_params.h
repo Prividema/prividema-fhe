@@ -4,6 +4,14 @@
 #include "glwe_params.h"
 
 /**
+ *
+ * @file ggsw_params.h
+ *
+ * This file contains the definition of GGSW parameters, as well as accessor/helper functions for parameters
+ * that can be derived from them
+ */
+
+/**
  * @struct GGSWParams
  *
  * @brief GGSW parameters.
@@ -21,7 +29,7 @@ typedef struct ggsw_ct_params
 	/**
 	 * @brief \kappa_tilde, the exponent that will be used to multiply the message by (negative) powers of 2 thereof.
 	 *
-	 * Imporntantly, \K and \kappa_tilde are different parameters of a GGSW Ciphertext, one encodes the radix size and the other
+	 * Importantly, \K and \kappa_tilde are different parameters of a GGSW Ciphertext, one encodes the radix size and the other
 	 * the powers used to multiply the message repeatedly.
 	 */
 	uint64_t kappa_tilde;
@@ -29,10 +37,10 @@ typedef struct ggsw_ct_params
 	 * @brief Number of total "limbs" (bivariate GLWE ciphertexts) in the GGSWParams.
 	 *
 	 * This is, therefore,
-	 * \f$ \tilde{l}_a \cdot k + \tilde{l}_b \f$
+	 * \f$ \tilde{\ell}_a \cdot k + \tilde{\ell}_b \f$
 	 *
 	 *
-	 * As in the GLWE case, only \f$ \tilde{l}_a = \tilde{l}_b \f$ and \f$ \tilde{l}_a = \tilde{l}_b + 1 \f$
+	 * As in the GLWE case, only \f$ \tilde{\ell}_a = \tilde{\ell}_b \f$ and \f$ \tilde{\ell}_a = \tilde{\ell}_b + 1 \f$
 	 * are supported
 	 */
 	uint64_t ciphertext_nb_limbs_tilde;
@@ -44,7 +52,7 @@ typedef struct ggsw_ct_params
  * @param params         The GLWE parameters.
  * @param k_tilde        \f$ \tilde{k} \f$ the number of polynomials in the secret key.
  * @param kappa_tilde    \kappa_tilde
- * @param nb_limbs_tilde \f$ \tilde{l}_a \cdot k + \tilde{l}_b \f$
+ * @param nb_limbs_tilde \f$ \tilde{\ell}_a \cdot \tilde{k} + \tilde{\ell}_b \f$
  *
  * @return A Pointer to the set of GGSW Parameters, or NULL in case of failure
  */
@@ -60,7 +68,7 @@ void delete_ggsw_params(GGSWParams* params);
 /**
  * @brief Gets the number of rows in a GGSW.
  *  In other words, the number of GLWEs that form a GGSW,
- *  \f$ \tilde{l}_a \cdot k + \tilde{l}_b \f$
+ *  \f$ \tilde{\ell}_a \cdot \tilde{k} + \tilde{\ell}_b \f$
  *
  * @param params The GGSW parameters.
  *
@@ -69,25 +77,25 @@ void delete_ggsw_params(GGSWParams* params);
 uint64_t ggsw_num_rows(const GGSWParams* params);
 
 /**
- * @brief Gets the parameter \f$ \tilde{l}_a \f$
+ * @brief Gets the parameter \f$ \tilde{\ell}_a \f$
  *
  * @param params The GGSW parameters
  *
- * @return \f$ \tilde{l}_a \f$
+ * @return \f$ \tilde{\ell}_a \f$
  */
 uint64_t ggsw_params_l_tilde_a(const GGSWParams* params);
 
 /**
- * @brief Gets the parameter \f$ \tilde{l}_b \f$
+ * @brief Gets the parameter \f$ \tilde{\ell}_b \f$
  *
  * @param params The GGSW parameters
  *
- * @return \f$ \tilde{l}_b \f$
+ * @return \f$ \tilde{\ell}_b \f$
  */
 uint64_t ggsw_params_l_tilde_b(const GGSWParams* params);
 
 /**
- * @brief Computes the number of coefficients in a Bivariate GGSW ciphertext.
+ * @brief Computes the number of coefficients in a bivariate GGSW ciphertext.
  *
  * @param params_ggsw The GGSW parameters.
  *
@@ -140,7 +148,7 @@ typedef struct glwegadget_params
 	/// GLWE parameters.
 	const GLWEParams* params_glwe;
 	uint64_t kappa_tilde;  ///< \kappa_tilde as in the papers
-	uint64_t l_tilde;      ///< The precision, \f$ \tilde{l} \f$ as in the papers
+	uint64_t l_tilde;      ///< The precision, \f$ \tilde{\ell} \f$ as in the papers
 } GLWEGadgetParams;
 
 /**
@@ -148,7 +156,7 @@ typedef struct glwegadget_params
  *
  * @param params        The GLWE parameters.
  * @param kappa_tilde   The 2-exponent of the base (\f$ 2^{-\kappatilde} \f$)
- * @param l_tilde       \f$ \tilde{l} \f$
+ * @param l_tilde       \f$ \tilde{\ell} \f$
  *
  * @return A Pointer to the set of GGSW Parameters, or NULL if it failed to create it.
  */

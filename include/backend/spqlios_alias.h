@@ -1,6 +1,21 @@
+#ifndef SPQLIOS_ALIAS_H
+#define SPQLIOS_ALIAS_H
+
 #include <stdint.h>
 
 #include "maths_structures.h"
+
+/**
+ *
+ * @file spqlios_alias.h
+ *
+ *
+ * Provides a very thin wrapper over spqlios functions
+ *
+ *
+ * @note For documentation on the functions in this file, refer to the splqios library
+ *
+ */
 
 // =============================================
 // |                                           |
@@ -46,7 +61,8 @@ typedef struct cnv_pvec_r_t CNV_PVEC_R;
 // |                the structures.            |
 // |                                           |
 // =============================================
-
+/**@{*/
+/** @name Spqlios wrapper functions (see spqlios docs) */
 MODULE* pvda_new_module_info(uint64_t nn);
 
 void pvda_delete_module_info(MODULE* module);
@@ -103,3 +119,6 @@ int pvda_vec_znx_automorphism(const MODULE* module, const int64_t p, int64_t* re
                               const int64_t* a, uint64_t a_size, uint64_t a_sl);
 
 uint64_t pvda_module_extract_nn(const MODULE* module);
+
+/**@}*/
+#endif

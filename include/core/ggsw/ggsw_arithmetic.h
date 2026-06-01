@@ -7,6 +7,15 @@
 #include "spqlios_alias.h"
 
 /**
+ *
+ * @file ggsw_arithmetic.h
+ *
+ * @brief This file contains arithmetic operations on GGSW ciphertexts
+ *
+ *
+ */
+
+/**
  * @brief Normalizes a GGSW ciphertext.
  *
  * @param module Additionnal information for backend.

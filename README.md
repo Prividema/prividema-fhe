@@ -1,138 +1,134 @@
 # prividema-fhe
 
 Prividema-fhe is a cryptographic library designed to unify multiple homomorphic encryption schemes under a single framework.
+When complete, it will contain:
 
-## Requirements
+- A modular backend system that can efficiently delegate raw computations to:
+  - CPU libraries like [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic), that, for example, use AVX extensions
+  - GPU libraries
+  - FPGAs
+  - ...
+- A core implementing bivariate (base-2K) polynomial arithmetic and
+  implementations of GLWE, GLWEGadget and GGSW using said arithmetic
+- A scheme layer implementing:
+  - BFV/BGV
+  - TFHE
+  - CKKS
+  - Scheme-switching between the above (CHIMERA) [\[3\]]
+  - Encoding and decoding functions from raw data to/from the polynomial representations that the schemes use
 
-- CMake version 3.10
-- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) (This will be installed automatically with CMake)
-- [Criterion](https://github.com/Snaipe/Criterion) if you want to if you want to run the unit tests. In this case make sure that pkg-config is also installed for portability between different OS.
-- For Windows users, also make sure that [Cryptography API: Next Generation](https://learn.microsoft.com/en-us/windows/win32/seccng/cng-portal) is installed, as it is required for the random number generator.
+## Bivariate (base-2K) polynomial representation
 
-## To compile and run
+FHE relies on efficient number representations and operations to achieve secure and high-performance computations. Two prominent approaches, Full-RNS (Residue Number System) and base-2^K (written as base-2K in this markdown document for better readability) representation, have evolved as key techniques in optimizing FHE computations.
 
-Here's an example of how to build and run the test in `core`, from the root of the project :
+Full-RNS exploits the Chinese Remainder Theorem (CRT) to represent large numbers as modular residues over small, machine-friendly primes.
+Historically, this representation has also consistently given the best performances and this is why it is used in most of the most prominent FHE libraries like [OpenFHE] or [Lattigo].
+However, Full-RNS has notable limitations:
 
-```bash
-# Legacy method
-mkdir build;
-cd build;
-cmake .. -DBUILD_TESTS=ON;
-make;
-core/tests/hello
-```
+- Prime Arithmetic Dependency: Modular arithmetic must handle computations across several primes, introducing inefficiencies in hardware optimization.
+- Noise Granularity: CRT-based representations lack fine-grained control over noise levels, limiting their adaptability for low-noise operations.
+- Complex Scaling: Modulus switching and truncation require additional steps, complicating transitions between precision levels.
 
-```bash
-# Modern method 
-cmake -S . -B build -DBUILD_TESTS=ON;
-cmake --build build;
-build/core/tests/hello
-```
+Although the benefits of RNS once outweighed the drawbacks compared to other representation systems, the situation has shifted in recent years.
+First, Kim et al [\[2\]] introduced the concept of double-gadget decomposition, which allows for more efficient external products.
+The core idea is to decompose _both_ operands of the product such that some of the operations can be performed in Z\[X\]/(X^N+1)
+directly instead of modulo a large prime Q.
 
-### CMake options
+This significantly reduces the number of (unit) discrete Fourier transforms (DFTs) necessary for the external product, from quadratic to linear in the ciphertext level.
+The new method is particularly impactful for key-switching operations, achieving speedups of 1.2–2.3x and 2.1–3.3x over previous methods for different ring dimensions.
+Building on this concept, Georgieva et al. [\[1\]] presented the notions of _base-2K_ and bivariate polynomial representations.
+This library implements these novel techniques.
 
-- `BUILD_TESTS`: Build the test files.
-- `ENABLE_DEBUG` : Enables additional debug prints and enables sanitizers.
-- `BUILD_DOCS` : Build the Documentation.
-- `BUILD_EXAMPLES`: Build the example executables (TODO)
-- `BUILD_BENCHMARKS`: Build the benchmarks (requires C++ compiler)
-- `BUILD_NATIVE`: Enables -march=native optimisations, makes output NON-portable
-- `PROFILING_OPTIONS`: Adds debugging options and info even in Release builds, intended for profiling traces
+In base-2K, large numbers are decomposed as sums of smaller "limbs" or "digits", each of which is a multiple of a power of 2^K.
+More precisely, any number X can be decomposed as follows:
 
-### Building the tests
+![x = \sum_{i=0}^{\ell-1} x_i 2^{K \cdot i}](docs/readme_resources/sum.svg)
 
-> [!WARNING]
-> Current Criterion versions have a bug that has tests disappear in Release builds.
-> See [Issue #43](https://github.com/Prividema/prividema-fhe/issues/43) and upstream [Criterion #590](https://github.com/Snaipe/Criterion/issues/590).
-> [Criterion #588](https://github.com/Snaipe/Criterion/pull/588) is a fix PR
-> that was filed some months before we encountered this issue, but to this day (2026-04-20) it has not been merged.
-> You should either manually apply the patch in the PR to your Criterion installation (recommended if you plan on developing the library),
-> or, failing that, run tests only on builds compiled in CMake Debut release type
-> (use -DCMAKE_BUILD_TYPE=Debug when invoking CMake for configuration).
+where $x_i$ are the limbs, each of which is a small integer (typically within the range $[-2^{K-1}, 2^{K-1})$,
+$K$ is the limb size and $\ell$ is the number of limbs, which depends on the precision required.
 
-#### Criterion installation instructions
+In order to make the analysis of the base-2K representation easier and to make it more generic, Georgieva et al. [\[1\]] introduce the _Bivariate Polynomial Representation_.
+The idea is to represent approximation of polynomials in R\[X\]/(X^N+1) by elements of
+Z\[X,Y\]/(X^N+1) evaluated at some limb basis (e.g. 2^K to fall back to the base-2K case).
 
-##### UBUNTU USERS
+The main advantages of the base-2K/bivariate representation are:
 
- 1. Install Meson (required for building Criterion):
+- faster computation of the external product (linear in terms of (i)DFT computations)
+- fastest modulus rescale (we can simply drop limbs)
+- use of base-2, which is easier to optimize on hardware
 
-        sudo apt install meson
+On the other hand, compared to RNS, base-2K has
 
- 1. Clone and build Criterion (optional if you want latest version):
+- slower multiplication because of carry propagation
+- larger keys because of the double decomposition
 
-        git clone <https://github.com/Snaipe/Criterion.git>
-        cd Criterion/
-        mkdir build
-        meson setup build
-        sudo meson install -C build
+In particular, it means that the BGV of CKKS product $\otimes_*$ is slightly slower in bivariate representation. In isolation, base-2K multiplication is still faster as a multiplication is followed by an external product and a rescaling, which are faster in the latter representation.
 
- 1. Verify installation:
-
-        ls /usr/include/criterion
-        ls /usr/lib/libcriterion*
-
- Notes:
-
-- Linking math library (-lm) may be required on Linux
-
-##### MAC USERS
-
- 1. Install Criterion using Homebrew (recommended):
-
-        brew install criterion
-
- 2. Ensure Meson is installed (required by Criterion):
-
-        brew install meson
-
- 3. Verify installation:
-
-     _Apple Silicon (arm64)_
-
-        ls /opt/homebrew/include/criterion
-        ls /opt/homebrew/lib/libcriterion*
-
-    _Intel macOS_
-
-        ls /usr/local/include/criterion
-        ls /usr/local/lib/libcriterion*
-
- 4. Optional: build from source
-
-        git clone <https://github.com/Snaipe/Criterion.git>
-        cd Criterion/
-        mkdir build
-        meson setup build
-        meson install -C build
-
-#### Running the tests
-
-It might be helpful to know that
-
-```bash
-ctest
-```
-
-Inside the build directory will automatically run all tests.
-Make sure that you have abided by the above warning, as ctest will not by default
-tell you how many tests have been run in each file (and you might thing that everything
-passes when in reality no tests are being run at all).
-
-## Structure
+## Library Structure
 
 The library is to be divided in the following layers:
 
-- Backend (TODO): will contain an abstraction layer over the underlying library or hardware that is used for heavy optimisations
+- Backend : will contain an abstraction layer over the underlying library or hardware that is used for heavy optimisation.
+  At present only spqlios is supported
 - Common: Utility code, functions that belong to no particular scheme/problem/FHE concept.
 -Core: Where the code for basic mathematical constructs will go
   - GLWE: functions and code for GLWE operations
   - GGSW: functions and code for GGSW and (related) GLWEGadget opeartions
-- Schemes (TODO): The different FHE schemes that can be implemented using the above problems
+- Schemes: The different FHE schemes that can be implemented using the above problems
   
+Its implementation in C allows for close-to-the metal optimisations
+and maximum portability, due to the spread of C toolchains as well
+as ability to call C functions (via an FFI) from most other programming languages.
+Additionally, the library is structured in different layers that can be imported
+independently, providing the developer a choice on the level of abstraction
+that their application requires.
+
+![Block representation of the library's layers](docs/images/block.svg)
+
 ## Security
+
+Prividema-fhe implements RLWE- and GLWE-based cryptographic primitives and follows the standard IND-CPA security model when configured with appropriate parameters.
+
+To ensure adequate security levels, parameter selection should be performed carefully according to the target use case and security requirements. We recommend using the [Lattice Estimator](https://github.com/malb/lattice-estimator) to evaluate and validate parameter choices against known lattice attacks
+
+## Building
+
+Instructions for building the library can be found in [BUILDING.md](BUILDING.md).
+
+## Testing and benchmarks
+
+The library currently contains both a test suite and some benchmarks.
+The tests are implemented using the Criterion C framework and most of them have parametrized problem parameters (N, K, etc.).
+The benchmarks require a relatively modern C++ compiler as they use Google's benchmark library.
+
+The instructions can also be found in [BUILDING.md](BUILDING.md).
 
 ## Docker
 
-TODO/TBD
+A Docker image for building and testing the library will be provided in the future.
 
 ## References
+
+[\[1\]]: https://eprint.iacr.org/2023/771
+
+[\[2\]]: https://eprint.iacr.org/2023/413
+
+[\[3\]]: https://eprint.iacr.org/2018/758
+
+[OpenFHE]: https://openfhe.org/
+
+[Lattigo]: https://github.com/tuneinsight/lattigo
+
+\[1\] Mariya Georgieva Belorgey, Sergiu Carpov, Nicolas Gama, Sandra Guasch, and Dimitar
+Jetchev. Revisiting key decomposition techniques for fhe: Simpler, faster and more generic.
+In International Conference on the Theory and Application of Cryptology and Information
+Security, pages 176–207. Springer, 2024
+
+\[2\] Miran Kim, Dongwon Lee, Jinyeong Seo, and Yongsoo Song. Accelerating HE operations
+from key decomposition technique. In Helena Handschuh and Anna Lysyanskaya, editors,
+CRYPTO 2023, Part IV, volume 14084 of LNCS, pages 70–92, Santa Barbara, CA, USA,
+August 20–24, 2023. Springer, Cham, Switzerland.
+
+\[3\] Christina Boura, Nicolas Gama, Mariya Georgieva, and Dimitar Jetchev. Chimera:
+Combining ring-lwe-based fully homomorphic encryption schemes.
+Journal of Mathematical Cryptology, 14(1):316–338, 2020.
