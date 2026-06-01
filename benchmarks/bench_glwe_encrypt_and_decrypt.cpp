@@ -27,6 +27,7 @@ void bench_enc_dec_rnx(benchmark::State& state)
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
+
 	rnx_random_vec(m, params_glwe);
 
 	for (auto _ : state)
