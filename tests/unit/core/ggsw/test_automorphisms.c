@@ -12,6 +12,8 @@
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
+#include "glwegadget_utils.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -76,14 +78,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 
 		pvda_vec_znx_automorphism(module, auto_p, m_expected_tnx, 1, params_glwe->nn, m_univ_tnx, 1, params_glwe->nn);
 
-		int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
-
-		int log2n   = ceil(log2(params_glwe->nn));
-		int log2nlt = ceil(log2(params_glwe->nn * params_glwegadget->l_tilde));
-
-		decomp_noise_bits -= log2n;
-		decomp_noise_bits -= log2nlt;
-		decomp_noise_bits -= 2;
+		int64_t decomp_noise_bits = noise_bits_half_prod(params_glwe, params_glwegadget);
 
 		for (int p = 0; p < params_glwe->nn; ++p)
 			assert_tnx_close_enough(m_observed_tnx[p], m_expected_tnx[p], decomp_noise_bits);
