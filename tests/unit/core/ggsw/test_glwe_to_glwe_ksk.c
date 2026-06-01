@@ -12,6 +12,7 @@
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
+#include "glwegadget_utils.h"
 #include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
@@ -56,7 +57,7 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 
 	uint64_t nn = params_glwe->nn;
 
-	int decomp_noise_bits = params_glwe->kappa * glwe_params_l_b(params_glwe);
+	int64_t decomp_noise_bits = noise_bits_half_prod(params_glwe, params_glwegadget);
 
 	for (int p = 0; p < params_glwe->nn; ++p)
 		assert_tnx_close_enough(m_observed_tnx[p], m_univ_tnx[p], decomp_noise_bits);
