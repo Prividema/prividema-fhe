@@ -62,6 +62,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 
 	PolyUnivRnX* m_univ_rnx     = new_univ_rnx(params_glwe);
+	PolyUnivRnX* tmp_rnx        = new_univ_rnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_observed_rnx = new_univ_rnx(params_glwe);
 	PolyBiv* biv_tmp            = new_biv_poly(params_glwe);
@@ -88,8 +89,8 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 		memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		normal_random_vec(m_univ_rnx, bund, 0, 0.01);
-		rnx_random_vec(m_univ_rnx, params_glwe);
+		rnx_random_vec(tmp_rnx, params_glwe);
+		for (int i = 0; i < bund; ++i) m_univ_rnx[i] = tmp_rnx[i];
 
 		glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
 
@@ -125,6 +126,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	delete_glwe_secret_key_prepared(sk_prep);
 
 	free(biv_tmp);
+	delete_univ_rnx(tmp_rnx);
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_rnx(m_observed_rnx);
 	delete_univ_tnx(m_expected_tnx);
