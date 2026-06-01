@@ -15,7 +15,6 @@ add_library(PVDA_UTEST_UTILS ${UTEST_UTILS_SRCS})
 # Set the output library name explicitly
 set_target_properties(PVDA_UTEST_UTILS PROPERTIES OUTPUT_NAME pvdautestutils)
 
-# Link dependencies: bivGGSW depends on GLWE, libspqlios, and COMMON
 target_link_libraries(PVDA_UTEST_UTILS PRIVATE PkgConfig::CRITERION PVDA_GLWE PVDA_COMMON PVDA_GGSW PVDA_BACKEND)
 
 # Include directories

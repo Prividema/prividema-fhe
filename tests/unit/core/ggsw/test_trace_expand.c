@@ -94,7 +94,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 		memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		normal_random_vec(m_univ_rnx, bund, 0, 0.01);
+		rnx_random_vec(m_univ_rnx, params_glwe);
 
 		glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
 

@@ -8,6 +8,15 @@
 #include "spqlios_alias.h"
 
 /**
+ *
+ * @file ggsw_arithmetic.h
+ *
+ * @brief This file contains arithmetic operations on GGSW ciphertexts
+ *
+ *
+ */
+
+/**
  * @brief Normalizes a GGSW ciphertext.
  *
  * @param module Additionnal information for backend.
@@ -86,4 +95,15 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
                                         const GLWEAutomorphismKSKCollection* auto_ksks,
                                         const GGSWCiphertextPrep** sk_encryptions);
 
+/**
+ *
+ * The function can allocate results by itself, to allow for reduced peak memory consumption (since trace expansion can be demanding)
+ * In order to do that, simply have results be an array of null pointers
+ *
+ *
+ */
+int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results, int res_size,
+                                                 int l_tilde, const GLWECiphertext* packed_glwegadget,
+                                                 const GLWEAutomorphismKSKCollection* auto_ksks,
+                                                 const GGSWCiphertextPrep** sk_encryptions);
 #endif  // bivGGSW_H

@@ -4,7 +4,12 @@
 /**
  * @file ggsw_ciphertext.h
  *
- * In this header file, we define the structure representing bivariate GGSW ciphertext in both DFT and coefficient forms.
+ * @brief Header containing GGSW ciphertext definition, allocation and deallocation as well as encryption
+ *
+ * Decryption is not implemented nor is is planned.
+ * See the comments in glwegadget_ciphertext.h for the reasoning, which is the same for GGSWs.
+ *
+ *
  */
 
 #include "ggsw_params.h"
@@ -17,10 +22,18 @@
  */
 typedef struct ggsw_ciphertext
 {
-	/// GGSW parameters.
+	/// The GGSW parameters
 	const GGSWParams* params;
 
-	/// A matrix of size n_limbs_tilde \f$·\f$ n_limbs with coefficients that are in \ZnX
+	/// A flattened (in row-major fashion) matrix of size
+	/// n_limbs_tilde \f$ \cdot \f$ n_limbs with each element a polynomial \ZnX,
+	/// representing a GGSW ciphertext (as a series of GLWE ciphertexts).
+	/// It is NOT a concatenation of GLWEGadgets, as the strided
+	/// representation of them that this structure uses makes it have a prefix
+	/// property on the rows as well as the columns.
+	///
+	/// See \ref ggsw_encoding "the section on GGSW ciphertext encoding" for a
+	/// more in-depth explanation.
 	MatBiv* mat;
 
 } GGSWCiphertext;
@@ -43,9 +56,9 @@ GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw);
 void delete_ggsw(GGSWCiphertext* ggsw);
 
 /**
- * @brief Get the Bivariate GLWE Ciphertext inside the GGSW with the given values.
+ * @brief Get the bivariate GLWE Ciphertext inside the GGSW with the given values.
  *
- * As a Bivariate GGSW's matrix is :
+ * A bivariate GGSW's matrix is :
  *
  * - bivGLWE(DFT(-m * sk_j / 2^{\kappa_tilde * i})) for j < k.
  * - bivGLWE(DFT(m / 2^{\kappa_tilde * i}))         for j = k.

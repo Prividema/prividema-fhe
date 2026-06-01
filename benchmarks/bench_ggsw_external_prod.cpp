@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
@@ -13,18 +11,15 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 16)
-#define KBASE      1
-#define KAPPABASE  19
-#define LBASE      15
-#define NLIMBSBASE (LBASE * 2)
+#include "params.h"
+#include "utils.hpp"
+#define MSGBITS 12  //Bit size of m
 
-void test_ggsw_unprepared_prod(benchmark::State& state)
+void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
@@ -37,11 +32,11 @@ void test_ggsw_unprepared_prod(benchmark::State& state)
 	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 	PolyUnivRnX* m_glwe            = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_random_vec(NBASE, m, 1, NBASE, 4);
-	normal_random_vec(m_glwe, NBASE, 0.0, 0.1);
+	uniform_random_vec(NBASE, m, 1, NBASE, MSGBITS);
+	rnx_random_vec(m_glwe, params_glwe);
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
 	glwe_secret_encrypt_rnx(module, glwe_input, sk_prep, m_glwe);
 
@@ -66,14 +61,14 @@ void test_ggsw_unprepared_prod(benchmark::State& state)
 	delete_ggsw_params(params_ggsw);
 }
 
-BENCHMARK(test_ggsw_unprepared_prod);
+BENCHMARK(bench_unprepared_ggsw_ext_prod);
 
-void test_ggsw_prepared_prod(benchmark::State& state)
+void bench_ggsw_prepared_prod(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
 	GLWESecretKey* sk                 = alloc_glwe_secret_key(params_glwe);
@@ -118,4 +113,4 @@ void test_ggsw_prepared_prod(benchmark::State& state)
 	delete_ggsw_params(params_ggsw);
 }
 
-BENCHMARK(test_ggsw_prepared_prod);
+BENCHMARK(bench_ggsw_prepared_prod);
