@@ -89,6 +89,11 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_sk_tmp, 1, nn,
 		                          glwe_prepared_sk_extract_poly_coefs(glwe_key, i), 1, nn);
 
+		for (int i = 0; i < nn; ++i)
+		{
+			auto_sk_tmp[i] = -auto_sk_tmp[i];
+		}
+
 		//GLWEGadget(sigma_p(sk_i))
 		CHECK_CALL(glwegadget_secret_encrypt(module, glwegad_tmp, glwe_key, auto_sk_tmp),
 		           "GLWEGadget encryption failed in autmorphism KSK preparation");
@@ -125,18 +130,15 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		pvda_vec_znx_automorphism(module, automorphism_ksk->automorphism_p, auto_tmp, biv_l, nn, glwe->vec,
 		                          glwe_params_l_a(glwe->params), 2 * nn);
 
-		// result = halfProd(C_auto(s), auto(a))
+		// result = halfProd(C_auto(-s), auto(a)) = -halfProd(C_auto(s), a)
 		CHECK_CALL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
 		           "half product in automorphism failed");
-
-		// result = -result = -hafProd(C_auto(s), auto(a))
-		negate_glwe(module, result, result);
 
 		// auto_tmp = auto_p(b)
 		pvda_vec_znx_automorphism(module, automorphism_ksk->automorphism_p, auto_tmp, biv_l, nn,
 		                          glwe_extract_start_poly(glwe, 1), glwe_params_l_b(glwe->params), 2 * nn);
 
-		// result += auto_tmp ==> result = -halfProc(c_auto(s), auto(a)) + (0, auto(b))
+		// result += auto_tmp ==> result = -halfProd(c_auto(s), auto(a)) + (0, auto(b))
 		pvda_vec_znx_add(module, glwe_extract_start_poly(result, 1), l_b_result, 2 * nn,
 		                 glwe_extract_start_poly(result, 1), l_b_result, 2 * nn, auto_tmp, biv_l, nn);
 
@@ -156,7 +158,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		pvda_vec_znx_automorphism(module, automorphism_ksk->automorphism_p, auto_tmp, biv_l, nn,
 		                          glwe_extract_start_poly(glwe, 0), glwe_params_l_a(glwe->params), (k + 1) * nn);
 
-		// result = halfProd(C_auto(s), auto(a_0))
+		// result = halfProd(C_auto(-s_0), auto(a_0))
 		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
 		                 "half product in automorphism failed", cleanup2);
 
@@ -166,19 +168,18 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 			pvda_vec_znx_automorphism(module, automorphism_ksk->automorphism_p, auto_tmp, biv_l, nn,
 			                          glwe_extract_start_poly(glwe, i), glwe_params_l_a(glwe->params), (k + 1) * nn);
 
-			// result = halfProd(C_auto(s_i), auto(a_i))
+			// result = halfProd(C_auto(-s_i), auto(a_i)) = -halfProd(C_auto(s_i), a_i)
 			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, automorphism_ksk->enc_s[i], auto_tmp),
 			                 "half product in automorphism failed", cleanup2);
 
 			add_glwe(module, result, result, glwe_tmp);
 		}
 
-		negate_glwe(module, result, result);
 		// auto_tmp = auto_p(b)
 		pvda_vec_znx_automorphism(module, automorphism_ksk->automorphism_p, auto_tmp, biv_l, nn,
 		                          glwe_extract_start_poly(glwe, k), glwe_params_l_b(glwe->params), (k + 1) * nn);
 
-		// result += auto_tmp ==> result = -sum_i(halfProc(c_auto(s), auto(a_i))) + (0, auto(b))
+		// result += auto_tmp ==> result = -sum_i(halfProc(c_auto(s_i), auto(a_i))) + (0, auto(b))
 		pvda_vec_znx_add(module, glwe_extract_start_poly(result, k), l_b_result, (k + 1) * nn,
 		                 glwe_extract_start_poly(result, k), l_b_result, (k + 1) * nn, auto_tmp, biv_l, nn);
 		status = 0;
