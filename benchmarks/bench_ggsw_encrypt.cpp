@@ -12,6 +12,7 @@ extern "C" {
 }
 
 #include "params.h"
+#define MSGBITS 4  //Bit size of the message coefficients
 
 void bench_ggsw_encrypt(benchmark::State& state)
 {
@@ -27,10 +28,10 @@ void bench_ggsw_encrypt(benchmark::State& state)
 	PolyBiv* result_biv            = new_biv_poly(params_glwe);
 	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_random_vec(NBASE, m, 1, NBASE, 4);
+	uniform_random_vec(NBASE, m, 1, NBASE, MSGBITS);
 
 	for (auto _ : state)
 	{

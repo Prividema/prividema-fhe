@@ -13,6 +13,7 @@ extern "C" {
 
 #include "params.h"
 #include "utils.hpp"
+#define MSGBITS 12  //Bit size of m
 
 void bench_ggsw_ext_prod(benchmark::State& state)
 {
@@ -31,10 +32,10 @@ void bench_ggsw_ext_prod(benchmark::State& state)
 	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 	PolyUnivRnX* m_glwe            = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_random_vec(NBASE, m, 1, NBASE, 4);
+	uniform_random_vec(NBASE, m, 1, NBASE, MSGBITS);
 	rnx_random_vec(m_glwe, params_glwe);
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
 	glwe_secret_encrypt_rnx(module, glwe_input, sk_prep, m_glwe);

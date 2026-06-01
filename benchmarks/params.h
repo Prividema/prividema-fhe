@@ -10,5 +10,6 @@
 #define LBASE      NLIMBSBASE / (KBASE + 1)
 #define SIGMABITS  4  //bits of sigma in the last limb. Should not affect performance
 #define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
+#define SKBITS     3  // bit size of secret key coefficients
 
 #endif

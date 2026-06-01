@@ -23,7 +23,7 @@ void bench_encrypt_rnx(benchmark::State& state)
 	PolyUnivRnX* m                 = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	rnx_random_vec(m, params_glwe);
@@ -55,7 +55,7 @@ void bench_encrypt_tnx(benchmark::State& state)
 	PolyUnivTnX* m                 = new_univ_tnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
@@ -86,7 +86,7 @@ void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 	PolyUnivTnX* m                 = new_univ_tnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
