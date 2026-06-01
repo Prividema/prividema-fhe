@@ -30,7 +30,7 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	    params_glwe->nn * (3 * DBL_EPSILON + biv_epsilon) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
 
 	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft               = alloc_glwe_secret_key_dft(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
 	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
@@ -42,14 +42,13 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	PolyBiv* um_observed                   = new_biv_poly(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
 	PolyBiv* m                             = new_biv_poly(params_glwe);
-	PolyBiv* m2                            = new_biv_poly(params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;
 	int kappa = params_glwe->kappa;
 
 	uniform_glwe_secret_key(module, sk, 3);
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 	uniform_random_pol_znx(u_univ, params_glwe->nn, 3);
 	uniform_random_pol_znx(m_univ_tnx, params_glwe->nn, 62);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
@@ -66,12 +65,27 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 
 	univ_tnx_to_rnx(params_glwe, um_expected_rnx, um_expected_tnx);
 
-	glwegadget_secret_encrypt(module, glwegad, sk_dft, u_univ);
+	glwegadget_secret_encrypt(module, glwegad, sk_prep, u_univ);
 	glwegadget_prepare(module, glwegad_prep, glwegad);
 	glwegadget_half_prod(module, glwe, glwegad_prep, m);
 	normalize_glwe(module, glwe, glwe);
-	glwe_secret_decrypt(module, um_observed, sk_dft, glwe);
+	glwe_secret_decrypt(module, um_observed, sk_prep, glwe);
 	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed);
 
 	pvda_assert_polynomial_distance(params_glwe, um_observed_rnx, um_expected_rnx, err_length, critical_err_length);
+
+	delete_glwe_secret_key(sk);
+	delete_glwe_secret_key_prepared(sk_prep);
+	delete_glwe(glwe);
+	delete_glwegadget(glwegad);
+	delete_glwegadget_prep(glwegad_prep);
+	delete_univ(u_univ);
+	delete_univ_tnx(m_univ_tnx);
+	delete_univ_rnx(m_univ_rnx);
+	delete_univ_tnx(um_expected_tnx);
+	delete_univ_rnx(um_expected_rnx);
+	free(um_observed);
+	delete_univ_rnx(um_observed_rnx);
+	free(m);
+	DELETE_PVDA_PARAMS_GGSWGAD;
 }

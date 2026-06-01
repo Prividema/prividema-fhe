@@ -131,7 +131,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase)
 {
 	int status = -1;
@@ -169,7 +169,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 		for (uint64_t j = 0; j < k; j++)
 		{
 			// The j-th component of the DFT encoding of the secret key
-			PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
+			PolyUnivDFT* sk_j_univ_dft = glwe_prepared_sk_extract_poly_dft(sk_prep, j);
 
 			// Computes DFT(sk_j) * DFT(a_j)
 			pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, glwe_extract_start_poly(glwe, j), l_a,
@@ -184,7 +184,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 	}
 	else
 	{
-		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, 0);
+		PolyUnivDFT* sk_j_univ_dft = glwe_prepared_sk_extract_poly_dft(sk_prep, 0);
 
 		pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, glwe_extract_start_poly(glwe, 0), l_a, (k + 1) * nn);
 
@@ -211,7 +211,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx)
 {
 	int status         = -1;
@@ -222,7 +222,7 @@ int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const 
 	           "failed univ to biv conversion in glwe encryption");
 	CHECK_CALL(add_biv_noise(module, result->params, biv_phase, biv_phase), "Noise addition failed in GLWE encryption");
 
-	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_dft, biv_phase), "masking failed in glwe encryption");
+	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_prep, biv_phase), "masking failed in glwe encryption");
 
 	status = 0;
 cleanup:
@@ -230,7 +230,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx)
 {
 	int status = -1;
@@ -242,7 +242,7 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
 	CHECK_CALL(univ_tnx_to_biv(result->params, biv_phase, m_univ_tnx, 0),
 	           "failed univ to biv conversion in glwe encryption");
 	CHECK_CALL(add_biv_noise(module, result->params, biv_phase, biv_phase), "Noise addition failed in GLWE encryption");
-	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_dft, biv_phase), "masking failed in glwe encryption");
+	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_prep, biv_phase), "masking failed in glwe encryption");
 
 	status = 0;
 cleanup:
@@ -250,7 +250,8 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyDFT* sk_dft, const GLWECiphertext* glwe)
+int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyPrepared* sk_prep,
+                        const GLWECiphertext* glwe)
 {
 	const GLWEParams* params = glwe->params;
 
@@ -275,7 +276,7 @@ int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyD
 	for (uint64_t j = 0; j < k; j++)
 	{
 		// The j-th component of the secret key in DFT form and the bivGLWE/GLW ciphertext respectively
-		PolyUnivDFT* sk_j_univ_dft = glwe_sk_extract_poly_dft(sk_dft, j);
+		PolyUnivDFT* sk_j_univ_dft = glwe_prepared_sk_extract_poly_dft(sk_prep, j);
 		const PolyUniv* a_j        = glwe_extract_start_poly(glwe, j);
 
 		// Computes DFT(sk_j * a_j)

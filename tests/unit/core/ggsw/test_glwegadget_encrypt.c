@@ -27,7 +27,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	cr_log_info("error length = %e", err_length);
 
 	GLWESecretKey* sk                = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft         = alloc_glwe_secret_key_dft(params_glwe);
+	GLWESecretKeyPrepared* sk_prep   = alloc_glwe_secret_key_prepared(params_glwe);
 	GLWEGadgetCiphertext* glwegadget = new_glwegadget(params_glwegadget);
 	PolyUniv* m_univ                 = new_univ(params_glwe);
 	PolyUnivDFT* m_univ_dft          = new_univ_dft(module);
@@ -40,16 +40,16 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 
 	// Draws the message
 	uniform_glwe_secret_key(module, sk, 3);
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 	uniform_random_pol_znx(m_univ, params_glwe->nn, params_glwe->kappa);
 
-	glwegadget_secret_encrypt(module, glwegadget, sk_dft, m_univ);
+	glwegadget_secret_encrypt(module, glwegadget, sk_prep, m_univ);
 
 	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
 	{
 		// Exctact the i'th glwe in the glwegadget and decrypt it. It should equal a phase of m / 2^{kappa*i}
 		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegadget, i)};
-		glwe_secret_decrypt(module, phase_computed, sk_dft, &glwe_ct);
+		glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
 		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
 
 		// Computes the expected result  m / 2^{kappa_tilde * i}
@@ -69,7 +69,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	delete_univ(m_univ);
 	delete_univ_dft(m_univ_dft);
 	delete_glwegadget(glwegadget);
-	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_prepared(sk_prep);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }

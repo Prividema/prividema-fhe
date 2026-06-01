@@ -24,6 +24,16 @@
 		}                   \
 	} while (0)
 
+#define CHECK_ALLOC_LABEL(ptr, m, label) \
+	do                                   \
+	{                                    \
+		if (!(ptr))                      \
+		{                                \
+			log_perror(m);               \
+			goto label;                  \
+		}                                \
+	} while (0)
+
 /**
  * @brief Raises a runtime error
  *

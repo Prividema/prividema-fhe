@@ -89,13 +89,13 @@ void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct);
  *
  * @param module The underlying compute module
  * @param result The resulting GLWEGadget ciphertext
- * @param sk_dft A prepared secret key
+ * @param sk_prep A prepared secret key
  * @param m_univ The univariate plaintext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                               const PolyUniv* m_univ);
 
 /**

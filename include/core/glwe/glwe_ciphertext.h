@@ -55,13 +55,13 @@ void delete_glwe(GLWECiphertext* glwe);
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param phase message + noise.
  *
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase);
 
 /**
@@ -69,13 +69,13 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, cons
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param m_univ_rnx  The univariate secret message to encrypt
  *
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx);
 
 /**
@@ -83,13 +83,13 @@ int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const 
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param m_univ_tnx  The univariate secret message to encrypt
  *
  * @retval -1 if an error occurs.
  * @retval  -0 othwerwise.
  */
-int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx);
 
 /**
@@ -98,13 +98,13 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
  *
  * @param module Additionnal information for backend.
  * @param result The bivariate phase.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param glwe The bivGLWE ciphertext.
  *
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_decrypt(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_decrypt(const MODULE* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe);
 /**
  * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertext

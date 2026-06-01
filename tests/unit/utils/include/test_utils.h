@@ -32,6 +32,21 @@
 void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
                                      double critical_err);
 
+/**
+ * @brief Given a number of bits of precision "bits", checks that 2 tnx values are not different by more than the error from using said precision
+ * Raise a cr error if far
+ *
+ * This function takes into account the errors that might be added during bivariate-univariate tnx conversion.
+ * For that reason, it will at least tolerate a 1 bit difference between a and b in all cases,
+ * even when the precision bits are higher than 64.
+ *
+ * @params a A TnX value
+ * @params b A TnX value
+ * @params bits the precision bits, usually something derived from K*l
+ *
+ */
+void assert_tnx_close_enough(uint64_t a, uint64_t b, uint64_t bits);
+
 typedef struct pvda_tst_params_t
 {
 	uint64_t nn;

@@ -61,7 +61,7 @@ VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t
 	return glwegadget_ct->mat + (i - 1) * glwe_coef_number(glwegadget_ct->params->params_glwe);
 }
 
-int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                               const PolyUniv* m_univ)
 {
 	int status = -1;
@@ -81,14 +81,15 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, m_univ, params_glwegadget->kappa_tilde * i),
 		           "univ_to_biv failed in compute_phase_ij");
 
-		add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg);
+		CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+		           "Noise addition failed in GLWEGadget encryption");
 
 		// Get the pointer for the result position
 		VecBiv* glwe_vec       = glwegadget_extract_bivglwe(result, i);
 		GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec (ie, add A * S)
-		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_dft, glwe_biv_msg),
+		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
 		           "glwe masking failed in a GLWEGadget encryption");
 	}
 

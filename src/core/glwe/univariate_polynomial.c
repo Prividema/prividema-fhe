@@ -9,7 +9,7 @@
 int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv* a)
 {
 	pvda_vec_znx_dft(module, res_dft, 1, a, 1, pvda_module_extract_nn(module));
-	return 1;
+	return 0;
 }
 
 int univ_dft_to_coefs(const MODULE* module, PolyUniv* res, const PolyUnivDFT* a_dft)
@@ -49,7 +49,7 @@ int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX
 	{
 		res[i] = (uint64_t)(ldexp(a[i] - floor(a[i]), 64));
 	}
-	return 1;
+	return 0;
 }
 
 int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX* a)
@@ -58,5 +58,5 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
 	{
 		res[i] = ldexp((double)((int64_t)a[i]), -64);
 	}
-	return 1;
+	return 0;
 }

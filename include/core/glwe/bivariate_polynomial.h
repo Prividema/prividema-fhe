@@ -31,6 +31,13 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  */
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe);
+/**
+ * @brief Creates an allocated bivariate polynomial
+ *
+ * @param params_glwe The bivGLWE parameters.
+ * @param biv_l The overriding l that will be used
+ */
+PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l);
 
 /**
  * @brief Computes a random normal bivariate polynomial.
