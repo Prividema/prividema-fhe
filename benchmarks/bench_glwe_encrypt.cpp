@@ -1,7 +1,5 @@
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
@@ -11,29 +9,24 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 14)
-#define KBASE      1
-#define KAPPABASE  19
-#define NLIMBSBASE (15 * 2)
-#define LBASE      NLIMBSBASE / (KBASE + 1)
+#include "params.h"
+#include "utils.hpp"
 
-void test_encrypt_rnx(benchmark::State& state)
+void bench_encrypt_rnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyUnivRnX* m                 = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	//The input message, for now sampled normally since we cannot sample uniformly in the torus right now
-	normal_random_vec(m, NBASE, 0.0, 0.1);
+	rnx_random_vec(m, params_glwe);
 
 	for (auto _ : state)
 	{
@@ -49,24 +42,22 @@ void test_encrypt_rnx(benchmark::State& state)
 	delete_glwe_secret_key_prepared(sk_prep);
 }
 
-BENCHMARK(test_encrypt_rnx);
+BENCHMARK(bench_encrypt_rnx);
 
-void test_encrypt_tnx(benchmark::State& state)
+void bench_encrypt_tnx(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyUnivTnX* m                 = new_univ_tnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	//The input message, for now sampled normally since we cannot sample uniformly in the torus right now
 	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
 
 	for (auto _ : state)
@@ -83,24 +74,21 @@ void test_encrypt_tnx(benchmark::State& state)
 	delete_glwe_secret_key_prepared(sk_prep);
 }
 
-BENCHMARK(test_encrypt_tnx);
+BENCHMARK(bench_encrypt_tnx);
 
-void test_encrypt_tnx_normalnoise(benchmark::State& state)
+void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
 	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_NORMAL);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_NORMAL);
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyUnivTnX* m                 = new_univ_tnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	//The input message, for now sampled normally since we cannot sample uniformly in the torus right now
 	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
 
 	for (auto _ : state)
@@ -117,4 +105,5 @@ void test_encrypt_tnx_normalnoise(benchmark::State& state)
 	delete_glwe_secret_key_prepared(sk_prep);
 }
 
-BENCHMARK(test_encrypt_tnx_normalnoise);
+// Benchmark ommited until normal noise implementation
+//BENCHMARK(bench_encrypt_tnx_normalnoise);

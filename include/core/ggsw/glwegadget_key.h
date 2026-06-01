@@ -15,13 +15,26 @@
 
 typedef struct glwe_automorphism_keyswitching_key_t
 {
-	int automorphism_p;  // -2 represents uninitialized value
-	GLWEGadgetParams* params;
-	GLWEGadgetCiphertextPrep** enc_s;
+	int automorphism_p;                ///< -2 represents uninitialized value, 0 if the KSK is not for an automorphism
+	GLWEGadgetParams* params;          ///< The GLWEGadgetParams associated with the gadgets used for key switching
+	GLWEGadgetCiphertextPrep** enc_s;  ///< A vector with pointers to the k prepared ciphertetxts of f(sk_i)
 } GLWEAutomorphismKSK;
 
+/**
+ * @brief Creates a new Key-switching-key (KSK)
+ *
+ * @param params The GLWEGadgetParams associated with the KSK
+ *
+ * @return NULL in case of failure, a new KSK otherwise
+ *
+ */
 GLWEAutomorphismKSK* new_automorphism_ksk(GLWEGadgetParams* params);
 
+/**
+ * @brief Deletes a KSK
+ *
+ * @param automorphism_ksk The KSK to delete
+ */
 void delete_automorphism_ksk(GLWEAutomorphismKSK* automorphism_ksk);
 
 typedef struct glwe_automorphism_keyswitching_key_collection_t

@@ -2,6 +2,13 @@
 #define LOGGER_H
 
 /**
+ *
+ * @file logger.h
+ *
+ * @brief Prividema utility file for logging
+ */
+
+/**
  * @brief Represents the log level used in the program.
  *
  * This enumeration defines different flags that represent the log levels we can use while executing the program.

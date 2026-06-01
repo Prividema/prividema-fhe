@@ -80,29 +80,6 @@ void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 	pvda_vec_znx_add(module, res, l_a, nn, a, l_a, nn, b, l_a, nn);
 }
 
-int add_biv_normal_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
-{
-	int status = -1;
-
-	PolyUnivRnX* tmp_err = new_univ_rnx(params_glwe);
-	PolyBiv* biv_err     = new_biv_poly(params_glwe);
-
-	CHECK_ALLOC(tmp_err, "Failed alloc in normal noise generation");
-	CHECK_ALLOC(biv_err, "Failed alloc in normal noise generation");
-
-	CHECK_CALL(normal_random_vec(tmp_err, params_glwe->nn, 0.0, params_glwe->normal_sigma), "Error generation failed");
-
-	CHECK_CALL(univ_rnx_to_biv(params_glwe, biv_err, tmp_err, 0), "univ_to_biv failed in compute_phase_ij");
-
-	add_biv_poly(module, params_glwe, res, a, biv_err);
-
-	status = 0;
-cleanup:
-	delete_univ_rnx(tmp_err);
-	free(biv_err);
-	return status;
-}
-
 int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	int status = -1;
@@ -139,10 +116,8 @@ int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* 
 {
 	switch (params_glwe->noise_type)
 	{
-		case NOISE_FAST_UNIFORM:
+		case NOISE_UNIFORM_POWER_OF_TWO:
 			return add_biv_fast_uni_noise(module, params_glwe, res, a);
-		case NOISE_NORMAL:
-			return add_biv_normal_noise(module, params_glwe, res, a);
 		default:
 			RAISE_ERROR("Noise type not implemented");
 	}
@@ -294,6 +269,17 @@ int univ_tnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, c
 	return 0;
 }
 
+/**
+ * @brief Helper funciton to fetch bits from a value and put then in the LSB of the return
+ *
+ * @param num Input value from which to fetch bits
+ * @param offset Position of the least significant bit to be fetched. E.g., to fetch the MSB
+ *               of num we would have offset 63.
+ * @param len Number of bits to fetch
+ *
+ * @return bits [offset:offset+len] of num in positions [0:len] of the return value, 0 elsewhere
+ *
+ */
 static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
 {
 	assert(offset <= 63);
@@ -301,6 +287,20 @@ static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
 	return (num >> offset) & ((1ULL << len) - 1);
 }
 
+/**
+ * @brief Sign-extend to the full uint64_t from position offset, inverting sign if sgn is 1
+ *
+ * Intended for "casting" 2-complement values of offset + 1 bits into a full 64-bit word.
+ *
+ * @param num The input number
+ * @param offset The MSB of num from which we want to sign-extend
+ * @param sgn Whether to invert the sign of the result (1) or not (0)
+ *            Values other than 0 and 1 are undefined
+ *
+ * @return The result of "casting a offset + 1 bit 2-complement int" to int64_t,
+ *         and, if sgn is 1, negating it afterwards
+ *
+ */
 static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
 {
 	uint64_t shift_amt = 63 - offset;
@@ -308,6 +308,20 @@ static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
 	return ((s ^ -sgn) + sgn);
 }
 
+/**
+ * Converts a sign-and-magintude value tnx value (stnx_num) into a bivariate polynomial,
+ * putting the LSB of the stnx value in the position of exponent 2^-lsb_pos
+ *
+ * @param stnx_num A sign-and-magniture tnx number (thus, implicit exponent is 2^-63 and first bit is the sign)
+ * @param lsb_pos Position where the LSB of stnx_num should be placed. One should use 63 if no shift is to be performed,
+ * but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
+ * @param dst The destination bivariate polynomial
+ * @param dst_sl The stride between occurrences of different limbs of the coefficient being decomposed
+ * @param params the glwe params (used to get l_a and kappa)
+ *
+ * @note Left for debugging purposes, as it is used by the rnx conversion function. See biv_decomp_internal_vec
+ * for a newer vectorizable (and significantly faster) implementation with better documented internals.
+ */
 inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t dst_sl,
                                        const GLWEParams* params)
 {
@@ -329,24 +343,37 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
 	}
 
+	// Add the mask and xor by it to do the conversion from [0, 2^-K) to [-2^(K-1), -2^(K-1))
+	// if we interpret each K bit group as a 2-complement K-long value
 	stnx_num += mask;
 	stnx_num ^= mask;
 
 	int l_a = glwe_params_l_a(params);
+
+	// zero the limbs that are too insignificant with the lsb_pos provided
 	for (int i = l_a - 1; i >= last_l; --i)
 	{
 		dst[i * dst_sl] = 0;
 	}
 
 	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;
-	int maxi1 = last_l - 1;
-	int maxi2 = (63 + k_offset) / kappa;
-	int max_i = maxi1 < maxi2 ? maxi1 : maxi2;
-	for (int i = min_i; i <= max_i; ++i)
+
+	// The number of (potentially) non-zero limbs we have to write to is the minimum between:
+	int max_limbs_due_depth = last_l;  // The number of limbs from most significant to the one containing lsb_pos
+
+	int max_limbs_due_input_bits =
+	    INT_ROUND_UP_DIV(63 + k_offset, kappa);  // Number of limbs that the magnitude can have non-zero values for,
+	// due to using (at most) 63 bits for the magnitude and the least significant limb having its k_offset LSBs set to 0
+
+	int nb_limbs_to_write =
+	    max_limbs_due_depth < max_limbs_due_input_bits ? max_limbs_due_depth : max_limbs_due_input_bits;
+	for (int i = min_i; i < nb_limbs_to_write; ++i)
 	{
 		uint64_t s;
 		if (i == 0)
 		{
+			// For the least significant limb, take into account the rightmost bits that need to be set to 0 due to
+			// lsb_pos/k_offset
 			uint64_t stnxt_tmp = stnx_num << k_offset;
 			s                  = select_bits(stnxt_tmp, 0, kappa);
 		}
@@ -354,28 +381,21 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 		{
 			s = select_bits(stnx_num, i * kappa - k_offset, kappa);
 		}
+		// Extend the K-bit 2-complement value (that the mask generated) into 64 bits,
+		// and invert the sign if the input sign was negative
+		// This step is what makes the output be in [-2^(K-1), 2^(K-1)] instead of [-2^(K-1), 2^(K-1))
 		int64_t s2                     = sgn_ext(s, kappa - 1, sgn);
 		dst[(last_l - 1 - i) * dst_sl] = s2;
 	}
-	int min_i_2 = min_i > max_i + 1 ? min_i : max_i + 1;
+	int min_i_2 = min_i > nb_limbs_to_write + 1 ? min_i : nb_limbs_to_write + 1;
 	for (int i = last_l - 1 - min_i_2; i >= 0; --i)
 	{
 		dst[i * dst_sl] = 0;
 	}
 }
 
+// IEEE 754 double precision mask for sign (bit 63) and mantissa (bits[51:0])
 #define DOUBLE_SGN_AND_MANTISSA_BMASK ((1UL << 63) + (1UL << 52) - 1)
-// Test test test
-void biv_to_univ_rnx_new(const GLWEParams* params, double val, PolyBiv* biv)
-{
-	uint64_t s_val;
-	memcpy(&s_val, &val, sizeof(double));
-	int exp = (int)select_bits(s_val, 52, 11);
-	exp -= 1023;
-	s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
-	s_val |= (1UL << 52);
-	biv_decomp_internal(s_val, 52 - exp, biv, 1, params);
-}
 
 int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset)
 {
@@ -385,16 +405,43 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 	{
 		double val = pol_univ[p];
 		uint64_t s_val;
+		// Casts the double bitwise to a uint64_t so we can work
+		// directly with the IEEE 754 memory layout
 		memcpy(&s_val, &val, sizeof(double));
+
+		// IEEE 754 exponent (select bits and undo 1023 fixed offset)
 		int exp = (int)select_bits(s_val, 52, 11);
 		exp -= 1023;
+
+		// IEEE 754 significand
 		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
+
+		// Add implicit bit. In the case of denormal numbers, this makes the computation wrong by
+		// the minimum non-denormal distance, which is a somewhat graceful failing
 		s_val |= (1UL << 52);
+
 		biv_decomp_internal(s_val, 52 - exp + bit_offset, res + p, nn, params_glwe);
 	}
 	return 0;
 }
 
+/**
+ * Converts a vector of signs and another of mangintudes of tnx values into a bivariate polynomial/vector while
+ * putting the LSB of the stnx value in the position of exponent 2^-lsb_pos
+ *
+ * This function (as opposed to the non-vec variant), expects the output vector to have been
+ * zeroed before being called for performance reasons.
+ *
+ * @param mag_vec A contigious vector of the magnitudes of the input values
+ * @param sgn_vec A contigious vector of the signs of the input values
+ * @param lsb_pos Position where the LSB of the inputs should be placed. One should use 63 if no shift is to be performed,
+ * but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
+ * @param dst The destination bivariate polynomial, which should be given with all coefficients set to 0
+ * @param dst_sl The stride between occurrences of different limbs of the same coefficient in the output.
+ * @param params the glwe params (used to get l_a and kappa)
+ *
+ *
+ */
 inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, int lsb_pos, int64_t* dst,
                                            int64_t dst_sl, const GLWEParams* params)
 {
@@ -402,33 +449,52 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 
 	int kappa = (int)params->kappa;
 	assert(kappa <= 63);
-	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);
-	int k_offset = last_l * kappa - lsb_pos;
+
+	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);  // limb number where lsb_pos falls
+	int k_offset = last_l * kappa - lsb_pos;          // position (bit) in the last written limb where lsb_pos falls
+	// Equivalently, number of bits in the last limb that are to the right of it and thus will be 0
 	assert(k_offset >= 0 && k_offset < kappa);
 
 	uint64_t mask = 0;
 
+	// Compute the offset-carry mask that converts [0, 2^-K) into [-2^(K-1), -2^(K-1))
 	for (uint64_t i = 1; (i * kappa - 1 - k_offset) < 64; ++i)
 	{
-		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
+		mask += 1ULL << (i * kappa - 1 - k_offset);
 	}
 
+	// Add the mask and xor by it to do the conversion from [0, 2^-K) to [-2^(K-1), -2^(K-1))
+	// if we interpret each K bit group as a 2-complement K-long value
+	//
+	// Later, the sgn_ext function will be used to retrieve each K-bit group into its own
+	// bivariate coefficient, negating it if its sign is negative
 	for (int p = 0; p < nn; ++p)
 	{
 		mag_vec[p] += mask;
 		mag_vec[p] ^= mask;
 	}
 
-	int l_a   = glwe_params_l_a(params);
-	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;
-	int maxi1 = last_l - 1;
-	int maxi2 = (63 + k_offset) / kappa;
-	int max_i = maxi1 < maxi2 ? maxi1 : maxi2;
-	for (int i = min_i; i <= max_i; ++i)
+	int l_a = glwe_params_l_a(params);
+
+	// We should start at either limb last_l (last_l-1 position)
+	// or l_a if l_a is smaller
+	int min_i = last_l - l_a < 0 ? 0 : last_l - l_a;  // min_i = max (last_l - l_a, 0)
+
+	// The number of (potentially) non-zero limbs we have to write to is the minimum between:
+	int max_limbs_due_depth = last_l;  // The number of limbs from most significant to the one containing lsb_pos
+	int max_limbs_due_to_input_bits =
+	    INT_ROUND_UP_DIV(63 + k_offset, kappa);  // Number of limbs that the magnitude can have non-zero values for,
+	// due to using (at most) 63 bits for the magnitude and the least significant limb having its k_offset LSBs set to 0
+	int nb_limbs_to_write =
+	    max_limbs_due_depth < max_limbs_due_to_input_bits ? max_limbs_due_depth : max_limbs_due_to_input_bits;
+
+	for (int i = min_i; i < nb_limbs_to_write; ++i)
 	{
 		if (i == 0)
 			for (int p = 0; p < nn; ++p)
 			{
+				// For the least significant limb, take into account the rightmost bits that need to be set to 0 due to
+				// lsb_pos/k_offset
 				uint64_t stnxt_tmp                 = mag_vec[p] << k_offset;
 				uint64_t s                         = select_bits(stnxt_tmp, 0, kappa);
 				int64_t s2                         = sgn_ext(s, kappa - 1, sgn_vec[p]);
@@ -437,7 +503,11 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 		else
 			for (int p = 0; p < nn; ++p)
 			{
-				uint64_t s                         = select_bits(mag_vec[p], i * kappa - k_offset, kappa);
+				// Select the corresponding K bit group
+				uint64_t s = select_bits(mag_vec[p], i * kappa - k_offset, kappa);
+				// Extend the K-bit 2-complement value (that the mask generated) into 64 bits,
+				// and invert the sign if the input sign was negative
+				// This step is what makes the output be in [-2^(K-1), 2^(K-1)] instead of [-2^(K-1), 2^(K-1))
 				int64_t s2                         = sgn_ext(s, kappa - 1, sgn_vec[p]);
 				dst[(last_l - 1 - i) * dst_sl + p] = s2;
 			}
@@ -457,14 +527,20 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 
 	memset(res, 0, poly_biv_bytes(params_glwe));
 
+	// Decompose the tnx values into sign and magintude
 	for (int p = 0; p < nn; ++p)
 	{
 		uint64_t tnx_val = pol_univ[p];
-		uint64_t mask    = ((int64_t)tnx_val) >> 63;
+		// The mask is all 1s for negative numbers, all 0 for positive
+		uint64_t mask = ((int64_t)tnx_val) >> 63;
+		// Branchless absolute value using the mask
 		uint64_t abs_val = (tnx_val ^ mask) - mask;
-		mag_vec[p]       = (abs_val >> 1);
-		sgn_vec[p]       = mask & 1;
+		// magnitude (divided by 2 to ensure no carry overflow)
+		mag_vec[p] = (abs_val >> 1);
+		sgn_vec[p] = mask & 1;
 	}
+	// lsb_pos is 63 + bit_offset due to mag_vec being a tnx to which we have removed its LSB
+	// and shifted right by 1, thus its implicit denominator is 2^-63
 	biv_decomp_internal_vec(mag_vec, sgn_vec, 63 + bit_offset, res, nn, params_glwe);
 	status = 0;
 cleanup:
@@ -492,13 +568,18 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 
 	memset(res, 0, poly_biv_bytes(params_glwe));
 
+	// Decompose the znx values into sign and magintude
 	for (int p = 0; p < nn; ++p)
 	{
 		uint64_t tnx_val = pol_univ[p];
-		uint64_t mask    = ((int64_t)tnx_val) >> 63;
+		// The mask is all 1s for negative numbers, all 0 for positive
+		uint64_t mask = ((int64_t)tnx_val) >> 63;
+		// Branchless absolute value using the mask
 		uint64_t abs_val = (tnx_val ^ mask) - mask;
-		mag_vec[p]       = abs_val;
-		sgn_vec[p]       = mask & 1;
+		// magnitude, not divided since we are in znx and not tnx.
+		// The user should make sure that the proper bounds are used.
+		mag_vec[p] = abs_val;
+		sgn_vec[p] = mask & 1;
 	}
 	biv_decomp_internal_vec(mag_vec, sgn_vec, bit_offset, res, nn, params_glwe);
 	status = 0;

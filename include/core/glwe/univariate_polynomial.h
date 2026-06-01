@@ -5,6 +5,14 @@
 #include "maths_structures.h"
 #include "spqlios_alias.h"
 
+/**
+ *
+ * @ file univariate_polynomial.h
+ *
+ * @brief Oerations on univariate polynomials
+ *
+ */
+
 /*
  * @brief convert a univariate polynomial from coefficient space to DFT
  *

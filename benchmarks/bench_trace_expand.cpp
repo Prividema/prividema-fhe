@@ -18,23 +18,17 @@ extern "C" {
 #include "univariate_polynomial.h"
 }
 
-#define NBASE      (1 << 14)
-#define KBASE      1
-#define KAPPABASE  19
-#define NLIMBSBASE (15 * 2)
-#define LBASE      NLIMBSBASE / (KBASE + 1)
+#include "params.h"
 
-#define D          16
+#define D 16
 
 void test_expand_trace(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 	params_glwe->fast_uniform_nb_bits   = 0;
-	sigma                               = 0;
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
@@ -99,10 +93,9 @@ BENCHMARK(test_expand_trace);
 
 void test_expand_compressed_trace(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
@@ -188,10 +181,9 @@ BENCHMARK(test_expand_compressed_trace);
 
 void test_expand_compressed_trace_gad(benchmark::State& state)
 {
-	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
-
-	MODULE* module          = pvda_new_module_info(NBASE);
-	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_FAST_UNIFORM);
+	MODULE* module = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
