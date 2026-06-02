@@ -80,6 +80,93 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 	delete_univ(test);
 	return 0;
 }
+int onionpir_server(const MODULE* module, const GGSWParams* params_ggsw, const GLWEGadgetParams* params_glwegad,
+                    const GLWEAutomorphismKSKCollection* ksks, const GGSWCiphertextPrep** ggsw_ksks,
+                    GLWECiphertext* res, const GLWECiphertext* row_query, const GLWECiphertext* col_query)
+{
+	const GLWEParams* params_glwe                         = params_ggsw->params_glwe;
+	GLWECiphertext* glwe_tree[LOG2_COLS + 1][MATRIX_COLS] = {0};
+	uint64_t used_cols                                    = MATRIX_COLS;
+	for (int c = 0; c < used_cols; ++c)
+	{
+		glwe_tree[0][c] = new_glwe(params_glwe);
+	}
+
+	GLWEGadgetCiphertextPrep** glwegad_trace = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertextPrep*));
+	glwegad_trace[0]                         = new_glwegadget_prep(params_glwegad);
+	packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, row_query, ksks);
+
+	//Half products
+	PolyBiv* pos_biv         = new_biv_poly(params_glwe);
+	GLWECiphertext* tmp_glwe = new_glwe(params_glwe);
+	for (int64_t c = 0; c < MATRIX_COLS; ++c)
+	{
+		for (int64_t r = 0; r < MATRIX_ROWS; ++r)
+		{
+			onionpir_fill_bivariate_with_matrix_position(params_glwe, pos_biv, r, c);
+			glwegadget_half_prod(module, tmp_glwe, glwegad_trace[r], pos_biv);
+			add_glwe(module, glwe_tree[0][c], glwe_tree[0][c], tmp_glwe);
+		}
+		printf("\n");
+	}
+	// for (int64_t c = 0; c < MATRIX_COLS; ++c)
+	// {
+	// 	printf("Col %d: ", c);
+	// 	print_coefs_glwe(module, glwe_tree[0][c], sk_prep, 4, SHFT_AMT);
+	// 	printf("\n");
+	// }
+
+	for (int r = 0; r < MATRIX_ROWS; ++r)
+	{
+		delete_glwegadget_prep(glwegad_trace[r]);
+	}
+
+	GGSWCiphertextPrep* ggsw_trace[LOG2_COLS] = {0};
+	ggsw_trace[0]                             = new_ggsw_prep(params_ggsw);
+
+	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, LOG2_COLS, ggsw_params_l_tilde_a(params_ggsw),
+	                                             col_query, ksks, (const GGSWCiphertextPrep**)ggsw_ksks);
+
+	//CMux tree
+	printf("\n");
+	for (int l = 0; l < LOG2_COLS; ++l)
+	{
+		//Init next level
+		if (l == LOG2_COLS - 1)
+			glwe_tree[l + 1][0] = res;
+		else
+			for (int c = 0; c < (used_cols + 1) / 2; ++c)
+			{
+				glwe_tree[l + 1][c] = new_glwe(params_glwe);
+			}
+
+		//CMux
+		int c;
+		// printf("Lvl %d:\n", l);
+		for (c = 0; c < used_cols; c += 2)
+		{
+			if (c + 1 < used_cols)
+				tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], ggsw_trace[l], 1);
+			else
+				tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c], ggsw_trace[l], 1);
+			// printf("Col %d: ", c);
+			// print_coefs_glwe(module, glwe_tree[l + 1][c / 2], sk_prep, 4, SHFT_AMT);
+			// printf("\n");
+		}
+		// printf("\n");
+
+		for (int c = 0; c < used_cols; ++c)
+		{
+			delete_glwe(glwe_tree[l][c]);
+		}
+		used_cols = (used_cols + 1) / 2;
+	}
+
+	for (int i = 0; i < LOG2_COLS; ++i)
+	{
+		delete_ggsw_prep(ggsw_trace[i]);
+	}
+}
 
 int main()
 {
@@ -137,97 +224,24 @@ int main()
 	glwegadget_packed_secret_encrypt(module, row_query, params_glwegad, sk_prep, sel_row, MATRIX_ROWS);
 	glwegadget_packed_secret_encrypt(module, col_query, params_glwegad, sk_prep, sel_col, LOG2_COLS);
 
+	GLWECiphertext* res = new_glwe(params_glwe);
 	//Server
+
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
 
-	GLWECiphertext* glwe_tree[LOG2_COLS + 1][MATRIX_COLS] = {0};
-	uint64_t used_cols                                    = MATRIX_COLS;
-	for (int c = 0; c < used_cols; ++c)
-	{
-		glwe_tree[0][c] = new_glwe(params_glwe);
-	}
+	onionpir_server(module, params_ggsw, params_glwegad, ksks, (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query,
+	                col_query);
 
-	GLWEGadgetCiphertextPrep** glwegad_trace = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertextPrep*));
-	glwegad_trace[0]                         = new_glwegadget_prep(params_glwegad);
-	packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, row_query, ksks);
-
-	//Half products
-	PolyBiv* pos_biv         = new_biv_poly(params_glwe);
-	GLWECiphertext* tmp_glwe = new_glwe(params_glwe);
-	for (int64_t c = 0; c < MATRIX_COLS; ++c)
-	{
-		for (int64_t r = 0; r < MATRIX_ROWS; ++r)
-		{
-			onionpir_fill_bivariate_with_matrix_position(params_glwe, pos_biv, r, c);
-			glwegadget_half_prod(module, tmp_glwe, glwegad_trace[r], pos_biv);
-			add_glwe(module, glwe_tree[0][c], glwe_tree[0][c], tmp_glwe);
-		}
-		printf("\n");
-	}
-	for (int64_t c = 0; c < MATRIX_COLS; ++c)
-	{
-		printf("Col %d: ", c);
-		print_coefs_glwe(module, glwe_tree[0][c], sk_prep, 4, SHFT_AMT);
-		printf("\n");
-	}
-
-	for (int r = 0; r < MATRIX_ROWS; ++r)
-	{
-		delete_glwegadget_prep(glwegad_trace[r]);
-	}
-
-	GGSWCiphertextPrep* ggsw_trace[LOG2_COLS] = {0};
-	ggsw_trace[0]                             = new_ggsw_prep(params_ggsw);
-
-	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, LOG2_COLS, ggsw_params_l_tilde_a(params_ggsw),
-	                                             col_query, ksks, (const GGSWCiphertextPrep**)ggsw_ksks);
-
-	//CMux tree
-	printf("\n");
-	for (int l = 0; l < LOG2_COLS; ++l)
-	{
-		//Init next level
-		for (int c = 0; c < (used_cols + 1) / 2; ++c)
-		{
-			glwe_tree[l + 1][c] = new_glwe(params_glwe);
-		}
-
-		//CMux
-		int c;
-		printf("Lvl %d:\n", l);
-		for (c = 0; c < used_cols; c += 2)
-		{
-			if (c + 1 < used_cols)
-				tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], ggsw_trace[l], 1);
-			else
-				tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c], ggsw_trace[l], 1);
-			printf("Col %d: ", c);
-			print_coefs_glwe(module, glwe_tree[l + 1][c / 2], sk_prep, 4, SHFT_AMT);
-			printf("\n");
-		}
-		printf("\n");
-
-		for (int c = 0; c < used_cols; ++c)
-		{
-			delete_glwe(glwe_tree[l][c]);
-		}
-		used_cols = (used_cols + 1) / 2;
-	}
-
-	for (int i = 0; i < LOG2_COLS; ++i)
-	{
-		delete_ggsw_prep(ggsw_trace[i]);
-	}
 	struct timespec server_end;
 	clock_gettime(CLOCK_REALTIME, &server_end);
 
 	printf("Server elapsed time: %ld ms\n",
 	       (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000);
 
-	print_coefs_glwe(module, glwe_tree[LOG2_COLS][0], sk_prep, 4, SHFT_AMT);
+	print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
 
-	delete_glwe(glwe_tree[LOG2_COLS][0]);
+	delete_glwe(res);
 
 	return 0;
 }
