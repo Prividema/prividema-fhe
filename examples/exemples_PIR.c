@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
@@ -20,29 +21,49 @@
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
 
-#define MATRIX_COLS   2
-#define LOG2_COLS     1
-#define MATRIX_ROWS   4
+#define MATRIX_COLS  4
+#define LOG2_COLS    2
+#define MATRIX_ROWS  4
 
-#define NBASE         (1 << 11)
-#define KBASE         1
-#define KAPPABASE     19
-#define LBASE         5
-#define NLIMBSBASE    (LBASE * 2)
-#define LGADBASE      8
-#define NGADLIMBSBASE (LGADBASE * 2)
-#define LGGBASE       12
-#define NGGLIMBSBASE  (LGGBASE * 2)
+#define NBASE        (1 << 11)
+#define KBASE        1
+#define KAPPABASE    19
+#define LBASE        5
+#define NLIMBSBASE   (LBASE * 2)
+#define LGADBASE     10
+#define LGGBASE      10
+#define NGGLIMBSBASE (LGGBASE * 2)
 
-#define SHFT_AMT      57
+#define SHFT_AMT     51
 int onionpir_prepare_query_rows() {}
+
+void print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+                      int shft)
+{
+	PolyBiv* result_biv     = new_biv_poly(glwe->params);
+	PolyUnivTnX* result_tnx = new_univ_tnx(glwe->params);
+	glwe_secret_decrypt(module, result_biv, sk_prep, glwe);
+	biv_to_univ_tnx(glwe->params, result_tnx, result_biv);
+
+	for (int i = 0; i < n; ++i)
+	{
+		printf("%lx (%ld)  ", result_tnx[i], ((result_tnx[i] >> (shft - 1)) + 1) >> 1);
+	}
+
+	delete_biv(result_biv);
+	delete_univ_tnx(result_tnx);
+}
 
 int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t row,
                                                  int64_t column)
 {
 	PolyUniv* test = new_univ(params_glwe);
-	int64_t rn     = (row + 1) << SHFT_AMT;
-	int64_t cn     = (column + 1) << SHFT_AMT;
+	int64_t rn     = (row + 1l) << SHFT_AMT;
+	int64_t cn     = (column + 1l) << SHFT_AMT;
+	//cn             = (9l) << SHFT_AMT;
+	//cn             = row << SHFT_AMT;
+
+	printf("Filling R %ld C %ld rn %lx cn %lx sr %ld rc %ld    ", row, column, rn, cn, rn >> SHFT_AMT, cn >> SHFT_AMT);
 
 	for (int i = 0; i < NBASE; ++i)
 	{
@@ -50,7 +71,10 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 			test[i] = cn;
 		else
 			test[i] = rn;
+
+		if (i < 4) printf("%ld ", test[i] >> SHFT_AMT);
 	}
+	printf("\n");
 	univ_tnx_to_biv(params_glwe, biv, test, 0);
 
 	delete_univ(test);
@@ -59,7 +83,7 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 
 int main()
 {
-	double sigma            = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
+	double sigma            = ldexp(1.0, 2 - (LBASE)*KAPPABASE);
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LGADBASE);
@@ -107,16 +131,19 @@ int main()
 	memset(sel_row, 0, poly_univ_bytes(params_glwe));
 	memset(sel_col, 0, poly_univ_bytes(params_glwe));
 	sel_col[0] = 1;
+	sel_col[1] = 1;
 	sel_row[3] = 1;
 
 	glwegadget_packed_secret_encrypt(module, row_query, params_glwegad, sk_prep, sel_row, MATRIX_ROWS);
 	glwegadget_packed_secret_encrypt(module, col_query, params_glwegad, sk_prep, sel_col, LOG2_COLS);
 
 	//Server
+	struct timespec server_start;
+	clock_gettime(CLOCK_REALTIME, &server_start);
 
 	GLWECiphertext* glwe_tree[LOG2_COLS + 1][MATRIX_COLS] = {0};
 	uint64_t used_cols                                    = MATRIX_COLS;
-	for (int c = 0; c <= (used_cols / 2); ++c)
+	for (int c = 0; c < used_cols; ++c)
 	{
 		glwe_tree[0][c] = new_glwe(params_glwe);
 	}
@@ -128,14 +155,21 @@ int main()
 	//Half products
 	PolyBiv* pos_biv         = new_biv_poly(params_glwe);
 	GLWECiphertext* tmp_glwe = new_glwe(params_glwe);
-	for (int c = 0; c < MATRIX_COLS; ++c)
+	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
-		for (int r = 0; r < MATRIX_ROWS; ++r)
+		for (int64_t r = 0; r < MATRIX_ROWS; ++r)
 		{
 			onionpir_fill_bivariate_with_matrix_position(params_glwe, pos_biv, r, c);
 			glwegadget_half_prod(module, tmp_glwe, glwegad_trace[r], pos_biv);
 			add_glwe(module, glwe_tree[0][c], glwe_tree[0][c], tmp_glwe);
 		}
+		printf("\n");
+	}
+	for (int64_t c = 0; c < MATRIX_COLS; ++c)
+	{
+		printf("Col %d: ", c);
+		print_coefs_glwe(module, glwe_tree[0][c], sk_prep, 4, SHFT_AMT);
+		printf("\n");
 	}
 
 	for (int r = 0; r < MATRIX_ROWS; ++r)
@@ -150,6 +184,7 @@ int main()
 	                                             col_query, ksks, (const GGSWCiphertextPrep**)ggsw_ksks);
 
 	//CMux tree
+	printf("\n");
 	for (int l = 0; l < LOG2_COLS; ++l)
 	{
 		//Init next level
@@ -160,13 +195,18 @@ int main()
 
 		//CMux
 		int c;
+		printf("Lvl %d:\n", l);
 		for (c = 0; c < used_cols; c += 2)
 		{
 			if (c + 1 < used_cols)
 				tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], ggsw_trace[l], 1);
 			else
 				tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c], ggsw_trace[l], 1);
+			printf("Col %d: ", c);
+			print_coefs_glwe(module, glwe_tree[l + 1][c / 2], sk_prep, 4, SHFT_AMT);
+			printf("\n");
 		}
+		printf("\n");
 
 		for (int c = 0; c < used_cols; ++c)
 		{
@@ -174,23 +214,19 @@ int main()
 		}
 		used_cols = (used_cols + 1) / 2;
 	}
+
 	for (int i = 0; i < LOG2_COLS; ++i)
 	{
 		delete_ggsw_prep(ggsw_trace[i]);
 	}
+	struct timespec server_end;
+	clock_gettime(CLOCK_REALTIME, &server_end);
 
-	PolyBiv* result_biv     = new_biv_poly(params_glwe);
-	PolyUnivTnX* result_tnx = new_univ_tnx(params_glwe);
-	glwe_secret_decrypt(module, result_biv, sk_prep, glwe_tree[LOG2_COLS][0]);
-	biv_to_univ_tnx(params_glwe, result_tnx, result_biv);
+	printf("Server elapsed time: %ld ms\n",
+	       (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000);
 
-	printf("Result: ");
-	for (int i = 0; i < 4; ++i)
-	{
-		printf("%lx (%ld)  ", result_tnx[i], ((result_tnx[i] >> (SHFT_AMT - 1)) + 1) >> 1);
-	}
+	print_coefs_glwe(module, glwe_tree[LOG2_COLS][0], sk_prep, 4, SHFT_AMT);
 
-	delete_biv(result_biv);
 	delete_glwe(glwe_tree[LOG2_COLS][0]);
 
 	return 0;
