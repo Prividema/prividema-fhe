@@ -27,21 +27,22 @@
 #define NBASE         (1 << 11)
 #define KBASE         1
 #define KAPPABASE     19
-#define LBASE         3
+#define LBASE         5
 #define NLIMBSBASE    (LBASE * 2)
-#define LGADBASE      6
+#define LGADBASE      8
 #define NGADLIMBSBASE (LGADBASE * 2)
-#define LGGBASE       10
+#define LGGBASE       12
 #define NGGLIMBSBASE  (LGGBASE * 2)
 
+#define SHFT_AMT      57
 int onionpir_prepare_query_rows() {}
 
 int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t row,
                                                  int64_t column)
 {
 	PolyUniv* test = new_univ(params_glwe);
-	int64_t rn     = (row + 1) << 32;
-	int64_t cn     = (column + 1) << 32;
+	int64_t rn     = (row + 1) << SHFT_AMT;
+	int64_t cn     = (column + 1) << SHFT_AMT;
 
 	for (int i = 0; i < NBASE; ++i)
 	{
@@ -51,6 +52,11 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 			test[i] = rn;
 	}
 
+	for (int i = 0; i < 4; ++i)
+	{
+		printf("%lx ", test[i] >> SHFT_AMT);
+	}
+	printf("\n");
 	univ_tnx_to_biv(params_glwe, biv, test, 0);
 
 	delete_univ(test);
@@ -153,7 +159,7 @@ int main()
 	for (int l = 0; l < LOG2_COLS; ++l)
 	{
 		//Init next level
-		for (int c = 0; c <= (used_cols / 2); ++c)
+		for (int c = 0; c < (used_cols + 1) / 2; ++c)
 		{
 			glwe_tree[l + 1][c] = new_glwe(params_glwe);
 		}
@@ -172,7 +178,7 @@ int main()
 		{
 			delete_glwe(glwe_tree[l][c]);
 		}
-		used_cols >>= 1;
+		used_cols = (used_cols + 1) / 2;
 	}
 	for (int i = 0; i < LOG2_COLS; ++i)
 	{
@@ -190,6 +196,11 @@ int main()
 		printf("%lx ", result_tnx[i]);
 	}
 
+	printf("\n Rounded: ");
+	for (int i = 0; i < 4; ++i)
+	{
+		printf("%lx ", ((result_tnx[i] >> (SHFT_AMT - 1)) + 1) >> 1);
+	}
 	delete_biv(result_biv);
 	delete_glwe(glwe_tree[LOG2_COLS][0]);
 
