@@ -20,15 +20,19 @@
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
 
-#define MATRIX_COLS 2
-#define LOG2_COLS   1
-#define MATRIX_ROWS 2
+#define MATRIX_COLS   2
+#define LOG2_COLS     1
+#define MATRIX_ROWS   2
 
-#define NBASE       (1 << 10)
-#define KBASE       1
-#define KAPPABASE   19
-#define LBASE       12
-#define NLIMBSBASE  (LBASE * 2)
+#define NBASE         (1 << 11)
+#define KBASE         1
+#define KAPPABASE     19
+#define LBASE         3
+#define NLIMBSBASE    (LBASE * 2)
+#define LGADBASE      6
+#define NGADLIMBSBASE (LGADBASE * 2)
+#define LGGBASE       10
+#define NGGLIMBSBASE  (LGGBASE * 2)
 
 int onionpir_prepare_query_rows() {}
 
@@ -58,8 +62,8 @@ int main()
 	double sigma            = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 	MODULE* module          = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
-	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
-	GGSWParams* params_ggsw          = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
+	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LGADBASE);
+	GGSWParams* params_ggsw          = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NGGLIMBSBASE);
 
 	//Client phase 1
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
