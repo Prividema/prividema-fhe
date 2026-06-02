@@ -32,8 +32,6 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params);
 	CHECK_ALLOC(glwe_dft, "Allocation failed in half-product");
 
-	//TODO: check if assertion is necessary
-	assert(a->l == nrows);
 	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, a, glwegadget_prep_ct->mat, nrows, ncols_in),
 	           "vmp apply falied in half product");
 

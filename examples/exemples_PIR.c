@@ -22,7 +22,7 @@
 
 #define MATRIX_COLS   2
 #define LOG2_COLS     1
-#define MATRIX_ROWS   2
+#define MATRIX_ROWS   4
 
 #define NBASE         (1 << 11)
 #define KBASE         1
@@ -51,12 +51,6 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 		else
 			test[i] = rn;
 	}
-
-	for (int i = 0; i < 4; ++i)
-	{
-		printf("%lx ", test[i] >> SHFT_AMT);
-	}
-	printf("\n");
 	univ_tnx_to_biv(params_glwe, biv, test, 0);
 
 	delete_univ(test);
@@ -113,7 +107,7 @@ int main()
 	memset(sel_row, 0, poly_univ_bytes(params_glwe));
 	memset(sel_col, 0, poly_univ_bytes(params_glwe));
 	sel_col[0] = 1;
-	sel_row[0] = 1;
+	sel_row[3] = 1;
 
 	glwegadget_packed_secret_encrypt(module, row_query, params_glwegad, sk_prep, sel_row, MATRIX_ROWS);
 	glwegadget_packed_secret_encrypt(module, col_query, params_glwegad, sk_prep, sel_col, LOG2_COLS);
@@ -127,7 +121,7 @@ int main()
 		glwe_tree[0][c] = new_glwe(params_glwe);
 	}
 
-	GLWEGadgetCiphertextPrep** glwegad_trace = calloc(MATRIX_COLS, sizeof(GLWEGadgetCiphertextPrep*));
+	GLWEGadgetCiphertextPrep** glwegad_trace = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertextPrep*));
 	glwegad_trace[0]                         = new_glwegadget_prep(params_glwegad);
 	packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, row_query, ksks);
 
@@ -193,14 +187,9 @@ int main()
 	printf("Result: ");
 	for (int i = 0; i < 4; ++i)
 	{
-		printf("%lx ", result_tnx[i]);
+		printf("%lx (%ld)  ", result_tnx[i], ((result_tnx[i] >> (SHFT_AMT - 1)) + 1) >> 1);
 	}
 
-	printf("\n Rounded: ");
-	for (int i = 0; i < 4; ++i)
-	{
-		printf("%lx ", ((result_tnx[i] >> (SHFT_AMT - 1)) + 1) >> 1);
-	}
 	delete_biv(result_biv);
 	delete_glwe(glwe_tree[LOG2_COLS][0]);
 
