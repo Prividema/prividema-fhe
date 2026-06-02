@@ -21,11 +21,11 @@
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
 
-#define MATRIX_COLS  4
-#define LOG2_COLS    2
-#define MATRIX_ROWS  4
+#define MATRIX_COLS  256
+#define LOG2_COLS    8
+#define MATRIX_ROWS  256
 
-#define NBASE        (1 << 11)
+#define NBASE        (1 << 12)
 #define KBASE        1
 #define KAPPABASE    19
 #define LBASE        5
@@ -34,7 +34,7 @@
 #define LGGBASE      10
 #define NGGLIMBSBASE (LGGBASE * 2)
 
-#define SHFT_AMT     51
+#define SHFT_AMT     50
 int onionpir_prepare_query_rows() {}
 
 void print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
@@ -63,7 +63,7 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 	//cn             = (9l) << SHFT_AMT;
 	//cn             = row << SHFT_AMT;
 
-	printf("Filling R %ld C %ld rn %lx cn %lx sr %ld rc %ld    ", row, column, rn, cn, rn >> SHFT_AMT, cn >> SHFT_AMT);
+	//printf("Filling R %ld C %ld rn %lx cn %lx sr %ld rc %ld    ", row, column, rn, cn, rn >> SHFT_AMT, cn >> SHFT_AMT);
 
 	for (int i = 0; i < NBASE; ++i)
 	{
@@ -72,9 +72,9 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 		else
 			test[i] = rn;
 
-		if (i < 4) printf("%ld ", test[i] >> SHFT_AMT);
+		//if (i < 4) printf("%ld ", test[i] >> SHFT_AMT);
 	}
-	printf("\n");
+	//printf("\n");
 	univ_tnx_to_biv(params_glwe, biv, test, 0);
 
 	delete_univ(test);
@@ -84,12 +84,14 @@ int onionpir_server(const MODULE* module, const GGSWParams* params_ggsw, const G
                     const GLWEAutomorphismKSKCollection* ksks, const GGSWCiphertextPrep** ggsw_ksks,
                     GLWECiphertext* res, const GLWECiphertext* row_query, const GLWECiphertext* col_query)
 {
-	const GLWEParams* params_glwe                         = params_ggsw->params_glwe;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
+	GLWEParams* db_params  = new_glwe_params(NBASE, KBASE, KAPPABASE, (KBASE + 1), 0, NOISE_UNIFORM_POWER_OF_TWO);
+	GLWEParams* db_params2 = new_glwe_params(NBASE, KBASE, KAPPABASE, (KBASE + 1) * 3, 0, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWECiphertext* glwe_tree[LOG2_COLS + 1][MATRIX_COLS] = {0};
 	uint64_t used_cols                                    = MATRIX_COLS;
 	for (int c = 0; c < used_cols; ++c)
 	{
-		glwe_tree[0][c] = new_glwe(params_glwe);
+		glwe_tree[0][c] = new_glwe(db_params2);
 	}
 
 	GLWEGadgetCiphertextPrep** glwegad_trace = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertextPrep*));
@@ -97,17 +99,17 @@ int onionpir_server(const MODULE* module, const GGSWParams* params_ggsw, const G
 	packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, row_query, ksks);
 
 	//Half products
-	PolyBiv* pos_biv         = new_biv_poly(params_glwe);
 	GLWECiphertext* tmp_glwe = new_glwe(params_glwe);
+	PolyBiv* pos_biv         = new_biv_poly(db_params);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
 		for (int64_t r = 0; r < MATRIX_ROWS; ++r)
 		{
-			onionpir_fill_bivariate_with_matrix_position(params_glwe, pos_biv, r, c);
+			onionpir_fill_bivariate_with_matrix_position(db_params, pos_biv, r, c);
 			glwegadget_half_prod(module, tmp_glwe, glwegad_trace[r], pos_biv);
 			add_glwe(module, glwe_tree[0][c], glwe_tree[0][c], tmp_glwe);
 		}
-		printf("\n");
+		//printf("\n");
 	}
 	// for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	// {
@@ -217,9 +219,10 @@ int main()
 	PolyUniv* sel_col = new_univ(params_glwe);
 	memset(sel_row, 0, poly_univ_bytes(params_glwe));
 	memset(sel_col, 0, poly_univ_bytes(params_glwe));
-	sel_col[0] = 1;
-	sel_col[1] = 1;
-	sel_row[3] = 1;
+	sel_col[0]  = 1;
+	sel_col[1]  = 1;
+	sel_col[5]  = 1;
+	sel_row[18] = 1;
 
 	glwegadget_packed_secret_encrypt(module, row_query, params_glwegad, sk_prep, sel_row, MATRIX_ROWS);
 	glwegadget_packed_secret_encrypt(module, col_query, params_glwegad, sk_prep, sel_col, LOG2_COLS);
