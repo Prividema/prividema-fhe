@@ -86,7 +86,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_vec(NBASE, m, 1, NBASE, 4);
-	normal_random_vec(m_glwe, NBASE, 0.0, 0.1);
+	rnx_random_vec(m_glwe, params_glwe);
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
 	ggsw_prepare(module, ggsw_prepared, ggsw);
 	glwe_secret_encrypt_rnx(module, glwe_input, sk_prep, m_glwe);
