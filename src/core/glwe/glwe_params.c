@@ -26,6 +26,11 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb
 	{
 		case NOISE_UNIFORM_POWER_OF_TWO: {
 			// Placeholder sigma
+			if (sigma == 0)
+			{
+				params->fast_uniform_nb_bits = 0;
+				break;
+			}
 			double range                 = sqrt(3.0) * rescaled_noise;
 			uint64_t log_2               = ceil(log2(range));
 			params->fast_uniform_nb_bits = log_2;
