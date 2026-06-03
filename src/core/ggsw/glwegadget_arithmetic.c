@@ -396,12 +396,12 @@ cleanup:
 	return status;
 }
 int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
-                                            const GLWECiphertext* packed_glwegadget,
+                                            int l_tilde, const GLWECiphertext* packed_glwegadget,
                                             const GLWEAutomorphismKSKCollection* auto_ksks)
 {
 	int status = -1;
 
-	GLWEGadgetCiphertext** gadgets = calloc(res_size, sizeof(GLWEGadgetCiphertext*));
+	GLWEGadgetCiphertext** gadgets = (GLWEGadgetCiphertext**)calloc(res_size, sizeof(GLWEGadgetCiphertext*));
 	CHECK_ALLOC(gadgets, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
 	const GLWEGadgetParams* params_glwegad = results[0]->params;
 	for (int r = 0; r < res_size; ++r)
@@ -410,8 +410,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 		CHECK_ALLOC(gadgets[r], "GLWEGadget allocation failed in trace expansion");
 	}
 
-	CHECK_CALL(packed_glwegadget_trace_expand(module, gadgets, res_size, params_glwegad->l_tilde, packed_glwegadget,
-	                                          auto_ksks),
+	CHECK_CALL(packed_glwegadget_trace_expand(module, gadgets, res_size, l_tilde, packed_glwegadget, auto_ksks),
 	           "GLWEGadget trace expansion failed");
 
 	for (int r = 0; r < res_size; ++r)
@@ -426,7 +425,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 		delete_glwegadget(gadgets[r]);
 	}
 
-	free(gadgets);
+	free((void*)gadgets);
 	return 0;
 cleanup:
 	if (gadgets)
@@ -436,6 +435,6 @@ cleanup:
 			delete_glwegadget(gadgets[r]);
 		}
 	}
-	free(gadgets);
+	free((void*)gadgets);
 	return status;
 }

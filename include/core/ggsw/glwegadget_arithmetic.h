@@ -93,6 +93,6 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  *
  */
 int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
-                                            const GLWECiphertext* packed_glwegadget,
+                                            int l_tilde, const GLWECiphertext* packed_glwegadget,
                                             const GLWEAutomorphismKSKCollection* auto_ksks);
 #endif  // !DEBUG
