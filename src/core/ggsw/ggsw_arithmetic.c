@@ -151,7 +151,8 @@ int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result
 	uint64_t ncols = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
 
 	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
-	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, ncols, &glwe_flattened, ggsw_prepared->mat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, glwe_params_n_limbs(result->params), &glwe_flattened,
+	                              ggsw_prepared->mat, nrows, ncols),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
 	status = 0;
