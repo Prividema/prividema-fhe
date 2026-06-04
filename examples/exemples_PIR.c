@@ -25,15 +25,19 @@
 
 // #define MATRIX_COLS 16384
 // #define LOG2_COLS   14
-#define MATRIX_COLS 256
-#define LOG2_COLS   8
-#define MATRIX_ROWS 128
+#define MATRIX_COLS  256
+#define LOG2_COLS    8
+#define MATRIX_ROWS  128
 
-#define NBASE       (1 << 12)
-#define KBASE       1
-#define KAPPABASE   16
+#define NBASE        (1 << 12)
+#define KBASE        1
+#define KAPPABASE    16
 
-#define SHFT_AMT    32
+#define SHFT_AMT     32
+
+#define L_TILDE_Q1   4
+
+#define PRINTPARTIAL (1)
 
 GLWESecretKeyPrepared* dbg_key = NULL;
 
@@ -105,6 +109,19 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 	delete_univ(test);
 	return 0;
 }
+
+int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t column,
+                                              int64_t biv_depth, int64_t rows)
+{
+	assert(biv->l == biv_depth * rows);
+
+	for (int i = 0; i < rows; ++i)
+	{
+		PolyBiv rowbiv = {biv->nn, biv_depth, biv->nn, biv->ptr + (biv_depth * biv->nn) * i};
+		onionpir_fill_bivariate_with_matrix_position(params_glwe, &rowbiv, i, column);
+	}
+}
+
 int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, const GLWEGadgetParams* query1_params,
                     const GLWEParams* db_params, const GLWEParams* aggregation_params,
                     const GLWEAutomorphismKSKCollection* ksks, const GGSWCiphertextPrep** ggsw_ksks,
@@ -117,56 +134,46 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 		glwe_tree[0][c] = new_glwe(aggregation_params);
 	}
 
-	GLWEGadgetCiphertextPrep** glwegad_trace = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertextPrep*));
-	glwegad_trace[0]                         = new_glwegadget_prep(query1_params);
+	GLWEGadgetParams* mega_params = new_glwegadget_params(query1_params->params_glwe, query1_params->kappa_tilde,
+	                                                      query1_params->l_tilde * MATRIX_ROWS);
+	GLWEGadgetCiphertextPrep* glwegad_trace = new_glwegadget_prep(mega_params);
 
-	int st = packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, 3, row_query, ksks);
+	int st = packed_glwegadget_trace_expand_prepared_single(module, glwegad_trace, query1_params, MATRIX_ROWS,
+	                                                        L_TILDE_Q1, row_query, ksks);
+	//packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, 3, row_query, ksks);
 
-	// GLWEGadgetCiphertext** glwegad_trace_unprep = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertext*));
-	// for (int i = 0; i < MATRIX_ROWS; ++i) glwegad_trace_unprep[i] = new_glwegadget(query1_params);
-	// st = packed_glwegadget_trace_expand(module, glwegad_trace_unprep, MATRIX_ROWS, 4, row_query, ksks);
-	//
-	// printf("Unprep : ");
-	// print_coefs_gad(module, glwegad_trace_unprep[18], dbg_key, 4 * MATRIX_ROWS);
-	// printf("\n");
-	//
-	// for (int i = 0; i < MATRIX_ROWS; ++i) delete_glwegadget(glwegad_trace_unprep[i]);
+	if (PRINTPARTIAL)
+	{
+		GLWEGadgetCiphertext** glwegad_trace_unprep = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertext*));
+		for (int i = 0; i < MATRIX_ROWS; ++i) glwegad_trace_unprep[i] = new_glwegadget(query1_params);
+		st = packed_glwegadget_trace_expand(module, glwegad_trace_unprep, MATRIX_ROWS, 4, row_query, ksks);
+
+		printf("Unprep : ");
+		print_coefs_gad(module, glwegad_trace_unprep[18], dbg_key, 4 * MATRIX_ROWS);
+		printf("\n");
+
+		for (int i = 0; i < MATRIX_ROWS; ++i) delete_glwegadget(glwegad_trace_unprep[i]);
+	}
 
 	// printf("st=%d\n", st);
 	//Half products
 	GLWECiphertext* tmp_glwe = new_glwe(aggregation_params);
-	PolyBiv* pos_biv         = new_biv_poly(db_params);
+
+	PolyBiv* pos_biv = new_biv_poly_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
-		for (int64_t r = 0; r < MATRIX_ROWS; ++r)
+		//
+		onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
+		glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
+
+		if (PRINTPARTIAL)
 		{
-			// if (!glwegad_trace[r])
-			// {
-			// 	printf("offending r: %ld", r);
-			// 	fflush(stdout);
-			// 	abort();
-			// }
-			onionpir_fill_bivariate_with_matrix_position(db_params, pos_biv, r, c);
-			glwegadget_half_prod(module, tmp_glwe, glwegad_trace[r], pos_biv);
-
-			// if (0 && r == 18)
-			// {
-			// 	//print_coefs_biv(pos_biv, 4, 4);
-			// 	printf("tmp for c %d r %d: ", c, r);
-			// 	print_coefs_glwe(module, tmp_glwe, dbg_key, 4, SHFT_AMT);
-			// 	printf("\n");
-			// }
-			add_glwe(module, glwe_tree[0][c], glwe_tree[0][c], tmp_glwe);
+			printf("Column %d: ", c);
+			print_coefs_glwe(module, glwe_tree[0][c], dbg_key, 4, SHFT_AMT);
+			printf("\n");
 		}
-		//printf("Column %d: ", c);
-		//print_coefs_glwe(module, glwe_tree[0][c], dbg_key, 4, SHFT_AMT);
-		//printf("\n");
 	}
-
-	for (int r = 0; r < MATRIX_ROWS; ++r)
-	{
-		delete_glwegadget_prep(glwegad_trace[r]);
-	}
+	delete_glwegadget_prep(glwegad_trace);
 
 	GGSWCiphertextPrep* ggsw_trace[LOG2_COLS] = {0};
 	ggsw_trace[0]                             = new_ggsw_prep(ggsw_ksk_params);
@@ -175,7 +182,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	                                             col_query, ksks, (const GGSWCiphertextPrep**)ggsw_ksks);
 
 	//CMux tree
-	//printf("\n");
+	if (PRINTPARTIAL) printf("\n");
 	for (int l = 0; l < LOG2_COLS; ++l)
 	{
 		//Init next level
@@ -189,7 +196,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 		//CMux
 		int c;
-		//printf("Lvl %d:\n", l);
+		if (PRINTPARTIAL) printf("Lvl %d:\n", l);
 		for (c = 0; c < used_cols; c += 2)
 		{
 			if (c + 1 < used_cols)
@@ -198,11 +205,14 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 			{
 				glwe_copy(glwe_tree[l + 1][c / 2], glwe_tree[l][c]);
 			}
-			// printf("Column %d: ", c / 2);
-			// print_coefs_glwe(module, glwe_tree[l + 1][c / 2], dbg_key, 4, SHFT_AMT);
-			// printf("\n");
+			if (PRINTPARTIAL)
+			{
+				printf("Column %d: ", c / 2);
+				print_coefs_glwe(module, glwe_tree[l + 1][c / 2], dbg_key, 4, SHFT_AMT);
+				printf("\n");
+			}
 		}
-		// printf("\n");
+		if (PRINTPARTIAL) printf("\n");
 
 		for (int c = 0; c < used_cols; ++c)
 		{
@@ -241,7 +251,7 @@ int main()
 	//col query
 	double row_sigma             = sigma6;
 	GLWEParams* params_row_query = new_glwe_params(NBASE, KBASE, KAPPABASE, 12, row_sigma, NOISE_UNIFORM_POWER_OF_TWO);
-	GLWEGadgetParams* row_query_gad_params = new_glwegadget_params(params_row_query, KAPPABASE, 3);
+	GLWEGadgetParams* row_query_gad_params = new_glwegadget_params(params_row_query, KAPPABASE, L_TILDE_Q1);
 	//col query
 	double col_sigma             = sigma8;
 	GLWEParams* params_col_query = new_glwe_params(NBASE, KBASE, KAPPABASE, 16, col_sigma, NOISE_UNIFORM_POWER_OF_TWO);
@@ -252,7 +262,7 @@ int main()
 	double row_exp_sigma = sigma6;
 	GLWEParams* row_exp_params =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, 12, row_exp_sigma, NOISE_UNIFORM_POWER_OF_TWO);
-	GLWEGadgetParams* row_exp_gad_params = new_glwegadget_params(row_exp_params, KAPPABASE, 3);
+	GLWEGadgetParams* row_exp_gad_params = new_glwegadget_params(row_exp_params, KAPPABASE, L_TILDE_Q1);
 
 	// col expansion
 	double col_exp_sigma = sigma6;
