@@ -25,19 +25,19 @@
 
 // #define MATRIX_COLS 16384
 // #define LOG2_COLS   14
-#define MATRIX_COLS  256
-#define LOG2_COLS    8
-#define MATRIX_ROWS  128
+#define MATRIX_COLS  1024
+#define LOG2_COLS    10
+#define MATRIX_ROWS  1024
 
 #define NBASE        (1 << 12)
 #define KBASE        1
 #define KAPPABASE    16
 
-#define SHFT_AMT     32
+#define SHFT_AMT     16
 
 #define L_TILDE_Q1   4
 
-#define PRINTPARTIAL (1)
+#define PRINTPARTIAL (0)
 
 GLWESecretKeyPrepared* dbg_key = NULL;
 
@@ -249,8 +249,8 @@ int main()
 
 	//Input queries
 	//col query
-	double row_sigma             = sigma6;
-	GLWEParams* params_row_query = new_glwe_params(NBASE, KBASE, KAPPABASE, 12, row_sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	double row_sigma             = sigma8;
+	GLWEParams* params_row_query = new_glwe_params(NBASE, KBASE, KAPPABASE, 16, row_sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* row_query_gad_params = new_glwegadget_params(params_row_query, KAPPABASE, L_TILDE_Q1);
 	//col query
 	double col_sigma             = sigma8;
@@ -270,16 +270,16 @@ int main()
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, 12, col_exp_sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* col_exp_ggsw_params = new_ggsw_params(col_exp_params, KBASE, KAPPABASE, 10);
 
-	double col_sum_sigma = sigma5;
+	double col_sum_sigma = sigma6;
 	GLWEParams* col_sum_params =
-	    new_glwe_params(NBASE, KBASE, KAPPABASE, 10, col_sum_sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, 12, col_sum_sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEParams* final_params = new_glwe_params(NBASE, KBASE, KAPPABASE, 10, sigma5, NOISE_UNIFORM_POWER_OF_TWO);
 
 	//GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	// GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LGADBASE);
 	// GGSWParams* params_ggsw          = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NGGLIMBSBASE);
 
-	GLWEParams* db_params = new_glwe_params(NBASE, KBASE, KAPPABASE, 4, 0, NOISE_UNIFORM_POWER_OF_TWO);
+	GLWEParams* db_params = new_glwe_params(NBASE, KBASE, KAPPABASE, 6, 0, NOISE_UNIFORM_POWER_OF_TWO);
 	//Client phase 1
 	GLWESecretKey* sk              = alloc_glwe_secret_key(final_params);
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(final_params);
@@ -325,7 +325,7 @@ int main()
 	sel_col[0]  = 1;
 	sel_col[1]  = 1;
 	sel_col[5]  = 1;
-	sel_row[18] = 1;
+	sel_row[17] = 1;
 
 	glwegadget_packed_secret_encrypt(module, row_query, row_query_gad_params, sk_prep, sel_row, MATRIX_ROWS);
 	glwegadget_packed_secret_encrypt(module, col_query, col_query_gad_params, sk_prep, sel_col, LOG2_COLS);
