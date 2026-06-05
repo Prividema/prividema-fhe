@@ -354,7 +354,7 @@ int main()
 	print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
 
 	double throughput_bits_sec = (64.0 - SHFT_AMT) * NBASE * MATRIX_ROWS * MATRIX_COLS * 1000 / ms_elapsed;
-	printf("Server throughput: %.2f MB/s\n", throughput_bits_sec / 8 / 1024 / 2024);
+	printf("Server throughput: %.2f MB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
 	fflush(stdout);
 
 	delete_glwe(res);
