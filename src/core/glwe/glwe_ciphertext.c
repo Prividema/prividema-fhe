@@ -78,8 +78,9 @@ GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params)
 	glwe_dft->params = params;
 
 	// initialize the bivGLWE ciphertext with 0s'
-	glwe_dft->vec = calloc(glwe_coef_number_dft(params), 2 * sizeof(double));
+	glwe_dft->vec = aligned_alloc(64, glwe_coef_number_dft(params) * 2 * sizeof(double));
 	CHECK_ALLOC(glwe_dft->vec, "glwe_dft's calloc failed in new_glwe_dft.");
+	memset(glwe_dft->vec, 0, glwe_coef_number_dft(params) * 2 * sizeof(double));
 
 	return glwe_dft;
 

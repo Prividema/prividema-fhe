@@ -42,8 +42,9 @@ GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params)
 
 	glwegad_prep->params = params;
 
-	glwegad_prep->mat = calloc(glwegadget_coef_number(params), sizeof(MatBivDFT));
+	glwegad_prep->mat = aligned_alloc(64, glwegadget_coef_number(params) * sizeof(MatBivDFT));
 	CHECK_ALLOC(glwegad_prep->mat, "alloc failed in GLWEGadgetPrepared creation");
+	memset(glwegad_prep->mat, 0, glwegadget_coef_number(params) * sizeof(MatBivDFT));
 
 	return glwegad_prep;
 cleanup:
