@@ -27,13 +27,13 @@
 // #define LOG2_COLS   14
 #define MATRIX_COLS  16
 #define LOG2_COLS    4
-#define MATRIX_ROWS  1024
+#define MATRIX_ROWS  32
 
 #define NBASE        (1 << 12)
 #define KBASE        1
 #define KAPPABASE    16
 
-#define SHFT_AMT     32
+#define SHFT_AMT     2
 
 #define L_TILDE_Q1   4
 
@@ -91,9 +91,9 @@ void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
 int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t row,
                                                  int64_t column)
 {
-	PolyUniv* test = new_univ(params_glwe);
-	int64_t rn     = (row + 1l) << SHFT_AMT;
-	int64_t cn     = (column + 1l) << SHFT_AMT;
+	PolyUnivTnX* test = new_univ_tnx(params_glwe);
+	uint64_t rn       = (row + 1l) << SHFT_AMT;
+	uint64_t cn       = (column + 1l) << SHFT_AMT;
 
 	for (int i = 0; i < NBASE; ++i)
 	{
@@ -102,9 +102,9 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 		else
 			test[i] = rn;
 	}
-	univ_tnx_to_biv(params_glwe, biv, test, 0);
+	univ_tnx_to_biv(params_glwe, biv, (uint64_t*)test, 0);
 
-	delete_univ(test);
+	delete_univ_tnx(test);
 	return 0;
 }
 
@@ -142,7 +142,8 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 	if (PRINTPARTIAL)
 	{
-		GLWEGadgetCiphertext** glwegad_trace_unprep = calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertext*));
+		GLWEGadgetCiphertext** glwegad_trace_unprep =
+		    (GLWEGadgetCiphertext**)calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertext*));
 		for (int i = 0; i < MATRIX_ROWS; ++i) glwegad_trace_unprep[i] = new_glwegadget(query1_params);
 		st = packed_glwegadget_trace_expand(module, glwegad_trace_unprep, MATRIX_ROWS, 4, row_query, ksks);
 
@@ -164,7 +165,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	{
 		//
 		onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
-		print_coefs_biv(pos_biv, 4, query1_params->l_tilde * 4);
+		print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
 		glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
 
 		if (PRINTPARTIAL)
@@ -232,6 +233,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	{
 		delete_ggsw_prep(ggsw_trace[i]);
 	}
+	return 0;
 }
 
 int main()
@@ -296,17 +298,17 @@ int main()
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	// Automorphism-expand keys
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * NBASE);
+	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2ul * NBASE);
 	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
 	{
 		int64_t p                = (int64_t)NBASE / (1LL << (i - 1)) + 1;
 		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(auto_ksk_params);
-		prepare_automorphism_key(module, ksk, sk_prep, p);
+		prepare_automorphism_key(module, ksk, sk_prep, (int)p);
 		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 
 	// GGSW(-s) for gadget to GGSW conversion
-	GGSWCiphertextPrep** ggsw_ksks = calloc(KBASE, sizeof(GGSWCiphertextPrep*));
+	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(KBASE, sizeof(GGSWCiphertextPrep*));
 	PolyUniv* neg_sk_i             = new_univ(params_ggsw_change_key);
 	GGSWCiphertext* tmp_ggsw       = new_ggsw(auto_ggsw_params);
 	for (uint64_t i = 0; i < KBASE; ++i)

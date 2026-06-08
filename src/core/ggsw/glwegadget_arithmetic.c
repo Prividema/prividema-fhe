@@ -406,7 +406,7 @@ int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGad
 	GLWEGadgetCiphertext gadgets[res_size];
 	GLWEGadgetCiphertext* gptrs[res_size];
 	GLWEGadgetCiphertext* results_unprep = new_glwegadget(results->params);
-	CHECK_ALLOC(gadgets, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
+	CHECK_ALLOC(results_unprep, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
 	assert(results->params->l_tilde == res_size * params_glwegad->l_tilde);
 	for (int r = 0; r < res_size; ++r)
 	{
