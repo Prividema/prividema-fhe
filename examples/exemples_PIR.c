@@ -25,19 +25,19 @@
 
 // #define MATRIX_COLS 16384
 // #define LOG2_COLS   14
-#define MATRIX_COLS  16
-#define LOG2_COLS    4
-#define MATRIX_ROWS  32
+#define MATRIX_COLS  128
+#define LOG2_COLS    7
+#define MATRIX_ROWS  128
 
 #define NBASE        (1 << 12)
 #define KBASE        1
 #define KAPPABASE    16
 
-#define SHFT_AMT     2
+#define SHFT_AMT     16
 
 #define L_TILDE_Q1   4
 
-#define PRINTPARTIAL (1)
+#define PRINTPARTIAL (0)
 
 GLWESecretKeyPrepared* dbg_key = NULL;
 
@@ -147,6 +147,10 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 		for (int i = 0; i < MATRIX_ROWS; ++i) glwegad_trace_unprep[i] = new_glwegadget(query1_params);
 		st = packed_glwegadget_trace_expand(module, glwegad_trace_unprep, MATRIX_ROWS, 4, row_query, ksks);
 
+		printf("Unprep 0: ");
+		print_coefs_gad(module, glwegad_trace_unprep[0], dbg_key, 4 * MATRIX_ROWS);
+		printf("\n");
+
 		printf("Unprep : ");
 		print_coefs_gad(module, glwegad_trace_unprep[18], dbg_key, 4 * MATRIX_ROWS);
 		printf("\n");
@@ -156,17 +160,19 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 	// printf("st=%d\n", st);
 	//Half products
-	GLWECiphertext* tmp_glwe = new_glwe(aggregation_params);
+	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
 
-	PolyBiv* pos_biv = new_biv_poly_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
+	PolyBivDFT* pos_biv_dft = new_biv_poly_dft_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
+	;
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
 		//
-		onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
-		print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
-		glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
+		//onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
+		//if (PRINTPARTIAL) print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
+		glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft);
+		glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
 
 		if (PRINTPARTIAL)
 		{
@@ -340,7 +346,7 @@ int main()
 	glwegadget_packed_secret_encrypt(module, col_query, col_query_gad_params, sk_prep, sel_col, LOG2_COLS);
 
 	// printf("Row query: ");
-	// print_coefs_glwe(module, row_query, sk_prep, MATRIX_ROWS * 4, 0);
+	// print_coefs_glwe(module, row_query, sk_prep, MATRIX_ROWS * L_TILDE_Q1, 0);
 	// printf("\n");
 
 	GLWECiphertext* res = new_glwe(final_params);

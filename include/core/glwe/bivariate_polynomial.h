@@ -117,6 +117,8 @@ uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe);
  */
 PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe);
 
+PolyBivDFT* new_biv_poly_dft_custom_l(const GLWEParams* params_glwe, uint64_t biv_l);
+
 // COMMON PART (begin)
 
 /**

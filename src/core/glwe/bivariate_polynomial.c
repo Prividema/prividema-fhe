@@ -169,6 +169,15 @@ cleanup:
 	return NULL;
 }
 
+PolyBivDFT* new_biv_poly_dft_custom_l(const GLWEParams* params_glwe, uint64_t biv_l)
+{
+	PolyBivDFT* pol_dft = calloc(params_glwe->nn * biv_l, sizeof(double));
+	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
+	return pol_dft;
+cleanup:
+	return NULL;
+}
+
 //! COMMON PART (begin)
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
