@@ -4,7 +4,7 @@
 #include "glwe_arithmetic.h"
 #include "utils.h"
 
-int tfhe_cmux_unprepared(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+int tfhe_cmux_unprepared(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
                          const GGSWCiphertext* sel, int normalize_sub)
 {
 	//TODO: this only supports res of equal precision than the inputs at the moment
@@ -19,7 +19,7 @@ cleanup:
 	return -1;
 }
 
-int tfhe_cmux(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+int tfhe_cmux(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
               const GGSWCiphertextPrep* sel, int normalize_sub)
 {
 	//TODO: this only supports res of equal precision than the inputs at the moment

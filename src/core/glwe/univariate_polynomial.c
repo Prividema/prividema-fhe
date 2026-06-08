@@ -9,7 +9,7 @@
 int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv* a)
 {
 	uint64_t nn   = pvda_module_extract_nn(module);
-	PolyBiv a_biv = {nn, 1, nn, a};
+	PolyBiv a_biv = {nn, 1, (int64_t)nn, a};
 	pvda_vec_znx_dft(module, res_dft, 1, &a_biv);
 	return 0;
 }
