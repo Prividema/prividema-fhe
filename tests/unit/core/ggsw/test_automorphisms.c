@@ -56,7 +56,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	GLWECiphertext* glwe_res    = new_glwe(params_glwe);
 	GLWECiphertext* glwe_norm   = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
