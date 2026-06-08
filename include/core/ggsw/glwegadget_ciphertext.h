@@ -117,8 +117,9 @@ void glwegadget_public_encrypt(const MODULE* module, GLWEGadgetCiphertext* resul
 /**
  *
  * Encrypts a univariate polynomial with at most d non-zero coefficients
- * into a "packed GLWEGadget" GLWE ciphertext (see @ref )
+ * into a "packed GLWEGadget" GLWE ciphertext.
  *
+ * Packed GLWEGadget format stabilization and documentation is WIP and will be stabilized after the OnionPIR example.
  *
  *
  */
