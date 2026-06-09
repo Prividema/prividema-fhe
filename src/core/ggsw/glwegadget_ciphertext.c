@@ -138,7 +138,7 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 
 	assert(params_glwegad->l_tilde * d <= nn);
 
-	int64_t divlog = 64 - __builtin_clzll(d * params_glwegad->l_tilde - 1);
+	int64_t divlog = next_pow2_log(d * params_glwegad->l_tilde);
 	for (uint64_t i = 1; i <= params_glwegad->l_tilde; i++)
 	{
 		//Can be optimised

@@ -16,6 +16,7 @@ extern "C" {
 #include "glwegadget_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
+#include "utils.h"
 }
 
 #include "params.h"
@@ -138,10 +139,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	free(neg_sk_i);
 	delete_ggsw(ggsw_tmp);
 
-	int bund      = D;
-	int logfactor = bund * params_glwegadget->l_tilde;
-	int factor    = 1 << (32 - __builtin_clz(logfactor - 1));
-
+	int bund = D;
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
@@ -223,9 +221,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	}
 	free(neg_sk_i);
 
-	int bund      = D;
-	int logfactor = bund * params_glwegadget->l_tilde;
-	int factor    = 1 << (32 - __builtin_clz(logfactor - 1));
+	int bund = D;
 
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 

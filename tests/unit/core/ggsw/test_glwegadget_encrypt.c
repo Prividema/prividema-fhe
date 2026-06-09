@@ -13,6 +13,7 @@
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
+#include "utils.h"
 
 /**
  * @brief Tests ggsw_secret_encrpyt
@@ -83,7 +84,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 
 	// Computes the expected result  m / 2^{kappa_tilde * i}
 	memset(phase_expected_univ_rnx, 0, poly_univ_rnx_bytes(params_glwe));
-	int64_t divlog = 64 - __builtin_clzll((D * params_glwegadget->l_tilde) - 1);
+	int64_t divlog = next_pow2_log(D * params_glwegadget->l_tilde);
 	for (int i = 1; i <= params_glwegadget->l_tilde; ++i)
 		for (uint64_t p = 0; p < D; p++)
 			phase_expected_univ_rnx[(i - 1) * D + p] =
