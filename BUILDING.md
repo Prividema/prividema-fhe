@@ -7,7 +7,9 @@
 In this case make sure that pkg-config is also installed for portability between different OS.
 - For Windows users, also make sure that [Cryptography API: Next Generation](https://learn.microsoft.com/en-us/windows/win32/seccng/cng-portal) is installed, as it is required for the random number generator.
 
-- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) will be installed automatically by CMake if github.com is reachable.
+- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) is bundled as a submodule. One should:
+  - Either have cloned this repository recursively with `git clone --recurse-submodules`
+  - or run `git submodule update --init --recursive` at least once after cloning it
 
 ## To compile and run
 
