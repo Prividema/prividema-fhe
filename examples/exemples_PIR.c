@@ -192,10 +192,10 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	delete_glwegadget_prep(glwegad_trace);
 
 	GGSWCiphertextPrep* ggsw_trace[LOG2_COLS] = {0};
-	ggsw_trace[0]                             = new_ggsw_prep(ggsw_ksk_params);
 
-	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, LOG2_COLS, ggsw_params_l_tilde_a(ggsw_ksk_params),
-	                                             col_query, ksks, (const GGSWCiphertextPrep**)ggsw_ksks);
+	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, ggsw_ksk_params, LOG2_COLS,
+	                                             ggsw_params_l_tilde_a(ggsw_ksk_params), col_query, ksks,
+	                                             (const GGSWCiphertextPrep**)ggsw_ksks);
 
 	////CMux tree
 
