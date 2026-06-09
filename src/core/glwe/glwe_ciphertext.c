@@ -42,15 +42,14 @@ void delete_glwe(GLWECiphertext* glwe)
 
 void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src)
 {
-	//dst->params = src->params;
 	size_t src_size = glwe_coef_number(src->params) * sizeof(int64_t);
 	size_t dst_size = glwe_coef_number(dst->params) * sizeof(int64_t);
 	if (dst_size <= src_size)
-		memcpy(dst->vec, src->vec, dst_size);  //TODO this is approximate
+		memcpy(dst->vec, src->vec, dst_size);
 	else
 	{
-		//TODO: zero out rest of copy?
 		memcpy(dst->vec, src->vec, src_size);
+		memset(((uint8_t*)dst->vec) + src_size, 0, dst_size - src_size);
 	}
 }
 PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos)
