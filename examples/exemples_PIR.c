@@ -197,45 +197,10 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, LOG2_COLS, ggsw_params_l_tilde_a(ggsw_ksk_params),
 	                                             col_query, ksks, (const GGSWCiphertextPrep**)ggsw_ksks);
 
-	//CMux tree
-	if (PRINTPARTIAL) printf("\n");
-	for (int l = 0; l < LOG2_COLS; ++l)
-	{
-		//Init next level
-		if (l == LOG2_COLS - 1)
-			glwe_tree[l + 1][0] = res;
-		else
-			for (int c = 0; c < (used_cols + 1) / 2; ++c)
-			{
-				glwe_tree[l + 1][c] = new_glwe(aggregation_params);
-			}
+	////CMux tree
 
-		//CMux
-		int c;
-		if (PRINTPARTIAL) printf("Lvl %d:\n", l);
-		for (c = 0; c < used_cols; c += 2)
-		{
-			if (c + 1 < used_cols)
-				tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], ggsw_trace[l], 1);
-			else
-			{
-				glwe_copy(glwe_tree[l + 1][c / 2], glwe_tree[l][c]);
-			}
-			if (PRINTPARTIAL)
-			{
-				printf("Column %d: ", c / 2);
-				print_coefs_glwe(module, glwe_tree[l + 1][c / 2], dbg_key, 4, SHFT_AMT);
-				printf("\n");
-			}
-		}
-		if (PRINTPARTIAL) printf("\n");
-
-		for (int c = 0; c < used_cols; ++c)
-		{
-			delete_glwe(glwe_tree[l][c]);
-		}
-		used_cols = (used_cols + 1) / 2;
-	}
+	tfhe_cmux_tree(module, res, (GLWECiphertext**)&glwe_tree[0], MATRIX_COLS, (const GGSWCiphertextPrep**)ggsw_trace,
+	               LOG2_COLS, 1);
 
 	for (int i = 0; i < LOG2_COLS; ++i)
 	{
