@@ -62,6 +62,24 @@ cleanup:
 	return status;
 }
 
+int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_reim4)
+{
+	int status = -1;
+
+	size_t nrows     = glwegadget_prep_ct->params->l_tilde;
+	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+	size_t ncols_out = glwe_params_n_limbs(result_dft->params);
+
+	CHECK_CALL(pvda_vmp_apply_prepared_to_dft(module, result_dft->vec, ncols_out, (double*)a_reim4, nrows,
+	                                          glwegadget_prep_ct->mat, nrows, ncols_in),
+	           "vmp apply falied in half product");
+
+	status = 0;
+cleanup:
+	return status;
+}
+
 int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
                 GLWESecretKeyPrepared* old_key)
 {

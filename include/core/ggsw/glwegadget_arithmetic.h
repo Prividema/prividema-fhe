@@ -43,6 +43,8 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft);
 
+int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_reim4);
 /**
  * @brief Creates a key-switching-key (KSK) for an automorphism of degree automorphism_p from
  * the provided secret key

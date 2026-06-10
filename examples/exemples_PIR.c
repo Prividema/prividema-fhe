@@ -163,8 +163,10 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	//Half products
 	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
 
-	PolyBivDFT* pos_biv_dft = new_biv_poly_dft_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
-	PolyBiv* pos_biv        = new_biv_poly_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
+	PolyBivDFT* pos_biv_dft[16];
+	for (int i = 0; i < 16; ++i)
+		pos_biv_dft[i] = new_biv_poly_dft_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
+	PolyBiv* pos_biv = new_biv_poly_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
@@ -172,9 +174,9 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 		//
 		onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
 		//if (PRINTPARTIAL) print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
-		//glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft);
-		//glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
-		glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
+		glwegadget_half_prod_prepared_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft[c % 16]);
+		glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
+		//glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
 
 		if (PRINTPARTIAL)
 		{
