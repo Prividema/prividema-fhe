@@ -43,7 +43,6 @@ function(BuildUnitTests testfiles libname)
     target_include_directories(${test_name} PRIVATE
             ${PROJECT_SOURCE_DIR}/include
             utils/include
-            ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/
         )
 
     # Link libraries

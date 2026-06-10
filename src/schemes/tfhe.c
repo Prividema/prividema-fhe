@@ -8,7 +8,7 @@ int tfhe_cmux(MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, con
               const GGSWCiphertext* sel, int normalize_sub)
 {
 	//TODO: this only supports res of equal precision than the inputs at the moment
-	// Since there is an external product, maybe at some point we want to drop some precision?
+	// we might want to allow a precision drop
 	sub_glwe(module, res, c1, c0);
 	if (normalize_sub) CHECK_CALL(normalize_glwe(module, res, res), "normalization failed in CMux");
 	CHECK_CALL(ggsw_unprepared_external_product(module, res, res, sel), "GGSW external product failed in CMux");

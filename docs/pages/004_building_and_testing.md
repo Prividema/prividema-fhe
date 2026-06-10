@@ -5,7 +5,9 @@
 
 - CMake version 3.14+
 - [Criterion](https://github.com/Snaipe/Criterion) optionally to run the unit tests. In this case make sure that pkg-config is also installed for portability between different OS.
-- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) will be installed automatically by CMake if github.com is reachable.
+- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) is bundled as a submodule. One should:
+  - Either have cloned this repository recursively with `git clone --recurse-submodules`
+  - or run `git submodule update --init --recursive` at least once
 
 ## To compile and run
 
