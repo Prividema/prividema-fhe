@@ -22,7 +22,7 @@ extern "C" {
 
 #include "params.h"
 
-#define D 16
+#define D 16  //Number of non-zero coefficients in the GLWE to expand
 
 void test_expand_trace(benchmark::State& state)
 {
@@ -70,7 +70,6 @@ void test_expand_trace(benchmark::State& state)
 		benchmark::DoNotOptimize(results);
 	}
 
-	int a = 1;
 	for (int i = 0; i < bund; ++i)
 	{
 		delete_glwe(results[i]);
@@ -145,7 +144,6 @@ void test_expand_compressed_trace(benchmark::State& state)
 
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
-	// Get the message in univariate RnX form for expected result
 	uniform_random_pol_znx(m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
