@@ -172,6 +172,21 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
 
 /**
+ * @brief Transforms a bivariate polynomial into "prepared" form for operations like VMP
+ *
+ *
+ * @param module      The backend module
+ * @param params_glwe The GLWE parameters for the associated bivariate polynomials
+ * @param res_prep     The resulting prepared (!= DFT) polynomial
+ * @param a           The input coefficient-space bivariate polynomial
+ *
+ * @retval -1 If an error occurs
+ * @retval 0  Otwerwise
+ *
+ */
+int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a);
+
+/**
  * @brief Performs the iDFT of a bivariate polynomial
  *
  *

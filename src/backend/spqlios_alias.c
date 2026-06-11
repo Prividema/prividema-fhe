@@ -133,7 +133,7 @@ int pvda_vmp_apply_prepared_to_dft(const MODULE* module, VecBivDFT* res, const u
                                    const uint64_t ncols)
 {
 	int status         = -1;
-	uint8_t* tmp_space = malloc(vmp_apply_dft_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
+	uint8_t* tmp_space = malloc(vmp_apply_prepared_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
 	CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vmp_apply_dft_to_dft_p");
 
 	vmp_apply_prepared_to_dft(module, (VEC_ZNX_DFT*)res, res_size, (VEC_ZNX_DFT*)a_dft, a_size, (VMP_PMAT*)pmat, nrows,
@@ -209,7 +209,7 @@ int pvda_vec_znx_rotate(const MODULE* module, const int64_t p, PolyBiv* res, con
 	return 0;
 }
 
-int pvda_convolution_prepare(const MODULE* module, double* pvec, uint64_t nrows, PolyBiv* a)
+int pvda_vmp_prepare_vec(const MODULE* module, double* pvec, uint64_t nrows, const PolyBiv* a)
 {
 	int status = -1;
 

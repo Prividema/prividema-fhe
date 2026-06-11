@@ -248,6 +248,14 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 	pvda_vec_znx_dft(module, res_dft, l, a);
 	return 0;
 }
+int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
+{
+	//TODO: remove useless params glwe
+	uint64_t nn = params_glwe->nn;
+	uint64_t l  = glwe_params_l_a(params_glwe);
+	pvda_vmp_prepare_vec(module, res_prep, l, a);
+	return 0;
+}
 
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {

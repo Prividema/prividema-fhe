@@ -121,7 +121,7 @@ int pvda_vec_znx_rotate(const MODULE* module, const int64_t p, PolyBiv* res, con
 
 uint64_t pvda_module_extract_nn(const MODULE* module);
 
-int pvda_convolution_prepare(const MODULE* module, double* pvec, uint64_t nrows, PolyBiv* a);
+int pvda_vmp_prepare_vec(const MODULE* module, double* pvec, uint64_t nrows, const PolyBiv* a);
 
 /**@}*/
 #endif
