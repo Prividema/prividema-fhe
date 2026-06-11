@@ -63,7 +63,7 @@ cleanup:
 }
 
 int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
-                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_reim4)
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep)
 {
 	int status = -1;
 
@@ -71,7 +71,7 @@ int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT
 	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(result_dft->params);
 
-	CHECK_CALL(pvda_vmp_apply_prepared_to_dft(module, result_dft->vec, ncols_out, (double*)a_reim4, nrows,
+	CHECK_CALL(pvda_vmp_apply_prepared_to_dft(module, result_dft->vec, ncols_out, (double*)a_prep, nrows,
 	                                          glwegadget_prep_ct->mat, nrows, ncols_in),
 	           "vmp apply falied in half product");
 

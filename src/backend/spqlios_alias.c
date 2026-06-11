@@ -213,10 +213,10 @@ int pvda_vmp_prepare_vec(const MODULE* module, double* pvec, uint64_t nrows, con
 {
 	int status = -1;
 
-	void* tmp_space = aligned_alloc(64, cnv_prepare_right_contiguous_tmp_bytes(module, nrows, a->l));
+	void* tmp_space = aligned_alloc(64, vmp_prepare_contiguous_vec_tmp_bytes(module, nrows, a->l));
 	CHECK_ALLOC(tmp_space, "tmp space alloc failed in pvda_convolution_prepare");
 
-	cnv_prepare_right_contiguous(module, (CNV_PVEC_R*)pvec, nrows, a->ptr, a->l, a->stride, tmp_space);
+	vmp_prepare_contiguous_vec(module, (VMP_PVEC*)pvec, nrows, a->ptr, a->l, a->stride, tmp_space);
 	status = 0;
 cleanup:
 	free(tmp_space);
