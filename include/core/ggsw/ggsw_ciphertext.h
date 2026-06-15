@@ -139,6 +139,13 @@ GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw);
  */
 void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft);
 
+/**
+ * @brief Prepares a GGSW ciphertext for an efficient external product
+ *
+ * @param module The backend module
+ * @param ggsw_prepared The output prepared GGSW ciphertext
+ * @param ggsw_ct The input unprepared GGSW ciphertext
+ */
 int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
 
 #endif  // bivGGSW_CIPHERTEXT_H

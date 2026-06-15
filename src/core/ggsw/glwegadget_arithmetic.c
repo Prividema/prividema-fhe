@@ -424,7 +424,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 			CHECK_ALLOC(results[r], "Prepared GLWEGadget allocation failed");
 		}
 		CHECK_CALL(glwegadget_prepare(module, results[r], gadgets[r]),
-		           "GLWEGadget prepareation failed in trace expansion");
+		           "GLWEGadget preparation failed in trace expansion");
 		delete_glwegadget(gadgets[r]);
 	}
 

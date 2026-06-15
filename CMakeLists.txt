@@ -95,14 +95,9 @@ endif()
 # Import spqlios library
 #
 # ----------------------------------------
-FetchContent_Declare(
-    spqlios
-    GIT_REPOSITORY https://github.com/tfhe/spqlios-arithmetic.git
-    GIT_TAG main
-)
 # Disable spqlios internal tests
 set(ENABLE_TESTING OFF CACHE BOOL "Disable Tests" FORCE)
-FetchContent_MakeAvailable(spqlios)
+add_subdirectory(spqlios-arithmetic)
 
 # ----------------------------------------
 # Add main source directory

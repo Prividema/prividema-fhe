@@ -140,7 +140,8 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 	int64_t divlog = 64 - __builtin_clzll(d * params_glwegad->l_tilde - 1);
 	for (uint64_t i = 1; i <= params_glwegad->l_tilde; i++)
 	{
-		//Can be optimised
+		//TODO: Can be optimised by actually only doing memset on the non-zero bytes.
+		// The performance gained should be negligible and the potential for bugs is moderate.
 		memset(pol_encrypt, 0, poly_univ_bytes(params_glwe));
 		memcpy(pol_encrypt + (i - 1) * d, m_univ, d * sizeof(PolyUniv));
 		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_tmp, pol_encrypt, params_glwegad->kappa_tilde * i + divlog),

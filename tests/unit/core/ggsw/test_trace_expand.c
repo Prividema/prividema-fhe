@@ -20,6 +20,7 @@
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
+#include "glwegadget_utils.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"

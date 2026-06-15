@@ -80,7 +80,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 		uint64_t nn = params_glwe->nn;
 		pvda_znx_automorphism(module, auto_p, m_expected_tnx, m_univ_tnx);
 
-		int64_t decomp_noise_bits = noise_bits_half_prod(params_glwe, params_glwegadget);
+		int64_t decomp_noise_bits = info_bits_half_prod(params_glwe, params_glwegadget);
 
 		for (int p = 0; p < params_glwe->nn; ++p)
 			assert_tnx_close_enough(m_observed_tnx[p], m_expected_tnx[p], decomp_noise_bits);
