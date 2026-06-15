@@ -58,9 +58,19 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
  */
 int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
-
+/**
+ * @brief Prepares a KSK for GLWE keyswitching from old_key to new_key
+ *
+ * @param module        The backend module
+ * @param ksk           The output KSK
+ * @param old_key       The old key being switched from
+ * @param new-key       The new key being switched to
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
 int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
-                GLWESecretKeyPrepared* old_key);
+                const GLWESecretKeyPrepared* old_key);
 /**
  * @brief Performs the automorphism of a GLWE ciphertext, i.e. sets its polynomials a(X, Y) to a(X^p, Y)
  *
@@ -75,7 +85,17 @@ int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecret
  */
 int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
                             const GLWECiphertext* glwe);
-
+/**
+ * @brief Performs a key-switch on a GLWE using an already prepared KSK
+ *
+ * @param module             The backend module
+ * @param result             The resulting GLWE keyed with the new key
+ * @param automorphism_ksk   A prepared KSK from the old key to the new key
+ * @param glwe_ct            The input GLWE keyed with the old key
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
 int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
                            const GLWECiphertext* glwe_ct);
 
@@ -95,6 +115,8 @@ int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const G
  * @param packed_glwegadget The packed GLWEGadget
  * @param auto_ksks The KSK collection for trace expansion automorphisms
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
                       const GLWEAutomorphismKSKCollection* ksks);
@@ -111,6 +133,8 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
  * @param auto_ksks The KSK collection for trace expansion automorphisms
  *
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
                                    const GLWECiphertext* packed_glwegadget,
@@ -138,6 +162,8 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  *       it will deallocate the elements of the unprepared trace that it no longer requires. Therefore, the peak memory
  *       consumption will be the size of a trace plus one element (the one being prepared) instead of two traces (one prepared, one unprepared).
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
                                             const GLWECiphertext* packed_glwegadget,

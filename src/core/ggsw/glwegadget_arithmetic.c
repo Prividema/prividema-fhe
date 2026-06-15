@@ -65,7 +65,7 @@ cleanup:
 }
 
 int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
-                GLWESecretKeyPrepared* old_key)
+                const GLWESecretKeyPrepared* old_key)
 {
 	int status = -1;
 
