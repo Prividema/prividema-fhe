@@ -38,7 +38,7 @@ GLWEAutomorphismKSK* new_automorphism_ksk(GLWEGadgetParams* params);
 void delete_automorphism_ksk(GLWEAutomorphismKSK* automorphism_ksk);
 
 /**
- * Collection of KSKs.
+ * Collection of KSKs
  *
  */
 typedef struct glwe_automorphism_keyswitching_key_collection_t

@@ -157,6 +157,7 @@ void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft)
 	free(ggsw_dft->mat);
 	free(ggsw_dft);
 }
+
 int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
 {
 	int status = -1;
