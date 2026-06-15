@@ -80,6 +80,9 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
  * More specifically, expands GLWE(a_0 + a_1 * x + ... + a_d * x^d) into GLWE(m * a_0) ... GLWE(m * a_d) with d = res_size - 1
  * and m = ceil(log2(res_size))
  *
+ * The algorithm used as well as a better explanation can be found in
+ * https://github.com/Prividema/prividema-fhe/pull/64#issuecomment-4648948222
+ *
  *
  * @param module The backend module
  * @param results An array with pointers to the res_size output GLWEs.
@@ -94,6 +97,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding GLWEGadgets
  *
+ * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
  *
  * @param module The backend module
  * @param results An array with pointers to the res_size output GLWEGadgets.
@@ -109,6 +113,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding GLWEGadgets
  *
+ * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
  *
  * @param module The backend module
  * @param results An array with pointers to the res_size output prepared GLWEGadgets

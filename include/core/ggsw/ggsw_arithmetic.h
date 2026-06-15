@@ -116,6 +116,9 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding GGSWs
  *
+ * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on what a packed GLWEGadget is.
+ * This variant expands the GLWEGadget and uses the GGSWCiphertextPrep encryptions of -sk_i to convert it
+ * into a GGSW.
  *
  * @param module The backend module
  * @param results An array with pointers to the res_size output prepared GGSWs.
