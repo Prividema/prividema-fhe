@@ -1,6 +1,8 @@
 #ifndef PARTIALGGSW_CIPHERTEXT_H
 #define PARTIALGGSW_CIPHERTEXT_H
 
+#include <stdint.h>
+
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_key.h"
@@ -112,6 +114,19 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
  */
 void glwegadget_public_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWEPublicKey* pk,
                                const PolyUniv* m_univ);
+/**
+ *
+ * Encrypts a univariate polynomial with at most d non-zero coefficients
+ * into a "packed GLWEGadget" GLWE ciphertext.
+ *
+ * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
+ *
+ * TODO: move documentation to the docs folder instead of the PR
+ *
+ */
+int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* result,
+                                     const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,
+                                     const PolyUniv* m_univ, uint64_t d);
 
 /**
  * @brief Retreive a bivglwe from a GLWEGadget (halfGGSW for k = 1)
@@ -135,4 +150,5 @@ VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t
  */
 int glwegadget_prepare(const MODULE* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
                        const GLWEGadgetCiphertext* glwegad_ct);
+
 #endif  // PARTIALGGSW_CIPHERTEXT_H

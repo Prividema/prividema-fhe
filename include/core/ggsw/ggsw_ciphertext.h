@@ -65,13 +65,13 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  *
  * The function takes j and i and get the associated bivGLWE.
  *
- * @param ggsw_ct    A Pointer to The GGSW ciphertext
- * @param j 		  The j-th component of the secret key.
- * @param i 		  The i in \f$ -m \cdot sk_j \cdot 2^{-i\kappatilde} \f$
+ * @param ggsw_ct     A Pointer to The GGSW ciphertext
+ * @param sk_idx      The j-th component of the secret key.
+ * @param prec_lvl    The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$
  *
  * @return A Pointer to the associated Bivariate GLWE.
  */
-VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i);
+VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
 /**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the
@@ -103,60 +103,47 @@ int ggsw_public_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 
 // =============================================
 // |                                           |
-// |      			 DFT Form       		   |
+// |      			 Prepared Form       		   |
 // |                                           |
-// | Same functions as above but in DFT Space. |
-// |                                           |
-// |     The parameters are the same but 	   |
-// |   the ciphertexts are in the DFT space.   |
 // =============================================
 
 /**
  * @brief GGSW Ciphertext in the DFT space.
  */
-typedef struct ggsw_ciphertext_dft
+typedef struct ggsw_ciphertext_prepared
 {
 	/// GGSW parameters.
 	const GGSWParams* params;
 
-	/// A matrix of polynomials in the DFT domain (opaque representation)
+	/// Prepared matrix (opaque representation)
 	MatBivDFT* mat;
 
-} GGSWCiphertextDFT;
+} GGSWCiphertextPrep;
 
 /**
- * @brief Creates a zero-initialized GGSWCiphertextDFT.
+ * @brief Creates a zero-initialized GGSWCiphertextPrep
  *
  * @param params_ggsw The GGSW parameters.
  *
  * @retval NULL if malloc failed inside the function.
  * @retval non-NULL The Allocated GGSW ciphertext filled with 0 otherwise.
  */
-GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw);
+GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw);
 
 /**
- * @brief Deletes a GGSW ciphertext in the DFT space.
+ * @brief Deletes a prepared GGSW ciphertext
  *
- * @param ggsw_dft A Pointer to the DFT GGSW
+ * @param ggsw_dft A Pointer to the prepared GGSW
  */
-void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft);
+void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft);
 
 /**
- * @brief Get the Bivariate GLWE Ciphertext inside the GGSW with the given values.
+ * @brief Prepares a GGSW ciphertext for an efficient external product
  *
- * As a Bivariate GGSW's matrix is :
- *
- * - bivGLWE(DFT(-m * sk_j / 2^{kappa_tilde * i})) if j < k.
- * - bivGLWE(DFT(m / 2^{kappa_tilde * i}))         if j = k.
- *
- * The function takes j and i and get the associated bivGLWE.
- *
- * @param ggsw_dft_ct   The GGSW ciphertext
- * @param j 		  The j-th component of the secret key.
- * @param i 		  The i in \f$ -m \cdot sk_j \cdot 2^{-i\kappatilde} \f$
- *
- * @return A pointer to the associated bivGLWEDFT
+ * @param module The backend module
+ * @param ggsw_prepared The output prepared GGSW ciphertext
+ * @param ggsw_ct The input unprepared GGSW ciphertext
  */
-VecBivDFT* ggsw_retrieve_bivglwe_dft(GGSWCiphertextDFT* ggsw_dft_ct, int64_t j, int64_t i);
+int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
 
 #endif  // bivGGSW_CIPHERTEXT_H

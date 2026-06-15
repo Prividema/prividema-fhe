@@ -11,6 +11,7 @@
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
 #include "glwegadget_ciphertext.h"
+#include "glwegadget_key.h"
 #include "logger.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -104,6 +105,7 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
 	status = 0;
 cleanup:
 	delete_glwegadget(glwegad_tmp);
+	delete_univ(auto_sk_tmp);
 	return status;
 }
 
@@ -188,5 +190,155 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		delete_glwe(glwe_tmp);
 	}
 
+	return status;
+}
+
+int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
+                      const GLWEAutomorphismKSKCollection* ksks)
+{
+	int status = -1;
+
+	uint64_t nn = glwe_ct->params->nn;
+
+	glwe_copy(results[0], glwe_ct);
+
+	GLWECiphertext* tmp_glwe = new_glwe(glwe_ct->params);
+	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
+	GLWECiphertext* tmp_glwe2 = new_glwe(glwe_ct->params);
+	CHECK_ALLOC(tmp_glwe2, "Temp memory alloc in trace expansion failed");
+
+	glwegadget_automorphism(module, tmp_glwe, glwegadget_ksk_collection_get_key(ksks, nn + 1), results[0]);
+
+	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
+
+	sub_glwe(module, tmp_glwe, results[0], tmp_glwe);
+	pvda_vec_znx_rotate(module, -1, tmp_glwe->vec, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec,
+	                    glwe_params_n_limbs(tmp_glwe->params), nn);
+	normalize_glwe(module, results[1], tmp_glwe);
+	normalize_glwe(module, results[0], tmp_glwe2);
+
+	for (uint64_t p = 2; p < res_size; p *= 2)
+	{
+		int64_t auto_p = (int64_t)nn / p + 1;
+		int64_t dist   = p;
+		uint64_t b;
+		for (b = 0; b < p && b + dist < res_size; ++b)
+		{
+			assert(b < res_size);
+			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
+			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
+			glwegadget_automorphism(module, tmp_glwe, ksk, results[b]);
+
+			add_glwe(module, tmp_glwe2, results[b], tmp_glwe);
+
+			sub_glwe(module, tmp_glwe, results[b], tmp_glwe);
+			pvda_vec_znx_rotate(module, -p, tmp_glwe->vec, glwe_params_n_limbs(tmp_glwe->params), nn, tmp_glwe->vec,
+			                    glwe_params_n_limbs(tmp_glwe->params), nn);
+			normalize_glwe(module, results[b + dist], tmp_glwe);
+			normalize_glwe(module, results[b], tmp_glwe2);
+		}
+		for (; b < p; ++b)
+		{
+			assert(b < res_size);
+			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
+			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
+			glwegadget_automorphism(module, tmp_glwe, ksk, results[b]);
+
+			add_glwe(module, tmp_glwe, results[b], tmp_glwe);
+
+			normalize_glwe(module, results[b], tmp_glwe);
+		}
+	}
+
+	status = 0;
+cleanup:
+	delete_glwe(tmp_glwe);
+	delete_glwe(tmp_glwe2);
+	return status;
+}
+
+int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
+                                   const GLWECiphertext* packed_glwegadget,
+                                   const GLWEAutomorphismKSKCollection* auto_ksks)
+
+{
+	int status = -1;
+	GLWECiphertext* results_glwe[res_size * l_tilde];
+	memset((uint8_t*)results_glwe, 0, sizeof(results_glwe));
+	int64_t k = (int64_t)packed_glwegadget->params->k;
+
+	/*
+	 * Create dummy GLWECiphertext for the k'th GLWEs in each GGSW, that is, the ones that contain a
+	 * m * 2^-jK.
+	 * In other words, we are storing the results as GLWEGadgets inside the GGSWs by using only
+	 * one every k GLWEs in a GGSW.
+	 * That way, since we fill every k'th GLWE in a GGSW, to convert this "strided" GLWEGadget into a
+	 * proper GGSW, it will suffice to generate the (-sk_i * m * 2^-jK) GLWEs that we are missing,
+	 * which we can do by means of an external products with encryptions of -sk_i
+	 */
+	for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
+	{
+		for (uint64_t res_num = 0; res_num < res_size; ++res_num)
+		{
+			GLWECiphertext* tmp = malloc(sizeof(GLWECiphertext));
+			CHECK_ALLOC(tmp, "Malloc failed in GGSW trace expansion");
+			tmp->params                                       = results[res_num]->params->params_glwe;
+			tmp->vec                                          = glwegadget_extract_bivglwe(results[res_num], prec_lvl);
+			results_glwe[(prec_lvl - 1) * res_size + res_num] = tmp;
+		}
+	}
+
+	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
+	           "glwegadget_trace_expand failed in a GGSW trace expansion");
+
+	status = 0;
+cleanup:
+	for (uint64_t i = 0; i < res_size; ++i)
+		for (uint64_t j = 0; j < l_tilde; ++j) free(results_glwe[i * l_tilde + j]);
+
+	return status;
+}
+int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
+                                            const GLWECiphertext* packed_glwegadget,
+                                            const GLWEAutomorphismKSKCollection* auto_ksks)
+{
+	int status = -1;
+
+	GLWEGadgetCiphertext** gadgets = calloc(res_size, sizeof(GLWEGadgetCiphertext*));
+	CHECK_ALLOC(gadgets, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
+	const GLWEGadgetParams* params_glwegad = results[0]->params;
+	for (int r = 0; r < res_size; ++r)
+	{
+		gadgets[r] = new_glwegadget(params_glwegad);
+		CHECK_ALLOC(gadgets[r], "GLWEGadget allocation failed in trace expansion");
+	}
+
+	CHECK_CALL(packed_glwegadget_trace_expand(module, gadgets, res_size, params_glwegad->l_tilde, packed_glwegadget,
+	                                          auto_ksks),
+	           "GLWEGadget trace expansion failed");
+
+	for (int r = 0; r < res_size; ++r)
+	{
+		if (!results[r])
+		{
+			results[r] = new_glwegadget_prep(params_glwegad);
+			CHECK_ALLOC(results[r], "Prepared GLWEGadget allocation failed");
+		}
+		CHECK_CALL(glwegadget_prepare(module, results[r], gadgets[r]),
+		           "GLWEGadget preparation failed in trace expansion");
+		delete_glwegadget(gadgets[r]);
+	}
+
+	free(gadgets);
+	return 0;
+cleanup:
+	if (gadgets)
+	{
+		for (int r = 0; r < res_size; ++r)
+		{
+			delete_glwegadget(gadgets[r]);
+		}
+	}
+	free(gadgets);
 	return status;
 }

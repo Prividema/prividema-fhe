@@ -1,7 +1,9 @@
 #include "glwegadget_ciphertext.h"
 
 #include <assert.h>
+#include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
@@ -114,5 +116,49 @@ int glwegadget_prepare(const MODULE* module, GLWEGadgetCiphertextPrep* glwegadge
 
 	status = 0;
 cleanup:
+	return status;
+}
+
+int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* result,
+                                     const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,
+                                     const PolyUniv* m_univ, uint64_t d)
+{
+	int status                    = -1;
+	const GLWEParams* params_glwe = result->params;
+
+	uint64_t nn = params_glwe->nn;
+
+	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
+	PolyBiv* glwe_biv_tmp = new_biv_poly(params_glwe);
+	PolyUniv* pol_encrypt = new_univ(params_glwe);
+	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
+	CHECK_ALLOC(glwe_biv_tmp, "alloc failed in GLWEGadget encryption");
+	CHECK_ALLOC(pol_encrypt, "alloc failed in GLWEGadget packed encryption");
+
+	assert(params_glwegad->l_tilde * d <= nn);
+
+	for (uint64_t i = 1; i <= params_glwegad->l_tilde; i++)
+	{
+		//TODO: Can be optimised by actually only doing memset on the non-zero bytes.
+		// The performance gained should be negligible and the potential for bugs is moderate.
+		memset(pol_encrypt, 0, poly_univ_bytes(params_glwe));
+		memcpy(pol_encrypt + (i - 1) * d, m_univ, d * sizeof(PolyUniv));
+		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_tmp, pol_encrypt, params_glwegad->kappa_tilde * i),
+		           "univ_to_biv failed in compute_phase_ij");
+		add_biv_poly(module, params_glwe, glwe_biv_msg, glwe_biv_msg, glwe_biv_tmp);
+	}
+	CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+	           "Noise addition failed in GLWEGadget encryption");
+
+	CHECK_CALL(glwe_secret_encrypt_phase(module, result, sk_prep, glwe_biv_msg),
+	           "glwe masking failed in a GLWEGadget encryption");
+
+	status = 0;
+
+cleanup:
+	free(glwe_biv_msg);
+	free(glwe_biv_tmp);
+	free(pol_encrypt);
+
 	return status;
 }

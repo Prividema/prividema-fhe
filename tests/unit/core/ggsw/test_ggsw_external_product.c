@@ -52,7 +52,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_external_product(module, ext_prod_observed, glwe_tilde, ggsw);
+	ggsw_unprepared_external_product(module, ext_prod_observed, glwe_tilde, ggsw);
 	normalize_glwe(module, ext_prod_observed, ext_prod_observed);
 	glwe_secret_decrypt(module, phase_observed, sk_glwe_prep, ext_prod_observed);
 	biv_to_univ_rnx(params_glwe, um_observed_univ_RnX, phase_observed);

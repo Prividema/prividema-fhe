@@ -85,6 +85,12 @@ struct criterion_test_params default_params_fn()
 	     .ciphertext_nb_limbs       = 9l * 5 - 1,
 	     .ciphertext_nb_limbs_tilde = 9l * 5 - 1,
 	     .sigma                     = 0},  // k > 1 l_a != l_b params
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5 - 1,
+	     .ciphertext_nb_limbs_tilde = 9l * 5,
+	     .sigma                     = 0},  // k > 1 l_a != l_b params
 
 	};
 
