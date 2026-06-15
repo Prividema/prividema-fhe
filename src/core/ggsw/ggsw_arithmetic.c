@@ -140,6 +140,7 @@ int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result
 	uint64_t nrows   = ggsw_num_rows(ggsw_prepared->params);
 	size_t ncols_in  = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(result->params);
+
 	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, ncols_out, glwe->vec, glwe->params->ciphertext_nb_limbs, nn,
 	                              ggsw_prepared->mat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
@@ -181,13 +182,9 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
 	int64_t k = (int64_t)packed_glwegadget->params->k;
 
 	/*
-	 * Create dummy GLWECiphertext for the k'th GLWEs in each GGSW, that is, the ones that contain a
-	 * m * 2^-jK.
-	 * In other words, we are storing the results as GLWEGadgets inside the GGSWs by using only
-	 * one every k GLWEs in a GGSW.
-	 * That way, since we fill every k'th GLWE in a GGSW, to convert this "strided" GLWEGadget into a
-	 * proper GGSW, it will suffice to generate the (-sk_i * m * 2^-jK) GLWEs that we are missing,
-	 * which we can do by means of an external products with encryptions of -sk_i
+	 * Create dummy GLWECiphertext views for the k'th GLWE in each GGSW,
+	 * that is, the ones that contain a m * 2^-jK.
+	 * This way, glwe_trace_expand will fill the rows of the GGSWs that need to contain a m * 2^-jK.
 	 */
 	for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
 	{
@@ -201,9 +198,12 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
 		}
 	}
 
+	// Fills the k'th rows of GGSWs
 	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
 	           "glwegadget_trace_expand failed in a GGSW trace expansion");
 
+	// Fills the rest of rows of the GGSWs, using GGSW(-s_i) encryptions to get
+	// GLWE(-s_i * m * 2^-jK) from the GLWE(m * 2^-jK) we have
 	for (int res_num = 0; res_num < res_size; ++res_num)
 	{
 		for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
@@ -214,6 +214,8 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
 			{
 				GLWECiphertext res = {results[res_num]->params->params_glwe,
 				                      ggsw_retrieve_bivglwe(results[res_num], i, prec_lvl)};
+
+				// GGSW(-sk_i) HALFPROD GLWE(m * 2^-jK) = GLWE(-s_i * m * 2^-jK)
 				CHECK_CALL(ggsw_external_product(module, &res, &in, sk_encryptions[i]),
 				           "Relinearization external product failed in GGSW trace expansion");
 				CHECK_CALL(normalize_glwe(module, &res, &res), "Normalization failed in GGSW trace expansion");
