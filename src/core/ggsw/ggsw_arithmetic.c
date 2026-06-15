@@ -136,16 +136,12 @@ int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result
 {
 	int status = -1;
 
-	uint64_t nn = result->params->nn;
-	// The bivGGSW ciphertext ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs
-	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
-	// As the result of the vector-matrix product glwe * ggsw,
-	// the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
-	uint64_t nrows = ggsw_num_rows(ggsw_prepared->params);
-	uint64_t ncols = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
-
-	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, ncols, glwe->vec, glwe->params->ciphertext_nb_limbs, nn,
-	                              ggsw_prepared->mat, nrows, ncols),
+	uint64_t nn      = result->params->nn;
+	uint64_t nrows   = ggsw_num_rows(ggsw_prepared->params);
+	size_t ncols_in  = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
+	size_t ncols_out = glwe_params_n_limbs(result->params);
+	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, ncols_out, glwe->vec, glwe->params->ciphertext_nb_limbs, nn,
+	                              ggsw_prepared->mat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
 	status = 0;
