@@ -59,8 +59,23 @@ void delete_glwe(GLWECiphertext* glwe);
  */
 void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
 
+/**
+ * @brief Returns a PolyBiv view of the pos'th element (in a_0, ..., a_k = b) in a GLWE
+ *
+ * @param glwe_ct Source GLWE
+ * @param pos Position to create a view of
+ *
+ * @returns A PolyBiv view (does NOT own memory) of the pos'th element in the GLWE
+ */
 PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
 
+/**
+ * @brief Returns a flattened PolyBiv view of the GLWE
+ *
+ * @param glwe_ct Source GLWE
+ *
+ * @returns A PolyBiv view (does NOT own memory) of the GLWE as if it were a single PolyBiv
+ */
 PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct);
 /**
  * @brief Encrypts a phase (message + noise) and puts it in result.
