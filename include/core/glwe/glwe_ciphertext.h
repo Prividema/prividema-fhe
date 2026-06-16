@@ -77,6 +77,7 @@ PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
  * @returns A PolyBiv view (does NOT own memory) of the GLWE as if it were a single PolyBiv
  */
 PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct);
+
 /**
  * @brief Encrypts a phase (message + noise) and puts it in result.
  *
