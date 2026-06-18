@@ -94,21 +94,4 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
                         const GLWECiphertextDFT* glwe_dft);
 
-/**
- * @brief Compute the polynomial product of c and d, component-wise in the DFT domain.
- *
- * @param module Additionnal information for backend.
- * @param res_dft The result in the DFT domain.
- * @param res_size The result's size.
- * @param c_dft The left-hand side polynomial in the DFT domain .
- * @param c_size The left-hand size of c_dft.
- * @param d_dft The right-hand side polynomial in the DFT domain.
- * @param d_size The right-hand size of c_dft.
- *
- * @remark `res_dft = ( DFT(c_0) * DFT(d_0) , ... , DFT(c_smin) * DFT(d_smin) , 0's)`. There are enough 0's to match the
- * size of res_dft.
- */
-void mult_vec_znx_dft(const MODULE* module, double* res_dft, int64_t res_size, const double* c_dft, int64_t c_size,
-                      const double* d_dft, int64_t d_size);
-
 #endif

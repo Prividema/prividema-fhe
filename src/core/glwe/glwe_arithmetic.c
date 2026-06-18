@@ -92,37 +92,3 @@ void add_glwe_dft(GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_l
 	for (uint64_t t = 0; t < glwe_coef_number(result_dft->params); t++)
 		result_dft->vec[t] = glwe_lhs_dft->vec[t] + glwe_rhs_dft->vec[t];
 }
-
-void mult_vec_znx_dft(const MODULE* module, double* result_dft, int64_t result_size, const double* c_dft,
-                      int64_t c_size, const double* d_dft, int64_t d_size)
-{
-	uint64_t nn = pvda_module_extract_nn(module);
-
-	if (c_size <= d_size)
-	{
-		int64_t smin = c_size < result_size ? c_size : result_size;
-
-		for (uint64_t i = 0; i < smin; i++)
-		{
-			for (uint64_t j = 0; j < nn / 2; j++)
-			{
-				// i*N + j corresultponds to the j-th coefficient's index of Re[DFT(c_i)] and Re[DFT(d_i)]
-				double c_re = c_dft[i * nn + j];
-				double d_re = d_dft[i * nn + j];
-
-				// i*N + j + N/2 corresultponds to the j-th coefficient's index of Im[DFT(c_i)] & Im[DFT(d_i)]
-				double c_im = c_dft[i * nn + j + nn / 2];
-				double d_im = d_dft[i * nn + j + nn / 2];
-
-				result_dft[i * nn + j]          = c_re * d_re - c_im * d_im;
-				result_dft[i * nn + j + nn / 2] = c_re * d_im + c_im * d_re;
-			}
-		}
-
-		// fill up remaining part with 0's
-		double* const dresult_dft = (double*)result_dft;
-		memset(dresult_dft + smin * nn, 0, (result_size - smin) * nn * sizeof(double));
-	}
-	else
-		mult_vec_znx_dft(module, result_dft, result_size, d_dft, d_size, c_dft, c_size);
-}
