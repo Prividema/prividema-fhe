@@ -32,6 +32,11 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
  */
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe);
 
+/**
+ * @brief Deletes a bivariate polynomial
+ *
+ * @param biv The bivariate polynomial to delete
+ */
 void delete_biv(PolyBiv* biv);
 
 /**

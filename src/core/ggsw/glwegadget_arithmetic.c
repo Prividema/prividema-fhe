@@ -81,7 +81,7 @@ cleanup:
 }
 
 int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
-                GLWESecretKeyPrepared* old_key)
+                const GLWESecretKeyPrepared* old_key)
 {
 	int status = -1;
 
@@ -232,7 +232,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		PolyBiv b = glwe_extract_poly_view(glwe, k);
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &b);
 
-		// result += auto_tmp ==> result = -sum_i(halfProc(c_auto(s), auto(a_i))) + (0, auto(b))
+		// result += auto_tmp ==> result = -sum_i(halfProd(c_auto(s), auto(a_i))) + (0, auto(b))
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
 		pvda_vec_znx_add(module, &result_b, &result_b, auto_tmp);
 		status = 0;
@@ -318,11 +318,12 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
 
 	glwe_copy(results[0], glwe_ct);
 
-	GLWECiphertext* tmp_glwe = new_glwe(glwe_ct->params);
-	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
+	GLWECiphertext* tmp_glwe  = new_glwe(glwe_ct->params);
 	GLWECiphertext* tmp_glwe2 = new_glwe(glwe_ct->params);
+	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
 	CHECK_ALLOC(tmp_glwe2, "Temp memory alloc in trace expansion failed");
 
+	// Step 0:
 	glwegadget_automorphism(module, tmp_glwe, glwegadget_ksk_collection_get_key(ksks, nn + 1), results[0]);
 
 	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
@@ -333,6 +334,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
 	normalize_glwe(module, results[1], tmp_glwe);
 	normalize_glwe(module, results[0], tmp_glwe2);
 
+	// Rest of the steps
 	for (uint64_t p = 2; p < res_size; p *= 2)
 	{
 		int64_t auto_p = (int64_t)nn / p + 1;
@@ -471,7 +473,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 			CHECK_ALLOC(results[r], "Prepared GLWEGadget allocation failed");
 		}
 		CHECK_CALL(glwegadget_prepare(module, results[r], gadgets[r]),
-		           "GLWEGadget prepareation failed in trace expansion");
+		           "GLWEGadget preparation failed in trace expansion");
 		delete_glwegadget(gadgets[r]);
 	}
 

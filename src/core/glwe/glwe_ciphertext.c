@@ -56,6 +56,7 @@ PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos)
 {
 	uint64_t nn = glwe_ct->params->nn;
 	uint64_t k  = glwe_ct->params->k;
+	assert(pos <= k);
 	uint64_t l  = pos == k ? glwe_params_l_b(glwe_ct->params) : glwe_params_l_a(glwe_ct->params);
 	PolyBiv ret = {nn, l, (int64_t)((k + 1) * nn), glwe_ct->vec + pos * nn};
 	return ret;
