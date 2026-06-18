@@ -80,6 +80,17 @@ int ggsw_unprepared_external_product(const MODULE* module, GLWECiphertext* resul
 int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
                                  const GGSWCiphertextPrep* ggsw_prepared);
 
+/**
+ * @brief Computes the external product between a GLWE and a GGSW.
+ *
+ * @param module Additionnal information for backend.
+ * @param result The GLWE result ciphertext.
+ * @param glwe   The GLWE input ciphertext.
+ * @param ggsw   The GGSW input ciphertext.
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
+ */
 int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
                           const GGSWCiphertextPrep* ggsw_prepared);
 
