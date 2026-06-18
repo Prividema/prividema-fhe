@@ -11,7 +11,6 @@
 #include "ggsw_ciphertext.h"
 #include "ggsw_key.h"
 #include "ggsw_params.h"
-#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
@@ -27,15 +26,15 @@
 
 // #define MATRIX_COLS 16384
 // #define LOG2_COLS   14
-#define MATRIX_COLS  128
-#define LOG2_COLS    7
-#define MATRIX_ROWS  128
+#define MATRIX_COLS  256
+#define LOG2_COLS    8
+#define MATRIX_ROWS  1024
 
 #define NBASE        (1 << 12)
 #define KBASE        1
-#define KAPPABASE    16
+#define KAPPABASE    18
 
-#define SHFT_AMT     16
+#define SHFT_AMT     10
 
 #define L_TILDE_Q1   4
 
@@ -138,8 +137,9 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	{
 		onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
 		//if (PRINTPARTIAL) print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
-		glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft);
-		glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
+		//glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft);
+		//glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
+		glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
 
 		if (PRINTPARTIAL)
 		{
@@ -172,6 +172,81 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 		delete_ggsw_prep(ggsw_trace[i]);
 	}
 	return 0;
+}
+
+int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, int sk_bits, GLWEParams* sk_params,
+                           GLWEAutomorphismKSKCollection** ksks_out, const GLWEGadgetParams* auto_ksk_params,
+                           GGSWCiphertextPrep*** ggsw_ksks_out, const GGSWParams* auto_ggsw_params)
+{
+	int status                          = -1;
+	GLWESecretKey* sk                   = alloc_glwe_secret_key(sk_params);
+	GLWESecretKeyPrepared* sk_prep      = alloc_glwe_secret_key_prepared(sk_params);
+	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2ul * NBASE);
+	GGSWCiphertextPrep** ggsw_ksks      = (GGSWCiphertextPrep**)calloc(KBASE, sizeof(GGSWCiphertextPrep*));
+	CHECK_ALLOC(sk, "Secret key allocation failed in phase0 of OnionPIR");
+	CHECK_ALLOC(sk_prep, "Prepared secret key allocation failed in phase0 of OnionPIR");
+	CHECK_ALLOC(ksks, "Allocation failed in phase0 of onionPIR");
+	CHECK_ALLOC(ggsw_ksks, "Allocation failed in phase 0 of onionPIR");
+
+	//Secret key
+	*sk_prep_out = sk_prep;
+	dbg_key      = sk_prep;
+	uniform_glwe_secret_key(module, sk, sk_bits);
+	glwe_sk_prepare(module, sk_prep, sk);
+
+	// Automorphism-expand keys
+	*ksks_out = ksks;
+	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
+	{
+		int64_t p                = (int64_t)NBASE / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(auto_ksk_params);
+		prepare_automorphism_key(module, ksk, sk_prep, (int)p);
+		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+	}
+
+	// GGSW(-s) for gadget to GGSW conversion
+	*ggsw_ksks_out = ggsw_ksks;
+	generate_glwegad_to_ggsw_ksk(module, ggsw_ksks, auto_ggsw_params, sk_prep);
+
+	status = 0;
+cleanup:
+	delete_glwe_secret_key(sk);
+	return status;
+}
+
+int onionpir_client_phase1(const MODULE* module, GLWECiphertext** row_query, GLWECiphertext** col_query,
+                           const GLWESecretKeyPrepared* sk_prep, int row, int column,
+                           const GLWEParams* params_row_query, const GLWEParams* params_col_query,
+                           const GLWEGadgetParams* row_query_gad_params, const GLWEGadgetParams* col_query_gad_params)
+{
+	int status        = -1;
+	*row_query        = new_glwe(params_row_query);
+	*col_query        = new_glwe(params_col_query);
+	PolyUniv* sel_row = new_univ(params_row_query);
+	PolyUniv* sel_col = new_univ(params_col_query);
+
+	memset(sel_row, 0, poly_univ_bytes(params_row_query));
+	memset(sel_col, 0, poly_univ_bytes(params_col_query));
+
+	uint64_t col_num = column;
+	uint64_t row_num = row;
+
+	for (int i = 0; i < LOG2_COLS; ++i)
+	{
+		sel_col[i] = (int64_t)col_num % 2;
+		col_num >>= 1;
+	}
+
+	sel_row[row_num] = 1;
+
+	glwegadget_packed_secret_encrypt(module, *row_query, row_query_gad_params, sk_prep, sel_row, MATRIX_ROWS);
+	glwegadget_packed_secret_encrypt(module, *col_query, col_query_gad_params, sk_prep, sel_col, LOG2_COLS);
+
+	status = 0;
+cleanup:
+	delete_univ(sel_row);
+	delete_univ(sel_col);
+	return status;
 }
 
 int main()
@@ -227,57 +302,27 @@ int main()
 	// GGSWParams* params_ggsw          = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NGGLIMBSBASE);
 
 	GLWEParams* db_params = new_glwe_params(NBASE, KBASE, KAPPABASE, 8, 0, NOISE_UNIFORM_POWER_OF_TWO);
-	//Client phase 1
-	GLWESecretKey* sk              = alloc_glwe_secret_key(final_params);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(final_params);
-	dbg_key                        = sk_prep;
+	//Client phase 0
 
-	uniform_glwe_secret_key(module, sk, 2);
-	glwe_sk_prepare(module, sk_prep, sk);
+	GLWESecretKeyPrepared* sk_prep;
+	GLWEAutomorphismKSKCollection* ksks;
+	GGSWCiphertextPrep** ggsw_ksks;
 
-	// Automorphism-expand keys
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2ul * NBASE);
-	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
-	{
-		int64_t p                = (int64_t)NBASE / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(auto_ksk_params);
-		prepare_automorphism_key(module, ksk, sk_prep, (int)p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
-	}
+	onionpir_client_phase0(module, &sk_prep, 2, final_params, &ksks, auto_ksk_params, &ggsw_ksks, auto_ggsw_params);
 
-	// GGSW(-s) for gadget to GGSW conversion
-	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(KBASE, sizeof(GGSWCiphertextPrep*));
+	GLWECiphertext* row_query;
+	GLWECiphertext* col_query;
 
-	generate_glwegad_to_ggsw_ksk(module, ggsw_ksks, auto_ggsw_params, sk_prep);
-
-	GLWECiphertext* row_query = new_glwe(params_row_query);
-	GLWECiphertext* col_query = new_glwe(params_col_query);
-
-	PolyUniv* sel_row = new_univ(params_row_query);
-	PolyUniv* sel_col = new_univ(params_col_query);
-	memset(sel_row, 0, poly_univ_bytes(params_row_query));
-	memset(sel_col, 0, poly_univ_bytes(params_col_query));
-	sel_col[0]  = 0;
-	sel_col[1]  = 1;
-	sel_col[5]  = 1;
-	sel_row[18] = 1;
-
-	glwegadget_packed_secret_encrypt(module, row_query, row_query_gad_params, sk_prep, sel_row, MATRIX_ROWS);
-	glwegadget_packed_secret_encrypt(module, col_query, col_query_gad_params, sk_prep, sel_col, LOG2_COLS);
-
-	// printf("Row query: ");
-	// print_coefs_glwe(module, row_query, sk_prep, MATRIX_ROWS * L_TILDE_Q1, 0);
-	// printf("\n");
+	onionpir_client_phase1(module, &row_query, &col_query, sk_prep, 3, 10, params_row_query, params_col_query,
+	                       row_query_gad_params, col_query_gad_params);
 
 	GLWECiphertext* res = new_glwe(final_params);
-	//Server
 
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
 
-	onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params,
-
-	                ksks, (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query, col_query);
+	onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params, ksks,
+	                (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query, col_query);
 
 	struct timespec server_end;
 	clock_gettime(CLOCK_REALTIME, &server_end);
@@ -289,7 +334,7 @@ int main()
 	print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
 
 	double throughput_bits_sec = (64.0 - SHFT_AMT) * NBASE * MATRIX_ROWS * MATRIX_COLS * 1000 / ms_elapsed;
-	printf("Server throughput: %.2f MB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
+	printf("Server throughput: %.2f MiB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
 	fflush(stdout);
 
 	delete_glwe(res);
