@@ -7,6 +7,7 @@
 #include <time.h>
 
 #include "bivariate_polynomial.h"
+#include "ggsw_arithmetic.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_key.h"
 #include "ggsw_params.h"
@@ -108,7 +109,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	                                                        L_TILDE_Q1, row_query, ksks);
 	//packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, 3, row_query, ksks);
 
-	if (PRINTPARTIAL)
+	if (PRINTPARTIAL)  //Debugging info
 	{
 		GLWEGadgetCiphertext** glwegad_trace_unprep =
 		    (GLWEGadgetCiphertext**)calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertext*));
@@ -126,7 +127,6 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 		for (int i = 0; i < MATRIX_ROWS; ++i) delete_glwegadget(glwegad_trace_unprep[i]);
 	}
 
-	// printf("st=%d\n", st);
 	//Half products
 	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
 
@@ -136,12 +136,10 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	clock_gettime(CLOCK_REALTIME, &server_start);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
-		//
 		onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
 		//if (PRINTPARTIAL) print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
-		//glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft);
-		//glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
-		glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
+		glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft);
+		glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
 
 		if (PRINTPARTIAL)
 		{
@@ -166,8 +164,8 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 	////CMux tree
 
-	tfhe_cmux_tree(module, res, (GLWECiphertext**)&glwe_tree[0], MATRIX_COLS, (const GGSWCiphertextPrep**)ggsw_trace,
-	               LOG2_COLS, 1);
+	tfhe_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree[0], MATRIX_COLS,
+	               (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
 
 	for (int i = 0; i < LOG2_COLS; ++i)
 	{

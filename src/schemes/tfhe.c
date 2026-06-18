@@ -38,7 +38,7 @@ cleanup:
 	return -1;
 }
 
-int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, GLWECiphertext** src, int inp_cols,
+int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
                    const GGSWCiphertextPrep** selectors, int sel_size, int delete_src)
 {
 	GLWEParams* aggregation_params = res->params;
@@ -46,6 +46,12 @@ int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, GLWECiphertext** s
 
 	GLWECiphertext* glwe_tree[(log_inp_cols + 1)][inp_cols];  //Inefficient, suffices for now
 	memset(glwe_tree, 0, (log_inp_cols + 1) * inp_cols * sizeof(GLWECiphertext*));
+
+	//Note: this check MUST go after glwe_tree definition and set-to-0 for correct error handling
+	if (sel_size < log_inp_cols)
+	{
+		RAISE_ERROR("Tried to use a CMux tree with less selection signals than the required for the number of inputs");
+	}
 
 	for (int c = 0; c < inp_cols; ++c)
 	{
@@ -92,6 +98,7 @@ int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, GLWECiphertext** s
 
 	return 0;
 cleanup:
+	//Cleanup logic depends on whether we want to remove the first row or not
 	for (int l = delete_src ? 0 : 1; l < log_inp_cols; ++l)
 	{
 		for (int c = 0; c < inp_cols; ++c) delete_glwe(glwe_tree[l][c]);
