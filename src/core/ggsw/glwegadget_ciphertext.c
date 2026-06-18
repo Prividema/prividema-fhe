@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -33,6 +34,22 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct)
 	if (!glwegadget_ct) return;
 	free(glwegadget_ct->mat);
 	free(glwegadget_ct);
+}
+
+int print_coefs_gad(const MODULE* module, const GLWEGadgetCiphertext* glwe_gad, const GLWESecretKeyPrepared* sk_prep,
+                    int n)
+{
+	for (int l = 0; l < glwe_gad->params->l_tilde; ++l)
+	{
+		GLWECiphertext limb = {glwe_gad->params->params_glwe, glwegadget_extract_bivglwe(glwe_gad, l + 1)};
+		printf("Gadget lvl %03d: ", l);
+		CHECK_CALL(print_coefs_glwe(module, &limb, sk_prep, n, 0), "GLWE printig failed in GLWEGadget printing");
+		printf("\n");
+	}
+
+	return 0;
+cleanup:
+	return -1;
 }
 
 GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params)

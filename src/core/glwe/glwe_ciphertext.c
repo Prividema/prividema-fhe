@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -38,6 +39,35 @@ void delete_glwe(GLWECiphertext* glwe)
 	if (!glwe) return;
 	free(glwe->vec);
 	free(glwe);
+}
+
+int print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+                     int shft)
+{
+	int status              = -1;
+	PolyBiv* result_biv     = new_biv_poly(glwe->params);
+	PolyUnivTnX* result_tnx = new_univ_tnx(glwe->params);
+	CHECK_ALLOC(result_biv, "Allocation failed in print_coefs_glwe");
+	CHECK_ALLOC(result_tnx, "Allocation failed in print_coefs_glwe");
+	//normalize_glwe(module, glwe, glwe);
+	CHECK_CALL(glwe_secret_decrypt(module, result_biv, sk_prep, glwe),
+	           "GLWE decryption in print_coefs_glwe function failed");
+	CHECK_CALL(biv_to_univ_tnx(glwe->params, result_tnx, result_biv),
+	           "Bivariate to TnX conversion failed in print_coefs_glwe function");
+
+	for (int i = 0; i < n; ++i)
+	{
+		if (shft)
+			printf("%lx (%ld)  ", result_tnx[i], ((result_tnx[i] >> (shft - 1)) + 1) >> 1);
+		else
+			printf("%lx (%ld) ", result_tnx[i], result_tnx[i]);
+	}
+	status = 0;
+cleanup:
+
+	delete_biv(result_biv);
+	delete_univ_tnx(result_tnx);
+	return status;
 }
 
 void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src)

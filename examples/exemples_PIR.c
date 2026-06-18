@@ -42,44 +42,11 @@
 
 GLWESecretKeyPrepared* dbg_key = NULL;
 
-void print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
-                      int shft)
-{
-	PolyBiv* result_biv     = new_biv_poly(glwe->params);
-	PolyUnivTnX* result_tnx = new_univ_tnx(glwe->params);
-	//normalize_glwe(module, glwe, glwe);
-	glwe_secret_decrypt(module, result_biv, sk_prep, glwe);
-	biv_to_univ_tnx(glwe->params, result_tnx, result_biv);
-
-	for (int i = 0; i < n; ++i)
-	{
-		if (shft)
-			printf("%lx (%ld)  ", result_tnx[i], ((result_tnx[i] >> (shft - 1)) + 1) >> 1);
-		else
-			printf("%ld ", result_tnx[i]);
-	}
-
-	delete_biv(result_biv);
-	delete_univ_tnx(result_tnx);
-}
-
-void print_coefs_gad(const MODULE* module, const GLWEGadgetCiphertext* glwe_gad, const GLWESecretKeyPrepared* sk_prep,
-                     int n)
-{
-	for (int l = 0; l < glwe_gad->params->l_tilde; ++l)
-	{
-		GLWECiphertext limb = {glwe_gad->params->params_glwe, glwegadget_extract_bivglwe(glwe_gad, l + 1)};
-		printf("gad l %03d: ", l);
-		print_coefs_glwe(module, &limb, sk_prep, n, 0);
-		printf("\n");
-	}
-}
-
 void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
 {
 	for (int l = 0; l < max_l && l < biv->l; ++l)
 	{
-		printf("biv lvl %03d: ", l);
+		printf("Biv lvl %03d: ", l);
 
 		for (int p = 0; p < max_n && p < biv->nn; ++p)
 		{

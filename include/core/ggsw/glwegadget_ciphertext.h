@@ -59,6 +59,28 @@ GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
 void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
 
 /**
+ * @brief Debugging function to inspect GLWEGadgets
+ *
+ * Inteded to inspect GLWEGadget contets for debugging.
+ * It takes as input a secret key to decrypt. For debugging, a global variable could
+ * be used to store the reference.
+ *
+ * Prints the n first (lowest degree) coefficients of the decryption.
+ * Additionally, if shft is non-zero, the resulting coefficients will be bit-shifted
+ * by that amount, which is intended to be used with BFV-like encodings.
+ *
+ * Only able to output the 64 MSBs of the encrypted message/phase
+ *
+ * @param module The backend module
+ * @param glwe_gad The GLWEGadget to print
+ * @param sk_prep The prepared secret key for the GLWEGadget
+ * @param n How many coefficients to print
+ *
+ */
+int print_coefs_gad(const MODULE* module, const GLWEGadgetCiphertext* glwe_gad, const GLWESecretKeyPrepared* sk_prep,
+                    int n);
+
+/**
  * @brief A GLWEGadget ciphertext that has been preprocessed for use in a half-external product
  */
 typedef struct glwegadget_ciphertext_prepared
