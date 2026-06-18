@@ -37,7 +37,7 @@ PvdaParamTest(biv_to_univ_rnx, runs, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	PolyBiv* pol                   = new_biv_poly(params_glwe);
+	PolyBiv* pol                   = new_biv(params_glwe);
 	PolyUnivRnX* pol_univ_computed = new_univ_rnx(params_glwe);
 
 	//Set the first limb for the first coefficient to 1, ie, first coefficient is set to 2^-kappa
@@ -63,7 +63,7 @@ PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
-	PolyBiv* pol_computed = new_biv_poly(params_glwe);
+	PolyBiv* pol_computed = new_biv(params_glwe);
 
 	memset(pol_univ, 0, poly_univ_rnx_bytes(params_glwe));
 	// Define pol_univ(X) = 2^{-params->kappa} , i.e. in Zn[X,Y] pol(X,Y) = Y
@@ -89,7 +89,7 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
-	PolyBiv* pol_computed = new_biv_poly(params_glwe);
+	PolyBiv* pol_computed = new_biv(params_glwe);
 
 	// Draws normaly pol_univ in Rn[X] (!= torus)
 	rnx_random_vec(pol_univ, params_glwe);
@@ -120,7 +120,7 @@ PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivRnX* pol_univ          = new_univ_rnx(params_glwe);
-	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
+	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivRnX* pol_univ_computed = new_univ_rnx(params_glwe);
 
 	rnx_random_vec(pol_univ, params_glwe);
@@ -149,7 +149,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivTnX* pol_univ          = new_univ_tnx(params_glwe);
-	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
+	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
 	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
@@ -177,7 +177,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 
 	PolyUnivRnX* pol_univ_rnx      = new_univ_rnx(params_glwe);
 	PolyUnivTnX* pol_univ          = new_univ_tnx(params_glwe);
-	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
+	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
 	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
@@ -204,7 +204,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	PolyUnivTnX* pol_univ          = new_univ_tnx(params_glwe);
-	PolyBiv* pol_computed          = new_biv_poly(params_glwe);
+	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
 	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
@@ -234,7 +234,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
-	PolyBiv* biv            = new_biv_poly(params_glwe);
+	PolyBiv* biv            = new_biv(params_glwe);
 
 	uint64_t precision1 = (1ULL << (64 - 53));
 
@@ -274,7 +274,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
 	PolyUnivRnX* rnx_values = new_univ_rnx(params_glwe);
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
-	PolyBiv* biv            = new_biv_poly(params_glwe);
+	PolyBiv* biv            = new_biv(params_glwe);
 
 	rnx_random_vec(rnx_values, params_glwe);
 	for (int i = 0; i < vec_size; ++i)
@@ -361,9 +361,9 @@ PvdaParamTest(add_biv_poly, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	PolyBiv* pol_lhs      = new_biv_poly(params_glwe);
-	PolyBiv* pol_rhs      = new_biv_poly(params_glwe);
-	PolyBiv* sum_observed = new_biv_poly(params_glwe);
+	PolyBiv* pol_lhs      = new_biv(params_glwe);
+	PolyBiv* pol_rhs      = new_biv(params_glwe);
+	PolyBiv* sum_observed = new_biv(params_glwe);
 
 	uniform_random_biv_poly(params_glwe, pol_lhs, glwe_params_l_a(params_glwe));
 	uniform_random_biv_poly(params_glwe, pol_rhs, glwe_params_l_a(params_glwe));

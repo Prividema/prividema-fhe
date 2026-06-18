@@ -82,7 +82,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	PolyUnivDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
 	PolyUniv* m_skj_univ        = new_univ(params_glwe);  // -msg * sk_j
 	// Temp space for -m * sk * 2^{-kappa_tilde}
-	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 
 	CHECK_ALLOC(m_univ_dft, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(m_skj_univ_dft, "malloc failed in ggsw_secret_encrypt");
@@ -154,7 +154,7 @@ GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw)
 
 	return ggsw_mat_dft;
 cleanup:
-	free(ggsw_mat_dft);
+	delete_ggsw_prep(ggsw_mat_dft);
 	return NULL;
 }
 

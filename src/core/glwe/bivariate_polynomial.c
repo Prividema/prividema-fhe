@@ -10,6 +10,7 @@
 
 #include "glwe_params.h"
 #include "logger.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -18,7 +19,7 @@
 
 uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_params_l_a(params_glwe) * params_glwe->nn; }
 
-PolyBiv* new_biv_poly(const GLWEParams* params_glwe)
+PolyBiv* new_biv(const GLWEParams* params_glwe)
 {
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
 	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
@@ -30,8 +31,7 @@ PolyBiv* new_biv_poly(const GLWEParams* params_glwe)
 	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
 	return pol;
 cleanup:
-	if (pol) free(pol->ptr);
-	free(pol);
+	delete_biv(pol);
 	return NULL;
 }
 
@@ -45,20 +45,19 @@ void delete_biv(PolyBiv* biv)
 	free(biv);
 }
 
-PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l)
+PolyBiv* new_biv_custom_params(uint64_t nn, uint64_t biv_l)
 {
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
 	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
 
-	pol->nn     = params_glwe->nn;
+	pol->nn     = nn;
 	pol->l      = biv_l;
-	pol->stride = (int64_t)pol->nn;
-	pol->ptr    = calloc(pol->l * pol->nn, sizeof(int64_t));
+	pol->stride = (int64_t)nn;
+	pol->ptr    = calloc(biv_l * nn, sizeof(int64_t));
 	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
 	return pol;
 cleanup:
-	if (pol) free(pol->ptr);
-	free(pol);
+	delete_biv(pol);
 	return NULL;
 }
 
@@ -110,7 +109,7 @@ int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, 
 
 	uint64_t nn = params_glwe->nn;
 
-	int64_t* err = new_univ(params_glwe);
+	PolyUniv* err = new_univ(params_glwe);
 
 	CHECK_ALLOC(err, "Failed alloc in fast uniform noise generation");
 
@@ -134,7 +133,7 @@ int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, 
 
 	status = 0;
 cleanup:
-	free(err);
+	delete_univ(err);
 
 	return status;
 }
@@ -160,7 +159,7 @@ uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe)
 	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
 }
 
-PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe)
+PolyBivDFT* new_biv_dft(const GLWEParams* params_glwe)
 {
 	PolyBivDFT* pol_dft = calloc(poly_biv_coef_number_dft(params_glwe), 2 * sizeof(double));
 	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
@@ -169,9 +168,11 @@ cleanup:
 	return NULL;
 }
 
-PolyBivDFT* new_biv_poly_dft_custom_l(const GLWEParams* params_glwe, uint64_t biv_l)
+void delete_biv_dft(PolyBivDFT* biv_dft) { free(biv_dft); }
+
+PolyBivDFT* new_biv_poly_dft_custom_params(uint64_t nn, uint64_t biv_l)
 {
-	PolyBivDFT* pol_dft = calloc(params_glwe->nn * biv_l, sizeof(double));
+	PolyBivDFT* pol_dft = calloc(nn * biv_l, sizeof(double));
 	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
 	return pol_dft;
 cleanup:

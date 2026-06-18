@@ -157,7 +157,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 	uint64_t biv_l = l_b_result > nrows ? l_b_result : nrows;
 	if (k == 1)
 	{
-		PolyBiv* auto_tmp = new_biv_poly_custom_l(result->params, biv_l);
+		PolyBiv* auto_tmp = new_biv_custom_params(result->params->nn, biv_l);
 		CHECK_ALLOC(auto_tmp, "Allocation failed in automorphism");
 
 		// auto_tmp = auto_p(a)
@@ -183,7 +183,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 	}
 	else
 	{
-		PolyBiv* auto_tmp        = new_biv_poly_custom_l(result->params, biv_l);
+		PolyBiv* auto_tmp        = new_biv_custom_params(result->params->nn, biv_l);
 		GLWECiphertext* glwe_tmp = new_glwe(result->params);
 
 		CHECK_ALLOC_LABEL(auto_tmp, "Allocation failed in automorphism", cleanup2);

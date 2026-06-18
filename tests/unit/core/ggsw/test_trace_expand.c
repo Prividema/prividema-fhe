@@ -71,7 +71,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	PolyUnivRnX* tmp_rnx        = new_univ_rnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_observed_rnx = new_univ_rnx(params_glwe);
-	PolyBiv* biv_tmp            = new_biv_poly(params_glwe);
+	PolyBiv* biv_tmp            = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct     = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -226,7 +226,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		ggsw_secret_encrypt(module, ggsw_tmp, sk_prep, neg_sk_i);
 		ggsw_prepare(module, ggsw_ksks[i], ggsw_tmp);
 	}
-	free(neg_sk_i);
+	delete_univ(neg_sk_i);
 	delete_ggsw(ggsw_tmp);
 
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
@@ -315,7 +315,7 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 		}
 		ggsw_secret_encrypt(module, ggsw_ksks[i], sk_prep, neg_sk_i);
 	}
-	free(neg_sk_i);
+	delete_univ(neg_sk_i);
 
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{

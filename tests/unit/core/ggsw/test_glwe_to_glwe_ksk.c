@@ -33,7 +33,7 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_observed_tnx = new_univ_tnx(params_glwe);
-	PolyBiv* m_auto             = new_biv_poly(params_glwe);
+	PolyBiv* m_auto             = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct     = new_glwe(params_glwe);
 	GLWECiphertext* glwe_res    = new_glwe(params_glwe);
 	GLWECiphertext* glwe_norm   = new_glwe(params_glwe);

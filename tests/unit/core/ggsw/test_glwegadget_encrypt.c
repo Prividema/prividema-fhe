@@ -64,7 +64,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyUniv* m_univ               = new_univ(params_glwe);
 
-	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
+	PolyBiv* phase_computed              = new_biv(params_glwe);
 	PolyUnivRnX* phase_observed_univ_rnx = new_univ_rnx(params_glwe);
 	PolyUnivRnX* phase_expected_univ_rnx = new_univ_rnx(params_glwe);
 

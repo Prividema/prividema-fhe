@@ -33,7 +33,7 @@ void bench_glwegad_half_prod(benchmark::State& state)
 	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
-	PolyBiv* m                             = new_biv_poly(params_glwe);
+	PolyBiv* m                             = new_biv(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
@@ -84,8 +84,8 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
-	PolyBiv* m                             = new_biv_poly(params_glwe);
-	PolyBivDFT* m_dft                      = new_biv_poly_dft(params_glwe);
+	PolyBiv* m                             = new_biv(params_glwe);
+	PolyBivDFT* m_dft                      = new_biv_dft(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
@@ -104,7 +104,7 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 	}
 
 	delete_biv(m);
-	free(m_dft);
+	delete_biv_dft(m_dft);
 	delete_univ(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 

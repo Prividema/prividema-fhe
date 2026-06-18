@@ -37,7 +37,7 @@ PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
 	GLWECiphertext* glwe2 = new_glwe(params_glwe);
 	GLWECiphertext* res   = new_glwe(params_glwe);
 
-	PolyBiv* res_biv     = new_biv_poly(params_glwe);
+	PolyBiv* res_biv     = new_biv(params_glwe);
 	PolyUnivTnX* res_tnx = new_univ_tnx(params_glwe);
 
 	PolyUniv* m_sel = new_univ(params_glwe);
@@ -119,7 +119,7 @@ PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
 	GLWECiphertext* glwe2 = new_glwe(params_glwe);
 	GLWECiphertext* res   = new_glwe(params_glwe);
 
-	PolyBiv* res_biv     = new_biv_poly(params_glwe);
+	PolyBiv* res_biv     = new_biv(params_glwe);
 	PolyUnivTnX* res_tnx = new_univ_tnx(params_glwe);
 
 	PolyUniv* m_sel = new_univ(params_glwe);

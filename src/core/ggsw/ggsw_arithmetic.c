@@ -132,7 +132,7 @@ int ggsw_unprepared_external_product(const MODULE* module,
 	status = 0;
 
 cleanup:
-	free(result_dft);
+	delete_biv_dft(result_dft);
 	free(ggsw_pmat);
 
 	return status;

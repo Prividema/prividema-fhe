@@ -30,13 +30,13 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	GLWECiphertext* glwe_tilde          = new_glwe(params_glwe);
 	GLWECiphertext* ext_prod_observed   = new_glwe(params_glwe);
 	PolyUniv* u_univ                    = new_univ(params_glwe);
-	PolyBiv* m                          = new_biv_poly(params_glwe);
+	PolyBiv* m                          = new_biv(params_glwe);
 
-	PolyBiv* phase_observed           = new_biv_poly(params_glwe);
+	PolyBiv* phase_observed           = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_univ_rnx = new_univ_rnx(params_glwe);
 	PolyUnivDFT* u_univ_dft           = new_univ_dft(module);
-	PolyBivDFT* um_dft                = new_biv_poly_dft(params_glwe);
-	PolyBiv* um                       = new_biv_poly(params_glwe);
+	PolyBivDFT* um_dft                = new_biv_dft(params_glwe);
+	PolyBiv* um                       = new_biv(params_glwe);
 	PolyUnivRnX* um_univ_rnx          = new_univ_rnx(params_glwe);
 
 	uniform_glwe_secret_key(module, sk_ggsw, 3);

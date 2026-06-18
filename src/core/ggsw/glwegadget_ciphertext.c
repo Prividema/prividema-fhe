@@ -91,7 +91,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 	uint64_t nn = params_glwe->nn;
 
-	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 
 	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
 
@@ -146,8 +146,8 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 
 	uint64_t nn = params_glwe->nn;
 
-	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
-	PolyBiv* glwe_biv_tmp = new_biv_poly(params_glwe);
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
+	PolyBiv* glwe_biv_tmp = new_biv(params_glwe);
 	PolyUniv* pol_encrypt = new_univ(params_glwe);
 	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
 	CHECK_ALLOC(glwe_biv_tmp, "alloc failed in GLWEGadget encryption");
@@ -176,7 +176,7 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 cleanup:
 	delete_biv(glwe_biv_msg);
 	delete_biv(glwe_biv_tmp);
-	free(pol_encrypt);
+	delete_univ(pol_encrypt);
 
 	return status;
 }

@@ -22,7 +22,7 @@ void bench_enc_dec_rnx(benchmark::State& state)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyUnivRnX* m                 = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
-	PolyBiv* result_biv            = new_biv_poly(params_glwe);
+	PolyBiv* result_biv            = new_biv(params_glwe);
 	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, SKBITS);

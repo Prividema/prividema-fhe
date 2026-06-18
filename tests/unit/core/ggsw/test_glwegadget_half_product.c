@@ -39,9 +39,9 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
 	PolyUnivTnX* um_expected_tnx           = new_univ_tnx(params_glwe);
 	PolyUnivRnX* um_expected_rnx           = new_univ_rnx(params_glwe);
-	PolyBiv* um_observed                   = new_biv_poly(params_glwe);
+	PolyBiv* um_observed                   = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
-	PolyBiv* m                             = new_biv_poly(params_glwe);
+	PolyBiv* m                             = new_biv(params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;

@@ -129,8 +129,8 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	//Half products
 	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
 
-	PolyBivDFT* pos_biv_dft = new_biv_poly_dft_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
-	PolyBiv* pos_biv        = new_biv_poly_custom_l(db_params, query1_params->l_tilde * MATRIX_ROWS);
+	PolyBivDFT* pos_biv_dft = new_biv_poly_dft_custom_params(db_params->nn, query1_params->l_tilde * MATRIX_ROWS);
+	PolyBiv* pos_biv        = new_biv_custom_params(db_params->nn, query1_params->l_tilde * MATRIX_ROWS);
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)

@@ -42,7 +42,7 @@ int generate_glwegad_to_ggsw_ksk(const MODULE* module, GGSWCiphertextPrep** ggsw
 	status = 0;
 cleanup:
 	delete_ggsw(tmp_ggsw);
-	free(neg_sk_i);
+	delete_univ(neg_sk_i);
 	return status;
 }
 
