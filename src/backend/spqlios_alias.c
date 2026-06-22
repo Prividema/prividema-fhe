@@ -71,6 +71,12 @@ void pvda_svp_apply_dft(const MODULE* module, const double* res, uint64_t res_si
 	svp_apply_dft(module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)prepared_pol, a->ptr, a->l, a->stride);
 }
 
+void pvda_svp_apply_dft_to_dft(const MODULE* module, const double* res, uint64_t res_size, const PolyUnivDFT* ppol,
+                               const PolyBivDFT* a, uint64_t a_size)
+{
+	svp_apply_dft_to_dft(module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)ppol, (VEC_ZNX_DFT*)a, a_size);
+}
+
 double* pvda_new_vmp_pmat(const MODULE* module, uint64_t nrows, uint64_t ncols)
 {
 	return (double*)new_vmp_pmat(module, nrows, ncols);
