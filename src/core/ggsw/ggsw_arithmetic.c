@@ -101,12 +101,10 @@ int ggsw_unprepared_external_product(const MODULE* module,
 	int status = -1;
 
 	uint64_t nn = result->params->nn;
-	// The bivGGSW ciphertext ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs
-	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
-	// As the result of the vector-matrix product glwe * ggsw,
-	// the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
-	uint64_t nrows = ggsw_num_rows(ggsw->params);
-	uint64_t ncols = glwe_params_n_limbs(ggsw->params->params_glwe);
+
+	uint64_t nrows     = ggsw_num_rows(ggsw->params);
+	uint64_t ncols_in  = glwe_params_n_limbs(ggsw->params->params_glwe);
+	uint64_t ncols_out = glwe_params_n_limbs(result->params);
 
 	MatBivDFT* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
 	VecBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
@@ -114,19 +112,17 @@ int ggsw_unprepared_external_product(const MODULE* module,
 	result_dft            = malloc(glwe_params_bytes(ggsw->params->params_glwe));
 
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
-
 	CHECK_ALLOC(result_dft, "result's malloc failed in ggsw_external_product");
 
-	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols_in),
 	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
 	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
-	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, &glwe_flattened, ggsw_pmat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols_out, &glwe_flattened, ggsw_pmat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
-	//TODO: check lcols compatibility
 	PolyBiv result_flattened = glwe_flattened_biv(result);
-	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, result_dft, ncols),
+	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, result_dft, ncols_out),
 	           "vec_znx_idft_p failed in ggsw_external_product");
 
 	status = 0;
