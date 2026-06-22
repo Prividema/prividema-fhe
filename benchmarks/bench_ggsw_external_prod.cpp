@@ -86,7 +86,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_random_vec(NBASE, m, 1, NBASE, 4);
-	normal_random_vec(m_glwe, NBASE, 0.0, 0.1);
+	rnx_random_vec(m_glwe, params_glwe);
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
 	ggsw_prepare(module, ggsw_prepared, ggsw);
 	glwe_secret_encrypt_rnx(module, glwe_input, sk_prep, m_glwe);
@@ -114,3 +114,46 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 }
 
 BENCHMARK(bench_ggsw_prepared_prod);
+
+void bench_ggsw_prepare(benchmark::State& state)
+{
+	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
+
+	MODULE* module          = pvda_new_module_info(NBASE);
+	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
+
+	GLWESecretKey* sk                 = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep    = alloc_glwe_secret_key_prepared(params_glwe);
+	PolyUniv* m                       = new_univ(params_glwe);
+	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prepared = new_ggsw_prep(params_ggsw);
+	PolyBiv* result_biv               = new_biv(params_glwe);
+	PolyUnivRnX* result_univ          = new_univ_rnx(params_glwe);
+
+	uniform_glwe_secret_key(module, sk, 3);
+	glwe_sk_prepare(module, sk_prep, sk);
+
+	uniform_random_vec(NBASE, m, 1, NBASE, 4);
+	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
+
+	for (auto _ : state)
+	{
+		ggsw_prepare(module, ggsw_prepared, ggsw);
+		benchmark::DoNotOptimize(ggsw_prepared);
+	}
+
+	delete_glwe_secret_key(sk);
+	delete_glwe_secret_key_prepared(sk_prep);
+	delete_univ(m);
+	delete_ggsw(ggsw);
+	delete_ggsw_prep(ggsw_prepared);
+	delete_biv(result_biv);
+	delete_univ_rnx(result_univ);
+
+	pvda_delete_module_info(module);
+	delete_glwe_params(params_glwe);
+	delete_ggsw_params(params_ggsw);
+}
+
+BENCHMARK(bench_ggsw_prepare);

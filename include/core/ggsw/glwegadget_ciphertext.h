@@ -139,10 +139,14 @@ void glwegadget_public_encrypt(const MODULE* module, GLWEGadgetCiphertext* resul
 /**
  *
  * Encrypts a univariate polynomial with at most d non-zero coefficients
- * into a "packed GLWEGadget" GLWE ciphertext (see @ref )
+ * into a "packed GLWEGadget" GLWE ciphertext.
  *
+ * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
  *
+ * TODO: move documentation to the docs folder instead of the PR
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* result,
                                      const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,

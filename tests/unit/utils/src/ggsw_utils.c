@@ -12,7 +12,7 @@
 #include "univariate_polynomial.h"
 
 void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
-                const PolyUniv* expected, double max_err_length, double critical_err_length)
+                const PolyUniv* expected, double max_err, double critical_err)
 {
 	const GGSWParams* params_ggsw        = ggsw->params;
 	const GLWEParams* params_glwe        = params_ggsw->params_glwe;
@@ -56,8 +56,8 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 			    ldexp((sk_idx == params_ggsw->k_tilde) ? (double)expected[p] : (double)m_skj_univ[p],
 			          -(params_ggsw->kappa_tilde * prec_lvl));
 
-		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, max_err_length,
-		                                critical_err_length);
+		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, max_err,
+		                                critical_err);
 	}
 
 	delete_biv(phase_computed);
@@ -66,36 +66,4 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 	delete_univ_dft(m_skj_univ_dft);
 	delete_univ_dft(m_univ_dft);
 	delete_univ(m_skj_univ);
-}
-
-void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad, const GLWESecretKeyPrepared* sk_prep,
-                      const PolyUniv* expected, double max_err_length, double critical_err_length)
-{
-	const GLWEGadgetParams* params_glwegad = glwegad->params;
-	const GLWEParams* params_glwe          = params_glwegad->params_glwe;
-	PolyBiv* phase_computed                = new_biv(params_glwe);
-	PolyUnivRnX* phase_observed_univ_rnx   = new_univ_rnx(params_glwe);
-	PolyUnivRnX* phase_expected_univ_rnx   = new_univ_rnx(params_glwe);
-
-	for (uint64_t prec_lvl = 1; prec_lvl < params_glwegad->l_tilde; ++prec_lvl)
-	{
-		memset(phase_computed->ptr, 0, poly_biv_bytes(params_glwe));
-		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
-		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
-
-		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegad, prec_lvl)};
-		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
-		cr_assert(code == 0);
-		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
-
-		for (uint64_t p = 0; p < params_glwe->nn; p++)
-			phase_expected_univ_rnx[p] = ldexp((double)expected[p], -(params_glwegad->kappa_tilde * prec_lvl));
-
-		pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, max_err_length,
-		                                critical_err_length);
-	}
-
-	delete_biv(phase_computed);
-	delete_univ_rnx(phase_expected_univ_rnx);
-	delete_univ_rnx(phase_observed_univ_rnx);
 }

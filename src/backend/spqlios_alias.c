@@ -128,6 +128,23 @@ cleanup:
 	return status;
 }
 
+int pvda_vmp_apply_prepared_to_dft(const MODULE* module, VecBivDFT* res, const uint64_t res_size,
+                                   const VecBivDFT* a_dft, uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows,
+                                   const uint64_t ncols)
+{
+	int status         = -1;
+	uint8_t* tmp_space = malloc(vmp_apply_pvec_to_dft_tmp_bytes(module, res_size, a_size, nrows, ncols));
+	CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vmp_apply_dft_to_dft_p");
+
+	vmp_apply_pvec_to_dft(module, (VEC_ZNX_DFT*)res, res_size, (VMP_PVEC*)a_dft, a_size, (VMP_PMAT*)pmat, nrows, ncols,
+	                      tmp_space);
+
+	status = 0;
+cleanup:
+	free(tmp_space);
+	return status;
+}
+
 int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, PolyBiv* res, const PolyBiv* a)
 {
 	int status         = -1;
@@ -192,6 +209,19 @@ int pvda_vec_znx_rotate(const MODULE* module, const int64_t p, PolyBiv* res, con
 	return 0;
 }
 
+int pvda_vmp_prepare_vec(const MODULE* module, double* pvec, uint64_t nrows, const PolyBiv* a)
+{
+	int status = -1;
+
+	void* tmp_space = aligned_alloc(64, vmp_prepare_vector_tmp_bytes(module, nrows, a->l));
+	CHECK_ALLOC(tmp_space, "tmp space alloc failed in pvda_convolution_prepare");
+
+	vmp_prepare_vector(module, (VMP_PVEC*)pvec, nrows, a->ptr, a->l, a->stride, tmp_space);
+	status = 0;
+cleanup:
+	free(tmp_space);
+	return status;
+}
 /*
 int pvda_vec_rnx_negate(const MODULE* module, double* res, uint64_t res_size, uint64_t res_sl, const double* a,
                         uint64_t a_size, uint64_t a_sl)

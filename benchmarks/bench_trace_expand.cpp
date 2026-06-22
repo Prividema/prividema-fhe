@@ -4,6 +4,8 @@
 #include <cmath>
 #include <cstring>
 
+#include "utils.hpp"
+
 extern "C" {
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
@@ -21,7 +23,7 @@ extern "C" {
 
 #include "params.h"
 
-#define D 16
+#define D 16  //Number of non-zero coefficients in the GLWE to expand
 
 void test_expand_trace(benchmark::State& state)
 {
@@ -52,8 +54,7 @@ void test_expand_trace(benchmark::State& state)
 
 	memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
-	// Get the message in univariate RnX form for expected result
-	normal_random_vec(m_univ_rnx, bund, 0, 0.01);
+	rnx_random_vec(m_univ_rnx, params_glwe);
 
 	glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
 
@@ -70,7 +71,6 @@ void test_expand_trace(benchmark::State& state)
 		benchmark::DoNotOptimize(results);
 	}
 
-	int a = 1;
 	for (int i = 0; i < bund; ++i)
 	{
 		delete_glwe(results[i]);
@@ -142,7 +142,6 @@ void test_expand_compressed_trace(benchmark::State& state)
 	int bund = D;
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
-	// Get the message in univariate RnX form for expected result
 	uniform_random_pol_znx(m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);

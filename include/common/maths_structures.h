@@ -76,16 +76,35 @@ typedef double VecUnivDFT;
 // =============================================
 
 /**
- * @brief Represents a bivariate polynomial.
+ * @brief Typedef for the underlying data type of bivariate polynomials
+ *        Should not be used directly by the user in most cases
  */
 typedef int64_t PolyBivUnderlying;
 
+/**
+ * @brief Structure for bivariate polynomials and views thereof
+ *
+ *
+ * The following convention is used:
+ * - PolyBivs residing in the heap are proper polynomial. They are
+ *   to be created/destroyed with the new and delete functions, and they own
+ *   the underlying memory
+ * - PolyBivs residing in the stack are views, that is, refer to unowned memory.
+ *   They are either returned by value or creted directly on the stack by
+ *   the functions that use them.
+ *   No functions exist for creation/destruction, C scoping rules should be used.
+ *
+ * Vectors of bivariate polynomials are also represented using this structure.
+ * The depth is adjusted as needed for that reason.
+ */
 typedef struct poly_biv_t
 {
-	uint64_t nn;
-	uint64_t l;
-	int64_t stride;
-	PolyBivUnderlying* ptr;
+	uint64_t nn;     ///< The polynomial degree
+	uint64_t l;      ///< Depth of the bivariate polynomial, or, in the case of a vector of bivariate polynomials
+	                 ///< number of elements * depth of elements
+	int64_t stride;  ///< Stride (distance) betwween consecutive limbs of the bivariate polynomial, in elements.
+	                 ///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
+	PolyBivUnderlying* ptr;  ///< Pointer to the underlying data
 } PolyBiv;
 
 /**
@@ -102,6 +121,11 @@ typedef int64_t MatBiv;
  * @brief Represents a bivariate polynomial in the DFT domain.
  */
 typedef double PolyBivDFT;
+
+/**
+ * @brief Represents a bivariate polynomial in the DFT domain.
+ */
+typedef double PolyBivPrep;
 
 /**
  *  @brief Represents a bivariate polynomial vector in the DFT domain.

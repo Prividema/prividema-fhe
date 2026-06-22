@@ -105,11 +105,11 @@ int prepare_column(int64_t column, const GLWEParams* db_params, const GLWEGadget
 	{
 		if (columns_dft[0] == NULL)
 		{
-			columns_dft[0] = new_biv_poly_dft_custom_params(db_params->nn, total_depth);
+			columns_dft[0] = new_biv_dft_custom_params(db_params->nn, total_depth);
 			//Already memset to 0 at init time
 		}
 	}
-	PolyBivDFT* pos_biv_dft = new_biv_poly_dft_custom_params(db_params->nn, total_depth);
+	PolyBivDFT* pos_biv_dft = new_biv_dft_custom_params(db_params->nn, total_depth);
 	PolyBiv* pos_biv        = new_biv_custom_params(db_params->nn, total_depth);
 	columns_dft[column + 1] = pos_biv_dft;
 
@@ -157,17 +157,20 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	//Half products
 	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
 
-	PolyBivDFT* pos_biv_dft = new_biv_poly_dft_custom_params(db_params->nn, query1_params->l_tilde * MATRIX_ROWS);
-	PolyBiv* pos_biv        = new_biv_custom_params(db_params->nn, query1_params->l_tilde * MATRIX_ROWS);
+#define POS_BIV_PREP 32
+	PolyBivPrep* pos_biv_prep[POS_BIV_PREP];
+	for (int i = 0; i < POS_BIV_PREP; ++i)
+		pos_biv_prep[i] = new_biv_dft_custom_params(NBASE, query1_params->l_tilde * MATRIX_ROWS);
+	PolyBiv* pos_biv = new_biv_custom_params(NBASE, query1_params->l_tilde * MATRIX_ROWS);
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
 		onionpir_fill_column_with_matrix_position(db_params, pos_biv, c, query1_params->l_tilde, MATRIX_ROWS);
 		//if (PRINTPARTIAL) print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
-		//glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_dft);
-		//glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
-		glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
+		glwegadget_half_prod_dft_to_dft(module, tmp_glwe_dft, glwegad_trace, pos_biv_prep[c % POS_BIV_PREP]);
+		glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
+		//glwegadget_half_prod(module, glwe_tree[0][c], glwegad_trace, pos_biv);
 
 		if (PRINTPARTIAL)
 		{

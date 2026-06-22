@@ -98,6 +98,10 @@ int pvda_vmp_apply_dft(const MODULE* module, double* res, uint64_t res_size, con
 int pvda_vmp_apply_dft_to_dft(const MODULE* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
                               uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols);
 
+int pvda_vmp_apply_prepared_to_dft(const MODULE* module, VecBivDFT* res, const uint64_t res_size,
+                                   const VecBivDFT* a_dft, uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows,
+                                   const uint64_t ncols);
+
 void pvda_delete_vmp_pmat(double* pmat);
 
 int pvda_vec_znx_normalize_base2k(const MODULE* module, uint64_t log2_base2k, PolyBiv* res, const PolyBiv* a);
@@ -116,6 +120,8 @@ int pvda_vec_znx_automorphism(const MODULE* module, const int64_t p, PolyBiv* re
 int pvda_vec_znx_rotate(const MODULE* module, const int64_t p, PolyBiv* res, const PolyBiv* a);
 
 uint64_t pvda_module_extract_nn(const MODULE* module);
+
+int pvda_vmp_prepare_vec(const MODULE* module, double* pvec, uint64_t nrows, const PolyBiv* a);
 
 /**@}*/
 #endif
