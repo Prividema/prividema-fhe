@@ -75,7 +75,7 @@ accurately represent polynomial products.
 The backend will probably impose tighter bounds in most cases, yet the following should be true in all cases:
 
 \f[
-  2 \cdot (K-1) \cdot \log_2(N) < 63
+  2 \cdot (K-1) + \log_2(N) < 63
 \f]
 
 which results from the following inequality, itself the result of imposing that all coefficients of the
