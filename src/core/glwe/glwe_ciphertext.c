@@ -193,7 +193,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 			PolyBiv a_j = glwe_extract_poly_view(glwe, j);
 			pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_j);
 
-			// Undo DFT to retreive sk_j * a_j
+			// Undo DFT to retrieve sk_j * a_j
 			CHECK_CALL(pvda_vec_znx_idft(module, as_j, as_j_dft, l_a),
 			           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
 

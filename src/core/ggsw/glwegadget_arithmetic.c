@@ -32,8 +32,6 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params);
 	CHECK_ALLOC(glwe_dft, "Allocation failed in half-product");
 
-	//TODO: check if assertion is necessary
-	assert(a->l == nrows);
 	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, a, glwegadget_prep_ct->mat, nrows, ncols_in),
 	           "vmp apply falied in half product");
 
@@ -163,7 +161,6 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		CHECK_ALLOC(auto_tmp, "Allocation failed in automorphism");
 
 		// auto_tmp = auto_p(a)
-
 		PolyBiv a = glwe_extract_poly_view(glwe, 0);
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a);
 

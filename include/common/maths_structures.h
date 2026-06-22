@@ -90,7 +90,7 @@ typedef int64_t PolyBivUnderlying;
  *   to be created/destroyed with the new and delete functions, and they own
  *   the underlying memory
  * - PolyBivs residing in the stack are views, that is, refer to unowned memory.
- *   They are either returned by value or creted directly on the stack by
+ *   They are either returned by value or created directly on the stack by
  *   the functions that use them.
  *   No functions exist for creation/destruction, C scoping rules should be used.
  *
