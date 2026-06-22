@@ -54,6 +54,7 @@ PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l);
  * the base-2k decomposition have been sampled from a normal distribution according
  * to the parameters
  *
+ * @param params_glwe The GLWE parameters
  * @param result The result bivariate polynomial.
  *
  * @retval -1 if an error occurs
@@ -231,7 +232,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
  *
  * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
- * @param pol_tnx The univariate ZnX polynomial with coefficients in (-2^62, 2^62)
+ * @param pol_univ The univariate ZnX polynomial with coefficients in (-2^62, 2^62)
  * @param bit_offset How many times the input should be right-shifted (divided by 2).
  *
  * @retval -1 if an error occurs

@@ -72,7 +72,7 @@ int ggsw_unprepared_external_product(const MODULE* module, GLWECiphertext* resul
  * @param module Additionnal information for backend.
  * @param result The GLWE result ciphertext.
  * @param glwe   The GLWE input ciphertext.
- * @param ggsw   The GGSW input ciphertext.
+ * @param ggsw_prepared   The GGSW input ciphertext.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.

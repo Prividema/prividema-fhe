@@ -364,6 +364,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
 
 {
 	int status = -1;
+	// TODO: add assertion/case to check if result has l_tilde less than l_tilde itself
 	GLWECiphertext* results_glwe[res_size * l_tilde];
 	memset((uint8_t*)results_glwe, 0, sizeof(results_glwe));
 	int64_t k = (int64_t)packed_glwegadget->params->k;
