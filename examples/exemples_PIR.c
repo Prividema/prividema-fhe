@@ -42,8 +42,10 @@
 
 #define PRINTPARTIAL       (0)
 
+//Global vairable for debugging
 GLWESecretKeyPrepared* dbg_key = NULL;
 
+// Bivariate polynomial print funciton for both debugging and the example
 void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
 {
 	for (int l = 0; l < max_l && l < biv->l; ++l)
@@ -58,6 +60,9 @@ void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
 	}
 }
 
+// Function that generates the data for a certain matrix position
+// Replace with desired placeholder for the example, or with acual data
+// when going to production
 int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t row,
                                                  int64_t column)
 {
@@ -78,6 +83,7 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 	return 0;
 }
 
+// Creates a matrix-column bivariate polynomial by generating each of its elements and concatenating them
 int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t column,
                                               int64_t biv_depth, int64_t rows)
 {
@@ -90,18 +96,25 @@ int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, Pol
 	}
 }
 
+// Prepared column variable
+// In a real use case, this would not exist and we would instead use a
+// memory map of some kind
 PolyBivDFT* columns_dft[IN_MEMORY_DFT_COLS + 1] = {0};
 
-PolyBivDFT* onionpir_get_dft_column(int64_t column)
+// Retrieve a prepared column. This would be simple pointer arithmetic
+// to an mmaped file in disk in a real usecase
+PolyBivDFT* onionpir_get_prepared_column(int64_t column)
 {
 	if (column >= IN_MEMORY_DFT_COLS) return columns_dft[0];
 	return columns_dft[column + 1];
 }
 
+// Function to pre-process some of the rows of the database
+// For the example, only the first IN_MEMORY_DFT_COLS are pre-processed for memory limitation reasons
 int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_params,
                    const GLWEGadgetParams* query1_params)
 {
-	// assert(query1_params->l_tilde == db_params->);
+	assert(query1_params->l_tilde == glwe_params_l_a(db_params));
 	uint64_t total_depth = query1_params->l_tilde * MATRIX_ROWS;
 	if (column >= IN_MEMORY_DFT_COLS)
 	{
@@ -122,10 +135,12 @@ int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_pa
 	                           MATRIX_ROWS * db_params->ciphertext_nb_limbs};
 
 	biv_coefs_to_prep(module, &total_params, pos_biv_dft, pos_biv);
-
 	delete_biv(pos_biv);
 }
 
+// Performs the server tasks in OnionPIR: receive the packed GLWEGadgets,
+// unpack them (expand them), do the Half-product per each column, and finally
+// select a column with the CMux tree
 int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, const GLWEGadgetParams* query1_params,
                     const GLWEParams* db_params, const GLWEParams* aggregation_params,
                     const GLWEAutomorphismKSKCollection* ksks, const GGSWCiphertextPrep** ggsw_ksks,
@@ -144,45 +159,14 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 	int st = packed_glwegadget_trace_expand_prepared_single(module, glwegad_trace, query1_params, MATRIX_ROWS,
 	                                                        L_TILDE_Q1, row_query, ksks);
-	//packed_glwegadget_trace_expand_prepared(module, glwegad_trace, MATRIX_ROWS, 3, row_query, ksks);
-
-	if (PRINTPARTIAL)  //Debugging info
-	{
-		GLWEGadgetCiphertext** glwegad_trace_unprep =
-		    (GLWEGadgetCiphertext**)calloc(MATRIX_ROWS, sizeof(GLWEGadgetCiphertext*));
-		for (int i = 0; i < MATRIX_ROWS; ++i) glwegad_trace_unprep[i] = new_glwegadget(query1_params);
-		st = packed_glwegadget_trace_expand(module, glwegad_trace_unprep, MATRIX_ROWS, 4, row_query, ksks);
-
-		printf("Unprep 0: ");
-		print_coefs_gad(module, glwegad_trace_unprep[0], dbg_key, 4 * MATRIX_ROWS);
-		printf("\n");
-
-		printf("Unprep : ");
-		print_coefs_gad(module, glwegad_trace_unprep[18], dbg_key, 4 * MATRIX_ROWS);
-		printf("\n");
-
-		for (int i = 0; i < MATRIX_ROWS; ++i) delete_glwegadget(glwegad_trace_unprep[i]);
-	}
-
 	//Half products
 	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
-
-	PolyBiv* pos_biv = new_biv_custom_params(NBASE, query1_params->l_tilde * MATRIX_ROWS);
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
-		//if (PRINTPARTIAL) print_coefs_biv(pos_biv, 4, query1_params->l_tilde * MATRIX_ROWS);
-		glwegadget_half_prod_prepared_to_dft(module, tmp_glwe_dft, glwegad_trace,
-		                                     columns_dft[c >= IN_MEMORY_DFT_COLS ? 0 : c % IN_MEMORY_DFT_COLS + 1]);
+		glwegadget_half_prod_prepared_to_dft(module, tmp_glwe_dft, glwegad_trace, onionpir_get_prepared_column(c));
 		glwe_dft_to_coef(module, glwe_tree[0][c], tmp_glwe_dft);
-
-		if (PRINTPARTIAL)
-		{
-			printf("Column %d: ", c);
-			print_coefs_glwe(module, glwe_tree[0][c], dbg_key, 4, SHFT_AMT);
-			printf("\n");
-		}
 	}
 	struct timespec server_end;
 	clock_gettime(CLOCK_REALTIME, &server_end);
@@ -190,6 +174,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	double ms_elapsed =
 	    (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000;
 	printf("HP elapsed time: %.2f ms\n", ms_elapsed);
+
 	delete_glwegadget_prep(glwegad_trace);
 
 	GGSWCiphertextPrep* ggsw_trace[LOG2_COLS] = {0};
@@ -205,9 +190,11 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	{
 		delete_ggsw_prep(ggsw_trace[i]);
 	}
+	delete_glwegadget_params(mega_params);
 	return 0;
 }
 
+// Setup phase for the client in the protocol: secret and evaluation key generation
 int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, int sk_bits, GLWEParams* sk_params,
                            GLWEAutomorphismKSKCollection** ksks_out, const GLWEGadgetParams* auto_ksk_params,
                            GGSWCiphertextPrep*** ggsw_ksks_out, const GGSWParams* auto_ggsw_params)
@@ -248,6 +235,8 @@ cleanup:
 	return status;
 }
 
+// Initial client phase: generate the row and column packed GLWEGadgets according to the
+// desired row and column to select
 int onionpir_client_phase1(const MODULE* module, GLWECiphertext** row_query, GLWECiphertext** col_query,
                            const GLWESecretKeyPrepared* sk_prep, int row, int column,
                            const GLWEParams* params_row_query, const GLWEParams* params_col_query,
