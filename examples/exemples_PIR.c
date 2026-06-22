@@ -26,19 +26,21 @@
 
 // #define MATRIX_COLS 16384
 // #define LOG2_COLS   14
-#define MATRIX_COLS  256
-#define LOG2_COLS    8
-#define MATRIX_ROWS  1024
+#define MATRIX_COLS        256
+#define LOG2_COLS          8
+#define MATRIX_ROWS        1024
 
-#define NBASE        (1 << 12)
-#define KBASE        1
-#define KAPPABASE    18
+#define IN_MEMORY_DFT_COLS 128
 
-#define SHFT_AMT     10
+#define NBASE              (1 << 12)
+#define KBASE              1
+#define KAPPABASE          18
 
-#define L_TILDE_Q1   4
+#define SHFT_AMT           10
 
-#define PRINTPARTIAL (0)
+#define L_TILDE_Q1         4
+
+#define PRINTPARTIAL       (0)
 
 GLWESecretKeyPrepared* dbg_key = NULL;
 
@@ -86,6 +88,32 @@ int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, Pol
 		PolyBiv rowbiv = {biv->nn, biv_depth, biv->nn, biv->ptr + (biv_depth * biv->nn) * i};
 		onionpir_fill_bivariate_with_matrix_position(params_glwe, &rowbiv, i, column);
 	}
+}
+
+PolyBivDFT* columns_dft[IN_MEMORY_DFT_COLS + 1] = {0};
+
+PolyBivDFT* onionpir_get_dft_column(int64_t column)
+{
+	if (column >= IN_MEMORY_DFT_COLS) return columns_dft[0];
+	return columns_dft[column + 1];
+}
+
+int prepare_column(int64_t column, const GLWEParams* db_params, const GLWEGadgetParams* query1_params)
+{
+	uint64_t total_depth = query1_params->l_tilde * MATRIX_ROWS;
+	if (column >= IN_MEMORY_DFT_COLS)
+	{
+		if (columns_dft[0] == NULL)
+		{
+			columns_dft[0] = new_biv_poly_dft_custom_params(db_params->nn, total_depth);
+			//Already memset to 0 at init time
+		}
+	}
+	PolyBivDFT* pos_biv_dft = new_biv_poly_dft_custom_params(db_params->nn, total_depth);
+	PolyBiv* pos_biv        = new_biv_custom_params(db_params->nn, total_depth);
+	columns_dft[column + 1] = pos_biv_dft;
+
+	//biv_coefs_to_dft(module, , PolyBivDFT *res_dft, const PolyBiv *a)
 }
 
 int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, const GLWEGadgetParams* query1_params,
@@ -161,8 +189,6 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, ggsw_ksk_params, LOG2_COLS,
 	                                             ggsw_params_l_tilde_a(ggsw_ksk_params), col_query, ksks,
 	                                             (const GGSWCiphertextPrep**)ggsw_ksks);
-
-	////CMux tree
 
 	tfhe_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree[0], MATRIX_COLS,
 	               (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
