@@ -4,12 +4,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "bivariate_polynomial.h"
 #include "rng.h"
 
 int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv* a)
 {
 	uint64_t nn   = pvda_module_extract_nn(module);
-	PolyBiv a_biv = {nn, 1, (int64_t)nn, a};
+	PolyBiv a_biv = new_biv_view(nn, 1, nn, a);
 	pvda_vec_znx_dft(module, res_dft, 1, &a_biv);
 	return 0;
 }
@@ -17,7 +18,7 @@ int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv
 int univ_dft_to_coefs(const MODULE* module, PolyUniv* res, const PolyUnivDFT* a_dft)
 {
 	uint64_t nn     = pvda_module_extract_nn(module);
-	PolyBiv res_biv = {nn, 1, nn, res};
+	PolyBiv res_biv = new_biv_view(nn, 1, nn, res);
 	return pvda_vec_znx_idft(module, &res_biv, a_dft, 1);
 }
 

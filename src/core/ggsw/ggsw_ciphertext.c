@@ -58,8 +58,8 @@ VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t p
 
 PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
 {
-	PolyBiv res = {ggsw_ct->params->params_glwe->nn, ggsw_total_n_glwe_limbs(ggsw_ct->params),
-	               (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat};
+	PolyBiv res = new_biv_view(ggsw_ct->params->params_glwe->nn, ggsw_total_n_glwe_limbs(ggsw_ct->params),
+	                           (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat);
 	return res;
 }
 int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
@@ -102,8 +102,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 			if (j < params_glwe->k)
 			{
 				// Computes DFT(msg * sk_j)
-				mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_prepared_sk_extract_poly_dft(sk_prep, j), 1,
-				                 m_univ_dft, 1);
+				pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, glwe_prepared_sk_extract_poly_dft(sk_prep, j),
+				                          m_univ_dft, 1);
 
 				// Computes -DFT(msg * sk_j)
 				for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];

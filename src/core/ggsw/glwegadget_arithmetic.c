@@ -179,7 +179,6 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 		CHECK_ALLOC(auto_tmp, "Allocation failed in automorphism");
 
 		// auto_tmp = auto_p(a)
-
 		PolyBiv a = glwe_extract_poly_view(glwe, 0);
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a);
 
@@ -380,6 +379,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
 
 {
 	int status = -1;
+	// TODO: add assertion/case to check if result has l_tilde less than l_tilde itself
 	GLWECiphertext* results_glwe[res_size * l_tilde];
 	memset((uint8_t*)results_glwe, 0, sizeof(results_glwe));
 	int64_t k = (int64_t)packed_glwegadget->params->k;

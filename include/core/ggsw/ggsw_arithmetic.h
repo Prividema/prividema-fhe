@@ -72,7 +72,7 @@ int ggsw_unprepared_external_product(const MODULE* module, GLWECiphertext* resul
  * @param module Additionnal information for backend.
  * @param result The GLWE result ciphertext.
  * @param glwe   The GLWE input ciphertext.
- * @param ggsw   The GGSW input ciphertext.
+ * @param ggsw_prepared   The GGSW input ciphertext.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
@@ -104,7 +104,7 @@ int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GL
  * @param l_tilde            The l_tilde with which the packed GLWEGadget was packed
  * @param packed_glwegadget  The packed GLWEGadget
  * @param auto_ksks          The KSK collection for trace expansion automorphisms
- * @param sk_encryptions     An array of pointers to encryptions to GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
+ * @param sk_encryptions     An array of pointers to encryptions of GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise

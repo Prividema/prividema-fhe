@@ -90,12 +90,18 @@ typedef int64_t PolyBivUnderlying;
  *   to be created/destroyed with the new and delete functions, and they own
  *   the underlying memory
  * - PolyBivs residing in the stack are views, that is, refer to unowned memory.
- *   They are either returned by value or creted directly on the stack by
+ *   They are either returned by value or created directly on the stack by
  *   the functions that use them.
  *   No functions exist for creation/destruction, C scoping rules should be used.
  *
  * Vectors of bivariate polynomials are also represented using this structure.
  * The depth is adjusted as needed for that reason.
+ *
+ * As a general rule, and for a less technical explanation:
+ *  - If we want a bivariate polynomial, most of the time use PolyBiv* and constructor/destructor
+ *  - If we want a view to a bivariate polynomial (probably one of the a_is of a GLWE), then have a Polybiv that resides on the stack that acts as a view.
+ *    Use the extract functions to get said object, and do not use delete_biv on them
+ *
  */
 typedef struct poly_biv_t
 {
@@ -108,7 +114,7 @@ typedef struct poly_biv_t
 } PolyBiv;
 
 /**
- * @brief Represents a bivariate polynomial vector (flattened).
+ * @brief Represents a bivariate polynomial vector (flattened). In process of being deprecated in favour of PolyBiv.
  */
 typedef int64_t VecBiv;
 
