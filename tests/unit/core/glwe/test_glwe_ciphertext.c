@@ -6,6 +6,7 @@
 #include "core/glwe/glwe_ciphertext.h"
 #include "glwe_arithmetic.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -268,6 +269,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 	PolyUnivDFT* u_dft          = new_univ_dft(module);
 	PolyUniv* prod_expected     = new_univ(params_glwe);
 
+	uint64_t nn = params_glwe->nn;
 	//! Draws input variables
 	// Draws uniformly the bivGLWE ciphertext in the DFT domain
 	uniform_random_vec_znx_dft(module, glwe_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
@@ -277,8 +279,8 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, glwe_ct->vec, glwe_params_n_limbs(params_glwe), glwe_dft->vec,
-	                  glwe_params_n_limbs(params_glwe));
+	PolyBiv glwe_flattened = glwe_flattened_biv(glwe_ct);
+	pvda_vec_znx_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);
@@ -287,15 +289,15 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	pvda_vec_znx_idft(module, prod->vec, glwe_params_n_limbs(params_glwe), prod_computed_dft->vec,
-	                  glwe_params_n_limbs(params_glwe));
+	PolyBiv prod_flattened = glwe_flattened_biv(prod);
+	pvda_vec_znx_idft(module, &prod_flattened, prod_computed_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
 	for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 	{
 		uint64_t j        = (ij % (params_glwe->k + 1));
 		uint64_t i        = ij / (params_glwe->k + 1) + 1;
-		PolyUniv* glwe_ij = glwe_ct->vec + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
+		PolyUniv* glwe_ij = glwe_ct->vec + (i - 1) * (params_glwe->k + 1) * nn + j * nn;
 		pvda_znx_small_product(module, prod_expected, u, glwe_ij);
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{

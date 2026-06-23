@@ -44,7 +44,7 @@ void bench_enc_dec_rnx(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	free(result_biv);
+	delete_biv(result_biv);
 	delete_univ_rnx(result_univ);
 }
 

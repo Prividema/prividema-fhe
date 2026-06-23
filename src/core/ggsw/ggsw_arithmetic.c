@@ -14,6 +14,7 @@
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
@@ -51,10 +52,11 @@ cleanup:
 
 void add_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs)
 {
-	uint64_t nn = res->params->params_glwe->nn;
-	pvda_vec_znx_add(module, res->mat, ggsw_total_n_glwe_limbs(res->params), nn, ggsw_lhs->mat,
-	                 ggsw_total_n_glwe_limbs(ggsw_lhs->params), nn, ggsw_rhs->mat,
-	                 ggsw_total_n_glwe_limbs(ggsw_rhs->params), nn);
+	uint64_t nn           = res->params->params_glwe->nn;
+	PolyBiv res_flattened = ggsw_flattened_biv(res);
+	PolyBiv lhs_flattened = ggsw_flattened_biv(ggsw_lhs);
+	PolyBiv rhs_flattened = ggsw_flattened_biv(ggsw_rhs);
+	pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft)
@@ -74,10 +76,12 @@ int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiph
 
 	CHECK_ALLOC(ggsw_tmp_prep, "alloc in const_mult_ggsw");
 
-	pvda_svp_apply_dft(module, ggsw_tmp_prep->mat, mat_size, u_dft, ggsw->mat, mat_size, nn);
+	PolyBiv ggsw_flattened = ggsw_flattened_biv(ggsw);
+	pvda_svp_apply_dft(module, ggsw_tmp_prep->mat, mat_size, u_dft, &ggsw_flattened);
 
 	// Go back to Zn[X,Y]
-	CHECK_CALL(pvda_vec_znx_idft(module, result->mat, mat_size, ggsw_tmp_prep->mat, mat_size),
+	PolyBiv result_flattened = ggsw_flattened_biv(result);
+	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, ggsw_tmp_prep->mat, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw");
 
 	status = 0;
@@ -97,12 +101,10 @@ int ggsw_unprepared_external_product(const MODULE* module,
 	int status = -1;
 
 	uint64_t nn = result->params->nn;
-	// The bivGGSW ciphertext ggsw is a prepared matrix in Mat(Zn[X]) of size n_limbs_tilde * n_limbs
-	// The bivGLWE ciphertext glwe is a prepared vector in Vec(Zn[X]) of size n_limbs_tilde
-	// As the result of the vector-matrix product glwe * ggsw,
-	// the bivGLWE ciphertext res is a prepared vector in Vec(Zn[X]) of size n_limbs
-	uint64_t nrows = ggsw_num_rows(ggsw->params);
-	uint64_t ncols = glwe_params_n_limbs(ggsw->params->params_glwe);
+
+	uint64_t nrows     = ggsw_num_rows(ggsw->params);
+	uint64_t ncols_in  = glwe_params_n_limbs(ggsw->params->params_glwe);
+	uint64_t ncols_out = glwe_params_n_limbs(result->params);
 
 	MatBivDFT* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
 	VecBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
@@ -110,17 +112,17 @@ int ggsw_unprepared_external_product(const MODULE* module,
 	result_dft            = malloc(glwe_params_bytes(ggsw->params->params_glwe));
 
 	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
-
 	CHECK_ALLOC(result_dft, "result's malloc failed in ggsw_external_product");
 
-	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols_in),
 	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
-	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols, glwe->vec, glwe->params->ciphertext_nb_limbs, nn,
-	                              ggsw_pmat, nrows, ncols),
+	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
+	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols_out, &glwe_flattened, ggsw_pmat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
-	CHECK_CALL(pvda_vec_znx_idft(module, result->vec, ncols, result_dft, ncols),
+	PolyBiv result_flattened = glwe_flattened_biv(result);
+	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, result_dft, ncols_out),
 	           "vec_znx_idft_p failed in ggsw_external_product");
 
 	status = 0;
@@ -141,8 +143,8 @@ int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result
 	size_t ncols_in  = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(result->params);
 
-	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, ncols_out, glwe->vec, glwe->params->ciphertext_nb_limbs, nn,
-	                              ggsw_prepared->mat, nrows, ncols_in),
+	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
+	CHECK_CALL(pvda_vmp_apply_dft(module, result->vec, ncols_out, &glwe_flattened, ggsw_prepared->mat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
 	status = 0;

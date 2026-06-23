@@ -87,7 +87,7 @@ PvdaParamTest(tfhe_cmux, without_error, default_params_fn)
 
 	delete_ggsw(ggsw);
 
-	free(res_biv);
+	delete_biv(res_biv);
 	delete_univ_tnx(res_tnx);
 	delete_univ(m_sel);
 

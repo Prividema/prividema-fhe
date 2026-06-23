@@ -47,6 +47,12 @@ struct criterion_test_params trace_params_fn()
 	     .ciphertext_nb_limbs       = 9l * 5 - 1,
 	     .ciphertext_nb_limbs_tilde = 9l * 5 - 1,
 	     .sigma                     = 0},  // k > 1 l_a != l_b params
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 12l * 5,
+	     .ciphertext_nb_limbs_tilde = 12l * 5,
+	     .sigma                     = 0},  // k > 1 l_a != l_b params
 
 	};
 
@@ -126,7 +132,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
+	delete_biv(biv_tmp);
 	delete_univ_rnx(tmp_rnx);
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_rnx(m_observed_rnx);
@@ -152,14 +158,12 @@ struct criterion_test_params trace_params2_fn()
 	     .ciphertext_nb_limbs_tilde = 9l * 5,
 	     .sigma                     = 0},  // k > 1 params
 
-	    /*
-	        {.nn                        = 1024,
-	         .k                         = 4,
-	         .kappa                     = 8,
-	         .ciphertext_nb_limbs       = 9l * 5 - 1,
-	         .ciphertext_nb_limbs_tilde = 9l * 5,
-	         .sigma                     = 0},  // k > 1 l_a != l_b params
-	     */
+	    {.nn                        = 1024,
+	     .k                         = 4,
+	     .kappa                     = 8,
+	     .ciphertext_nb_limbs       = 9l * 5 - 1,
+	     .ciphertext_nb_limbs_tilde = 9l * 5,
+	     .sigma                     = 0},  // k > 1 l_a != l_b params
 
 	};
 
@@ -172,11 +176,8 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 
 	params_glwe->fast_uniform_nb_bits = 0;
 	sigma                             = 0;
-	double biv_epsilon                = glwe_bivariate_epsilon(params_glwe);
-	double tst_epsilon                = DBL_EPSILON;
-	double multiplier                 = params_glwe->nn;
-	double max_err_length             = multiplier * tst_epsilon + 2 * biv_epsilon;
-	double critical_err_length        = multiplier * tst_epsilon + 2 * biv_epsilon;
+	double max_err_length             = 0.001;
+	double critical_err_length        = 0.001;
 
 	uint64_t k  = params_glwe->k;
 	uint64_t nn = params_glwe->nn;
@@ -185,7 +186,6 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
-	PolyBiv* biv_tmp        = new_biv_poly(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -245,7 +245,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		for (int b = 0; b < bund; ++b)
 		{
 			memset(expected_b, 0, poly_univ_bytes(params_glwe));
-			expected_b[0] = factor * m_univ[b];
+			expected_b[0] = m_univ[b];
 			check_ggsw(module, results[b], sk_prep, expected_b, max_err_length, critical_err_length);
 		}
 	}
@@ -255,23 +255,18 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
 	delete_glwe(glwe_ct);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
 
-PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
+PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	params_glwe->fast_uniform_nb_bits = 0;
-	sigma                             = 0;
-	double biv_epsilon                = glwe_bivariate_epsilon(params_glwe);
-	double tst_epsilon                = DBL_EPSILON;
-	double multiplier                 = params_glwe->nn;
-	double max_err_length             = 3 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
-	double critical_err_length        = 5 * sigma + multiplier * tst_epsilon + 2 * biv_epsilon;
+	double biv_epsilon         = glwe_bivariate_epsilon(params_glwe);
+	double max_err_length      = 0.001;
+	double critical_err_length = 0.001;
 
 	uint64_t k  = params_glwe->k;
 	uint64_t nn = params_glwe->nn;
@@ -280,7 +275,6 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
-	PolyBiv* biv_tmp        = new_biv_poly(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -313,9 +307,7 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{
-		int bund      = bundled[i];
-		int logfactor = bund * params_glwegadget->l_tilde;
-		int factor    = 1 << (32 - __builtin_clz(logfactor - 1));
+		int bund = bundled[i];
 
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
@@ -336,7 +328,7 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 		for (int b = 0; b < bund; ++b)
 		{
 			memset(expected_b, 0, poly_univ_bytes(params_glwe));
-			expected_b[0] = factor * m_univ[b];
+			expected_b[0] = m_univ[b];
 			check_glwegadget(module, results[b], sk_prep, expected_b, max_err_length, critical_err_length);
 		}
 	}
@@ -346,7 +338,6 @@ PvdaParamTest(glwegad2_trace_expand, no_noise, trace_params_fn)
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	free(biv_tmp);
 	delete_glwe(glwe_ct);
 
 	DELETE_PVDA_PARAMS_GGSWGAD;

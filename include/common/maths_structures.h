@@ -76,12 +76,45 @@ typedef double VecUnivDFT;
 // =============================================
 
 /**
- * @brief Represents a bivariate polynomial.
+ * @brief Typedef for the underlying data type of bivariate polynomials
+ *        Should not be used directly by the user in most cases
  */
-typedef int64_t PolyBiv;
+typedef int64_t PolyBivUnderlying;
 
 /**
- * @brief Represents a bivariate polynomial vector (flattened).
+ * @brief Structure for bivariate polynomials and views thereof
+ *
+ *
+ * The following convention is used:
+ * - PolyBivs residing in the heap are proper polynomial. They are
+ *   to be created/destroyed with the new and delete functions, and they own
+ *   the underlying memory
+ * - PolyBivs residing in the stack are views, that is, refer to unowned memory.
+ *   They are either returned by value or created directly on the stack by
+ *   the functions that use them.
+ *   No functions exist for creation/destruction, C scoping rules should be used.
+ *
+ * Vectors of bivariate polynomials are also represented using this structure.
+ * The depth is adjusted as needed for that reason.
+ *
+ * As a general rule, and for a less technical explanation:
+ *  - If we want a bivariate polynomial, most of the time use PolyBiv* and constructor/destructor
+ *  - If we want a view to a bivariate polynomial (probably one of the a_is of a GLWE), then have a Polybiv that resides on the stack that acts as a view.
+ *    Use the extract functions to get said object, and do not use delete_biv on them
+ *
+ */
+typedef struct poly_biv_t
+{
+	uint64_t nn;     ///< The polynomial degree
+	uint64_t l;      ///< Depth of the bivariate polynomial, or, in the case of a vector of bivariate polynomials
+	                 ///< number of elements * depth of elements
+	int64_t stride;  ///< Stride (distance) betwween consecutive limbs of the bivariate polynomial, in elements.
+	                 ///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
+	PolyBivUnderlying* ptr;  ///< Pointer to the underlying data
+} PolyBiv;
+
+/**
+ * @brief Represents a bivariate polynomial vector (flattened). In process of being deprecated in favour of PolyBiv.
  */
 typedef int64_t VecBiv;
 
@@ -115,21 +148,8 @@ typedef double MatBivDFT;
  * @brief Prints a Bivariate Polynomial.
  *
  * @param pol     A Pointer to the Bivariate Polynomial.
- * @param pol_sl  The stride length : The step to jump from the beginning to the next polynomial.
- * @param nn      The degree of the chosen cyclotomic polynomial.
- * @param l       The degree in Y.
  */
-void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t nn, int64_t l);
-
-/**
- * @brief Prints a Vector of Bivariate Polynomial such as a bivGLWE ciphertext.
- *
- * @param pols          A Pointer to the vector.
- * @param pols_size     The size of the vector.
- * @param nn             The degree of the chosen cyclotomic polynomial.
- * @param l             The degree in Y.
- */
-void printf_vec_poly_biv(VecBiv* pols, int64_t pols_size, int64_t nn, int64_t l);
+void printf_poly_biv(PolyBiv* pol);
 
 /**
  * @brief Prints a Univariate Polynomial in \f$\mathbb{Z}_n[X]\f$.

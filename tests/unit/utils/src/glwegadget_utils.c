@@ -20,7 +20,7 @@ void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad,
 
 	for (uint64_t prec_lvl = 1; prec_lvl < params_glwegad->l_tilde; ++prec_lvl)
 	{
-		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
+		memset(phase_computed->ptr, 0, poly_biv_bytes(params_glwe));
 		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
 		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
@@ -36,7 +36,7 @@ void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad,
 		                                critical_err);
 	}
 
-	free(phase_computed);
+	delete_biv(phase_computed);
 	delete_univ_rnx(phase_expected_univ_rnx);
 	delete_univ_rnx(phase_observed_univ_rnx);
 }

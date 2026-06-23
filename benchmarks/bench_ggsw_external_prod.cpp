@@ -52,7 +52,7 @@ void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 	delete_glwe(glwe_input);
 	delete_glwe(glwe_computed);
 	delete_ggsw(ggsw);
-	free(result_biv);
+	delete_biv(result_biv);
 	delete_univ_rnx(result_univ);
 	delete_univ_rnx(m_glwe);
 
@@ -104,7 +104,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 	delete_glwe(glwe_computed);
 	delete_ggsw(ggsw);
 	delete_ggsw_prep(ggsw_prepared);
-	free(result_biv);
+	delete_biv(result_biv);
 	delete_univ_rnx(result_univ);
 	delete_univ_rnx(m_glwe);
 

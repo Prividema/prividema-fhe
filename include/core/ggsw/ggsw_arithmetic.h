@@ -72,7 +72,7 @@ int ggsw_unprepared_external_product(const MODULE* module, GLWECiphertext* resul
  * @param module Additionnal information for backend.
  * @param result The GLWE result ciphertext.
  * @param glwe   The GLWE input ciphertext.
- * @param ggsw   The GGSW input ciphertext.
+ * @param ggsw_prepared   The GGSW input ciphertext.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
@@ -98,15 +98,16 @@ int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GL
  * @brief Expands a packed GLWEGadget into a set of corresponding GGSWs
  *
  *
- * @param module The backend module
- * @param results An array with pointers to the res_size output GGSWs
- * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GGSWs.
-he amount of packed GLWEGadgets/output GGSWs
- * @param l_tilde The l_tilde with which the packed GLWEGadget was packed
- * @param packed_glwegadget The packed GLWEGadget
- * @param auto_ksks The KSK collection for trace expansion automorphisms
- * @param sk_encryptions An array of pointers to encryptions to GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
+ * @param module             The backend module
+ * @param results            An array with pointers to the res_size output GGSWs
+ * @param res_size           The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GGSWs.
+ * @param l_tilde            The l_tilde with which the packed GLWEGadget was packed
+ * @param packed_glwegadget  The packed GLWEGadget
+ * @param auto_ksks          The KSK collection for trace expansion automorphisms
+ * @param sk_encryptions     An array of pointers to encryptions of GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
@@ -140,6 +141,8 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
  *       it will deallocate the elements of the unprepared trace that it no longer requires. Therefore, the peak memory
  *       consumption will be the size of a trace plus one element (the one being prepared) instead of two traces (one prepared, one unprepared).
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results, int res_size,
                                                  int l_tilde, const GLWECiphertext* packed_glwegadget,

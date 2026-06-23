@@ -14,7 +14,7 @@ set(GLWE_SRCS
 )
 
 # Create a shared library named GLWE
-add_library(PVDA_GLWE SHARED ${GLWE_SRCS})
+add_library(PVDA_GLWE ${GLWE_SRCS})
 
 # Set the output library name explicitly
 set_target_properties(PVDA_GLWE PROPERTIES OUTPUT_NAME pvdaglwe)

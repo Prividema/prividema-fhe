@@ -9,6 +9,7 @@
 #include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
@@ -55,6 +56,12 @@ VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t p
 	return ggsw_ct->mat + ((prec_lvl - 1) * (k_tilde + 1) + sk_idx) * glwe_coef_number(params_glwe);
 }
 
+PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
+{
+	PolyBiv res = new_biv_view(ggsw_ct->params->params_glwe->nn, ggsw_total_n_glwe_limbs(ggsw_ct->params),
+	                           (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat);
+	return res;
+}
 int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ)
 {
@@ -125,7 +132,7 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	status = 0;
 
 cleanup:
-	free(glwe_biv_msg);
+	delete_biv(glwe_biv_msg);
 	delete_univ_dft(m_skj_univ_dft);
 	delete_univ(m_skj_univ);
 	delete_univ_dft(m_univ_dft);

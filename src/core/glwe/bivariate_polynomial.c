@@ -20,19 +20,51 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_param
 
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe)
 {
-	PolyBiv* pol = calloc(poly_biv_coef_number(params_glwe), sizeof(int64_t));
+	PolyBiv* pol = malloc(sizeof(PolyBiv));
 	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
+
+	pol->nn     = params_glwe->nn;
+	pol->l      = glwe_params_l_a(params_glwe);
+	pol->stride = (int64_t)pol->nn;
+	pol->ptr    = calloc(pol->l * pol->nn, sizeof(int64_t));
+	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
 	return pol;
 cleanup:
+	if (pol) free(pol->ptr);
+	free(pol);
 	return NULL;
+}
+
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr)
+{
+	PolyBiv r = {nn, l, stride, ptr};
+	return r;
+}
+
+void delete_biv(PolyBiv* biv)
+{
+	if (biv)
+	{
+		free(biv->ptr);
+		biv->ptr = NULL;
+	}
+	free(biv);
 }
 
 PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l)
 {
-	PolyBiv* pol = calloc(params_glwe->nn * biv_l, sizeof(int64_t));
+	PolyBiv* pol = malloc(sizeof(PolyBiv));
 	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
+
+	pol->nn     = params_glwe->nn;
+	pol->l      = biv_l;
+	pol->stride = (int64_t)pol->nn;
+	pol->ptr    = calloc(pol->l * pol->nn, sizeof(int64_t));
+	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
 	return pol;
 cleanup:
+	if (pol) free(pol->ptr);
+	free(pol);
 	return NULL;
 }
 
@@ -61,9 +93,9 @@ int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int6
 {
 	int status = -1;
 
-	for (uint64_t i = 1; i <= precision; i++)
-		for (uint64_t p = 0; p < params_glwe->nn; p++)
-			CHECK_CALL(rand_uniform(result + (i - 1) * params_glwe->nn + p, params_glwe->kappa),
+	for (uint64_t i = 0; i < precision; i++)
+		for (uint64_t p = 0; p < result->nn; p++)
+			CHECK_CALL(rand_uniform(result->ptr + i * result->stride + p, params_glwe->kappa),
 			           "rand_uniform failed in uniform_random_biv_poly.");
 
 	status = 0;
@@ -75,9 +107,7 @@ cleanup:
 
 void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
 {
-	uint64_t nn  = params_glwe->nn;
-	uint64_t l_a = glwe_params_l_a(params_glwe);
-	pvda_vec_znx_add(module, res, l_a, nn, a, l_a, nn, b, l_a, nn);
+	pvda_vec_znx_add(module, res, a, b);
 }
 
 int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
@@ -98,12 +128,15 @@ int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, 
 		log_message(LOG_WARN, "Using error/noise with stdev 0");
 		memset(err, 0, nn * sizeof(int64_t));
 	}
-	PolyUniv* last_limb_res = res + nn * (glwe_params_l_a(params_glwe) - 1);
-	PolyUniv* last_limb_a   = a + nn * (glwe_params_l_a(params_glwe) - 1);
+	int64_t l_a           = glwe_params_l_a(params_glwe);
+	PolyBiv last_limb_res = new_biv_view(nn, 1, nn, res->ptr + nn * (l_a - 1));
+	PolyBiv last_limb_a   = new_biv_view(nn, 1, nn, a->ptr + nn * (l_a - 1));
+	PolyBiv err_biv       = new_biv_view(nn, 1, nn, err);
 
-	if (res != a) memcpy(res, a, poly_biv_bytes(params_glwe));
+	//TODO: this does not work for strided PolyBiv
+	if (res != a) memcpy(res->ptr, a->ptr, poly_biv_bytes(params_glwe));
 
-	pvda_vec_znx_add(module, last_limb_res, 1, nn, last_limb_a, 1, nn, err, 1, nn);
+	pvda_vec_znx_add(module, &last_limb_res, &last_limb_a, &err_biv);
 
 	status = 0;
 cleanup:
@@ -159,7 +192,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 	for (uint64_t i = start_l; i >= 1; --i)
 		for (uint64_t p = 0; p < nn; p++)
 		{
-			res_univ[p] += (double)pol_biv[(i - 1) * nn + p];
+			res_univ[p] += (double)pol_biv->ptr[(i - 1) * pol_biv->stride + p];
 			res_univ[p] *= pkappa;
 		}
 }
@@ -189,10 +222,11 @@ int univ_rnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, c
 		double tmp = pol_univ[p] + acc;
 
 		if (tmp < 0) tmp -= floor(tmp);
-		for (uint64_t i = 1; i <= k_offset; ++i) res[(i - 1) * nn + p] = 0;
+		for (uint64_t i = 1; i <= k_offset; ++i) res->ptr[(i - 1) * res->stride + p] = 0;
 		for (uint64_t i = 1; i + k_offset <= l && i <= l_max; i++)
 		{
-			res[(i + k_offset - 1) * nn + p] = (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
+			res->ptr[(i + k_offset - 1) * res->stride + p] =
+			    (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
 		}
 	}
 
@@ -205,16 +239,18 @@ cleanup:
 
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
 {
+	//TODO: remove useless params glwe
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
-	pvda_vec_znx_dft(module, res_dft, l, a, l, nn);
+	pvda_vec_znx_dft(module, res_dft, l, a);
 	return 0;
 }
 
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
+	//TODO: remove useless params glwe
 	uint64_t l = glwe_params_l_a(params_glwe);
-	return pvda_vec_znx_idft(module, res, l, a_dft, l);
+	return pvda_vec_znx_idft(module, res, a_dft, l);
 }
 
 int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol)
@@ -231,7 +267,8 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 		for (uint64_t p = 0; p < nn; p++)
 		{
 			int shft_amt     = 64 - (int)kappa - (int)(i * kappa);
-			uint64_t add_amt = shft_amt > 0 ? ((uint64_t)pol[i * nn + p]) << shft_amt : (pol[i * nn + p] >> -shft_amt);
+			uint64_t add_amt = shft_amt > 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
+			                                : (pol->ptr[i * pol->stride + p] >> -shft_amt);
 			res_tnx[p] += add_amt;
 		}
 	}
@@ -260,9 +297,9 @@ int univ_tnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, c
 		{
 			int shft_amt = 64 - (int)(i * kappa);
 			if (shft_amt > 0)
-				res[(i - 1) * nn + p] = (int64_t)((tmp >> shft_amt) & mask) - (1LL << (kappa - 1));
+				res->ptr[(i - 1) * res->stride + p] = (int64_t)((tmp >> shft_amt) & mask) - (1LL << (kappa - 1));
 			else
-				res[(i - 1) * nn + p] = (int64_t)((tmp << -shft_amt) & mask) - (1LL << (kappa - 1));
+				res->ptr[(i - 1) * res->stride + p] = (int64_t)((tmp << -shft_amt) & mask) - (1LL << (kappa - 1));
 		}
 	}
 
@@ -419,8 +456,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		// Add implicit bit. In the case of denormal numbers, this makes the computation wrong by
 		// the minimum non-denormal distance, which is a somewhat graceful failing
 		s_val |= (1UL << 52);
-
-		biv_decomp_internal(s_val, 52 - exp + bit_offset, res + p, nn, params_glwe);
+		biv_decomp_internal(s_val, 52 - exp + bit_offset, res->ptr + p, res->stride, params_glwe);
 	}
 	return 0;
 }
@@ -525,7 +561,8 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
 	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
 
-	memset(res, 0, poly_biv_bytes(params_glwe));
+	//TODO: not work for strided
+	memset(res->ptr, 0, poly_biv_bytes(params_glwe));
 
 	// Decompose the tnx values into sign and magintude
 	for (int p = 0; p < nn; ++p)
@@ -541,7 +578,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	}
 	// lsb_pos is 63 + bit_offset due to mag_vec being a tnx to which we have removed its LSB
 	// and shifted right by 1, thus its implicit denominator is 2^-63
-	biv_decomp_internal_vec(mag_vec, sgn_vec, 63 + bit_offset, res, nn, params_glwe);
+	biv_decomp_internal_vec(mag_vec, sgn_vec, 63 + bit_offset, res->ptr, res->stride, params_glwe);
 	status = 0;
 cleanup:
 	free(mag_vec);
@@ -566,7 +603,8 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
 	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
 
-	memset(res, 0, poly_biv_bytes(params_glwe));
+	//TODO: not work for strided
+	memset(res->ptr, 0, poly_biv_bytes(params_glwe));
 
 	// Decompose the znx values into sign and magintude
 	for (int p = 0; p < nn; ++p)
@@ -581,7 +619,7 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 		mag_vec[p] = abs_val;
 		sgn_vec[p] = mask & 1;
 	}
-	biv_decomp_internal_vec(mag_vec, sgn_vec, bit_offset, res, nn, params_glwe);
+	biv_decomp_internal_vec(mag_vec, sgn_vec, bit_offset, res->ptr, res->stride, params_glwe);
 	status = 0;
 cleanup:
 	free(mag_vec);

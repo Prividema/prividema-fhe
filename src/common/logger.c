@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-unsigned char LOG_FLAG = 0;
+uint64_t LOG_FLAG = LOG_ERROR;
 
 // LOG_FLAG Setter
 void set_log_flag(unsigned char flag) { LOG_FLAG = flag; }

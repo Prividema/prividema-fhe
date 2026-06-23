@@ -30,7 +30,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 	{
 		uint64_t sk_idx   = (ij % (params_ggsw->k_tilde + 1));
 		uint64_t prec_lvl = ij / (params_ggsw->k_tilde + 1) + 1;
-		memset(phase_computed, 0, poly_biv_bytes(params_glwe));
+		memset(phase_computed->ptr, 0, poly_biv_bytes(params_glwe));
 		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
 		memset(m_skj_univ_dft, 0, poly_univ_bytes(params_glwe));
 		memset(m_skj_univ, 0, poly_univ_bytes(params_glwe));
@@ -48,7 +48,8 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 			pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, glwe_prepared_sk_extract_poly_dft(sk_prep, sk_idx),
 			                          m_univ_dft, 1);
 			for (uint64_t p = 0; p < params_glwe->nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
-			pvda_vec_znx_idft(module, m_skj_univ, 1, m_skj_univ_dft, 1);
+			PolyBiv m_skj_biv = new_biv_view(params_glwe->nn, 1, params_glwe->nn, m_skj_univ);
+			pvda_vec_znx_idft(module, &m_skj_biv, m_skj_univ_dft, 1);
 		}
 
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
@@ -60,7 +61,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 		                                critical_err);
 	}
 
-	free(phase_computed);
+	delete_biv(phase_computed);
 	delete_univ_rnx(phase_observed_univ_rnx);
 	delete_univ_rnx(phase_expected_univ_rnx);
 	delete_univ_dft(m_skj_univ_dft);

@@ -74,6 +74,15 @@ void delete_ggsw(GGSWCiphertext* ggsw);
 VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
 /**
+ * @brief Returns a PolyBiv (view) representing a flattened GGSW: a polybiv with all the limbs in layout order
+ *
+ * @param ggsw_ct The GGSW from which the view is taken
+ *
+ * @return A view to the flattened (memory) representation of the GGSW. See @ref ggsw_encoding
+ */
+PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct);
+
+/**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the
  * parameters in the result object.
  *
@@ -98,6 +107,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
  * @param pk     The public key used for encryption
  * @param m_univ The univariate message to encrypt (in coefficient space)
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  * */
 int ggsw_public_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWEPublicKey* pk, const PolyUniv* m_univ);
 
@@ -143,6 +154,9 @@ void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft);
  * @param module The backend module
  * @param ggsw_prepared The output prepared GGSW ciphertext
  * @param ggsw_ct The input unprepared GGSW ciphertext
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
 

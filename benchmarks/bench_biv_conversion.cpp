@@ -49,13 +49,12 @@ void bench_biv_normalize(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, m_biv, glwe_params_l_a(params_glwe), params_glwe->nn,
-		                              m_biv, glwe_params_l_a(params_glwe), params_glwe->nn);
+		pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, m_biv, m_biv);
 		benchmark::DoNotOptimize(m_biv);
 	}
 
 	delete_univ_rnx(m);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	pvda_delete_module_info(module);
 	delete_glwe_params(params_glwe);
@@ -83,7 +82,7 @@ void bench_univ_biv_rnx_via_tnx(benchmark::State& state)
 
 	delete_univ_rnx(m);
 	delete_univ_tnx(m_tnx);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
@@ -108,7 +107,7 @@ void bench_univ_biv_tnx(benchmark::State& state)
 	}
 
 	delete_univ_tnx(m);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
@@ -136,7 +135,7 @@ void bench_biv_univ_tnx(benchmark::State& state)
 
 	delete_univ_tnx(m_back);
 	delete_univ_tnx(m);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);
@@ -164,7 +163,7 @@ void bench_biv_univ_rnx(benchmark::State& state)
 
 	delete_univ_rnx(m);
 	delete_univ_rnx(m_back);
-	free(m_biv);
+	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
 	pvda_delete_module_info(module);

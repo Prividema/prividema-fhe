@@ -84,15 +84,17 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 
 	// Computes the expected result  m / 2^{kappa_tilde * i}
 	memset(phase_expected_univ_rnx, 0, poly_univ_rnx_bytes(params_glwe));
+	int64_t divlog = 64 - __builtin_clzll((D * params_glwegadget->l_tilde) - 1);
 	for (int i = 1; i <= params_glwegadget->l_tilde; ++i)
 		for (uint64_t p = 0; p < D; p++)
-			phase_expected_univ_rnx[(i - 1) * D + p] = ldexp((double)m_univ[p], -(params_glwegadget->kappa_tilde * i));
+			phase_expected_univ_rnx[(i - 1) * D + p] =
+			    ldexp((double)m_univ[p], -(params_glwegadget->kappa_tilde * i + divlog));
 
 	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_rnx, phase_expected_univ_rnx, err_length,
 	                                critical_err_length);
 	// Clean up
 	delete_univ_rnx(phase_observed_univ_rnx);
-	free(phase_computed);
+	delete_biv(phase_computed);
 	delete_univ_rnx(phase_expected_univ_rnx);
 	delete_univ(m_univ);
 	delete_glwe_secret_key_prepared(sk_prep);
