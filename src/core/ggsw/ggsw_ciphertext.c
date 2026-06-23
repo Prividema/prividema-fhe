@@ -58,8 +58,8 @@ VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t p
 
 PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
 {
-	PolyBiv res = {ggsw_ct->params->params_glwe->nn, ggsw_total_n_glwe_limbs(ggsw_ct->params),
-	               (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat};
+	PolyBiv res = new_biv_view(ggsw_ct->params->params_glwe->nn, ggsw_total_n_glwe_limbs(ggsw_ct->params),
+	                           (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat);
 	return res;
 }
 int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,

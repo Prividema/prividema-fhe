@@ -146,6 +146,9 @@ cleanup:
 	return -1;
 }
 
+//Forward declaration due to legacy folder structure
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr);
+
 int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
 {
 	int status = -1;
@@ -167,7 +170,7 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	PolyBiv tmp_biv = {nn, vec_size, nn, tmp_space};
+	PolyBiv tmp_biv = new_biv_view(nn, vec_size, nn, tmp_space);
 	pvda_vec_znx_dft(module, result_dft, vec_size, &tmp_biv);
 
 	status = 0;

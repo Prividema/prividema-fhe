@@ -35,6 +35,12 @@ cleanup:
 	return NULL;
 }
 
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr)
+{
+	PolyBiv r = {nn, l, stride, ptr};
+	return r;
+}
+
 void delete_biv(PolyBiv* biv)
 {
 	if (biv)
@@ -123,9 +129,9 @@ int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, 
 		memset(err, 0, nn * sizeof(int64_t));
 	}
 	int64_t l_a           = glwe_params_l_a(params_glwe);
-	PolyBiv last_limb_res = {nn, 1, nn, res->ptr + nn * (l_a - 1)};
-	PolyBiv last_limb_a   = {nn, 1, nn, a->ptr + nn * (l_a - 1)};
-	PolyBiv err_biv       = {nn, 1, nn, err};
+	PolyBiv last_limb_res = new_biv_view(nn, 1, nn, res->ptr + nn * (l_a - 1));
+	PolyBiv last_limb_a   = new_biv_view(nn, 1, nn, a->ptr + nn * (l_a - 1));
+	PolyBiv err_biv       = new_biv_view(nn, 1, nn, err);
 
 	//TODO: this does not work for strided PolyBiv
 	if (res != a) memcpy(res->ptr, a->ptr, poly_biv_bytes(params_glwe));

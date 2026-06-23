@@ -33,6 +33,22 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
 PolyBiv* new_biv_poly(const GLWEParams* params_glwe);
 
 /**
+ * @brief Creates a new bivariate polynomial view,
+ * that is, a PolyBiv that does NOT own the memory it refers to
+ *
+ * @param nn     The parameter N for the polynomial
+ * @param l      The depth (parameter l) of the polynomial
+ * @param stride The distance in elements between limbs. For a contiguous layout,
+ *               this is nn. In a GLWE, for example, it will usually be (k+1)*nn
+ * @param ptr    Pointer to the data of the polynomial
+ *
+ * @return A PolyBiv view of the data with the given parameters. The return object
+ *         should NOT have delete_biv called on.
+ *
+ */
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr);
+
+/**
  * @brief Deletes a bivariate polynomial
  *
  * @param biv The bivariate polynomial to delete

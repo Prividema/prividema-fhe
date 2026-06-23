@@ -51,13 +51,13 @@ PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos)
 	uint64_t k  = glwe_ct->params->k;
 	assert(pos <= k);
 	uint64_t l  = pos == k ? glwe_params_l_b(glwe_ct->params) : glwe_params_l_a(glwe_ct->params);
-	PolyBiv ret = {nn, l, (int64_t)((k + 1) * nn), glwe_ct->vec + pos * nn};
+	PolyBiv ret = new_biv_view(nn, l, (int64_t)((k + 1) * nn), glwe_ct->vec + pos * nn);
 	return ret;
 }
 PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct)
 {
-	PolyBiv glwe_flattened = {glwe_ct->params->nn, glwe_params_n_limbs(glwe_ct->params), (int64_t)glwe_ct->params->nn,
-	                          glwe_ct->vec};
+	PolyBiv glwe_flattened = new_biv_view(glwe_ct->params->nn, glwe_params_n_limbs(glwe_ct->params),
+	                                      (int64_t)glwe_ct->params->nn, glwe_ct->vec);
 	return glwe_flattened;
 }
 
@@ -99,36 +99,18 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe)
 int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const PolyUnivDFT* u_dft,
                         const GLWECiphertextDFT* glwe_dft)
 {
-	int status               = -1;
-	const GLWEParams* params = result_dft->params;
-	uint64_t nn              = params->nn;
-
-	VecBiv* glwe_vec       = malloc(glwe_params_bytes(params));
-	PolyBiv glwe_flattened = {nn, glwe_params_n_limbs(params), nn, glwe_vec};
-
-	CHECK_ALLOC(glwe_vec, "glwe_vec's malloc failed in const_mult_glwe_dft.");
-
-	CHECK_CALL(pvda_vec_znx_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(params)),
-	           "vec_znx_idft_p failed in const_mult_glwe_dft");
-
 	// Computes DFT(u * glwe)
 	//
-	pvda_svp_apply_dft(module, result_dft->vec, glwe_params_n_limbs(params), u_dft, &glwe_flattened);
-
-	status = 0;
-
-cleanup:
-	free(glwe_vec);
-
-	return status;
+	pvda_svp_apply_dft_to_dft(module, result_dft->vec, glwe_params_n_limbs(result_dft->params), u_dft, glwe_dft->vec,
+	                          glwe_params_n_limbs(glwe_dft->params));
+	return 0;
 }
 
 int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct)
 {
 	int status = -1;
 
-	PolyBiv glwe_flattened = {glwe_ct->params->nn, glwe_params_n_limbs(glwe_ct->params), glwe_ct->params->nn,
-	                          glwe_ct->vec};
+	PolyBiv glwe_flattened = glwe_flattened_biv(glwe_ct);
 	pvda_vec_znx_dft(module, res_dft->vec, glwe_params_n_limbs(glwe_ct->params), &glwe_flattened);
 
 	status = 0;

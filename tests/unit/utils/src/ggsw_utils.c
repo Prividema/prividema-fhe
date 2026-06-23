@@ -48,7 +48,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 			pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, glwe_prepared_sk_extract_poly_dft(sk_prep, sk_idx),
 			                          m_univ_dft, 1);
 			for (uint64_t p = 0; p < params_glwe->nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
-			PolyBiv m_skj_biv = {params_glwe->nn, 1, params_glwe->nn, m_skj_univ};
+			PolyBiv m_skj_biv = new_biv_view(params_glwe->nn, 1, params_glwe->nn, m_skj_univ);
 			pvda_vec_znx_idft(module, &m_skj_biv, m_skj_univ_dft, 1);
 		}
 

@@ -279,7 +279,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	PolyBiv glwe_flattened = {params_glwe->nn, glwe_params_n_limbs(params_glwe), nn, glwe_ct->vec};
+	PolyBiv glwe_flattened = glwe_flattened_biv(glwe_ct);
 	pvda_vec_znx_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Computes u in the DFT domain
@@ -289,7 +289,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	PolyBiv prod_flattened = {params_glwe->nn, glwe_params_n_limbs(params_glwe), nn, prod->vec};
+	PolyBiv prod_flattened = glwe_flattened_biv(prod);
 	pvda_vec_znx_idft(module, &prod_flattened, prod_computed_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
