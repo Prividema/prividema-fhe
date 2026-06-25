@@ -17,7 +17,7 @@ extern "C" {
 
 void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -56,7 +56,7 @@ void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 	delete_univ_rnx(result_univ);
 	delete_univ_rnx(m_glwe);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 }
@@ -67,7 +67,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
-	PVDA_MODULE* module     = pvda_new_module_info(NBASE);
+	PvdaBackend* module     = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
@@ -108,7 +108,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 	delete_univ_rnx(result_univ);
 	delete_univ_rnx(m_glwe);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 }
@@ -119,7 +119,7 @@ void bench_ggsw_prepare(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
-	PVDA_MODULE* module     = pvda_new_module_info(NBASE);
+	PvdaBackend* module     = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
@@ -151,7 +151,7 @@ void bench_ggsw_prepare(benchmark::State& state)
 	delete_biv(result_biv);
 	delete_univ_rnx(result_univ);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 }

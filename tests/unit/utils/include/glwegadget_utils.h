@@ -17,7 +17,7 @@
  * @param critical_err  Error tolerance as in pvda_assert_polynomial_distance
  *
  */
-void check_glwegadget(const PVDA_MODULE* module, const GLWEGadgetCiphertext* glwegad,
+void check_glwegadget(const PvdaBackend* module, const GLWEGadgetCiphertext* glwegad,
                       const GLWESecretKeyPrepared* sk_prep, const PolyUniv* expected, double max_err,
                       double critical_err);
 

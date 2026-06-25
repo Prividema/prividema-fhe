@@ -77,7 +77,7 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
  * @param n How many coefficients to print
  *
  */
-int print_coefs_gad(const PVDA_MODULE* module, const GLWEGadgetCiphertext* glwe_gad,
+int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwe_gad,
                     const GLWESecretKeyPrepared* sk_prep, int n);
 
 /**
@@ -119,7 +119,7 @@ void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct);
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_secret_encrypt(const PVDA_MODULE* module, GLWEGadgetCiphertext* result,
+int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result,
                               const GLWESecretKeyPrepared* sk_prep, const PolyUniv* m_univ);
 
 /**
@@ -134,7 +134,7 @@ int glwegadget_secret_encrypt(const PVDA_MODULE* module, GLWEGadgetCiphertext* r
  * @param m_univ The univariate plaintext
  *
  */
-void glwegadget_public_encrypt(const PVDA_MODULE* module, GLWEGadgetCiphertext* result, const GLWEPublicKey* pk,
+void glwegadget_public_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result, const GLWEPublicKey* pk,
                                const PolyUniv* m_univ);
 /**
  *
@@ -148,7 +148,7 @@ void glwegadget_public_encrypt(const PVDA_MODULE* module, GLWEGadgetCiphertext* 
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_packed_secret_encrypt(const PVDA_MODULE* module, GLWECiphertext* result,
+int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* result,
                                      const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,
                                      const PolyUniv* m_univ, uint64_t d);
 
@@ -172,7 +172,7 @@ VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t
  * @retval 0 otherwise
  *
  */
-int glwegadget_prepare(const PVDA_MODULE* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
+int glwegadget_prepare(const PvdaBackend* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
                        const GLWEGadgetCiphertext* glwegad_ct);
 
 #endif  // PARTIALGGSW_CIPHERTEXT_H

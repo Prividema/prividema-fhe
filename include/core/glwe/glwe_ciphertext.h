@@ -72,7 +72,7 @@ void delete_glwe(GLWECiphertext* glwe);
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int print_coefs_glwe(const PVDA_MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+int print_coefs_glwe(const PvdaBackend* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
                      int shft);
 
 /**
@@ -113,7 +113,7 @@ PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct);
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_encrypt_phase(const PVDA_MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase);
 
 /**
@@ -127,7 +127,7 @@ int glwe_secret_encrypt_phase(const PVDA_MODULE* module, GLWECiphertext* result,
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_encrypt_rnx(const PVDA_MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx);
 
 /**
@@ -141,7 +141,7 @@ int glwe_secret_encrypt_rnx(const PVDA_MODULE* module, GLWECiphertext* result, c
  * @retval -1 if an error occurs.
  * @retval  -0 othwerwise.
  */
-int glwe_secret_encrypt_tnx(const PVDA_MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx);
 
 /**
@@ -156,7 +156,7 @@ int glwe_secret_encrypt_tnx(const PVDA_MODULE* module, GLWECiphertext* result, c
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_decrypt(const PVDA_MODULE* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe);
 
 // bivGLWE IN DFT PART (begin)
@@ -207,7 +207,7 @@ PolyBivDFT* glwe_extract_start_poly_dft(const GLWECiphertextDFT* glwe_dft, uint6
  * @param glwe_ct The input coefficient domain GLWE
  *
  */
-int glwe_coef_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct);
+int glwe_coef_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct);
 
 /**
  *
@@ -218,6 +218,6 @@ int glwe_coef_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* res_dft, cons
  * @param glwe_dft The input glwe in the DFT domain
  *
  */
-int glwe_dft_to_coef(const PVDA_MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
+int glwe_dft_to_coef(const PvdaBackend* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
 
 #endif  // bivGLWE_CIPHERTEXT_H

@@ -27,7 +27,7 @@ extern "C" {
 
 void test_expand_trace(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -85,7 +85,7 @@ void test_expand_trace(benchmark::State& state)
 	delete_univ_rnx(m_univ_rnx);
 	delete_glwe(glwe_ct);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 }
@@ -94,7 +94,7 @@ BENCHMARK(test_expand_trace);
 
 void test_expand_compressed_trace(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -169,7 +169,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 
 	delete_biv(biv_tmp);
 	delete_glwe(glwe_ct);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);
@@ -178,7 +178,7 @@ BENCHMARK(test_expand_compressed_trace);
 
 void test_expand_compressed_trace_gad(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -252,7 +252,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 
 	delete_biv(biv_tmp);
 	delete_glwe(glwe_ct);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);

@@ -74,9 +74,9 @@ typedef struct pvda_tst_params_t
  */
 double generate_sigma(PvdaTstParams* p);
 
-#define INIT_PVDA_PARAMS_BASE(PRS) PVDA_MODULE* module = pvda_new_module_info((PRS)->nn);
+#define INIT_PVDA_PARAMS_BASE(PRS) PvdaBackend* module = pvda_new_spqlios_backend((PRS)->nn);
 
-#define DELETE_PVDA_PARAMS_BASE    pvda_delete_module_info(module);
+#define DELETE_PVDA_PARAMS_BASE    pvda_delete_backend(module);
 
 #define INIT_PVDA_PARAMS_GLWE(PRS)                                                                                  \
 	INIT_PVDA_PARAMS_BASE((PRS))                                                                                    \

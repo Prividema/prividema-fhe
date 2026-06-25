@@ -59,7 +59,7 @@ GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int uniform_glwe_secret_key(const PVDA_MODULE* module, GLWESecretKey* sk, uint64_t nb_bits);
+int uniform_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits);
 
 /**
  * @brief Returns a pointer to the pos'th polynomial in the secret key

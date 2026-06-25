@@ -18,7 +18,7 @@ extern "C" {
 
 void test_glwegad_auto(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -65,7 +65,7 @@ void test_glwegad_auto(benchmark::State& state)
 
 	delete_biv(m_auto);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 	delete_glwegadget_params(params_glwegadget);

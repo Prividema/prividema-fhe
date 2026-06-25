@@ -74,12 +74,6 @@ struct pvda_module_t
 	PvdaVirutalTable vt;
 };
 
-typedef struct pvda_module_t PvdaModule;
-
-typedef struct pvda_module_config_t
-{
-	uint64_t nn;
-
-} PvdaModuleConfig;
+typedef struct pvda_module_t PvdaBackend;
 
 #endif

@@ -26,7 +26,7 @@
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int normalize_ggsw(const PVDA_MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
+int normalize_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
 
 /**
  * @brief Adds two GGSW ciphertexts that have the same parameters.
@@ -36,7 +36,7 @@ int normalize_ggsw(const PVDA_MODULE* module, GGSWCiphertext* result, const GGSW
  * @param ggsw_lhs  One of the input GGSWCiphertext
  * @param ggsw_rhs  The other input GGSWCiphertext
  */
-void add_ggsw(const PVDA_MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs,
+void add_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs,
               const GGSWCiphertext* ggsw_rhs);
 
 /**
@@ -50,7 +50,7 @@ void add_ggsw(const PVDA_MODULE* module, GGSWCiphertext* result, const GGSWCiphe
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int const_mult_ggsw(const PVDA_MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw,
+int const_mult_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw,
                     const PolyUnivDFT* cte);
 
 /**
@@ -64,7 +64,7 @@ int const_mult_ggsw(const PVDA_MODULE* module, GGSWCiphertext* result, const GGS
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_unprepared_external_product(const PVDA_MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+int ggsw_unprepared_external_product(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe,
                                      const GGSWCiphertext* ggsw);
 
 /**
@@ -78,7 +78,7 @@ int ggsw_unprepared_external_product(const PVDA_MODULE* module, GLWECiphertext* 
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_external_product_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
+int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
                                  const GGSWCiphertextPrep* ggsw_prepared);
 
 /**
@@ -92,7 +92,7 @@ int ggsw_external_product_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* r
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_external_product(const PVDA_MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe,
                           const GGSWCiphertextPrep* ggsw_prepared);
 
 /**
@@ -110,7 +110,7 @@ int ggsw_external_product(const PVDA_MODULE* module, GLWECiphertext* result, con
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand_ggsw(const PVDA_MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
+int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
                                         const GLWEAutomorphismKSKCollection* auto_ksks,
                                         const GGSWCiphertextPrep** sk_encryptions);
@@ -145,7 +145,7 @@ int packed_glwegadget_trace_expand_ggsw(const PVDA_MODULE* module, GGSWCiphertex
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand_ggsw_prepared(const PVDA_MODULE* module, GGSWCiphertextPrep** results,
+int packed_glwegadget_trace_expand_ggsw_prepared(const PvdaBackend* module, GGSWCiphertextPrep** results,
                                                  const GGSWParams* params_ggsw, int res_size, int l_tilde,
                                                  const GLWECiphertext* packed_glwegadget,
                                                  const GLWEAutomorphismKSKCollection* auto_ksks,

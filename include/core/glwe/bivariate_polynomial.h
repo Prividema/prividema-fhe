@@ -103,7 +103,7 @@ int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int6
  * @param a The left-hand side bivariate polynomial.
  * @param b The right-hand side bivariate polynomial.
  */
-void add_biv_poly(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
+void add_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
                   const PolyBiv* b);
 
 /**
@@ -117,7 +117,7 @@ void add_biv_poly(const PVDA_MODULE* module, const GLWEParams* params_glwe, Poly
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int add_biv_noise(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a);
+int add_biv_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a);
 
 // BIV POLY IN DFT PART (begin)
 
@@ -192,7 +192,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
  * @retval 0  Otwerwise
  *
  */
-int biv_coefs_to_dft(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
+int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
 
 /**
  * @brief Transforms a bivariate polynomial into "prepared" form for operations like VMP
@@ -207,7 +207,7 @@ int biv_coefs_to_dft(const PVDA_MODULE* module, const GLWEParams* params_glwe, P
  * @retval 0  Otwerwise
  *
  */
-int biv_coefs_to_prep(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep,
+int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep,
                       const PolyBiv* a);
 
 /**
@@ -223,7 +223,7 @@ int biv_coefs_to_prep(const PVDA_MODULE* module, const GLWEParams* params_glwe, 
  * @retval 0  Otwerwise
  *
  */
-int biv_dft_to_coefs(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft);
+int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial. The result is in fixed-point representation.

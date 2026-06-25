@@ -36,7 +36,7 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct)
 	free(glwegadget_ct);
 }
 
-int print_coefs_gad(const PVDA_MODULE* module, const GLWEGadgetCiphertext* glwe_gad,
+int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwe_gad,
                     const GLWESecretKeyPrepared* sk_prep, int n)
 {
 	for (int l = 0; l < glwe_gad->params->l_tilde; ++l)
@@ -81,7 +81,7 @@ VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t
 	return glwegadget_ct->mat + (i - 1) * glwe_coef_number(glwegadget_ct->params->params_glwe);
 }
 
-int glwegadget_secret_encrypt(const PVDA_MODULE* module, GLWEGadgetCiphertext* result,
+int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result,
                               const GLWESecretKeyPrepared* sk_prep, const PolyUniv* m_univ)
 {
 	int status = -1;
@@ -121,7 +121,7 @@ cleanup:
 	return status;
 }
 
-int glwegadget_prepare(const PVDA_MODULE* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
+int glwegadget_prepare(const PvdaBackend* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
                        const GLWEGadgetCiphertext* glwegad_ct)
 {
 	int status = -1;
@@ -137,7 +137,7 @@ cleanup:
 	return status;
 }
 
-int glwegadget_packed_secret_encrypt(const PVDA_MODULE* module, GLWECiphertext* result,
+int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* result,
                                      const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,
                                      const PolyUniv* m_univ, uint64_t d)
 {

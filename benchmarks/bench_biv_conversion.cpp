@@ -11,7 +11,7 @@ extern "C" {
 
 void bench_univ_biv_rnx(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -29,14 +29,14 @@ void bench_univ_biv_rnx(benchmark::State& state)
 	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(backend);
 }
 
 BENCHMARK(bench_univ_biv_rnx);
 
 void bench_biv_normalize(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -49,14 +49,14 @@ void bench_biv_normalize(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, m_biv, m_biv);
+		pvda_vec_znx_normalize_base2k(backend, params_glwe->kappa, m_biv, m_biv);
 		benchmark::DoNotOptimize(m_biv);
 	}
 
 	delete_univ_rnx(m);
 	delete_biv(m_biv);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(backend);
 	delete_glwe_params(params_glwe);
 }
 
@@ -64,7 +64,7 @@ BENCHMARK(bench_biv_normalize);
 
 void bench_univ_biv_rnx_via_tnx(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -85,14 +85,14 @@ void bench_univ_biv_rnx_via_tnx(benchmark::State& state)
 	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(backend);
 }
 
 BENCHMARK(bench_univ_biv_rnx_via_tnx);
 
 void bench_univ_biv_tnx(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -110,14 +110,14 @@ void bench_univ_biv_tnx(benchmark::State& state)
 	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(backend);
 }
 
 BENCHMARK(bench_univ_biv_tnx);
 
 void bench_biv_univ_tnx(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -138,14 +138,14 @@ void bench_biv_univ_tnx(benchmark::State& state)
 	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(backend);
 }
 
 BENCHMARK(bench_biv_univ_tnx);
 
 void bench_biv_univ_rnx(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -166,7 +166,7 @@ void bench_biv_univ_rnx(benchmark::State& state)
 	delete_biv(m_biv);
 
 	delete_glwe_params(params_glwe);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(backend);
 }
 
 BENCHMARK(bench_biv_univ_rnx);

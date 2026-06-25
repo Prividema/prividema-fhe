@@ -33,7 +33,7 @@ typedef struct ggsw_public_key
  * @param ggsw_params GGSW parameters used for the destination and intermetdiate results
  * @param sk_prep     The secret key to use to prepare the KSK
  */
-int generate_glwegad_to_ggsw_ksk(const PVDA_MODULE* module, GGSWCiphertextPrep** ggsw_ksks,
+int generate_glwegad_to_ggsw_ksk(const PvdaBackend* module, GGSWCiphertextPrep** ggsw_ksks,
                                  const GGSWParams* ggsw_params, const GLWESecretKeyPrepared* sk_prep);
 
 #endif  // GGSW_KEY_H

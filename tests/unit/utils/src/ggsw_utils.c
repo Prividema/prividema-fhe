@@ -12,7 +12,7 @@
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-void check_ggsw(const PVDA_MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
+void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
                 const PolyUniv* expected, double max_err, double critical_err)
 {
 	const GGSWParams* params_ggsw        = ggsw->params;

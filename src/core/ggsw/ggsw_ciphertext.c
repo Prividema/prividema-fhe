@@ -62,7 +62,7 @@ PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
 	                           (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat);
 	return res;
 }
-int ggsw_secret_encrypt(const PVDA_MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ)
 {
 	int status = -1;
@@ -165,7 +165,7 @@ void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft)
 	free(ggsw_dft);
 }
 
-int ggsw_prepare(const PVDA_MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
+int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
 {
 	int status = -1;
 

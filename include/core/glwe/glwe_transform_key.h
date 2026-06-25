@@ -17,6 +17,6 @@
  * @param result_dft The resulting GLWE secret key in the DFT domain.
  * @param sk The secret key in coefficient space
  */
-void glwe_sk_prepare(const PVDA_MODULE* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk);
+void glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk);
 
 #endif  //GLWE_TRANSFORM_KEY_H

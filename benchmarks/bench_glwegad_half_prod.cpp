@@ -20,7 +20,7 @@ extern "C" {
 
 void bench_glwegad_half_prod(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -58,7 +58,7 @@ void bench_glwegad_half_prod(benchmark::State& state)
 	delete_glwegadget_prep(glwegad_prep);
 	delete_glwe(glwe);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 	delete_glwegadget_params(params_glwegadget);
@@ -70,7 +70,7 @@ BENCHMARK(bench_glwegad_half_prod);
 
 void bench_glwegad_half_prod_dft(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -113,7 +113,7 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 	delete_glwe(glwe);
 	delete_glwe_dft(glwe_dft);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 	delete_glwegadget_params(params_glwegadget);
@@ -125,7 +125,7 @@ BENCHMARK(bench_glwegad_half_prod_dft);
 
 void bench_glwegad_half_prod_prep(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -168,7 +168,7 @@ void bench_glwegad_half_prod_prep(benchmark::State& state)
 	delete_glwe(glwe);
 	delete_glwe_dft(glwe_dft);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_ggsw_params(params_ggsw);
 	delete_glwegadget_params(params_glwegadget);

@@ -15,11 +15,10 @@
 #include "glwegadget_key.h"
 #include "logger.h"
 #include "maths_structures.h"
-#include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-int glwegadget_half_prod(const PVDA_MODULE* module, GLWECiphertext* result,
+int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a)
 {
 	int status = -1;
@@ -44,7 +43,7 @@ cleanup:
 	return status;
 }
 
-int glwegadget_half_prod_dft_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* result_dft,
+int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft)
 {
 	int status = -1;
@@ -62,7 +61,7 @@ cleanup:
 	return status;
 }
 
-int glwegadget_half_prod_prepared_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* result_dft,
+int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep)
 {
 	int status = -1;
@@ -80,7 +79,7 @@ cleanup:
 	return status;
 }
 
-int prepare_ksk(const PVDA_MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
+int prepare_ksk(const PvdaBackend* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
                 const GLWESecretKeyPrepared* old_key)
 {
 	int status = -1;
@@ -111,7 +110,7 @@ cleanup:
 	delete_glwegadget(glwegad_tmp);
 	return status;
 }
-int prepare_automorphism_key(const PVDA_MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
+int prepare_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKSK* automorphism_ksk,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p)
 {
 	int status = -1;
@@ -158,7 +157,7 @@ cleanup:
 	return status;
 }
 
-int glwegadget_automorphism(const PVDA_MODULE* module, GLWECiphertext* result,
+int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result,
                             const GLWEAutomorphismKSK* automorphism_ksk, const GLWECiphertext* glwe)
 {
 	int status = -1;
@@ -243,7 +242,7 @@ int glwegadget_automorphism(const PVDA_MODULE* module, GLWECiphertext* result,
 	return status;
 }
 
-int glwe_to_glwe_keyswitch(const PVDA_MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* ksk,
+int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, const GLWEAutomorphismKSK* ksk,
                            const GLWECiphertext* glwe_ct)
 {
 	int status = -1;
@@ -308,7 +307,7 @@ int glwe_to_glwe_keyswitch(const PVDA_MODULE* module, GLWECiphertext* result, co
 	return status;
 }
 
-int glwe_trace_expand(const PVDA_MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
+int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
                       const GLWEAutomorphismKSKCollection* ksks)
 {
 	int status = -1;
@@ -373,7 +372,7 @@ cleanup:
 	return status;
 }
 
-int packed_glwegadget_trace_expand(const PVDA_MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
+int packed_glwegadget_trace_expand(const PvdaBackend* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
                                    const GLWECiphertext* packed_glwegadget,
                                    const GLWEAutomorphismKSKCollection* auto_ksks)
 
@@ -415,7 +414,7 @@ cleanup:
 
 	return status;
 }
-int packed_glwegadget_trace_expand_prepared_single(const PVDA_MODULE* module, GLWEGadgetCiphertextPrep* results,
+int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GLWEGadgetCiphertextPrep* results,
 
                                                    const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
                                                    const GLWECiphertext* packed_glwegadget,
@@ -447,7 +446,7 @@ cleanup:
 	return status;
 }
 
-int packed_glwegadget_trace_expand_prepared(const PVDA_MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
+int packed_glwegadget_trace_expand_prepared(const PvdaBackend* module, GLWEGadgetCiphertextPrep** results, int res_size,
                                             int l_tilde, const GLWECiphertext* packed_glwegadget,
                                             const GLWEAutomorphismKSKCollection* auto_ksks)
 {

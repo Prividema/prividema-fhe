@@ -28,7 +28,7 @@ cleanup:
 	return NULL;
 }
 
-int uniform_glwe_secret_key(const PVDA_MODULE* module, GLWESecretKey* sk, uint64_t nb_bits)
+int uniform_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits)
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values

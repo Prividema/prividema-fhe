@@ -7,7 +7,7 @@
 #include "maths_structures.h"
 #include "univariate_polynomial.h"
 
-void glwe_sk_prepare(const PVDA_MODULE* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk)
+void glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk)
 {
 	uint64_t sk_size = sk->nn * sk->k * sizeof(PolyUniv);
 	memcpy(result_dft->values_coef, sk->values, sk_size);

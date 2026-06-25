@@ -14,7 +14,7 @@ extern "C" {
 
 void bench_enc_dec_rnx(benchmark::State& state)
 {
-	PVDA_MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -40,7 +40,7 @@ void bench_enc_dec_rnx(benchmark::State& state)
 
 	delete_univ_rnx(m);
 	delete_glwe(glwe_computed);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
