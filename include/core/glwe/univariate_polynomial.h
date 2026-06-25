@@ -56,6 +56,14 @@ uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
 uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe);
 
 /**
+ * @brief Returns the number of bytes needed to store a univariate Tnx polynomial
+ *
+ * @param params_glwe The GLWE parameters.
+ *
+ * @return Number of bytes needed to store a univariate \TnX polynomial wiht the given parameters
+ */
+uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe);
+/**
  * @brief Allocate a new univariate polynomial (in coefficient space)
  *
  * @param params_glwe The parameters to use for the polynomial

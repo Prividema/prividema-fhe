@@ -262,6 +262,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	{
 		delete_ggsw_prep(ggsw_trace[i]);
 	}
+	delete_glwe_dft(tmp_glwe_dft);
 	delete_glwegadget_params(mega_params);
 	return 0;
 }
@@ -344,8 +345,16 @@ cleanup:
 	return status;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+	if (argc != 1 && argc != 3)
+	{
+		printf(
+		    "Usage: example_PIR\n"
+		    "       example_PIR row column\n");
+		exit(1);
+	}
+
 	// We set a minimum of 2 bits of noise standard deviation
 	// This sets the stdev to be at least 4 if, compared to
 	// the standard 3.2.
@@ -413,14 +422,6 @@ int main()
 
 	onionpir_client_phase0(module, &sk_prep, 2, final_params, &ksks, auto_ksk_params, &ggsw_ksks, auto_ggsw_params);
 
-	//Client phase 1: row and column query generation
-
-	GLWECiphertext* row_query;
-	GLWECiphertext* col_query;
-
-	onionpir_client_phase1(module, &row_query, &col_query, sk_prep, 3, 10, params_row_query, params_col_query,
-	                       row_query_gad_params, col_query_gad_params);
-
 	// Server pre-processing: generate the database columns
 
 	GLWECiphertext* res = new_glwe(final_params);
@@ -429,36 +430,106 @@ int main()
 		prepare_column(module, c, db_params, row_exp_gad_params);
 	}
 
-	// Server online phase: receive column and row queries, together with evaluation keys (ksks and ggsw_ksks)
-	// Use OnionPIR to retrieve a single database position in the form of a GLWE
+	GLWECiphertext* row_query;
+	GLWECiphertext* col_query;
+	while (1)
+	{
+		//Client phase 1: row and column query generation
 
-	struct timespec server_start;
-	clock_gettime(CLOCK_REALTIME, &server_start);
+		int row, col;
 
-	onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params, ksks,
-	                (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query, col_query);
+		if (argc == 3)
+		{
+			row = atoi(argv[1]);
+			col = atoi(argv[2]);
+		}
+		else
+		{
+			printf("Input the row and column to select, space-separated: ");
+			int st = scanf("%d %d", &row, &col);
+			if (st != 2)
+			{
+				printf("Wrong selection format\n");
+				exit(1);
+			}
+		}
 
-	struct timespec server_end;
-	clock_gettime(CLOCK_REALTIME, &server_end);
+		printf("Selecting row %d, column %d\n", row, col);
+		--row;
+		--col;
+		onionpir_client_phase1(module, &row_query, &col_query, sk_prep, row, col, params_row_query, params_col_query,
+		                       row_query_gad_params, col_query_gad_params);
 
-	double ms_elapsed =
-	    (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000;
-	printf("Server elapsed time: %.2f ms\n", ms_elapsed);
+		// Server online phase: receive column and row queries, together with evaluation keys (ksks and ggsw_ksks)
+		// Use OnionPIR to retrieve a single database position in the form of a GLWE
 
-	//Client phase 2: receive and decrypt result (done as part of print_coefs_glwe)
+		struct timespec server_start;
+		clock_gettime(CLOCK_REALTIME, &server_start);
 
-	print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
+		onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params, ksks,
+		                (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query, col_query);
 
-	// Compute the online throughput, in terms of bits of useful database data (size of the unprepared database)
-	// A througput of 500MB/s would mean that a query to a database that stores 1GB of data, which might be using,
-	// for example, 4GB due to the format used in OnionPIR, would take 2s to return a result
-	//
-	// Creating the row and column query and decrypting the result is NOT part of this throughput
-	double throughput_bits_sec = (64.0 - SHFT_AMT) * NBASE * MATRIX_ROWS * MATRIX_COLS * 1000 / ms_elapsed;
-	printf("Server throughput: %.2f MiB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
-	fflush(stdout);
+		struct timespec server_end;
+		clock_gettime(CLOCK_REALTIME, &server_end);
+
+		double ms_elapsed =
+		    (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000;
+		printf("Server elapsed time: %.2f ms\n", ms_elapsed);
+
+		//Client phase 2: receive and decrypt result (done as part of print_coefs_glwe)
+
+		printf("Result:\n");
+		print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
+
+		// Compute the online throughput, in terms of bits of useful database data (size of the unprepared database)
+		// A througput of 500MB/s would mean that a query to a database that stores 1GB of data, which might be using,
+		// for example, 4GB due to the format used in OnionPIR, would take 2s to return a result
+		//
+		// Creating the row and column query and decrypting the result is NOT part of this throughput
+		double throughput_bits_sec = (64.0 - SHFT_AMT) * NBASE * MATRIX_ROWS * MATRIX_COLS * 1000 / ms_elapsed;
+		printf("Server throughput: %.2f MiB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
+		fflush(stdout);
+
+		delete_glwe(row_query);
+		row_query = NULL;
+		delete_glwe(col_query);
+		col_query = NULL;
+
+		if (argc == 3) break;
+		printf("\n");
+	}
 
 	delete_glwe(res);
+	delete_automorphism_ksk_collection(ksks, 1);
+	for (int i = 0; i < KBASE; ++i)
+	{
+		delete_ggsw_prep(ggsw_ksks[i]);
+	}
+	free(ggsw_ksks);
+
+	delete_glwe_secret_key_prepared(sk_prep);
+
+	pvda_delete_module_info(module);
+
+	delete_glwe_params(params_glwe_autokey);
+	delete_glwegadget_params(auto_ksk_params);
+
+	delete_glwe_params(params_ggsw_change_key);
+	delete_ggsw_params(auto_ggsw_params);
+
+	delete_glwe_params(params_row_query);
+	delete_glwegadget_params(row_query_gad_params);
+	delete_glwe_params(params_col_query);
+	delete_glwegadget_params(col_query_gad_params);
+
+	delete_glwe_params(row_exp_params);
+	delete_glwegadget_params(row_exp_gad_params);
+	delete_glwe_params(col_exp_params);
+	delete_ggsw_params(col_exp_ggsw_params);
+
+	delete_glwe_params(col_sum_params);
+	delete_glwe_params(final_params);
+	delete_glwe_params(db_params);
 
 	return 0;
 }
