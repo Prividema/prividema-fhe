@@ -55,7 +55,7 @@ int tfhe_cmux(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c
  * Implements a CMux tree to select between inp_cols GLWEs provided in src.
  * It takes as selection signals GGSWCiphertextPreps that encode either 0 or 1.
  * selectors[0] encodes the LSB of the column number that is to be selected,
- * selectros[1] the second least significant bit of the column number, etc.
+ * selectors[1] the second least significant bit of the column number, etc.
  * Column numbers start from 0.
  * sel_size must be at least ceil(log2(inp_cols))
  *

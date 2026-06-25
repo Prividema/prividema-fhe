@@ -50,7 +50,7 @@ int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, const GLWECipherte
 	//Note: this check MUST go after glwe_tree definition and set-to-0 for correct error handling
 	if (sel_size < log_inp_cols)
 	{
-		RAISE_ERROR("Tried to use a CMux tree with less selection signals than the required for the number of inputs");
+		RAISE_ERROR("CMux tree with less selection signals than the required for the number of inputs");
 	}
 
 	for (int c = 0; c < inp_cols; ++c)

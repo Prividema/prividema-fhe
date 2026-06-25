@@ -61,14 +61,11 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
 /**
  * @brief Debugging function to inspect GLWEGadgets
  *
- * Inteded to inspect GLWEGadget contets for debugging.
+ * Intended to inspect GLWEGadget contents for debugging.
  * It takes as input a secret key to decrypt. For debugging, a global variable could
  * be used to store the reference.
  *
  * Prints the n first (lowest degree) coefficients of the decryption.
- * Additionally, if shft is non-zero, the resulting coefficients will be bit-shifted
- * by that amount, which is intended to be used with BFV-like encodings.
- *
  * Only able to output the 64 MSBs of the encrypted message/phase
  *
  * @param module The backend module

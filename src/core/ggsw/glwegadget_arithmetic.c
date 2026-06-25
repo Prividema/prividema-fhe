@@ -415,6 +415,7 @@ cleanup:
 
 	return status;
 }
+
 int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGadgetCiphertextPrep* results,
 
                                                    const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
