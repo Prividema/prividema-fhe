@@ -242,6 +242,11 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
  * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
  * the normalized [-2^(K-1), 2^(K-1))
  *
+ * Note that the the transformation internally works with 63 (instead of 64) bits of precision
+ * for performance reasons.
+ * The LSB of the provided TnX value is dropped (rounded down, which is not round-towards 0!).
+ *
+ *
  * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_tnx The univariate polynomial in fixed-point form
@@ -258,7 +263,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
  * Since ZnX elements themselves don't fit in the Torus (or equivalently, they are all congruent to 0),
  * this function is only useful if called with bit_offset >= 1.
  *
- * The function is only well-defined for polynomials with coefficients in (-2^63, 2^63)
+ * The function is only well-defined for polynomials with coefficients in (-2^62, 2^62)
  * due to the internal conversion function used.
  *
  * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
