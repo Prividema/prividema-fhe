@@ -9,8 +9,9 @@
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad, const GLWESecretKeyPrepared* sk_prep,
-                      const PolyUniv* expected, double max_err, double critical_err)
+void check_glwegadget(const PVDA_MODULE* module, const GLWEGadgetCiphertext* glwegad,
+                      const GLWESecretKeyPrepared* sk_prep, const PolyUniv* expected, double max_err,
+                      double critical_err)
 {
 	const GLWEGadgetParams* params_glwegad = glwegad->params;
 	const GLWEParams* params_glwe          = params_glwegad->params_glwe;

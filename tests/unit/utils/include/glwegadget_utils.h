@@ -1,10 +1,10 @@
 #ifndef GLWEGAD_UTILS
 #define GLWEGAD_UTILS
 
+#include "backend.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
 #include "glwegadget_ciphertext.h"
-#include "spqlios_alias.h"
 
 /**
  * @brief Test utility function to check that a GLWEGadget is a valid and "close enough" ciphertext of a certain plaintext
@@ -17,8 +17,9 @@
  * @param critical_err  Error tolerance as in pvda_assert_polynomial_distance
  *
  */
-void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad, const GLWESecretKeyPrepared* sk_prep,
-                      const PolyUniv* expected, double max_err, double critical_err);
+void check_glwegadget(const PVDA_MODULE* module, const GLWEGadgetCiphertext* glwegad,
+                      const GLWESecretKeyPrepared* sk_prep, const PolyUniv* expected, double max_err,
+                      double critical_err);
 
 /**
  * @brief Very rought estimate the number of bits that are not noisy after a half product

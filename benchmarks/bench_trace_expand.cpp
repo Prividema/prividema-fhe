@@ -27,7 +27,7 @@ extern "C" {
 
 void test_expand_trace(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -94,7 +94,7 @@ BENCHMARK(test_expand_trace);
 
 void test_expand_compressed_trace(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -178,7 +178,7 @@ BENCHMARK(test_expand_compressed_trace);
 
 void test_expand_compressed_trace_gad(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);

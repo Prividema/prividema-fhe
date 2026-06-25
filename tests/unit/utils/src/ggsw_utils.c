@@ -12,7 +12,7 @@
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
+void check_ggsw(const PVDA_MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
                 const PolyUniv* expected, double max_err, double critical_err)
 {
 	const GGSWParams* params_ggsw        = ggsw->params;
@@ -64,7 +64,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 	delete_biv(phase_computed);
 	delete_univ_rnx(phase_observed_univ_rnx);
 	delete_univ_rnx(phase_expected_univ_rnx);
-	delete_univ_dft(m_skj_univ_dft);
-	delete_univ_dft(m_univ_dft);
+	delete_univ_dft(module, m_skj_univ_dft);
+	delete_univ_dft(module, m_univ_dft);
 	delete_univ(m_skj_univ);
 }

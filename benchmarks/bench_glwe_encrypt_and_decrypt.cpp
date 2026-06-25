@@ -14,7 +14,7 @@ extern "C" {
 
 void bench_enc_dec_rnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 

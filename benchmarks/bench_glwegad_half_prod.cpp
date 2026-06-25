@@ -20,7 +20,7 @@ extern "C" {
 
 void bench_glwegad_half_prod(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -70,7 +70,7 @@ BENCHMARK(bench_glwegad_half_prod);
 
 void bench_glwegad_half_prod_dft(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -125,7 +125,7 @@ BENCHMARK(bench_glwegad_half_prod_dft);
 
 void bench_glwegad_half_prod_prep(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);

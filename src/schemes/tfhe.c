@@ -8,8 +8,8 @@
 #include "glwe_params.h"
 #include "utils.h"
 
-int tfhe_cmux_unprepared(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
-                         const GGSWCiphertext* sel, int normalize_sub)
+int tfhe_cmux_unprepared(const PVDA_MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0,
+                         const GLWECiphertext* c1, const GGSWCiphertext* sel, int normalize_sub)
 {
 	//TODO: this only supports res of equal precision than the inputs at the moment
 	// Since there is an external product, maybe at some point we want to drop some precision?
@@ -23,7 +23,7 @@ cleanup:
 	return -1;
 }
 
-int tfhe_cmux(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+int tfhe_cmux(const PVDA_MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
               const GGSWCiphertextPrep* sel, int normalize_sub)
 {
 	//TODO: this only supports res of equal precision than the inputs at the moment
@@ -38,7 +38,7 @@ cleanup:
 	return -1;
 }
 
-int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
+int tfhe_cmux_tree(const PVDA_MODULE* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
                    const GGSWCiphertextPrep** selectors, int sel_size, int delete_src)
 {
 	GLWEParams* aggregation_params = res->params;

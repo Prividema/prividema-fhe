@@ -265,7 +265,7 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 
 	// Clean up
 	delete_univ(u);
-	delete_univ_dft(u_dft);
+	delete_univ_dft(module, u_dft);
 	delete_glwe(glwe);
 	delete_glwe(prod_computed);
 	delete_univ(prod_expected);
@@ -389,7 +389,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 
 	// Clean up
 	delete_univ(u);
-	delete_univ_dft(u_dft);
+	delete_univ_dft(module, u_dft);
 	delete_glwe(glwe_ct);
 	delete_glwe(prod);
 	delete_univ(prod_expected);

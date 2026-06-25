@@ -12,7 +12,7 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-int normalize_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe)
+int normalize_glwe(const PVDA_MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe)
 {
 	int status = -1;
 
@@ -34,7 +34,7 @@ cleanup:
 	return status;
 }
 
-void add_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
+void add_glwe(const PVDA_MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
               const GLWECiphertext* glwe_rhs)
 {
 	PolyBiv lhs_flattened = glwe_flattened_biv(glwe_lhs);
@@ -43,7 +43,7 @@ void add_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext
 	pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
-void sub_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
+void sub_glwe(const PVDA_MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
               const GLWECiphertext* glwe_rhs)
 {
 	PolyBiv lhs_flattened = glwe_flattened_biv(glwe_lhs);
@@ -52,7 +52,7 @@ void sub_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext
 	pvda_vec_znx_sub(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
-void negate_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe)
+void negate_glwe(const PVDA_MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe)
 {
 	uint64_t nn            = result->params->nn;
 	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
@@ -60,7 +60,8 @@ void negate_glwe(const MODULE* module, GLWECiphertext* result, const GLWECiphert
 	pvda_vec_znx_negate(module, &res_flattened, &glwe_flattened);
 }
 
-int const_mult_glwe(const MODULE* module, GLWECiphertext* result, const PolyUnivDFT* u_dft, const GLWECiphertext* glwe)
+int const_mult_glwe(const PVDA_MODULE* module, GLWECiphertext* result, const PolyUnivDFT* u_dft,
+                    const GLWECiphertext* glwe)
 {
 	int status = -1;
 

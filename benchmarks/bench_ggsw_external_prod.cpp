@@ -17,7 +17,7 @@ extern "C" {
 
 void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
@@ -67,7 +67,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
-	MODULE* module          = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module     = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
@@ -119,7 +119,7 @@ void bench_ggsw_prepare(benchmark::State& state)
 {
 	double sigma = ldexp(1.0, 4 - (LBASE)*KAPPABASE);
 
-	MODULE* module          = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module     = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 

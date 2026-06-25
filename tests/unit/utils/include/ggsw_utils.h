@@ -14,7 +14,7 @@
  * @param critical_err  Error tolerance as in pvda_assert_polynomial_distance
  *
  */
-void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
+void check_ggsw(const PVDA_MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
                 const PolyUniv* expected, double max_err, double critical_err);
 
 #endif

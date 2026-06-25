@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "backend.h"
 #include "maths_structures.h"
-#include "spqlios_alias.h"
 
 /**
  *
@@ -97,7 +97,7 @@ int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint6
  * @retval 0 otherwise.
  *
  */
-int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);
+int uniform_random_vec_znx_dft(const PvdaModule* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);
 
 /**
  * @brief Generates a Random Vector following a normal distribution.

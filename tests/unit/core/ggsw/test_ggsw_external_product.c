@@ -70,7 +70,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	// Clean up
 	delete_biv(m);
 	delete_univ(u_univ);
-	delete_univ_dft(u_univ_dft);
+	delete_univ_dft(module, u_univ_dft);
 	delete_biv(phase_observed);
 	delete_biv(um);
 	delete_univ_rnx(um_univ_rnx);

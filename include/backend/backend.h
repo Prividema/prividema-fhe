@@ -1,0 +1,81 @@
+#ifndef PVDA_BACKEND_H
+#define PVDA_BACKEND_H
+
+#include <stdint.h>
+
+#include "maths_structures.h"
+
+typedef struct pvda_module_t PvdaModule;
+typedef struct pvda_module_config_t PvdaModuleConfig;
+
+typedef PvdaModule PVDA_MODULE;
+
+//Legacy backend port functions
+PvdaModule* pvda_new_module_info(int nn);
+void pvda_delete_module_info(PVDA_MODULE* module);
+
+//Funcitons
+
+PvdaModule* pvda_new_module(PvdaModuleConfig* config);
+
+VecUnivDFT* pvda_new_vec_znx_dft(const PvdaModule* module, uint64_t size);
+
+int pvda_vec_znx_dft(const PvdaModule* module, double* res, uint64_t res_size, const PolyBiv* a);
+
+void pvda_delete_vec_znx_dft(const PvdaModule* module, double* res);
+
+int64_t* pvda_new_vec_znx_big(const PvdaModule* module, int64_t size);
+
+int pvda_vec_znx_idft(const PvdaModule* module, PolyBiv* res, const double* a_dft, uint64_t a_size);
+
+void pvda_delete_vec_znx_big(const PvdaModule* module, int64_t* res);
+
+double* pvda_new_svp_ppol(const PvdaModule* module);
+
+int pvda_svp_prepare(const PvdaModule* module, PolyUnivDFT* prepared_pol, const int64_t* pol);
+
+int pvda_svp_apply_dft(const PvdaModule* module, const double* res, uint64_t res_size, const PolyUnivDFT* prepared_pol,
+                       const PolyBiv* a);
+
+int pvda_svp_apply_dft_to_dft(const PvdaModule* module, const double* res, uint64_t res_size, const PolyUnivDFT* ppol,
+                              const PolyBivDFT* a, uint64_t a_size);
+
+void pvda_delete_svp_ppol(const PvdaModule* module, double* res);
+
+double* pvda_new_vmp_pmat(const PvdaModule* module, uint64_t nrows, uint64_t ncols);
+
+int pvda_vmp_prepare_contiguous(const PvdaModule* module, double* pmat, const int64_t* mat, uint64_t nrows,
+                                uint64_t ncols);
+
+int pvda_vmp_apply_dft(const PvdaModule* module, double* res, uint64_t res_size, const PolyBiv* a,
+                       const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols);
+
+int pvda_vmp_apply_dft_to_dft(const PvdaModule* module, VecBivDFT* res, const uint64_t res_size, const VecBivDFT* a_dft,
+                              uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows, const uint64_t ncols);
+
+int pvda_vmp_apply_prepared_to_dft(const PvdaModule* module, VecBivDFT* res, const uint64_t res_size,
+                                   const VecBivDFT* a_dft, uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows,
+                                   const uint64_t ncols);
+
+void pvda_delete_vmp_pmat(const PvdaModule* module, double* pmat);
+
+int pvda_vec_znx_normalize_base2k(const PvdaModule* module, uint64_t log2_base2k, PolyBiv* res, const PolyBiv* a);
+
+int pvda_znx_small_product(const PvdaModule* module, PolyUniv* res, const PolyUniv* a, const PolyUniv* b);
+
+int pvda_vec_znx_negate(const PvdaModule* module, PolyBiv* res, const PolyBiv* a);
+
+int pvda_vec_znx_add(const PvdaModule* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b);
+
+int pvda_vec_znx_sub(const PvdaModule* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b);
+
+int pvda_znx_automorphism(const PvdaModule* module, const int64_t p, PolyUniv* res, const PolyUniv* a);
+int pvda_vec_znx_automorphism(const PvdaModule* module, const int64_t p, PolyBiv* res, const PolyBiv* a);
+
+int pvda_vec_znx_rotate(const PvdaModule* module, const int64_t p, PolyBiv* res, const PolyBiv* a);
+
+uint64_t pvda_module_extract_nn(const PvdaModule* module);
+
+int pvda_vmp_prepare_vec(const PvdaModule* module, double* pvec, uint64_t nrows, const PolyBiv* a);
+
+#endif

@@ -11,7 +11,7 @@ extern "C" {
 
 void bench_univ_biv_rnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -36,7 +36,7 @@ BENCHMARK(bench_univ_biv_rnx);
 
 void bench_biv_normalize(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -64,7 +64,7 @@ BENCHMARK(bench_biv_normalize);
 
 void bench_univ_biv_rnx_via_tnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -92,7 +92,7 @@ BENCHMARK(bench_univ_biv_rnx_via_tnx);
 
 void bench_univ_biv_tnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -117,7 +117,7 @@ BENCHMARK(bench_univ_biv_tnx);
 
 void bench_biv_univ_tnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -145,7 +145,7 @@ BENCHMARK(bench_biv_univ_tnx);
 
 void bench_biv_univ_rnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 

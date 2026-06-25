@@ -14,7 +14,7 @@ extern "C" {
 
 void bench_encrypt_rnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -46,7 +46,7 @@ BENCHMARK(bench_encrypt_rnx);
 
 void bench_encrypt_tnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -78,7 +78,7 @@ BENCHMARK(bench_encrypt_tnx);
 
 void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 {
-	MODULE* module          = pvda_new_module_info(NBASE);
+	PVDA_MODULE* module     = pvda_new_module_info(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_NORMAL);
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);

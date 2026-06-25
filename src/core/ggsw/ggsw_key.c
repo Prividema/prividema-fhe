@@ -9,8 +9,8 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-int generate_glwegad_to_ggsw_ksk(const MODULE* module, GGSWCiphertextPrep** ggsw_ksks, const GGSWParams* ggsw_params,
-                                 const GLWESecretKeyPrepared* sk_prep)
+int generate_glwegad_to_ggsw_ksk(const PVDA_MODULE* module, GGSWCiphertextPrep** ggsw_ksks,
+                                 const GGSWParams* ggsw_params, const GLWESecretKeyPrepared* sk_prep)
 {
 	int status  = -1;
 	uint64_t nn = ggsw_params->params_glwe->nn;

@@ -94,7 +94,7 @@ PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int ggsw_secret_encrypt(const PVDA_MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ);
 
 /**
@@ -110,7 +110,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  * */
-int ggsw_public_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWEPublicKey* pk, const PolyUniv* m_univ);
+int ggsw_public_encrypt(const PVDA_MODULE* module, GGSWCiphertext* result, const GLWEPublicKey* pk,
+                        const PolyUniv* m_univ);
 
 // =============================================
 // |                                           |
@@ -158,6 +159,6 @@ void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft);
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
+int ggsw_prepare(const PVDA_MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
 
 #endif  // bivGGSW_CIPHERTEXT_H

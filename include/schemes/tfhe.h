@@ -27,8 +27,8 @@
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int tfhe_cmux_unprepared(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
-                         const GGSWCiphertext* sel, int normalize_sub);
+int tfhe_cmux_unprepared(const PVDA_MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0,
+                         const GLWECiphertext* c1, const GGSWCiphertext* sel, int normalize_sub);
 
 /**
  * @brief Performs a CMux (secret inputs and selector multiplex) operation
@@ -46,7 +46,7 @@ int tfhe_cmux_unprepared(const MODULE* module, GLWECiphertext* res, const GLWECi
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int tfhe_cmux(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+int tfhe_cmux(const PVDA_MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
               const GGSWCiphertextPrep* sel, int normalize_sub);
 
 /**
@@ -73,9 +73,9 @@ int tfhe_cmux(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
+int tfhe_cmux_tree(const PVDA_MODULE* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
                    const GGSWCiphertextPrep** selectors, int sel_size, int delete_src);
 
-void tfhe_blindrotate(MODULE* module, GLWECiphertext* res, const GLWECiphertext*);
+void tfhe_blindrotate(PVDA_MODULE* module, GLWECiphertext* res, const GLWECiphertext*);
 
 #endif

@@ -41,7 +41,7 @@ void delete_glwe(GLWECiphertext* glwe)
 	free(glwe);
 }
 
-int print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+int print_coefs_glwe(const PVDA_MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
                      int shft)
 {
 	int status              = -1;
@@ -134,7 +134,7 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe)
 	free(glwe);
 }
 
-int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const PolyUnivDFT* u_dft,
+int const_mult_glwe_dft(const PVDA_MODULE* module, GLWECiphertextDFT* result_dft, const PolyUnivDFT* u_dft,
                         const GLWECiphertextDFT* glwe_dft)
 {
 	// Computes DFT(u * glwe)
@@ -144,7 +144,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	return 0;
 }
 
-int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct)
+int glwe_coef_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct)
 {
 	int status = -1;
 
@@ -156,7 +156,7 @@ cleanup:
 	return status;
 }
 
-int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft)
+int glwe_dft_to_coef(const PVDA_MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft)
 {
 	int status             = -1;
 	PolyBiv glwe_flattened = glwe_flattened_biv(res_ct);
@@ -169,7 +169,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_phase(const PVDA_MODULE* module, GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase)
 {
 	int status = -1;
@@ -250,7 +250,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_rnx(const PVDA_MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx)
 {
 	int status         = -1;
@@ -269,7 +269,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_tnx(const PVDA_MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx)
 {
 	int status = -1;
@@ -289,7 +289,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_decrypt(const PVDA_MODULE* module, PolyBiv* res, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe)
 {
 	const GLWEParams* params = glwe->params;

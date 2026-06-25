@@ -212,7 +212,7 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	// Clean up
 	delete_univ(u);
 	delete_univ(prod_expected);
-	delete_univ_dft(u_dft);
+	delete_univ_dft(module, u_dft);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 

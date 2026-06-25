@@ -104,12 +104,13 @@ cleanup:
 	return status;
 }
 
-void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
+void add_biv_poly(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
+                  const PolyBiv* b)
 {
 	pvda_vec_znx_add(module, res, a, b);
 }
 
-int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+int add_biv_fast_uni_noise(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	int status = -1;
 
@@ -144,7 +145,7 @@ cleanup:
 	return status;
 }
 
-int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+int add_biv_noise(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	switch (params_glwe->noise_type)
 	{
@@ -247,7 +248,7 @@ cleanup:
 	return status;
 }
 
-int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
+int biv_coefs_to_dft(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
 {
 	//TODO: remove useless params glwe
 	uint64_t nn = params_glwe->nn;
@@ -255,7 +256,7 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 	pvda_vec_znx_dft(module, res_dft, l, a);
 	return 0;
 }
-int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
+int biv_coefs_to_prep(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
 {
 	//TODO: remove useless params glwe
 	uint64_t nn = params_glwe->nn;
@@ -264,7 +265,7 @@ int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyB
 	return 0;
 }
 
-int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
+int biv_dft_to_coefs(const PVDA_MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
 	//TODO: remove useless params glwe
 	uint64_t l = glwe_params_l_a(params_glwe);

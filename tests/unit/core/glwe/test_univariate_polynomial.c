@@ -47,7 +47,7 @@ PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 	}
 	delete_univ(a);
 	delete_univ(a_t);
-	delete_univ_dft(res_dft);
+	delete_univ_dft(module, res_dft);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }

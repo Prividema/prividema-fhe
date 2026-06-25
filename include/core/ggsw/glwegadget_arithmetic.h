@@ -25,7 +25,7 @@
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
+int glwegadget_half_prod(const PVDA_MODULE* module, GLWECiphertext* result,
                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a);
 
 /**
@@ -40,10 +40,10 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+int glwegadget_half_prod_dft_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* result_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft);
 
-int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+int glwegadget_half_prod_prepared_to_dft(const PVDA_MODULE* module, GLWECiphertextDFT* result_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep);
 /**
  * @brief Creates a key-switching-key (KSK) for an automorphism of degree automorphism_p from
@@ -58,7 +58,7 @@ int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
+int prepare_automorphism_key(const PVDA_MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
 /**
  * @brief Prepares a KSK for GLWE keyswitching from old_key to new_key
@@ -71,7 +71,7 @@ int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
+int prepare_ksk(const PVDA_MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
                 const GLWESecretKeyPrepared* old_key);
 /**
  * @brief Performs the automorphism of a GLWE ciphertext, i.e. sets its polynomials a(X, Y) to a(X^p, Y)
@@ -85,8 +85,8 @@ int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecret
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
-                            const GLWECiphertext* glwe);
+int glwegadget_automorphism(const PVDA_MODULE* module, GLWECiphertext* result,
+                            const GLWEAutomorphismKSK* automorphism_ksk, const GLWECiphertext* glwe);
 /**
  * @brief Performs a key-switch on a GLWE using an already prepared KSK
  *
@@ -98,8 +98,8 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
-                           const GLWECiphertext* glwe_ct);
+int glwe_to_glwe_keyswitch(const PVDA_MODULE* module, GLWECiphertext* result,
+                           const GLWEAutomorphismKSK* automorphism_ksk, const GLWECiphertext* glwe_ct);
 
 /**
  * @brief Expands a GLWE with at most res_size non-zero coefficents into a res_size GLWEs encrypting each coefficient
@@ -120,7 +120,7 @@ int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const G
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
+int glwe_trace_expand(const PVDA_MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
                       const GLWEAutomorphismKSKCollection* ksks);
 
 /**
@@ -139,7 +139,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
+int packed_glwegadget_trace_expand(const PVDA_MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
                                    const GLWECiphertext* packed_glwegadget,
                                    const GLWEAutomorphismKSKCollection* auto_ksks);
 /**
@@ -168,11 +168,11 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
+int packed_glwegadget_trace_expand_prepared(const PVDA_MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
                                             int l_tilde, const GLWECiphertext* packed_glwegadget,
                                             const GLWEAutomorphismKSKCollection* auto_ksks);
 
-int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGadgetCiphertextPrep* results,
+int packed_glwegadget_trace_expand_prepared_single(const PVDA_MODULE* module, GLWEGadgetCiphertextPrep* results,
                                                    const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
                                                    const GLWECiphertext* packed_glwegadget,
                                                    const GLWEAutomorphismKSKCollection* auto_ksks);
