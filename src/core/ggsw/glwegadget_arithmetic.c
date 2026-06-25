@@ -442,7 +442,7 @@ int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGad
 	CHECK_CALL(glwegadget_prepare(module, results, results_unprep),
 	           "GLWEGadget prepareation failed in trace expansion");
 
-	return 0;
+	status = 0;
 cleanup:
 	delete_glwegadget(results_unprep);
 	return status;
