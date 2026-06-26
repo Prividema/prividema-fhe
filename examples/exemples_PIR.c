@@ -29,7 +29,11 @@
  *
  * This file contains an example implementation of OnionPIR
  * (or possibly more closely OnionPIRv2) that leverages the double decomposition
- * technique and the base-2K representation together with the half-product
+ * technique and the base-2K representation together with the half-product.
+ *
+ * See:
+ * OnionPIR: https://eprint.iacr.org/2021/1081
+ * OnionPIRv2: https://eprint.iacr.org/2025/1142
  *
  *****************************************************************************/
 
@@ -42,7 +46,7 @@
 // In a real application, all of them would be either in disk or memory
 // However, for development and proof-of-concept, we only use the first
 // IN_MEMORY_DFT_COLS and for the rest we reuse a 0 column
-// Otherwise, we would quitckly run out of memory
+// Otherwise, we would quickly run out of memory
 
 #define IN_MEMORY_DFT_COLS 64
 

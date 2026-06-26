@@ -131,7 +131,7 @@ PvdaParamTest(copy_glwe, basic, default_params_fn)
 }
 
 /**
- * @brief Tests whether copy_glwe works for a smaller destination than source
+ * @brief Tests whether copy_glwe works for a source larger than the destination
  *
  */
 PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
@@ -159,7 +159,7 @@ PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
 }
 
 /**
- * @brief Tests whether copy_glwe works for a smaller destination than source
+ * @brief Tests whether copy_glwe works for a source smaller than the destination
  *
  */
 PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)

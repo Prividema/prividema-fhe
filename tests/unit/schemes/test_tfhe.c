@@ -192,6 +192,10 @@ PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
+/**
+ * Tests that the TFHE CMux gate works as intended (select an input using an
+ * encrypted selection signal)
+ */
 PvdaParamTest(tfhe_cmux_prepared, with_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
