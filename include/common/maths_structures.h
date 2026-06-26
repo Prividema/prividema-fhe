@@ -129,6 +129,11 @@ typedef int64_t MatBiv;
 typedef double PolyBivDFT;
 
 /**
+ * @brief Represents a bivariate polynomial in the DFT domain.
+ */
+typedef double PolyBivPrep;
+
+/**
  *  @brief Represents a bivariate polynomial vector in the DFT domain.
  */
 typedef double VecBivDFT;

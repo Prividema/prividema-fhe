@@ -17,7 +17,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 {
 	const GGSWParams* params_ggsw        = ggsw->params;
 	const GLWEParams* params_glwe        = params_ggsw->params_glwe;
-	PolyBiv* phase_computed              = new_biv_poly(params_glwe);
+	PolyBiv* phase_computed              = new_biv(params_glwe);
 	PolyUnivRnX* phase_observed_univ_rnx = new_univ_rnx(params_glwe);
 	PolyUnivRnX* phase_expected_univ_rnx = new_univ_rnx(params_glwe);
 	PolyUnivDFT* m_skj_univ_dft          = new_univ_dft(module);

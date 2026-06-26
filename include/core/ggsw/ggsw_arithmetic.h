@@ -144,8 +144,9 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results, int res_size,
-                                                 int l_tilde, const GLWECiphertext* packed_glwegadget,
+int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results,
+                                                 const GGSWParams* params_ggsw, int res_size, int l_tilde,
+                                                 const GLWECiphertext* packed_glwegadget,
                                                  const GLWEAutomorphismKSKCollection* auto_ksks,
                                                  const GGSWCiphertextPrep** sk_encryptions);
 #endif  // bivGGSW_H

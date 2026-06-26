@@ -18,6 +18,7 @@ extern "C" {
 #include "glwegadget_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
+#include "utils.h"
 }
 
 #include "params.h"
@@ -106,7 +107,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
-	PolyBiv* biv_tmp        = new_biv_poly(params_glwe);
+	PolyBiv* biv_tmp        = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -135,13 +136,10 @@ void test_expand_compressed_trace(benchmark::State& state)
 		ggsw_secret_encrypt(module, ggsw_tmp, sk_prep, neg_sk_i);
 		ggsw_prepare(module, ggsw_ksks[i], ggsw_tmp);
 	}
-	free(neg_sk_i);
+	delete_univ(neg_sk_i);
 	delete_ggsw(ggsw_tmp);
 
-	int bund      = D;
-	int logfactor = bund * params_glwegadget->l_tilde;
-	int factor    = 1 << (32 - __builtin_clz(logfactor - 1));
-
+	int bund = D;
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 	uniform_random_pol_znx(m_univ, bund, 1);
@@ -193,7 +191,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
-	PolyBiv* biv_tmp        = new_biv_poly(params_glwe);
+	PolyBiv* biv_tmp        = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -220,11 +218,9 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 		}
 		ggsw_secret_encrypt(module, ggsw_ksks[i], sk_prep, neg_sk_i);
 	}
-	free(neg_sk_i);
+	delete_univ(neg_sk_i);
 
-	int bund      = D;
-	int logfactor = bund * params_glwegadget->l_tilde;
-	int factor    = 1 << (32 - __builtin_clz(logfactor - 1));
+	int bund = D;
 
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 

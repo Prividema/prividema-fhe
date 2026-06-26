@@ -32,7 +32,7 @@ uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe
 
 uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivTnX); }
 
-PolyUniv* new_univ(const GLWEParams* params_glwe) { return malloc(poly_univ_bytes(params_glwe)); }
+PolyUniv* new_univ(const GLWEParams* params_glwe) { return aligned_alloc(64, poly_univ_bytes(params_glwe)); }
 
 void delete_univ(PolyUniv* pol) { free(pol); }
 

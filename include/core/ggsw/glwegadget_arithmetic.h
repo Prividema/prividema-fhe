@@ -43,6 +43,8 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft);
 
+int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep);
 /**
  * @brief Creates a key-switching-key (KSK) for an automorphism of degree automorphism_p from
  * the provided secret key
@@ -141,7 +143,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
                                    const GLWECiphertext* packed_glwegadget,
                                    const GLWEAutomorphismKSKCollection* auto_ksks);
 /**
- * @brief Expands a packed GLWEGadget into a set of corresponding GLWEGadgets
+ * @brief Expands a packed GLWEGadget into a set of corresponding prepared GLWEGadgets
  *
  * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
  *
@@ -149,6 +151,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  * @param results An array with pointers to the res_size output prepared GLWEGadgets
  *                If NULL pointers are provided, they will be created and allocated by this function, and responsibility
  *                tranferred to the caller. This is the recommended mode of operation
+ * @param l_tilde The l_tilde used during packing and ecnryption of the GLWEGadget
  * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GLWEGadgets
  * @param packed_glwegadget The packed GLWEGadget
  * @param auto_ksks The KSK collection for trace expansion automorphisms
@@ -167,6 +170,31 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
-                                            const GLWECiphertext* packed_glwegadget,
+                                            int l_tilde, const GLWECiphertext* packed_glwegadget,
                                             const GLWEAutomorphismKSKCollection* auto_ksks);
+
+/**
+ * @brief Expands a packed GLWEGadget into a single GLWEGadgetPrep of "depth" res_size the original one
+ *
+ * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
+ *
+ * This is a variant of packed_glwegadget_trace_expand_prepared that has all the results stored concatenated in a single object,
+ * to enable the single half-external product optimisation used in our implementation of OnionPIR
+ *
+ *
+ * @param module The backend module
+ * @param results A GLWEGadgetCiphertextPrep with depth res_size*l_tilde. Its contents (before preparing) are a concatenation of
+ * the elements in the output of packed_glwegadget_trace_expand
+ * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GLWEGadgets
+ * @param packed_glwegadget The packed GLWEGadget
+ * @param auto_ksks The KSK collection for trace expansion automorphisms
+ *
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
+int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGadgetCiphertextPrep* results,
+                                                   const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
+                                                   const GLWECiphertext* packed_glwegadget,
+                                                   const GLWEAutomorphismKSKCollection* auto_ksks);
 #endif  // !DEBUG

@@ -128,7 +128,7 @@ int ggsw_unprepared_external_product(const MODULE* module,
 	status = 0;
 
 cleanup:
-	free(result_dft);
+	delete_biv_dft(result_dft);
 	free(ggsw_pmat);
 
 	return status;
@@ -233,8 +233,9 @@ cleanup:
 	return status;
 }
 
-int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results, int res_size,
-                                                 int l_tilde, const GLWECiphertext* packed_glwegadget,
+int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results,
+                                                 const GGSWParams* params_ggsw, int res_size, int l_tilde,
+                                                 const GLWECiphertext* packed_glwegadget,
                                                  const GLWEAutomorphismKSKCollection* auto_ksks,
                                                  const GGSWCiphertextPrep** sk_encryptions)
 {
@@ -242,7 +243,6 @@ int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphe
 
 	GGSWCiphertext** ggsws = calloc(res_size, sizeof(GGSWCiphertextPrep*));
 	CHECK_ALLOC(ggsws, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
-	const GGSWParams* params_ggsw = results[0]->params;
 	for (int r = 0; r < res_size; ++r)
 	{
 		ggsws[r] = new_ggsw(params_ggsw);

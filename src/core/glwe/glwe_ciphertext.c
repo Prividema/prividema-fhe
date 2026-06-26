@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -40,10 +41,46 @@ void delete_glwe(GLWECiphertext* glwe)
 	free(glwe);
 }
 
+int print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+                     int shft)
+{
+	int status              = -1;
+	PolyBiv* result_biv     = new_biv(glwe->params);
+	PolyUnivTnX* result_tnx = new_univ_tnx(glwe->params);
+	CHECK_ALLOC(result_biv, "Allocation failed in print_coefs_glwe");
+	CHECK_ALLOC(result_tnx, "Allocation failed in print_coefs_glwe");
+	//normalize_glwe(module, glwe, glwe);
+	CHECK_CALL(glwe_secret_decrypt(module, result_biv, sk_prep, glwe),
+	           "GLWE decryption in print_coefs_glwe function failed");
+	CHECK_CALL(biv_to_univ_tnx(glwe->params, result_tnx, result_biv),
+	           "Bivariate to TnX conversion failed in print_coefs_glwe function");
+
+	for (int i = 0; i < n; ++i)
+	{
+		if (shft)
+			printf("%lx (%ld)  ", result_tnx[i], ((result_tnx[i] >> (shft - 1)) + 1) >> 1);
+		else
+			printf("%lx (%ld) ", result_tnx[i], result_tnx[i]);
+	}
+	status = 0;
+cleanup:
+
+	delete_biv(result_biv);
+	delete_univ_tnx(result_tnx);
+	return status;
+}
+
 void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src)
 {
-	dst->params = src->params;
-	memcpy(dst->vec, src->vec, glwe_coef_number(src->params) * sizeof(int64_t));
+	size_t src_size = glwe_coef_number(src->params) * sizeof(int64_t);
+	size_t dst_size = glwe_coef_number(dst->params) * sizeof(int64_t);
+	if (dst_size <= src_size)
+		memcpy(dst->vec, src->vec, dst_size);
+	else
+	{
+		memcpy(dst->vec, src->vec, src_size);
+		memset(((uint8_t*)dst->vec) + src_size, 0, dst_size - src_size);
+	}
 }
 PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos)
 {
@@ -79,8 +116,9 @@ GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params)
 	glwe_dft->params = params;
 
 	// initialize the bivGLWE ciphertext with 0s'
-	glwe_dft->vec = calloc(glwe_coef_number_dft(params), 2 * sizeof(double));
+	glwe_dft->vec = aligned_alloc(64, glwe_coef_number_dft(params) * 2 * sizeof(double));
 	CHECK_ALLOC(glwe_dft->vec, "glwe_dft's calloc failed in new_glwe_dft.");
+	memset(glwe_dft->vec, 0, glwe_coef_number_dft(params) * 2 * sizeof(double));
 
 	return glwe_dft;
 
@@ -149,8 +187,8 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 	// at cycle j + 1 we compute
 	// acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
 	// In other words, acc is <A, SK>
-	PolyBiv* acc         = new_biv_poly(params);
-	PolyBivDFT* as_j_dft = new_biv_poly_dft(params);  // DFT(sk_j) * DFT(a_j)
+	PolyBiv* acc         = new_biv(params);
+	PolyBivDFT* as_j_dft = new_biv_dft(params);  // DFT(sk_j) * DFT(a_j)
 	PolyBiv* as_j        = NULL;
 
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_masking");
@@ -163,7 +201,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 	// Computes Sum_j{0,k-1}[sk_j * a_j]
 	if (k > 1)
 	{
-		as_j = new_biv_poly(params);  // sk_j * a_j
+		as_j = new_biv(params);  // sk_j * a_j
 		CHECK_ALLOC(as_j, "as_j's calloc failed in glwe_secret_masking");
 
 		for (uint64_t j = 0; j < k; j++)
@@ -206,7 +244,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 
 cleanup:
 	delete_biv(as_j);
-	free(as_j_dft);
+	delete_biv_dft(as_j_dft);
 	delete_biv(acc);
 
 	return status;
@@ -216,7 +254,7 @@ int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const 
                             const PolyUnivRnX* m_univ_rnx)
 {
 	int status         = -1;
-	PolyBiv* biv_phase = new_biv_poly(result->params);
+	PolyBiv* biv_phase = new_biv(result->params);
 	CHECK_ALLOC(biv_phase, "Bivariate phase allocation failed in GLWE encryption");
 
 	CHECK_CALL(univ_rnx_to_biv(result->params, biv_phase, m_univ_rnx, 0),
@@ -237,7 +275,7 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
 	int status = -1;
 
 	uint64_t nn        = result->params->nn;
-	PolyBiv* biv_phase = new_biv_poly(result->params);
+	PolyBiv* biv_phase = new_biv(result->params);
 	CHECK_ALLOC(biv_phase, "Bivariate phase allocation failed in GLWE encryption");
 
 	CHECK_CALL(univ_tnx_to_biv(result->params, biv_phase, m_univ_tnx, 0),
@@ -265,9 +303,9 @@ int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyP
 	uint64_t l_b = glwe_params_l_b(params);
 
 	// Variables
-	PolyBiv* acc         = new_biv_poly(params);      // -Sum_j{0,k-1}[sk_j * a_j]
-	PolyBivDFT* as_j_dft = new_biv_poly_dft(params);  // DFT(sk_j * a_j)
-	PolyBiv* as_j        = new_biv_poly(params);      // sk_j * a_j
+	PolyBiv* acc         = new_biv(params);      // -Sum_j{0,k-1}[sk_j * a_j]
+	PolyBivDFT* as_j_dft = new_biv_dft(params);  // DFT(sk_j * a_j)
+	PolyBiv* as_j        = new_biv(params);      // sk_j * a_j
 
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_demasking_ggsw_lib");
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_demasking_ggsw_lib");
@@ -306,7 +344,7 @@ int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyP
 
 cleanup:
 	delete_biv(as_j);
-	free(as_j_dft);
+	delete_biv_dft(as_j_dft);
 	delete_biv(acc);
 
 	return status;

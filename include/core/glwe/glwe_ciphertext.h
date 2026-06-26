@@ -52,6 +52,31 @@ GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 void delete_glwe(GLWECiphertext* glwe);
 
 /**
+ * @brief Debugging function to inspect GLWEs
+ *
+ * Intended to inspect GLWE content for debugging.
+ * It takes as input a secret key to decrypt. For debugging, a global variable could
+ * be used to store the reference.
+ *
+ * Prints the n first (lowest degree) coefficients of the decryption.
+ * Additionally, if shft is non-zero, the resulting coefficients will be bit-shifted
+ * by that amount, which is intended to be used with BFV-like encodings.
+ *
+ * Only able to output the 64 MSBs of the encrypted message/phase
+ *
+ * @param module The backend module
+ * @param glwe The glwe to print
+ * @param sk_prep The prepared secret key for the glwe
+ * @param n How many coefficients to print
+ * @param shft How much to right-shift the end result to truncate noise in BFV-like encodings
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
+int print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+                     int shft);
+
+/**
  * @brief Copies a GLWE ciphertext
  *
  * @param src The source GLWE ciphertext

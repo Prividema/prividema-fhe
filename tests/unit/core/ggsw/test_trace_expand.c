@@ -72,7 +72,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	PolyUnivRnX* tmp_rnx        = new_univ_rnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_observed_rnx = new_univ_rnx(params_glwe);
-	PolyBiv* biv_tmp            = new_biv_poly(params_glwe);
+	PolyBiv* biv_tmp            = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct     = new_glwe(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, 1);
@@ -114,7 +114,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 		{
 			glwe_secret_decrypt(module, biv_tmp, sk_prep, results[i]);
 			biv_to_univ_rnx(params_glwe, m_observed_rnx, biv_tmp);
-			int factor      = 1 << (32 - __builtin_clz(bund - 1));
+			int64_t factor  = 1l << (next_pow2_log(bund));
 			double expected = factor * m_univ_rnx[i];
 			double actual   = m_observed_rnx[0];
 			cr_assert(lt(dbl, rnx_torus_distance(expected, actual), 0.001));
@@ -156,6 +156,12 @@ struct criterion_test_params trace_params2_fn()
 	     .kappa                     = 8,
 	     .ciphertext_nb_limbs       = 9l * 5,
 	     .ciphertext_nb_limbs_tilde = 9l * 5,
+	     .sigma                     = 0},  // k > 1 params
+	    {.nn                        = 256,
+	     .k                         = 1,
+	     .kappa                     = 19,
+	     .ciphertext_nb_limbs       = 15l * 2,
+	     .ciphertext_nb_limbs_tilde = 15l * 2,
 	     .sigma                     = 0},  // k > 1 params
 
 	    {.nn                        = 1024,
@@ -216,14 +222,12 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		ggsw_secret_encrypt(module, ggsw_tmp, sk_prep, neg_sk_i);
 		ggsw_prepare(module, ggsw_ksks[i], ggsw_tmp);
 	}
-	free(neg_sk_i);
+	delete_univ(neg_sk_i);
 	delete_ggsw(ggsw_tmp);
 
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{
-		int bund      = bundled[i];
-		int logfactor = bund * params_glwegadget->l_tilde;
-		int factor    = 1 << (32 - __builtin_clz(logfactor - 1));
+		int bund = bundled[i];
 
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
@@ -303,7 +307,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 		}
 		ggsw_secret_encrypt(module, ggsw_ksks[i], sk_prep, neg_sk_i);
 	}
-	free(neg_sk_i);
+	delete_univ(neg_sk_i);
 
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{

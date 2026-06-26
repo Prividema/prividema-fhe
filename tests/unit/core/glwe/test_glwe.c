@@ -29,11 +29,11 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep       = alloc_glwe_secret_key_prepared(params_glwe);
-	PolyBiv* m                           = new_biv_poly(params_glwe);
+	PolyBiv* m                           = new_biv(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
-	PolyBiv* phase                       = new_biv_poly(params_glwe);
+	PolyBiv* phase                       = new_biv(params_glwe);
 	GLWECiphertext* glwe_observed        = new_glwe(params_glwe);
-	PolyBiv* phase_observed              = new_biv_poly(params_glwe);
+	PolyBiv* phase_observed              = new_biv(params_glwe);
 	PolyUnivRnX* phase_observed_univ_RnX = new_univ_rnx(params_glwe);
 
 	//Draw key and message
@@ -52,11 +52,11 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 
 	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
 
-	free(phase_observed_univ_RnX);
+	delete_univ_rnx(phase_observed_univ_RnX);
 	delete_biv(phase_observed);
 	delete_glwe(glwe_observed);
 	delete_biv(phase);
-	free(m_univ_RnX);
+	delete_univ_rnx(m_univ_RnX);
 	delete_biv(m);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -80,11 +80,11 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 	//! Variables
 	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep       = alloc_glwe_secret_key_prepared(params_glwe);
-	PolyBiv* m                           = new_biv_poly(params_glwe);
+	PolyBiv* m                           = new_biv(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
-	PolyBiv* phase                       = new_biv_poly(params_glwe);
+	PolyBiv* phase                       = new_biv(params_glwe);
 	GLWECiphertext* glwe_observed        = new_glwe(params_glwe);
-	PolyBiv* phase_observed              = new_biv_poly(params_glwe);
+	PolyBiv* phase_observed              = new_biv(params_glwe);
 	PolyUnivRnX* phase_observed_univ_RnX = new_univ_rnx(params_glwe);
 
 	//Draw message (in RnX) and key
@@ -100,12 +100,12 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 
 	pvda_assert_polynomial_distance(params_glwe, phase_observed_univ_RnX, m_univ_RnX, err_length, critical_err_length);
 
-	free(phase_observed_univ_RnX);
+	delete_univ_rnx(phase_observed_univ_RnX);
 	delete_biv(phase_observed);
 	delete_glwe(glwe_observed);
 	delete_biv(phase);
 	delete_biv(m);
-	free(m_univ_RnX);
+	delete_univ_rnx(m_univ_RnX);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 

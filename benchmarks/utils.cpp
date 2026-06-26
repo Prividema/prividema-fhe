@@ -20,6 +20,6 @@ int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe)
 
 	status = 0;
 cleanup:
-	free(tmp_tnx);
+	delete_univ_tnx(tmp_tnx);
 	return status;
 }

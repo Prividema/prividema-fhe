@@ -18,3 +18,4 @@ uint64_t tnx_torus_distance(uint64_t a, uint64_t b) { return a - b > b - a ? b -
 
 uint64_t u64_round_up_div(uint64_t num, uint64_t div) { return (num + (div - 1)) / div; }
 int32_t i32_round_up_div(int32_t num, int32_t div) { return (num + (div - 1)) / div; }
+uint64_t next_pow2_log(uint64_t num) { return 64 - __builtin_clzll(num - 1); }

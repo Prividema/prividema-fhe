@@ -62,6 +62,24 @@ cleanup:
 	return status;
 }
 
+int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep)
+{
+	int status = -1;
+
+	size_t nrows     = glwegadget_prep_ct->params->l_tilde;
+	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+	size_t ncols_out = glwe_params_n_limbs(result_dft->params);
+
+	CHECK_CALL(pvda_vmp_apply_prepared_to_dft(module, result_dft->vec, ncols_out, (double*)a_prep, nrows,
+	                                          glwegadget_prep_ct->mat, nrows, ncols_in),
+	           "vmp apply falied in half product");
+
+	status = 0;
+cleanup:
+	return status;
+}
+
 int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
                 const GLWESecretKeyPrepared* old_key)
 {
@@ -157,7 +175,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 	uint64_t biv_l = l_b_result > nrows ? l_b_result : nrows;
 	if (k == 1)
 	{
-		PolyBiv* auto_tmp = new_biv_poly_custom_l(result->params, biv_l);
+		PolyBiv* auto_tmp = new_biv_custom_params(result->params->nn, biv_l);
 		CHECK_ALLOC(auto_tmp, "Allocation failed in automorphism");
 
 		// auto_tmp = auto_p(a)
@@ -182,7 +200,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
 	}
 	else
 	{
-		PolyBiv* auto_tmp        = new_biv_poly_custom_l(result->params, biv_l);
+		PolyBiv* auto_tmp        = new_biv_custom_params(result->params->nn, biv_l);
 		GLWECiphertext* glwe_tmp = new_glwe(result->params);
 
 		CHECK_ALLOC_LABEL(auto_tmp, "Allocation failed in automorphism", cleanup2);
@@ -397,13 +415,46 @@ cleanup:
 
 	return status;
 }
+
+int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGadgetCiphertextPrep* results,
+
+                                                   const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
+                                                   const GLWECiphertext* packed_glwegadget,
+                                                   const GLWEAutomorphismKSKCollection* auto_ksks)
+{
+	int status = -1;
+
+	GLWEGadgetCiphertext gadgets[res_size];
+	GLWEGadgetCiphertext* gptrs[res_size];
+	GLWEGadgetCiphertext* results_unprep = new_glwegadget(results->params);
+	CHECK_ALLOC(results_unprep, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
+	assert(results->params->l_tilde == res_size * params_glwegad->l_tilde);
+	for (int r = 0; r < res_size; ++r)
+	{
+		gadgets[r].params = params_glwegad;
+		gadgets[r].mat    = glwegadget_extract_bivglwe(results_unprep, 1 + r * params_glwegad->l_tilde);
+		gptrs[r]          = &gadgets[r];
+	}
+
+	CHECK_CALL(packed_glwegadget_trace_expand(module, gptrs, res_size, l_tilde, packed_glwegadget, auto_ksks),
+	           "GLWEGadget trace expansion failed");
+
+	CHECK_CALL(glwegadget_prepare(module, results, results_unprep),
+	           "GLWEGadget prepareation failed in trace expansion");
+
+	status = 0;
+cleanup:
+	delete_glwegadget(results_unprep);
+	return status;
+}
+
 int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
-                                            const GLWECiphertext* packed_glwegadget,
+                                            int l_tilde, const GLWECiphertext* packed_glwegadget,
                                             const GLWEAutomorphismKSKCollection* auto_ksks)
 {
 	int status = -1;
 
-	GLWEGadgetCiphertext** gadgets = calloc(res_size, sizeof(GLWEGadgetCiphertext*));
+	GLWEGadgetCiphertext** gadgets = (GLWEGadgetCiphertext**)calloc(res_size, sizeof(GLWEGadgetCiphertext*));
 	CHECK_ALLOC(gadgets, "unprepared gadget allocation failed in prepared glwegadget trace expansion");
 	const GLWEGadgetParams* params_glwegad = results[0]->params;
 	for (int r = 0; r < res_size; ++r)
@@ -412,8 +463,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 		CHECK_ALLOC(gadgets[r], "GLWEGadget allocation failed in trace expansion");
 	}
 
-	CHECK_CALL(packed_glwegadget_trace_expand(module, gadgets, res_size, params_glwegad->l_tilde, packed_glwegadget,
-	                                          auto_ksks),
+	CHECK_CALL(packed_glwegadget_trace_expand(module, gadgets, res_size, l_tilde, packed_glwegadget, auto_ksks),
 	           "GLWEGadget trace expansion failed");
 
 	for (int r = 0; r < res_size; ++r)
@@ -428,7 +478,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 		delete_glwegadget(gadgets[r]);
 	}
 
-	free(gadgets);
+	free((void*)gadgets);
 	return 0;
 cleanup:
 	if (gadgets)
@@ -438,6 +488,6 @@ cleanup:
 			delete_glwegadget(gadgets[r]);
 		}
 	}
-	free(gadgets);
+	free((void*)gadgets);
 	return status;
 }

@@ -14,7 +14,7 @@ void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad,
 {
 	const GLWEGadgetParams* params_glwegad = glwegad->params;
 	const GLWEParams* params_glwe          = params_glwegad->params_glwe;
-	PolyBiv* phase_computed                = new_biv_poly(params_glwe);
+	PolyBiv* phase_computed                = new_biv(params_glwe);
 	PolyUnivRnX* phase_observed_univ_rnx   = new_univ_rnx(params_glwe);
 	PolyUnivRnX* phase_expected_univ_rnx   = new_univ_rnx(params_glwe);
 

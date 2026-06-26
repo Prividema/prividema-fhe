@@ -25,7 +25,7 @@ void bench_ggsw_encrypt(benchmark::State& state)
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
 	PolyUniv* m                    = new_univ(params_glwe);
 	GGSWCiphertext* ggsw_computed  = new_ggsw(params_ggsw);
-	PolyBiv* result_biv            = new_biv_poly(params_glwe);
+	PolyBiv* result_biv            = new_biv(params_glwe);
 	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, SKBITS);

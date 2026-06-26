@@ -107,6 +107,87 @@ PvdaParamTest(add_glwe, basic, default_params_fn)
 }
 
 /**
+ * @brief Tests whether copy_glwe works for equally sized glwes
+ *
+ */
+PvdaParamTest(copy_glwe, basic, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	GLWECiphertext* glwe_dst = new_glwe(params_glwe);
+	GLWECiphertext* glwe_src = new_glwe(params_glwe);
+
+	uniform_random_vec(params_glwe->nn, glwe_dst->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                   params_glwe->kappa - 1);
+
+	glwe_copy(glwe_dst, glwe_src);
+
+	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
+
+	delete_glwe(glwe_dst);
+	delete_glwe(glwe_src);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+/**
+ * @brief Tests whether copy_glwe works for a source larger than the destination
+ *
+ */
+PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	GLWECiphertext* glwe_src = new_glwe(params_glwe);
+	GLWEParams* dst_params   = new_glwe_params(param->nn, param->k, param->kappa, param->ciphertext_nb_limbs - 1, 0,
+	                                           NOISE_UNIFORM_POWER_OF_TWO);
+	GLWECiphertext* glwe_dst = new_glwe(dst_params);
+
+	uniform_random_vec(params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                   params_glwe->kappa - 1);
+
+	glwe_copy(glwe_dst, glwe_src);
+
+	for (uint64_t t = 0; t < glwe_coef_number(dst_params); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
+
+	delete_glwe(glwe_dst);
+	delete_glwe(glwe_src);
+
+	delete_glwe_params(dst_params);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+/**
+ * @brief Tests whether copy_glwe works for a source smaller than the destination
+ *
+ */
+PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	GLWECiphertext* glwe_src = new_glwe(params_glwe);
+	GLWEParams* dst_params   = new_glwe_params(param->nn, param->k, param->kappa,
+	                                           param->ciphertext_nb_limbs + param->k + 1, 0, NOISE_UNIFORM_POWER_OF_TWO);
+	GLWECiphertext* glwe_dst = new_glwe(dst_params);
+
+	uniform_random_vec(params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                   params_glwe->kappa - 1);
+
+	glwe_copy(glwe_dst, glwe_src);
+	uint64_t t;
+	for (t = 0; t < glwe_coef_number(params_glwe); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
+	for (; t < glwe_coef_number(dst_params); t++) cr_assert(eq(i64, glwe_dst->vec[t], 0));
+
+	delete_glwe(glwe_dst);
+	delete_glwe(glwe_src);
+
+	delete_glwe_params(dst_params);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+/**
  * @brief Tests whether sub_glwe subtracts two bivGLWE ciphertexts.
  *
  */

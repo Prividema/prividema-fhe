@@ -12,7 +12,7 @@ foreach(test_file ${TEST_FILES})
   add_executable(${test_name} ${test_file})
 
   # Link with the main project library
-  target_link_libraries(${test_name} PVDA_CORE)
+  target_link_libraries(${test_name} PVDA_CORE PVDA_SCHEMES)
 
   # Add include path for headers
   target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)

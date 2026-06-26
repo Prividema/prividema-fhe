@@ -30,7 +30,7 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
  *
  * @param params_glwe The bivGLWE parameters.
  */
-PolyBiv* new_biv_poly(const GLWEParams* params_glwe);
+PolyBiv* new_biv(const GLWEParams* params_glwe);
 
 /**
  * @brief Creates a new bivariate polynomial view,
@@ -58,10 +58,10 @@ void delete_biv(PolyBiv* biv);
 /**
  * @brief Creates an allocated bivariate polynomial
  *
- * @param params_glwe The bivGLWE parameters.
- * @param biv_l The overriding l that will be used
+ * @param nn Parameter N (number of coefficients per level)
+ * @param biv_l Parameter l (number of levels / depth)
  */
-PolyBiv* new_biv_poly_custom_l(const GLWEParams* params_glwe, uint64_t biv_l);
+PolyBiv* new_biv_custom_params(uint64_t nn, uint64_t biv_l);
 
 /**
  * @brief Computes a random normal bivariate polynomial.
@@ -137,8 +137,11 @@ uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe);
  *
  * @param params_glwe The bivGLWE parameters.
  */
-PolyBivDFT* new_biv_poly_dft(const GLWEParams* params_glwe);
+PolyBivDFT* new_biv_dft(const GLWEParams* params_glwe);
 
+PolyBivDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l);
+
+void delete_biv_dft(PolyBivDFT* biv_dft);
 // COMMON PART (begin)
 
 /**
@@ -190,6 +193,21 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
  *
  */
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
+
+/**
+ * @brief Transforms a bivariate polynomial into "prepared" form for operations like VMP
+ *
+ *
+ * @param module      The backend module
+ * @param params_glwe The GLWE parameters for the associated bivariate polynomials
+ * @param res_prep     The resulting prepared (!= DFT) polynomial
+ * @param a           The input coefficient-space bivariate polynomial
+ *
+ * @retval -1 If an error occurs
+ * @retval 0  Otwerwise
+ *
+ */
+int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a);
 
 /**
  * @brief Performs the iDFT of a bivariate polynomial

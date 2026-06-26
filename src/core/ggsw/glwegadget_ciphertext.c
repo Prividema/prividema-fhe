@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -35,6 +36,22 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct)
 	free(glwegadget_ct);
 }
 
+int print_coefs_gad(const MODULE* module, const GLWEGadgetCiphertext* glwe_gad, const GLWESecretKeyPrepared* sk_prep,
+                    int n)
+{
+	for (int l = 0; l < glwe_gad->params->l_tilde; ++l)
+	{
+		GLWECiphertext limb = {glwe_gad->params->params_glwe, glwegadget_extract_bivglwe(glwe_gad, l + 1)};
+		printf("Gadget lvl %03d: ", l);
+		CHECK_CALL(print_coefs_glwe(module, &limb, sk_prep, n, 0), "GLWE printig failed in GLWEGadget printing");
+		printf("\n");
+	}
+
+	return 0;
+cleanup:
+	return -1;
+}
+
 GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params)
 {
 	GLWEGadgetCiphertextPrep* glwegad_prep = malloc(sizeof(GLWEGadgetCiphertextPrep));
@@ -42,8 +59,9 @@ GLWEGadgetCiphertextPrep* new_glwegadget_prep(const GLWEGadgetParams* params)
 
 	glwegad_prep->params = params;
 
-	glwegad_prep->mat = calloc(glwegadget_coef_number(params), sizeof(MatBivDFT));
+	glwegad_prep->mat = aligned_alloc(64, glwegadget_coef_number(params) * sizeof(MatBivDFT));
 	CHECK_ALLOC(glwegad_prep->mat, "alloc failed in GLWEGadgetPrepared creation");
+	memset(glwegad_prep->mat, 0, glwegadget_coef_number(params) * sizeof(MatBivDFT));
 
 	return glwegad_prep;
 cleanup:
@@ -73,7 +91,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
 
 	uint64_t nn = params_glwe->nn;
 
-	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 
 	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
 
@@ -128,8 +146,8 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 
 	uint64_t nn = params_glwe->nn;
 
-	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
-	PolyBiv* glwe_biv_tmp = new_biv_poly(params_glwe);
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
+	PolyBiv* glwe_biv_tmp = new_biv(params_glwe);
 	PolyUniv* pol_encrypt = new_univ(params_glwe);
 	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
 	CHECK_ALLOC(glwe_biv_tmp, "alloc failed in GLWEGadget encryption");
@@ -137,7 +155,7 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 
 	assert(params_glwegad->l_tilde * d <= nn);
 
-	int64_t divlog = 64 - __builtin_clzll(d * params_glwegad->l_tilde - 1);
+	int64_t divlog = next_pow2_log(d * params_glwegad->l_tilde);
 	for (uint64_t i = 1; i <= params_glwegad->l_tilde; i++)
 	{
 		//TODO: Can be optimised by actually only doing memset on the non-zero bytes.
@@ -159,7 +177,7 @@ int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* resul
 cleanup:
 	delete_biv(glwe_biv_msg);
 	delete_biv(glwe_biv_tmp);
-	free(pol_encrypt);
+	delete_univ(pol_encrypt);
 
 	return status;
 }
