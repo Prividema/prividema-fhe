@@ -5,7 +5,8 @@
 # Create SCHEMES library
 add_library(PVDA_SCHEMES
 scheme.c
-tfhe.c)
+tfhe.c
+ckks.c)
 
 # Set the output library name explicitly
 set_target_properties(PVDA_SCHEMES PROPERTIES OUTPUT_NAME pvda_schemes)

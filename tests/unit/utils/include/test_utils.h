@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#include "backend.h"
+#include "ggsw_params.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
 

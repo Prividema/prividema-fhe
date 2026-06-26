@@ -1,0 +1,29 @@
+#include <criterion/criterion.h>
+#include <criterion/new/assert.h>
+#include <float.h>
+#include <sys/types.h>
+
+#include "ckks.h"
+#include "maths_structures.h"
+#include "test_utils.h"
+#include "univariate_polynomial.h"
+
+/** The test is done without error, it is a proof of concept*/
+PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GGSW(param);
+	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
+	PolyUnivRnX* final_vec   = new_univ_rnx(params_glwe);
+	PolyUnivRnX* interm_vec  = new_univ_rnx(params_glwe);
+
+	uint64_t nn = params_glwe->nn;
+
+	rnx_random_vec(initial_vec, params_glwe);
+
+	encode_slow_internal(interm_vec, nn, (complex double*)initial_vec);
+	decode_slow_internal((complex double*)final_vec, nn, interm_vec);
+
+	pvda_assert_polynomial_distance(params_glwe, initial_vec, final_vec, 0.0001, 0.0001);
+
+	DELETE_PVDA_PARAMS_GGSW;
+}
