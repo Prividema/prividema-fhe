@@ -24,34 +24,34 @@ void pvda_delete_backend(PvdaBackend* backend);
 
 VecUnivDFT* pvda_new_vec_znx_dft(const PvdaBackend* backend, uint64_t size);
 
-int pvda_vec_znx_dft(const PvdaBackend* backend, double* res, uint64_t res_size, const PolyBiv* a);
+int pvda_vec_znx_dft(const PvdaBackend* backend, PolyBivDFT* res, uint64_t res_size, const PolyBiv* a);
 
-void pvda_delete_vec_znx_dft(const PvdaBackend* backend, double* res);
+void pvda_delete_vec_znx_dft(const PvdaBackend* backend, PolyBivDFT* res);
 
 int64_t* pvda_new_vec_znx_big(const PvdaBackend* backend, int64_t size);
 
-int pvda_vec_znx_idft(const PvdaBackend* backend, PolyBiv* res, const double* a_dft, uint64_t a_size);
+int pvda_vec_znx_idft(const PvdaBackend* backend, PolyBiv* res, const PolyBivDFT* a_dft, uint64_t a_size);
 
 void pvda_delete_vec_znx_big(const PvdaBackend* backend, int64_t* res);
 
-double* pvda_new_svp_ppol(const PvdaBackend* backend);
+PolyUnivDFT* pvda_new_svp_ppol(const PvdaBackend* backend);
 
 int pvda_svp_prepare(const PvdaBackend* backend, PolyUnivDFT* prepared_pol, const int64_t* pol);
 
-int pvda_svp_apply_dft(const PvdaBackend* backend, const double* res, uint64_t res_size,
+int pvda_svp_apply_dft(const PvdaBackend* backend, const PolyBivDFT* res, uint64_t res_size,
                        const PolyUnivDFT* prepared_pol, const PolyBiv* a);
 
-int pvda_svp_apply_dft_to_dft(const PvdaBackend* backend, const double* res, uint64_t res_size, const PolyUnivDFT* ppol,
-                              const PolyBivDFT* a, uint64_t a_size);
+int pvda_svp_apply_dft_to_dft(const PvdaBackend* backend, const PolyBivDFT* res, uint64_t res_size,
+                              const PolyUnivDFT* ppol, const PolyBivDFT* a, uint64_t a_size);
 
-void pvda_delete_svp_ppol(const PvdaBackend* backend, double* res);
+void pvda_delete_svp_ppol(const PvdaBackend* backend, PolyUnivDFT* res);
 
-double* pvda_new_vmp_pmat(const PvdaBackend* backend, uint64_t nrows, uint64_t ncols);
+MatBivDFT* pvda_new_vmp_pmat(const PvdaBackend* backend, uint64_t nrows, uint64_t ncols);
 
-int pvda_vmp_prepare_contiguous(const PvdaBackend* backend, double* pmat, const int64_t* mat, uint64_t nrows,
+int pvda_vmp_prepare_contiguous(const PvdaBackend* backend, MatBivDFT* pmat, const int64_t* mat, uint64_t nrows,
                                 uint64_t ncols);
 
-int pvda_vmp_apply_dft(const PvdaBackend* backend, double* res, uint64_t res_size, const PolyBiv* a,
+int pvda_vmp_apply_dft(const PvdaBackend* backend, PolyBivDFT* res, uint64_t res_size, const PolyBiv* a,
                        const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols);
 
 int pvda_vmp_apply_dft_to_dft(const PvdaBackend* backend, VecBivDFT* res, const uint64_t res_size,
@@ -81,6 +81,6 @@ int pvda_vec_znx_rotate(const PvdaBackend* backend, const int64_t p, PolyBiv* re
 
 uint64_t pvda_module_extract_nn(const PvdaBackend* backend);
 
-int pvda_vmp_prepare_vec(const PvdaBackend* backend, double* pvec, uint64_t nrows, const PolyBiv* a);
+int pvda_vmp_prepare_vec(const PvdaBackend* backend, PolyBivPrep* pvec, uint64_t nrows, const PolyBiv* a);
 
 #endif

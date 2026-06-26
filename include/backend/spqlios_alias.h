@@ -15,27 +15,9 @@
  * Provides a very thin wrapper over spqlios functions
  *
  *
- * @note For documentation on the functions in this file, refer to the splqios library
+ * @note For documentation on the functions in this file, refer to the spqlios library
  *
  */
-
-// =============================================
-// |                                           |
-// |      Aliases for spqlios structures       |
-// |                                           |
-// =============================================
-
-/// @brief Opaque type that represents a prepared matrix.
-typedef struct vmp_pmat_t VMP_PMAT;
-
-/// @brief Opaque type that represents a vector of \f$\mathbb{Z}_n[X]\f$ in the DFT domain.
-typedef struct vec_znx_dft_t VEC_ZNX_DFT;
-
-/// @brief Opaque type that represents a vector of \f$\mathbb{Z}_n[X]\f$ in large coeffs space.
-typedef struct vec_znx_bigcoeff_t VEC_ZNX_BIG;
-
-/// @brief Opaque type that represents a prepared scalar vector product.
-typedef struct svp_ppol_t SVP_PPOL;
 
 // =============================================
 // |                                           |
@@ -52,7 +34,7 @@ typedef struct svp_ppol_t SVP_PPOL;
 // |                the structures.            |
 // |                                           |
 // =============================================
-/**@{*/
+
 /** @name Spqlios wrapper functions (see spqlios docs) */
 SPQLIOS_MODULE* spqlios_new_module_info(uint64_t nn);
 
@@ -60,7 +42,7 @@ void spqlios_delete_module_info(PvdaBackend* module);
 
 VecUnivDFT* spqlios_new_vec_znx_dft(const PvdaBackend* module, uint64_t size);
 
-int spqlios_vec_znx_dft(const PvdaBackend* module, double* res, uint64_t res_size, const PolyBiv* a);
+int spqlios_vec_znx_dft(const PvdaBackend* module, VecBivDFT* res, uint64_t res_size, const PolyBiv* a);
 
 void spqlios_delete_vec_znx_dft(const PvdaBackend* module, double* res);
 

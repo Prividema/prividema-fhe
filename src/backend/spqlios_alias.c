@@ -21,7 +21,7 @@ VecUnivDFT* spqlios_new_vec_znx_dft(const PvdaBackend* module, uint64_t size)
 	return (double*)new_vec_znx_dft(module->spqlios_module, size);
 }
 
-int spqlios_vec_znx_dft(const PvdaBackend* module, double* res, uint64_t res_size, const PolyBiv* a)
+int spqlios_vec_znx_dft(const PvdaBackend* module, VecBivDFT* res, uint64_t res_size, const PolyBiv* a)
 {
 	vec_znx_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, a->ptr, a->l, a->stride);
 	return 0;
