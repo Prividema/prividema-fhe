@@ -69,24 +69,6 @@
 // is margin for the noise
 #define SHFT_AMT 10
 
-//Global vairable for debugging
-GLWESecretKeyPrepared* dbg_key = NULL;
-
-// Bivariate polynomial print funciton for both debugging and the example
-void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
-{
-	for (int l = 0; l < max_l && l < biv->l; ++l)
-	{
-		printf("Biv lvl %03d: ", l);
-
-		for (int p = 0; p < max_n && p < biv->nn; ++p)
-		{
-			printf("%03ld ", biv->ptr[l * biv->stride + p]);
-		}
-		printf("\n");
-	}
-}
-
 // Function that generates the data for a certain matrix position
 // Replace with desired placeholder for the example, or with acual data
 // when going to production
@@ -286,9 +268,8 @@ int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, 
 	CHECK_ALLOC(ksks, "Allocation failed in phase0 of onionPIR");
 	CHECK_ALLOC(ggsw_ksks, "Allocation failed in phase 0 of onionPIR");
 
-	//Secret key
+	// Secret key
 	*sk_prep_out = sk_prep;
-	dbg_key      = sk_prep;
 	uniform_glwe_secret_key(module, sk, sk_bits);
 	glwe_sk_prepare(module, sk_prep, sk);
 

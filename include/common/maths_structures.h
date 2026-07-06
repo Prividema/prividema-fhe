@@ -157,6 +157,15 @@ typedef double MatBivDFT;
 void printf_poly_biv(PolyBiv* pol);
 
 /**
+ * @brief Prints a Bivariate Polynomial, with limits on the coefifcients and limbs that will be printed
+ *
+ * @param pol     A Pointer to the Bivariate Polynomial.
+ * @param max_n   The number of coefficients to print per limb
+ * @param max_l   The number of limbs to print
+ */
+void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l);
+
+/**
  * @brief Prints a Univariate Polynomial in \f$\mathbb{Z}_n[X]\f$.
  *
  * @param pol A Pointer to the Univariate Polynomial.
