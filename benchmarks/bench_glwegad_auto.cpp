@@ -26,7 +26,7 @@ void test_glwegad_auto(benchmark::State& state)
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWEAutomorphismKSK* auto_ksk  = new_automorphism_ksk(params_glwegadget);
+	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
@@ -44,17 +44,17 @@ void test_glwegad_auto(benchmark::State& state)
 
 	int auto_p = 7;
 
-	compute_automorphism_key(module, auto_ksk, sk_prep, auto_p);
+	compute_automorphism_key(module, auto_key, sk_prep, auto_p);
 
 	for (auto _ : state)
 	{
-		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct);
+		glwegadget_automorphism(module, glwe_res, auto_key, glwe_ct);
 		benchmark::DoNotOptimize(glwe_res);
 	}
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	delete_automorphism_ksk(auto_ksk);
+	delete_automorphism_key(auto_key);
 
 	delete_univ_tnx(m_univ_tnx);
 	delete_univ_tnx(m_observed_tnx);

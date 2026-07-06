@@ -173,7 +173,7 @@ cleanup:
 
 int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
-                                        const GLWEAutomorphismKSKCollection* auto_ksks,
+                                        const GLWEAutomorphismKeyCollection* auto_key_collection,
                                         const GGSWCiphertextPrep** sk_encryptions)
 {
 	assert(ggsw_params_l_tilde_a(results[0]->params) == l_tilde);
@@ -201,7 +201,7 @@ int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** r
 	}
 
 	// Fills the k'th rows of GGSWs
-	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
+	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_key_collection),
 	           "glwegadget_trace_expand failed in a GGSW trace expansion");
 
 	// Fills the rest of rows of the GGSWs, using GGSW(-s_i) encryptions to get
@@ -236,7 +236,7 @@ cleanup:
 int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results,
                                                  const GGSWParams* params_ggsw, int res_size, int l_tilde,
                                                  const GLWECiphertext* packed_glwegadget,
-                                                 const GLWEAutomorphismKSKCollection* auto_ksks,
+                                                 const GLWEAutomorphismKeyCollection* auto_key_collection,
                                                  const GGSWCiphertextPrep** sk_encryptions)
 {
 	int status = -1;
@@ -249,8 +249,8 @@ int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphe
 		CHECK_ALLOC(ggsws[r], "GGSW allocation in trace expansion failed");
 	}
 
-	CHECK_CALL(packed_glwegadget_trace_expand_ggsw(module, ggsws, res_size, l_tilde, packed_glwegadget, auto_ksks,
-	                                               sk_encryptions),
+	CHECK_CALL(packed_glwegadget_trace_expand_ggsw(module, ggsws, res_size, l_tilde, packed_glwegadget,
+	                                               auto_key_collection, sk_encryptions),
 	           "GGSW trace expansion failed");
 
 	for (int r = 0; r < res_size; ++r)

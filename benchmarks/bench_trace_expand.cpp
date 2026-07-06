@@ -42,13 +42,13 @@ void test_expand_trace(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		compute_automorphism_key(module, ksk, sk_prep, p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		compute_automorphism_key(module, auto_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
 	int bund = D;
 
@@ -66,7 +66,7 @@ void test_expand_trace(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		glwe_trace_expand(module, results, bund, glwe_ct, ksks);
+		glwe_trace_expand(module, results, bund, glwe_ct, auto_key_collection);
 
 		benchmark::DoNotOptimize(results);
 	}
@@ -77,7 +77,7 @@ void test_expand_trace(benchmark::State& state)
 	}
 	free(results);
 
-	delete_automorphism_ksk_collection(ksks, 1);
+	delete_automorphism_key_collection(auto_key_collection, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -113,14 +113,14 @@ void test_expand_compressed_trace(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+	GLWEAutomorphismKeyCollection* automorphism_keys = new_automorphism_key_collection(2 * params_glwe->nn);
 
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		compute_automorphism_key(module, ksk, sk_prep, p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		compute_automorphism_key(module, auto_key, sk_prep, p);
+		glwegadget_key_collection_put_key(automorphism_keys, auto_key, p);
 	}
 
 	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(k, sizeof(GGSWCiphertextPrep*));
@@ -154,15 +154,15 @@ void test_expand_compressed_trace(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		packed_glwegadget_trace_expand_ggsw(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks,
-		                                    (const GGSWCiphertextPrep**)ggsw_ksks);
+		packed_glwegadget_trace_expand_ggsw(module, results, bund, params_glwegadget->l_tilde, glwe_ct,
+		                                    automorphism_keys, (const GGSWCiphertextPrep**)ggsw_ksks);
 		benchmark::DoNotOptimize(results);
 	}
 	for (int i = 0; i < bund; ++i)
 	{
 		delete_ggsw(results[i]);
 	}
-	delete_automorphism_ksk_collection(ksks, 1);
+	delete_automorphism_key_collection(automorphism_keys, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -197,14 +197,14 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
 
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		compute_automorphism_key(module, ksk, sk_prep, p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		compute_automorphism_key(module, auto_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
 
 	GGSWCiphertext** ggsw_ksks = (GGSWCiphertext**)calloc(k, sizeof(GGSWCiphertext*));
@@ -237,7 +237,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		packed_glwegadget_trace_expand(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks);
+		packed_glwegadget_trace_expand(module, results, bund, params_glwegadget->l_tilde, glwe_ct, auto_key_collection);
 
 		benchmark::DoNotOptimize(results);
 	}
@@ -245,7 +245,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	{
 		delete_glwegadget(results[i]);
 	}
-	delete_automorphism_ksk_collection(ksks, 1);
+	delete_automorphism_key_collection(auto_key_collection, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);

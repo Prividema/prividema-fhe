@@ -46,11 +46,11 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
 int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep);
 /**
- * @brief Computes a key-switching-key (KSK) for an automorphism of degree automorphism_p from
+ * @brief Computes an automorphism key for an automorphism of degree automorphism_p from
  * the provided secret key
  *
  * @param module              The backend module
- * @param automorphism_ksk    The output generated key-switching-key
+ * @param automorphism_key    The output generated key-switching-key
  * @param glwe_key            The input prepared secret key
  * @param automorphism_p      The degree of the automorphism. Can be positive or negative,
  *                            the automorphism is only well-defined if p is odd
@@ -58,7 +58,7 @@ int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
+int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKey* automorphism_key,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
 /**
  * @brief Prepares a KSK for GLWE keyswitching from old_key to new_key
@@ -71,34 +71,34 @@ int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorp
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int prepare_ksk(const MODULE* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
+int prepare_ksk(const MODULE* module, GLWEAutomorphismKey* ksk, const GLWESecretKeyPrepared* new_key,
                 const GLWESecretKeyPrepared* old_key);
 /**
  * @brief Performs the automorphism of a GLWE ciphertext, i.e. sets its polynomials a(X, Y) to a(X^p, Y)
  *
  * @param module             The backend module
  * @param result             The resulting GLWE ciphertext
- * @param automorphism_ksk   An encryption of the secret key after having applied the automorphism to it.
+ * @param auto_key           An encryption of the secret key after having applied the automorphism to it.
  *                           The function retrieves the p value from it.
  * @param glwe               The input ciphertext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
+int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKey* auto_key,
                             const GLWECiphertext* glwe);
 /**
  * @brief Performs a key-switch on a GLWE using an already prepared KSK
  *
  * @param module             The backend module
  * @param result             The resulting GLWE keyed with the new key
- * @param automorphism_ksk   A prepared KSK from the old key to the new key
+ * @param ksk                A prepared KSK from the old key to the new key
  * @param glwe_ct            The input GLWE keyed with the old key
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKSK* automorphism_ksk,
+int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKey* ksk,
                            const GLWECiphertext* glwe_ct);
 
 /**
@@ -115,13 +115,13 @@ int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const G
  * @param results An array with pointers to the res_size output GLWEs.
  * @param res_size The number of (non-zero) coefficients in the GLWE.
  * @param glwe_ct The packed GLWEGadget
- * @param ksks The KSK collection for trace expansion automorphisms
+ * @param auto_key_collection The automorphism key collection for trace expansion
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
 int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
-                      const GLWEAutomorphismKSKCollection* ksks);
+                      const GLWEAutomorphismKeyCollection* auto_key_collection);
 
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding GLWEGadgets
@@ -133,7 +133,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
  * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GLWEGadgets
  * @param l_tilde The l_tilde value used when packing and encrypting the GLWEGadget
  * @param packed_glwegadget The packed GLWEGadget
- * @param auto_ksks The KSK collection for trace expansion automorphisms
+ * @param auto_key_collection The key collection for trace expansion automorphisms
  *
  *
  * @retval -1 if an error occurs
@@ -141,7 +141,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
  */
 int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
                                    const GLWECiphertext* packed_glwegadget,
-                                   const GLWEAutomorphismKSKCollection* auto_ksks);
+                                   const GLWEAutomorphismKeyCollection* auto_key_collection);
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding prepared GLWEGadgets
  *
@@ -154,7 +154,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  * @param l_tilde The l_tilde used during packing and ecnryption of the GLWEGadget
  * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GLWEGadgets
  * @param packed_glwegadget The packed GLWEGadget
- * @param auto_ksks The KSK collection for trace expansion automorphisms
+ * @param auto_key_collection The key collection for trace expansion automorphisms
  *
  *
  * @note It is recommended to call this function without having pre-allocated the results and therefore letting this function perform
@@ -171,7 +171,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  */
 int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
                                             int l_tilde, const GLWECiphertext* packed_glwegadget,
-                                            const GLWEAutomorphismKSKCollection* auto_ksks);
+                                            const GLWEAutomorphismKeyCollection* auto_key_collection);
 
 /**
  * @brief Expands a packed GLWEGadget into a single GLWEGadgetPrep of "depth" res_size the original one
@@ -187,7 +187,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
  * the elements in the output of packed_glwegadget_trace_expand
  * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GLWEGadgets
  * @param packed_glwegadget The packed GLWEGadget
- * @param auto_ksks The KSK collection for trace expansion automorphisms
+ * @param auto_key_collection The key collection for trace expansion automorphisms
  *
  *
  * @retval -1 if an error occurs
@@ -196,5 +196,5 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGadgetCiphertextPrep* results,
                                                    const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
                                                    const GLWECiphertext* packed_glwegadget,
-                                                   const GLWEAutomorphismKSKCollection* auto_ksks);
+                                                   const GLWEAutomorphismKeyCollection* auto_key_collection);
 #endif  // !DEBUG

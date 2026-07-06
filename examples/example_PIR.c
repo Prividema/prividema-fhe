@@ -171,7 +171,7 @@ int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_pa
 // select a column with the CMux tree
 int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, const GLWEGadgetParams* query1_params,
                     const GLWEParams* db_params, const GLWEParams* aggregation_params,
-                    const GLWEAutomorphismKSKCollection* ksks, const GGSWCiphertextPrep** ggsw_ksks,
+                    const GLWEAutomorphismKeyCollection* auto_key_collection, const GGSWCiphertextPrep** ggsw_ksks,
                     GLWECiphertext* res, const GLWECiphertext* row_query, const GLWECiphertext* col_query)
 {
 	GLWECiphertext* glwe_tree_first_level[MATRIX_COLS] = {0};
@@ -199,7 +199,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 	// Expand the row selection packed glwegadget into a single, large depth, GLWEGadget
 	int st = packed_glwegadget_trace_expand_prepared_single(module, glwegad_trace, query1_params, MATRIX_ROWS,
-	                                                        L_TILDE_Q1, row_query, ksks);
+	                                                        L_TILDE_Q1, row_query, auto_key_collection);
 	// Half products
 	// Due to the optimisation, we only have one per column
 	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
@@ -236,7 +236,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	// - ggsw_ksks are encryptions of the coefficients of -sk, used to (internally) convert the GLWEGadgets that result of the query
 	//   expansion into GGSWs
 	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, ggsw_ksk_params, LOG2_COLS,
-	                                             ggsw_params_l_tilde_a(ggsw_ksk_params), col_query, ksks,
+	                                             ggsw_params_l_tilde_a(ggsw_ksk_params), col_query, auto_key_collection,
 	                                             (const GGSWCiphertextPrep**)ggsw_ksks);
 
 	// CMux selection tree (that is, arbitrary-size CMux)
@@ -255,17 +255,18 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 // Setup phase for the client in the protocol: secret and evaluation key generation
 int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, int sk_bits, GLWEParams* sk_params,
-                           GLWEAutomorphismKSKCollection** ksks_out, const GLWEGadgetParams* auto_ksk_params,
-                           GGSWCiphertextPrep*** ggsw_ksks_out, const GGSWParams* auto_ggsw_params)
+                           GLWEAutomorphismKeyCollection** auto_key_collection_out,
+                           const GLWEGadgetParams* auto_ksk_params, GGSWCiphertextPrep*** ggsw_ksks_out,
+                           const GGSWParams* auto_ggsw_params)
 {
-	int status                          = -1;
-	GLWESecretKey* sk                   = alloc_glwe_secret_key(sk_params);
-	GLWESecretKeyPrepared* sk_prep      = alloc_glwe_secret_key_prepared(sk_params);
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2ul * NBASE);
-	GGSWCiphertextPrep** ggsw_ksks      = (GGSWCiphertextPrep**)calloc(KBASE, sizeof(GGSWCiphertextPrep*));
-	CHECK_ALLOC(sk, "Secret key allocation failed in phase0 of OnionPIR");
-	CHECK_ALLOC(sk_prep, "Prepared secret key allocation failed in phase0 of OnionPIR");
-	CHECK_ALLOC(ksks, "Allocation failed in phase0 of onionPIR");
+	int status                                         = -1;
+	GLWESecretKey* sk                                  = alloc_glwe_secret_key(sk_params);
+	GLWESecretKeyPrepared* sk_prep                     = alloc_glwe_secret_key_prepared(sk_params);
+	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2ul * NBASE);
+	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(KBASE, sizeof(GGSWCiphertextPrep*));
+	CHECK_ALLOC(sk, "Secret key allocation failed in phase 0 of OnionPIR");
+	CHECK_ALLOC(sk_prep, "Prepared secret key allocation failed in phase 0 of OnionPIR");
+	CHECK_ALLOC(auto_key_collection, "Allocation failed in phase 0 of onionPIR");
 	CHECK_ALLOC(ggsw_ksks, "Allocation failed in phase 0 of onionPIR");
 
 	// Secret key
@@ -274,13 +275,13 @@ int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, 
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	// Automorphism-expand keys
-	*ksks_out = ksks;
+	*auto_key_collection_out = auto_key_collection;
 	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
 	{
-		int64_t p                = (int64_t)NBASE / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(auto_ksk_params);
-		compute_automorphism_key(module, ksk, sk_prep, (int)p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+		int64_t p                     = (int64_t)NBASE / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(auto_ksk_params);
+		compute_automorphism_key(module, auto_key, sk_prep, (int)p);
+		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
 
 	// GGSW(-s) for gadget to GGSW conversion
@@ -357,10 +358,10 @@ int main(int argc, char* argv[])
 	MODULE* module = pvda_new_module_info(NBASE);
 
 	// Automorphims keys
-	double ksk_sigma = sigma8;
+	double auto_key_sigma = sigma8;
 	GLWEParams* params_glwe_autokey =
-	    new_glwe_params(NBASE, KBASE, KAPPABASE, 16, ksk_sigma, NOISE_UNIFORM_POWER_OF_TWO);
-	GLWEGadgetParams* auto_ksk_params = new_glwegadget_params(params_glwe_autokey, KAPPABASE, 8);
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, 16, auto_key_sigma, NOISE_UNIFORM_POWER_OF_TWO);
+	GLWEGadgetParams* auto_key_params = new_glwegadget_params(params_glwe_autokey, KAPPABASE, 8);
 
 	//GGSW keys
 	double ggsw_ksk_sigma = sigma8;
@@ -402,10 +403,11 @@ int main(int argc, char* argv[])
 
 	//Client phase 0: secret and evaluation key generation
 	GLWESecretKeyPrepared* sk_prep;
-	GLWEAutomorphismKSKCollection* ksks;
+	GLWEAutomorphismKeyCollection* auto_key_collection;
 	GGSWCiphertextPrep** ggsw_ksks;
 
-	onionpir_client_phase0(module, &sk_prep, 2, final_params, &ksks, auto_ksk_params, &ggsw_ksks, auto_ggsw_params);
+	onionpir_client_phase0(module, &sk_prep, 2, final_params, &auto_key_collection, auto_key_params, &ggsw_ksks,
+	                       auto_ggsw_params);
 
 	// Server pre-processing: generate the database columns
 
@@ -445,13 +447,13 @@ int main(int argc, char* argv[])
 		onionpir_client_phase1(module, &row_query, &col_query, sk_prep, row, col, params_row_query, params_col_query,
 		                       row_query_gad_params, col_query_gad_params);
 
-		// Server online phase: receive column and row queries, together with evaluation keys (ksks and ggsw_ksks)
+		// Server online phase: receive column and row queries, together with evaluation keys (auto_key_collection and ggsw_ksks)
 		// Use OnionPIR to retrieve a single database position in the form of a GLWE
 
 		struct timespec server_start;
 		clock_gettime(CLOCK_REALTIME, &server_start);
 
-		onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params, ksks,
+		onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params, auto_key_collection,
 		                (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query, col_query);
 
 		struct timespec server_end;
@@ -485,7 +487,7 @@ int main(int argc, char* argv[])
 	}
 
 	delete_glwe(res);
-	delete_automorphism_ksk_collection(ksks, 1);
+	delete_automorphism_key_collection(auto_key_collection, 1);
 	for (int i = 0; i < KBASE; ++i)
 	{
 		delete_ggsw_prep(ggsw_ksks[i]);
@@ -497,7 +499,7 @@ int main(int argc, char* argv[])
 	pvda_delete_module_info(module);
 
 	delete_glwe_params(params_glwe_autokey);
-	delete_glwegadget_params(auto_ksk_params);
+	delete_glwegadget_params(auto_key_params);
 
 	delete_glwe_params(params_ggsw_change_key);
 	delete_ggsw_params(auto_ggsw_params);
