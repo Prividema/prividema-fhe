@@ -47,7 +47,7 @@ void test_expand_trace(benchmark::State& state)
 	{
 		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
 		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksk, sk_prep, p);
+		compute_automorphism_key(module, ksk, sk_prep, p);
 		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 	int bund = D;
@@ -119,7 +119,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	{
 		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
 		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksk, sk_prep, p);
+		compute_automorphism_key(module, ksk, sk_prep, p);
 		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 
@@ -203,7 +203,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	{
 		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
 		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksk, sk_prep, p);
+		compute_automorphism_key(module, ksk, sk_prep, p);
 		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 

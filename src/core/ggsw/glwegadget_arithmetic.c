@@ -111,7 +111,7 @@ cleanup:
 	delete_glwegadget(glwegad_tmp);
 	return status;
 }
-int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
+int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p)
 {
 	int status = -1;

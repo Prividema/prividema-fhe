@@ -279,7 +279,7 @@ int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, 
 	{
 		int64_t p                = (int64_t)NBASE / (1LL << (i - 1)) + 1;
 		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(auto_ksk_params);
-		prepare_automorphism_key(module, ksk, sk_prep, (int)p);
+		compute_automorphism_key(module, ksk, sk_prep, (int)p);
 		glwegadget_ksk_collection_put_key(ksks, ksk, p);
 	}
 

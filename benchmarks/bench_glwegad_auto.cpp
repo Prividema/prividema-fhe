@@ -44,7 +44,7 @@ void test_glwegad_auto(benchmark::State& state)
 
 	int auto_p = 7;
 
-	prepare_automorphism_key(module, auto_ksk, sk_prep, auto_p);
+	compute_automorphism_key(module, auto_ksk, sk_prep, auto_p);
 
 	for (auto _ : state)
 	{

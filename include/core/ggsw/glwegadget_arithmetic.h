@@ -46,7 +46,7 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
 int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep);
 /**
- * @brief Creates a key-switching-key (KSK) for an automorphism of degree automorphism_p from
+ * @brief Computes a key-switching-key (KSK) for an automorphism of degree automorphism_p from
  * the provided secret key
  *
  * @param module              The backend module
@@ -58,7 +58,7 @@ int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int prepare_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
+int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKSK* automorphism_ksk,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
 /**
  * @brief Prepares a KSK for GLWE keyswitching from old_key to new_key

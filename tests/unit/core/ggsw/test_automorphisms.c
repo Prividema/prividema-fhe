@@ -29,7 +29,7 @@ PvdaParamTest(automorphism, generate_ksk, default_params_fn)
 	uniform_glwe_secret_key(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	int c = prepare_automorphism_key(module, auto_ksk, sk_prep, 7);
+	int c = compute_automorphism_key(module, auto_ksk, sk_prep, 7);
 
 	cr_assert(c == 0);
 	delete_glwe_secret_key(sk);
@@ -68,7 +68,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	for (int i = 0; i < sizeof(auto_ps) / sizeof(auto_ps[0]); ++i)
 	{
 		int auto_p = auto_ps[i];
-		prepare_automorphism_key(module, auto_ksk, sk_prep, auto_p);
+		compute_automorphism_key(module, auto_ksk, sk_prep, auto_p);
 
 		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct);
 		normalize_glwe(module, glwe_norm, glwe_res);
@@ -128,7 +128,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 	for (int i = 0; i < sizeof(auto_ps) / sizeof(auto_ps[0]); ++i)
 	{
 		int auto_p = auto_ps[i];
-		prepare_automorphism_key(module, auto_ksk, sk_prep, auto_p);
+		compute_automorphism_key(module, auto_ksk, sk_prep, auto_p);
 
 		glwegadget_automorphism(module, glwe_res, auto_ksk, glwe_ct);
 		normalize_glwe(module, glwe_norm, glwe_res);
