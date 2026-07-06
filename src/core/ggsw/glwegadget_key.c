@@ -24,22 +24,48 @@ cleanup:
 	return -1;
 }
 
+GLWEKSK* new_glwe_ksk(GLWEGadgetParams* params)
+{
+	GLWEKSK* ksk = malloc(sizeof(GLWEAutomorphismKey));
+	CHECK_ALLOC(ksk, "Automorphism key allocation failed");
+	ksk->params = params;
+
+	ksk->enc_s = (GLWEGadgetCiphertextPrep**)calloc(params->params_glwe->k, sizeof(GLWEGadgetCiphertextPrep*));
+	CHECK_ALLOC(ksk, "Automorphism key allocation failed");
+	CHECK_CALL(allocate_prepared_gadget_array(params, ksk->enc_s, params->params_glwe->k),
+	           "Failed to allocate automorphism key");
+
+	return ksk;
+cleanup:
+	if (ksk) free((void*)ksk->enc_s);
+	free(ksk);
+	return NULL;
+}
+
+void delete_glwe_ksk(GLWEKSK* glwe_ksk)
+{
+	if (!glwe_ksk) return;
+	for (int i = 0; i < glwe_ksk->params->params_glwe->k; ++i)
+	{
+		delete_glwegadget_prep(glwe_ksk->enc_s[i]);
+	}
+	free(glwe_ksk->enc_s);
+	free(glwe_ksk);
+}
+
 GLWEAutomorphismKey* new_automorphism_key(GLWEGadgetParams* params)
 {
 	GLWEAutomorphismKey* auto_key = malloc(sizeof(GLWEAutomorphismKey));
 	CHECK_ALLOC(auto_key, "Automorphism key allocation failed");
-	auto_key->params = params;
 
 	auto_key->automorphism_p = -2;
 
-	auto_key->enc_s = (GLWEGadgetCiphertextPrep**)calloc(params->params_glwe->k, sizeof(GLWEGadgetCiphertextPrep*));
-	CHECK_ALLOC(auto_key, "Automorphism key allocation failed");
-	CHECK_CALL(allocate_prepared_gadget_array(params, auto_key->enc_s, params->params_glwe->k),
-	           "Failed to allocate automorphism key");
+	auto_key->glwe_ksk = new_glwe_ksk(params);
+	CHECK_ALLOC(auto_key->glwe_ksk, "Automorphism key allocation failed");
 
 	return auto_key;
 cleanup:
-	if (auto_key) free((void*)auto_key->enc_s);
+	if (auto_key) delete_glwe_ksk(auto_key->glwe_ksk);
 	free(auto_key);
 	return NULL;
 }
@@ -47,11 +73,7 @@ cleanup:
 void delete_automorphism_key(GLWEAutomorphismKey* automorphism_key)
 {
 	if (!automorphism_key) return;
-	for (int i = 0; i < automorphism_key->params->params_glwe->k; ++i)
-	{
-		delete_glwegadget_prep(automorphism_key->enc_s[i]);
-	}
-	free((void*)automorphism_key->enc_s);
+	delete_glwe_ksk(automorphism_key->glwe_ksk);
 	free(automorphism_key);
 }
 

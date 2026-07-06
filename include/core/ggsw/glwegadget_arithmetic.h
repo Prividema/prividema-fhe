@@ -61,7 +61,7 @@ int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT
 int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKey* automorphism_key,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
 /**
- * @brief Prepares a KSK for GLWE keyswitching from old_key to new_key
+ * @brief Computes a KSK (Key-Switching Key) for GLWE keyswitching from old_key to new_key
  *
  * @param module        The backend module
  * @param ksk           The output KSK
@@ -71,7 +71,7 @@ int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKey* automorp
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int prepare_ksk(const MODULE* module, GLWEAutomorphismKey* ksk, const GLWESecretKeyPrepared* new_key,
+int compute_ksk(const MODULE* module, GLWEKSK* ksk, const GLWESecretKeyPrepared* new_key,
                 const GLWESecretKeyPrepared* old_key);
 /**
  * @brief Performs the automorphism of a GLWE ciphertext, i.e. sets its polynomials a(X, Y) to a(X^p, Y)
@@ -92,13 +92,13 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
  *
  * @param module             The backend module
  * @param result             The resulting GLWE keyed with the new key
- * @param ksk                A prepared KSK from the old key to the new key
+ * @param glwe_ksk           A prepared KSK from the old key to the new key
  * @param glwe_ct            The input GLWE keyed with the old key
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKey* ksk,
+int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEKSK* glwe_ksk,
                            const GLWECiphertext* glwe_ct);
 
 /**

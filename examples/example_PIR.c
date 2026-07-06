@@ -232,7 +232,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	// (see commetn in packed_glwegadget_trace_expand_ggsw_prepared)
 	//
 	// Notable observations:
-	// - ksks are the KSKs used for automorphisms
+	// - auto_key_collection are the keys used for automorphisms
 	// - ggsw_ksks are encryptions of the coefficients of -sk, used to (internally) convert the GLWEGadgets that result of the query
 	//   expansion into GGSWs
 	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, ggsw_ksk_params, LOG2_COLS,
