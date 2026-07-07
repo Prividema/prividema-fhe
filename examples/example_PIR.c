@@ -72,6 +72,11 @@
 #define DB_BITS  54ll
 #define SHFT_AMT (64 - DB_BITS)
 
+// Size of the square submatrix for which we print the DB contents at the beggining
+// of the exampole
+#define DB_PRINT_SUBMAT 4
+#define DB_PRINT_COEFS  4
+
 // Function that generates the data for a certain matrix position
 // Replace with desired placeholder for the example, or with acual data
 // when going to production
@@ -91,6 +96,13 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 		else
 			test[i] = rn;
 	}
+	if (row < DB_PRINT_SUBMAT && column < DB_PRINT_SUBMAT)
+	{
+		printf("DB pos %ld %ld contents:", row + 1, column + 1);
+		for (int i = 0; i < DB_PRINT_COEFS; ++i) printf("   %ld (%ld)", test[i], test[i] >> SHFT_AMT);
+		printf("...\n");
+	}
+
 	univ_tnx_to_biv(params_glwe, biv, (uint64_t*)test, 0);
 
 	delete_univ_tnx(test);
@@ -419,7 +431,6 @@ int main(int argc, char* argv[])
 	// We need different values since we change the torus precision (similar to modulo switching)
 	double sigma8  = ldexp(1.0, 2 - 8 * KAPPABASE);
 	double sigma5  = ldexp(1.0, 2 - 5 * KAPPABASE);
-	double sigma4  = ldexp(1.0, 2 - 4 * KAPPABASE);
 	double sigma6  = ldexp(1.0, 2 - 6 * KAPPABASE);
 	MODULE* module = pvda_new_module_info(NBASE);
 
@@ -501,11 +512,14 @@ int main(int argc, char* argv[])
 
 	// Server pre-processing: generate the database columns
 	GLWECiphertext* res = new_glwe(final_params);
+	printf("Filling database...\n");
 	for (int c = 0; c <= IN_MEMORY_DFT_COLS; ++c)
 	{
 		st = prepare_column(module, c, db_params, row_exp_gad_params);
 		CHECK_CALL(st, "Preprocessing of a column of the OnionPIR database failed");
 	}
+	printf("...\nThe full %d x %d matrix has been filled. Only a portion has been printed for readability\n",
+	       MATRIX_ROWS, MATRIX_COLS);
 
 	GLWECiphertext* row_query;
 	GLWECiphertext* col_query;
@@ -559,7 +573,6 @@ int main(int argc, char* argv[])
 
 		double ms_elapsed =
 		    (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000;
-		printf("Server elapsed time: %.2f ms\n", ms_elapsed);
 
 		//Client phase 2: receive and decrypt result (done as part of print_coefs_glwe)
 
@@ -572,7 +585,7 @@ int main(int argc, char* argv[])
 		//
 		// Creating the row and column query and decrypting the result is NOT part of this throughput
 		double throughput_bits_sec = db_size_bits * 1000 / ms_elapsed;
-		printf("\nTime taken: %fs\n", ms_elapsed / 1000);
+		printf("Server elapsed time: %.2f ms\n", ms_elapsed);
 		printf("Server throughput (cleartext DB MiB per second): %.2f MiB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
 		fflush(stdout);
 
