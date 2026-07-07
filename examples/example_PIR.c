@@ -65,11 +65,12 @@
 // go and which we then can just discard and round to get an exact value
 //
 // SHFT_AMT is this margin, in bits. More succintly, in this OnionPIR proof-of-concept
-// we store 64 - SHFT_AMT bits of useful data per coefficient, and everything after that
+// we store DB_BITS bits of useful data per coefficient, and everything after that
 // is margin for the noise
 //
-// Even more succintly, the data in the database belongs in ZnX mod 2^(64 - SHFT_AMT)
-#define SHFT_AMT 10
+// Even more succintly, the data in the database belongs in ZnX mod 2^(DB_BITS)
+#define DB_BITS  54ll
+#define SHFT_AMT (64 - DB_BITS)
 
 // Function that generates the data for a certain matrix position
 // Replace with desired placeholder for the example, or with acual data
@@ -311,24 +312,29 @@ int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, 
 	CHECK_ALLOC(auto_key_collection, "Allocation failed in phase 0 of onionPIR");
 	CHECK_ALLOC(ggsw_ksks, "Allocation failed in phase 0 of onionPIR");
 
+	*sk_prep_out             = sk_prep;
+	*auto_key_collection_out = auto_key_collection;
+	*ggsw_ksks_out           = ggsw_ksks;
+
 	// Secret key
-	*sk_prep_out = sk_prep;
-	uniform_glwe_secret_key(module, sk, sk_bits);
+	CHECK_CALL(uniform_glwe_secret_key(module, sk, sk_bits), "GLWE secret key generation failed in onionpir phase 0");
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	// Automorphism-expand keys
-	*auto_key_collection_out = auto_key_collection;
 	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
 	{
 		int64_t p                     = (int64_t)NBASE / (1LL << (i - 1)) + 1;
 		GLWEAutomorphismKey* auto_key = new_automorphism_key(auto_ksk_params);
-		compute_automorphism_key(module, auto_key, sk_prep, (int)p);
+		CHECK_ALLOC(auto_key, "Automorphism key allocation failed in onionpir phase 0");
+
+		int st = compute_automorphism_key(module, auto_key, sk_prep, (int)p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
+		CHECK_CALL(st, "Automorphism key computation failed in onionpir phase 0");
 	}
 
 	// GGSW(-s) for gadget to GGSW conversion
-	*ggsw_ksks_out = ggsw_ksks;
-	generate_glwegad_to_ggsw_ksk(module, ggsw_ksks, auto_ggsw_params, sk_prep);
+	CHECK_CALL(generate_glwegad_to_ggsw_ksk(module, ggsw_ksks, auto_ggsw_params, sk_prep),
+	           "GLWEGadget to GGSW KSK generation failed in oniopir phase 0");
 
 	status = 0;
 cleanup:
@@ -349,6 +355,11 @@ int onionpir_client_phase1(const MODULE* module, GLWECiphertext** row_query, GLW
 	PolyUniv* sel_row = new_univ(params_row_query);
 	PolyUniv* sel_col = new_univ(params_col_query);
 
+	CHECK_ALLOC(row_query, "GLWE allocation failed in oniopir phase 1");
+	CHECK_ALLOC(col_query, "GLWE allocation failed in oniopir phase 1");
+	CHECK_ALLOC(sel_row, "Univariate polynomial allocation failed in oniopir phase 1");
+	CHECK_ALLOC(sel_col, "Univariate polynomial allocation failed in oniopir phase 1");
+
 	memset(sel_row, 0, poly_univ_bytes(params_row_query));
 	memset(sel_col, 0, poly_univ_bytes(params_col_query));
 
@@ -363,8 +374,11 @@ int onionpir_client_phase1(const MODULE* module, GLWECiphertext** row_query, GLW
 
 	sel_row[row_num] = 1;
 
-	glwegadget_packed_secret_encrypt(module, *row_query, row_query_gad_params, sk_prep, sel_row, MATRIX_ROWS);
-	glwegadget_packed_secret_encrypt(module, *col_query, col_query_gad_params, sk_prep, sel_col, LOG2_COLS);
+	CHECK_CALL(
+	    glwegadget_packed_secret_encrypt(module, *row_query, row_query_gad_params, sk_prep, sel_row, MATRIX_ROWS),
+	    "Row query packing and encryption failed in onionpir phase 1");
+	CHECK_CALL(glwegadget_packed_secret_encrypt(module, *col_query, col_query_gad_params, sk_prep, sel_col, LOG2_COLS),
+	           "Column query packing and encryption failed in onionpir phase 1");
 
 	status = 0;
 cleanup:
@@ -451,14 +465,17 @@ int main(int argc, char* argv[])
 	GLWEAutomorphismKeyCollection* auto_key_collection;
 	GGSWCiphertextPrep** ggsw_ksks;
 
-	onionpir_client_phase0(module, &sk_prep, 2, final_params, &auto_key_collection, auto_key_params, &ggsw_ksks,
-	                       auto_ggsw_params);
+	int st = onionpir_client_phase0(module, &sk_prep, 2, final_params, &auto_key_collection, auto_key_params,
+	                                &ggsw_ksks, auto_ggsw_params);
+
+	CHECK_CALL(st, "OnionPIR phase 0 (key generation) failed");
 
 	// Server pre-processing: generate the database columns
 	GLWECiphertext* res = new_glwe(final_params);
 	for (int c = 0; c <= IN_MEMORY_DFT_COLS; ++c)
 	{
-		prepare_column(module, c, db_params, row_exp_gad_params);
+		st = prepare_column(module, c, db_params, row_exp_gad_params);
+		CHECK_CALL(st, "Preprocessing of a column of the OnionPIR database failed");
 	}
 
 	GLWECiphertext* row_query;
@@ -488,8 +505,9 @@ int main(int argc, char* argv[])
 		printf("Selecting row %d, column %d\n", row, col);
 		--row;
 		--col;
-		onionpir_client_phase1(module, &row_query, &col_query, sk_prep, row, col, params_row_query, params_col_query,
-		                       row_query_gad_params, col_query_gad_params);
+		st = onionpir_client_phase1(module, &row_query, &col_query, sk_prep, row, col, params_row_query,
+		                            params_col_query, row_query_gad_params, col_query_gad_params);
+		CHECK_CALL(st, "OnionPIR phase 1 (query generation from row and column numbers) failed");
 
 		// Server online phase: receive column and row queries, together with evaluation keys (auto_key_collection and ggsw_ksks)
 		// Use OnionPIR to retrieve a single database position in the form of a GLWE
@@ -497,8 +515,9 @@ int main(int argc, char* argv[])
 		struct timespec server_start;
 		clock_gettime(CLOCK_REALTIME, &server_start);
 
-		onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params, auto_key_collection,
-		                (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query, col_query);
+		st = onionpir_server(module, auto_ggsw_params, row_exp_gad_params, db_params, col_sum_params,
+		                     auto_key_collection, (const GGSWCiphertextPrep**)ggsw_ksks, res, row_query, col_query);
+		CHECK_CALL(st, "OnionPIR server phase failed");
 
 		struct timespec server_end;
 		clock_gettime(CLOCK_REALTIME, &server_end);
@@ -509,7 +528,7 @@ int main(int argc, char* argv[])
 
 		//Client phase 2: receive and decrypt result (done as part of print_coefs_glwe)
 
-		printf("Result:\n");
+		printf("Result     encoded (decoded):\n");
 		print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
 
 		// Compute the online throughput, in terms of bits of useful database data (size of the unprepared database)
@@ -517,8 +536,8 @@ int main(int argc, char* argv[])
 		// for example, 4GB due to the format used in OnionPIR, would take 2s to return a result
 		//
 		// Creating the row and column query and decrypting the result is NOT part of this throughput
-		double throughput_bits_sec = (64.0 - SHFT_AMT) * NBASE * MATRIX_ROWS * MATRIX_COLS * 1000 / ms_elapsed;
-		printf("Server throughput: %.2f MiB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
+		double throughput_bits_sec = DB_BITS * NBASE * MATRIX_ROWS * MATRIX_COLS * 1000 / ms_elapsed;
+		printf("Server throughput (cleartext DB MiB per second): %.2f MiB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
 		fflush(stdout);
 
 		delete_glwe(row_query);
@@ -563,4 +582,8 @@ int main(int argc, char* argv[])
 	delete_glwe_params(db_params);
 
 	return 0;
+
+	// In this case, cleanup is the error path and we simply exit the program
+cleanup:
+	exit(-1);
 }
