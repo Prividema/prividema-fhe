@@ -120,7 +120,7 @@ int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, 
 	CHECK_ALLOC(err, "Failed alloc in fast uniform noise generation");
 
 	if (params_glwe->fast_uniform_nb_bits)
-		CHECK_CALL(uniform_random_pol_znx(err, nn, params_glwe->fast_uniform_nb_bits),
+		CHECK_CALL(uniform_pow2_random_pol_znx(err, nn, params_glwe->fast_uniform_nb_bits),
 		           "Uniform noise generation failed");
 	else
 	{

@@ -76,7 +76,7 @@ int rand_normal(double* result, double mu, double sigma);
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
+int uniform_pow2_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
 
 /**
  * @brief Generates a uniformly random binary \ZnX polynomial
@@ -90,6 +90,22 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
  * @retval 0 otherwise.
  */
 int binary_random_pol_znx(PolyUniv* res, uint64_t nn);
+
+/**
+ * @brief Generates a uniformly random \ZnX polynomial
+ *
+ * Coefficients are uniformly sampled in range [low_bound, high_bound]
+ *
+ * @param res         The result uniformly drawn \ZnX polynomial.
+ * @param nn          Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param low_bound   Lower bound of the generated numbers
+ * @param high_bound  Upperbound of the generated numbers
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
+ */
+int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound);
+
 /**
  * @brief Generates a random vector following a uniform distribution in res.
  *

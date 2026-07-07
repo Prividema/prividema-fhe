@@ -318,7 +318,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_random_pol_znx(m_univ, bund, 1);
+		uniform_pow2_random_pol_znx(m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -402,7 +402,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_random_pol_znx(m_univ, bund, 1);
+		uniform_pow2_random_pol_znx(m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 

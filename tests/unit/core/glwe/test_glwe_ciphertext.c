@@ -248,7 +248,7 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 	                   params_glwe->kappa - 1);
 
 	// Draws in Zn[X] the polynomial u
-	uniform_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);
@@ -360,7 +360,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 	uniform_random_vec_znx_dft(module, glwe_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
 
 	// Draws uniformly
-	uniform_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain

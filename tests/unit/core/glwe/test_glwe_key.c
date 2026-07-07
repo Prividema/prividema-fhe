@@ -89,8 +89,7 @@ PvdaParamTest(binary_glwe_secret_key, values_not_null, default_params_fn)
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
 	int status = binary_glwe_secret_key(module, sk);
 
-	// Asserts uniform_glwe_secret_key worked
-	cr_assert(eq(int, status, 0), "uniform_glwe_secret_key failed.");
+	cr_assert(eq(int, status, 0), "binary_glwe_secret_key failed.");
 
 	delete_glwe_secret_key(sk);
 
@@ -109,11 +108,56 @@ PvdaParamTest(binary_glwe_secret_key, values_binary, default_params_fn)
 
 	int status = binary_glwe_secret_key(module, sk);
 
-	cr_assert(eq(int, status, 0), "uniform_glwe_secret_key failed.");
+	cr_assert(eq(int, status, 0), "binary_glwe_secret_key failed.");
 
 	for (int i = 0; i < params_glwe->nn * params_glwe->k; ++i)
 	{
 		cr_assert(sk->values[i] == 0 || sk->values[i] == 1, "Non-binary values");
+	}
+
+	delete_glwe_secret_key(sk);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+/**
+ * @brief Ensures binary_glwe_secret_key returns a non-NULL pointer when values != NULL.
+ */
+PvdaParamTest(ternary_glwe_secret_key, values_not_null, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	// Create a bivGLWE secret key
+	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+
+	// Draw uniformly in Zn[X] the bivGLWE secret key's values
+	int status = ternary_glwe_secret_key(module, sk);
+
+	// Asserts uniform_glwe_secret_key worked
+	cr_assert(eq(int, status, 0), "ternary_glwe_secret_key failed.");
+
+	delete_glwe_secret_key(sk);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
+/**
+ * @brief Ensures binary_glwe_secret_key's generated key is actually binary
+ */
+PvdaParamTest(ternary_glwe_secret_key, values_ternary, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	// Create a bivGLWE secret key
+	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+
+	int status = ternary_glwe_secret_key(module, sk);
+
+	cr_assert(eq(int, status, 0), "ternary_glwe_secret_key failed.");
+
+	for (int i = 0; i < params_glwe->nn * params_glwe->k; ++i)
+	{
+		cr_assert(sk->values[i] == 0 || sk->values[i] == 1 || sk->values[i] == -1, "Non-binary values");
 	}
 
 	delete_glwe_secret_key(sk);

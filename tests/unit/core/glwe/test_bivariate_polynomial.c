@@ -152,7 +152,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -180,7 +180,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -207,7 +207,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx((PolyUniv*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -244,7 +244,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 
 	uint64_t precision = precision1 > precision2 ? precision1 : precision2;
 
-	uniform_random_pol_znx(tnx_values, vec_size, 64);
+	uniform_pow2_random_pol_znx(tnx_values, vec_size, 64);
 
 	univ_tnx_to_biv(params_glwe, biv, tnx_values, 0);
 	biv_to_univ_rnx(params_glwe, rnx_values, biv);

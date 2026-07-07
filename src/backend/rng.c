@@ -145,7 +145,7 @@ cleanup:
 	return -1;
 }
 
-int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits)
+int uniform_pow2_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits)
 {
 	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
 	for (uint64_t p = 0; p < nn; p++)
@@ -169,10 +169,21 @@ cleanup:
 	return -1;
 }
 
+int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
+{
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		CHECK_CALL(rand_uniform(&res[p], low_bound, high_bound), "uniform RNG failed");
+	}
+	return 0;
+cleanup:
+	return -1;
+}
+
 int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
-		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
+		CHECK_CALL(uniform_pow2_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
 	return 0;
 cleanup:
 	return -1;

@@ -73,6 +73,17 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
 int binary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk);
 
 /**
+ * @brief Draws a ternary secret key
+ *
+ * @param module Additionnal information for backend.
+ * @param sk The secret key.
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
+ */
+int ternary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk);
+
+/**
  * @brief Returns a pointer to the pos'th polynomial in the secret key
  *
  *

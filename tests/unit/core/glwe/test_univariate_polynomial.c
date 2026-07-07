@@ -129,7 +129,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx, default_params_fn)
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
 
 	uint64_t precision = (1l << (64 - 53));
-	uniform_random_pol_znx(tnx_values, vec_size, 64);
+	uniform_pow2_random_pol_znx(tnx_values, vec_size, 64);
 
 	univ_tnx_to_rnx(params_glwe, rnx_values, tnx_values);
 	univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
