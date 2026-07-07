@@ -47,6 +47,19 @@
 	} while (0)
 
 /**
+ * @brief Raises a runtime error
+ *
+ * @param m   The error message
+ * @param label Label to jump to
+ */
+#define RAISE_ERROR_LABEL(m, label) \
+	do                              \
+	{                               \
+		log_message(LOG_ERROR, m);  \
+		goto label;                 \
+	} while (0)
+
+/**
  * @brief Checks if an expression throws an error.
  *
  * This function checks if an expression (most of the time it's the return value of a function)

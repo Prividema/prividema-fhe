@@ -64,6 +64,7 @@ int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, const GLWECipherte
 	for (int c = 0; c < inp_cols; ++c)
 	{
 		glwe_tree[0][c] = src[c];
+		if (delete_src) src[c] = NULL;
 	}
 
 	int used_cols = inp_cols;

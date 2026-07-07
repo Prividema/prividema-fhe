@@ -57,7 +57,7 @@
 #define L_TILDE_Q1 4
 
 // Elements in the database are technically in the torus.
-// For simplicity, in this example the data we put is
+// For simplicity, in this example the data we would like to put is
 // some number in ZnX mod 2^64 or equivalently TnX
 // However, due to the noisy nature of FHE, the result we get at the end
 // will have some noise. To avoid that, we would want the data in the DB to
@@ -67,6 +67,8 @@
 // SHFT_AMT is this margin, in bits. More succintly, in this OnionPIR proof-of-concept
 // we store 64 - SHFT_AMT bits of useful data per coefficient, and everything after that
 // is margin for the noise
+//
+// Even more succintly, the data in the database belongs in ZnX mod 2^(64 - SHFT_AMT)
 #define SHFT_AMT 10
 
 // Function that generates the data for a certain matrix position
@@ -107,13 +109,13 @@ int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, Pol
 	}
 }
 
-// Prepared column variable
-// In a real use case, this would not exist and we would instead use a
-// memory map of some kind
+// This stores the database columns after being pre-processed ("prepared") for faster operation
+// In a real use case, this would not exist as a variable in memory.
+// Instead, we would use a memory mapping and it would reside in disk
 PolyBivDFT* columns_dft[IN_MEMORY_DFT_COLS + 1] = {0};
 
 // Retrieve a prepared column. This would be simple pointer arithmetic
-// to an mmaped file in disk in a real usecase
+// to an mmaped file in disk in a real use case
 PolyBivDFT* onionpir_get_prepared_column(int64_t column)
 {
 	if (column >= IN_MEMORY_DFT_COLS) return columns_dft[0];
@@ -128,6 +130,7 @@ PolyBivDFT* onionpir_get_prepared_column(int64_t column)
 int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_params,
                    const GLWEGadgetParams* query1_params)
 {
+	int status = -1;
 	assert(query1_params->l_tilde == glwe_params_l_a(db_params));
 	uint64_t total_depth = query1_params->l_tilde * MATRIX_ROWS;
 	if (column >= IN_MEMORY_DFT_COLS)
@@ -142,6 +145,11 @@ int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_pa
 			// Unsure if this will change in the future for performance reasons
 			// In any case, writing to a DFT polynomial directly might not be supported in platforms
 			// where DFT elements, for example, reside in a GPU, etc.
+			if (columns_dft[0] == 0)
+			{
+				log_message(LOG_ERROR, "prepare column 0-column allocation failed");
+				return -1;
+			}
 		}
 		return 0;
 	}
@@ -150,10 +158,15 @@ int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_pa
 	// to the concatenation of all the bivariate polynomials in the column
 	PolyBivPrep* pos_biv_dft = new_biv_dft_custom_params(db_params->nn, total_depth);
 	PolyBiv* pos_biv         = new_biv_custom_params(db_params->nn, total_depth);
-	columns_dft[column + 1]  = pos_biv_dft;
+	CHECK_ALLOC(pos_biv_dft, "column 'bivariate' polynomial (in DFT) allocation failed");
+	CHECK_ALLOC(pos_biv, "column 'bivariate' polynomial allocation failed");
+
+	columns_dft[column + 1] = pos_biv_dft;
 
 	// Fill a whole column with the data generated or retrieved by the generator functions
-	onionpir_fill_column_with_matrix_position(db_params, pos_biv, column, query1_params->l_tilde, MATRIX_ROWS);
+	CHECK_CALL(
+	    onionpir_fill_column_with_matrix_position(db_params, pos_biv, column, query1_params->l_tilde, MATRIX_ROWS),
+	    "Filling the onionPIR column failed");
 
 	// This GLWEParams object is a dummy parameter set that is used  only for biv_coefs_to_prep to be able to work on a
 	// "bivariate_polynomial" of depth total_dept of depth total_depth.
@@ -163,7 +176,10 @@ int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_pa
 
 	//Prepare the column
 	biv_coefs_to_prep(module, &total_params, pos_biv_dft, pos_biv);
+	status = 0;
+cleanup:
 	delete_biv(pos_biv);
+	return status;
 }
 
 // Performs the server tasks in OnionPIR: receive the packed GLWEGadgets,
@@ -174,11 +190,7 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
                     const GLWEAutomorphismKeyCollection* auto_key_collection, const GGSWCiphertextPrep** ggsw_ksks,
                     GLWECiphertext* res, const GLWECiphertext* row_query, const GLWECiphertext* col_query)
 {
-	GLWECiphertext* glwe_tree_first_level[MATRIX_COLS] = {0};
-	for (int c = 0; c < MATRIX_COLS; ++c)
-	{
-		glwe_tree_first_level[c] = new_glwe(aggregation_params);
-	}
+	int status = -1;
 
 	// New parameters used for the concatenation of GLWEGadgets x Concatenation of rows in column optimisation
 	// We have to have a GLWEGadget of depth MATRIX_ROWS times the original depth
@@ -197,13 +209,27 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	// requiring us to do MATRIX_ROWS DFT-to-coefficient domain conversions instead of a single one at the end
 	GLWEGadgetCiphertextPrep* glwegad_trace = new_glwegadget_prep(mega_params);
 
+	// Temporary DFT glwe for the result for each column
+	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
+
+	CHECK_ALLOC_LABEL(mega_params, "Parameter allocation failed in onionpir server", cleanup1);
+	CHECK_ALLOC_LABEL(glwegad_trace, "GLWEGadget trace allocation failed in onionpir server", cleanup1);
+	CHECK_ALLOC_LABEL(tmp_glwe_dft, "Temporary GLWE DFT failed in onionpir server", cleanup1);
+
 	// Expand the row selection packed glwegadget into a single, large depth, GLWEGadget
 	int st = packed_glwegadget_trace_expand_prepared_single(module, glwegad_trace, query1_params, MATRIX_ROWS,
 	                                                        L_TILDE_Q1, row_query, auto_key_collection);
+	CHECK_CALL_LABEL(st, "Row trace expansion failed in onionpir server", cleanup1);
+
 	// Half products
 	// Due to the optimisation, we only have one per column
-	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
 
+	GLWECiphertext* glwe_tree_first_level[MATRIX_COLS] = {0};
+	for (int c = 0; c < MATRIX_COLS; ++c)
+	{
+		glwe_tree_first_level[c] = new_glwe(aggregation_params);
+		CHECK_ALLOC_LABEL(glwe_tree_first_level[c], "GLWE allocation failed in onionpir server", cleanup2);
+	}
 	// We record and report the time spent in the column half-products, since for non-small matrices it is the main performance bottleneck
 	struct timespec server_start;
 	clock_gettime(CLOCK_REALTIME, &server_start);
@@ -211,9 +237,16 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	for (int64_t c = 0; c < MATRIX_COLS; ++c)
 	{
 		// We do just one half-product per column, and then convert it to coefficient-space for later selection with the CMux tree
-		glwegadget_half_prod_prepared_to_dft(module, tmp_glwe_dft, glwegad_trace, onionpir_get_prepared_column(c));
-		glwe_dft_to_coef(module, glwe_tree_first_level[c], tmp_glwe_dft);
+		st = glwegadget_half_prod_prepared_to_dft(module, tmp_glwe_dft, glwegad_trace, onionpir_get_prepared_column(c));
+		CHECK_CALL_LABEL(st, "Trace by column half-product failed in onionpir server", cleanup2);
+		st = glwe_dft_to_coef(module, glwe_tree_first_level[c], tmp_glwe_dft);
+		CHECK_CALL_LABEL(st, "DFT to coefficient form failed after column half-product in onionpir server", cleanup2);
 	}
+
+	// Delete the row selection gadget to lower peak memory consumption
+	delete_glwegadget_prep(glwegad_trace);
+	glwegad_trace = NULL;
+
 	struct timespec server_end;
 	clock_gettime(CLOCK_REALTIME, &server_end);
 
@@ -221,36 +254,45 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 	    (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000;
 	printf("HP elapsed time: %.2f ms\n", ms_elapsed);
 
-	delete_glwegadget_prep(glwegad_trace);
-
 	// Column selection by a Mux tree. Thus, we have LOG2_COLS selection signals (one signal per level)
 	GGSWCiphertextPrep* ggsw_trace[LOG2_COLS] = {0};
 
 	// Expand the column selection packed GLWEGadget into one GGSW per level (LOG2_COLS as many of them)
 	// Note that we do not initialize the ggsw_trace contents.
 	// The function has support for doing it automatically, which allows it to reduce the memory footprint
-	// (see commetn in packed_glwegadget_trace_expand_ggsw_prepared)
+	// (see comment in packed_glwegadget_trace_expand_ggsw_prepared)
 	//
 	// Notable observations:
 	// - auto_key_collection are the keys used for automorphisms
 	// - ggsw_ksks are encryptions of the coefficients of -sk, used to (internally) convert the GLWEGadgets that result of the query
 	//   expansion into GGSWs
-	packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, ggsw_ksk_params, LOG2_COLS,
-	                                             ggsw_params_l_tilde_a(ggsw_ksk_params), col_query, auto_key_collection,
-	                                             (const GGSWCiphertextPrep**)ggsw_ksks);
+	st = packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, ggsw_ksk_params, LOG2_COLS,
+	                                                  ggsw_params_l_tilde_a(ggsw_ksk_params), col_query,
+	                                                  auto_key_collection, (const GGSWCiphertextPrep**)ggsw_ksks);
+	CHECK_CALL_LABEL(st, "Column selection trace expansion failed in onionpir server", cleanup3);
 
 	// CMux selection tree (that is, arbitrary-size CMux)
 	// This function can deallocate its input, which we do for memory efficiency reasons
-	tfhe_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree_first_level, MATRIX_COLS,
-	               (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
+	st = tfhe_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree_first_level, MATRIX_COLS,
+	                    (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
+	CHECK_CALL_LABEL(st, "CMux tree failed in onionpir server", cleanup3);
 
+	status = 0;
+cleanup3:
 	for (int i = 0; i < LOG2_COLS; ++i)
 	{
 		delete_ggsw_prep(ggsw_trace[i]);
 	}
+cleanup2:
+	for (int c = 0; c < MATRIX_COLS; ++c)
+	{
+		delete_glwe(glwe_tree_first_level[c]);
+	}
+cleanup1:
+	delete_glwegadget_prep(glwegad_trace);
 	delete_glwe_dft(tmp_glwe_dft);
 	delete_glwegadget_params(mega_params);
-	return 0;
+	return status;
 }
 
 // Setup phase for the client in the protocol: secret and evaluation key generation
@@ -348,9 +390,12 @@ int main(int argc, char* argv[])
 	// to be able to use standard security estimations)
 	// Due to using the NOISE_UNIFORM_POWER_OF_TWO
 	// generator, this will select the closest power of 2 that has a uniform distribution
-	// at least as secure as the normal one with the parameter, since
+	// at least as secure as the standard one with the parameter, since
 	// Standard: 3.2*sqrt(3) = 5.54 ==> 8
 	// 2 bits:   4 * sqrt(3) = 6.9 ==> 8
+	//
+	// In other words: these values of sigma all correspond to the same security level
+	// We need different values since we change the torus precision (similar to modulo switching)
 	double sigma8  = ldexp(1.0, 2 - 8 * KAPPABASE);
 	double sigma5  = ldexp(1.0, 2 - 5 * KAPPABASE);
 	double sigma4  = ldexp(1.0, 2 - 4 * KAPPABASE);
@@ -410,7 +455,6 @@ int main(int argc, char* argv[])
 	                       auto_ggsw_params);
 
 	// Server pre-processing: generate the database columns
-
 	GLWECiphertext* res = new_glwe(final_params);
 	for (int c = 0; c <= IN_MEMORY_DFT_COLS; ++c)
 	{
