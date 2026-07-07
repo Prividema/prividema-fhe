@@ -157,6 +157,18 @@ cleanup:
 	return -1;
 }
 
+int binary_random_pol_znx(PolyUniv* res, uint64_t nn)
+{
+	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		res[p] &= 1;
+	}
+	return 0;
+cleanup:
+	return -1;
+}
+
 int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)

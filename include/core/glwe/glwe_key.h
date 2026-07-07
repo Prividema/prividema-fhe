@@ -62,6 +62,17 @@ GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
 int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits);
 
 /**
+ * @brief Draws a binary secret key
+ *
+ * @param module Additionnal information for backend.
+ * @param sk The secret key.
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
+ */
+int binary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk);
+
+/**
  * @brief Returns a pointer to the pos'th polynomial in the secret key
  *
  *

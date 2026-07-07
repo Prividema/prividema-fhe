@@ -79,6 +79,18 @@ int rand_normal(double* result, double mu, double sigma);
 int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
 
 /**
+ * @brief Generates a uniformly random binary \ZnX polynomial
+ *
+ * Coefficients are uniformly sampled in {0, 1}
+ *
+ * @param res     The result uniformly drawn \ZnX polynomial.
+ * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
+ */
+int binary_random_pol_znx(PolyUniv* res, uint64_t nn);
+/**
  * @brief Generates a random vector following a uniform distribution in res.
  *
  * In other words, every res_sl words/elements (of 64 bits), it fills limb_len

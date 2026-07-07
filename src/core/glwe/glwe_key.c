@@ -41,6 +41,18 @@ cleanup:
 	return -1;
 }
 
+int binary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk)
+{
+	uint64_t nn = pvda_module_extract_nn(module);
+	// The Secret key values
+	// Uniform random generation of k Zn[X] polynomials.
+	CHECK_CALL(binary_random_pol_znx(sk->values, nn * sk->k), "random vector generation failed in key generation");
+
+	return 0;
+cleanup:
+	return -1;
+}
+
 PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos)
 {
 	assert(pos >= 0 && pos < sk->k);
