@@ -136,7 +136,6 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
 		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
 
-		//TODO: univ auto function
 		uint64_t nn = params_glwe->nn;
 		pvda_znx_automorphism(module, auto_p, m_expected_tnx, m_univ_tnx);
 

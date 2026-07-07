@@ -132,9 +132,15 @@ int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, 
 	PolyBiv last_limb_a   = new_biv_view(nn, 1, nn, a->ptr + nn * (l_a - 1));
 	PolyBiv err_biv       = new_biv_view(nn, 1, nn, err);
 
-	//TODO: this does not work for strided PolyBiv
-	if (res != a) memcpy(res->ptr, a->ptr, poly_biv_bytes(params_glwe));
-
+	if (res != a)
+	{
+		if (res->stride == a->stride && a->stride == a->nn)
+			memcpy(res->ptr, a->ptr, poly_biv_bytes(params_glwe));
+		else
+		{
+			RAISE_ERROR("Strided fast uniform noise addition not implemented");
+		}
+	}
 	pvda_vec_znx_add(module, &last_limb_res, &last_limb_a, &err_biv);
 
 	status = 0;
@@ -249,7 +255,6 @@ cleanup:
 
 int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
 {
-	//TODO: remove useless params glwe
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
 	pvda_vec_znx_dft(module, res_dft, l, a);
@@ -257,7 +262,6 @@ int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBi
 }
 int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
 {
-	//TODO: remove useless params glwe
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
 	pvda_vmp_prepare_vec(module, res_prep, l, a);
@@ -266,7 +270,6 @@ int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyB
 
 int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
-	//TODO: remove useless params glwe
 	uint64_t l = glwe_params_l_a(params_glwe);
 	return pvda_vec_znx_idft(module, res, a_dft, l);
 }
@@ -579,8 +582,10 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
 	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
 
-	//TODO: not work for strided
-	memset(res->ptr, 0, poly_biv_bytes(params_glwe));
+	for (int l = 0; l < res->l; ++l)
+	{
+		memset(res->ptr + res->stride * l, 0, sizeof(PolyBivUnderlying) * res->nn);
+	}
 
 	// Decompose the tnx values into sign and magintude
 	for (int p = 0; p < nn; ++p)
@@ -621,8 +626,10 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
 	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
 
-	//TODO: not work for strided
-	memset(res->ptr, 0, poly_biv_bytes(params_glwe));
+	for (int l = 0; l < res->l; ++l)
+	{
+		memset(res->ptr + res->stride * l, 0, sizeof(PolyBivUnderlying) * res->nn);
+	}
 
 	// Decompose the znx values into sign and magintude
 	for (int p = 0; p < nn; ++p)
