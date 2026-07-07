@@ -75,7 +75,7 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
 }
 
-int rand_uniform(int64_t* result, uint64_t nb_bits)
+int rand_uniform_pow2(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
 	assert(nb_bits <= 8 * sizeof(int64_t));
@@ -93,6 +93,26 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 		return 1;
 	}
 
+	return 0;
+}
+
+int rand_uniform(int64_t* result, int64_t limit_down, int64_t limit_up)
+{
+	uint64_t max_delta = (uint64_t)limit_up - (uint64_t)limit_down;
+	if (max_delta == UINT64_MAX) return -1;
+	uint64_t bits = next_pow2_log(max_delta + 1);
+	uint64_t mask = bits == 64 ? (UINT64_MAX) : (1ull << bits) - 1;
+
+	uint64_t tmp = 0;
+
+	int st;
+	do
+	{
+		st = read_rand(&tmp, INT_ROUND_UP_DIV(bits, 8));
+		if (st < 0) return -1;
+		tmp &= mask;
+	} while (tmp > max_delta);
+	*result = (int64_t)((uint64_t)limit_down + tmp);
 	return 0;
 }
 
@@ -166,7 +186,7 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 	// Draws uniformly in Zn[X] the vector elements
 	for (int i = 0; i < vec_size; i++)
 		for (int p = 0; p < nn; p++)
-			CHECK_CALL(rand_uniform(tmp_space + i * nn + p, nb_bits),
+			CHECK_CALL(rand_uniform_pow2(tmp_space + i * nn + p, nb_bits),
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
