@@ -373,6 +373,61 @@ cleanup:
 	return status;
 }
 
+int glwe_hom_trace(const MODULE* module, GLWECiphertext* result, int enc_size, uint64_t pos,
+                   const GLWECiphertext* glwe_ct, const GLWEAutomorphismKeyCollection* auto_key_collection)
+
+{
+	int status = -1;
+
+	uint64_t nn = glwe_ct->params->nn;
+
+	glwe_copy(result, glwe_ct);
+
+	GLWECiphertext* tmp_glwe = new_glwe(glwe_ct->params);
+	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
+
+	PolyBiv tmp_flattened = glwe_flattened_biv(tmp_glwe);
+
+	// Step 0:
+	glwegadget_automorphism(module, tmp_glwe, glwegadget_key_collection_get_key(auto_key_collection, nn + 1), result);
+
+	if (pos & 1)
+	{
+		sub_glwe(module, tmp_glwe, result, tmp_glwe);
+		pvda_vec_znx_rotate(module, -1, &tmp_flattened, &tmp_flattened);
+	}
+	else
+		add_glwe(module, tmp_glwe, result, tmp_glwe);
+	pos >>= 1;
+
+	normalize_glwe(module, result, tmp_glwe);
+
+	// Rest of the steps
+	for (uint64_t p = 2; p < enc_size; p *= 2)
+	{
+		int64_t auto_p                = (int64_t)nn / p + 1;
+		GLWEAutomorphismKey* auto_key = glwegadget_key_collection_get_key(auto_key_collection, auto_p);
+		CHECK_ALLOC(auto_key, "KSK retrieval failed in trace expand");
+		glwegadget_automorphism(module, tmp_glwe, auto_key, result);
+
+		if (pos & 1)
+		{
+			sub_glwe(module, tmp_glwe, result, tmp_glwe);
+			pvda_vec_znx_rotate(module, -p, &tmp_flattened, &tmp_flattened);
+		}
+		else
+			add_glwe(module, tmp_glwe, result, tmp_glwe);
+		pos >>= 1;
+
+		normalize_glwe(module, result, tmp_glwe);
+	}
+
+	status = 0;
+cleanup:
+	delete_glwe(tmp_glwe);
+	return status;
+}
+
 int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
                                    const GLWECiphertext* packed_glwegadget,
                                    const GLWEAutomorphismKeyCollection* auto_key_collection)

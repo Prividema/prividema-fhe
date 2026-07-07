@@ -124,6 +124,29 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
                       const GLWEAutomorphismKeyCollection* auto_key_collection);
 
 /**
+ * @brief Extracts a position from a GLWE with at most res_size non-zero coefficents
+ *
+ * More specifically, extracts from GLWE(a_0 + a_1 * x + ... + a_d * x^d) position pos: GLWE(m * a_pos)
+ * with d = enc_size - 1 and m = ceil(log2(enc_size))
+ *
+ * The algorithm used as well as a better explanation can be found in
+ * https://github.com/Prividema/prividema-fhe/pull/64#issuecomment-4648948222
+ *
+ *
+ * @param module The backend module
+ * @param result The output result
+ * @param enc_size The number of (non-zero) coefficients in the GLWE.
+ * @param pos The position to extract
+ * @param glwe_ct The packed GLWEGadget
+ * @param auto_key_collection The automorphism key collection for trace expansion
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
+int glwe_hom_trace(const MODULE* module, GLWECiphertext* result, int enc_size, uint64_t pos,
+                   const GLWECiphertext* glwe_ct, const GLWEAutomorphismKeyCollection* auto_key_collection);
+
+/**
  * @brief Expands a packed GLWEGadget into a set of corresponding GLWEGadgets
  *
  * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
