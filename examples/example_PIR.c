@@ -38,9 +38,9 @@
  *****************************************************************************/
 
 // Matrix dimenstions (number of columns, rows and logarithm of the columns)
-#define MATRIX_COLS 256
-#define LOG2_COLS   8
-#define MATRIX_ROWS 256
+#define MATRIX_COLS 1024
+#define LOG2_COLS   10
+#define MATRIX_ROWS 1024
 
 // How many columns to actually keep in memory
 // In a real application, all of them would be either in disk or memory
@@ -48,10 +48,10 @@
 // IN_MEMORY_DFT_COLS and for the rest we reuse a 0 column
 // Otherwise, we would quickly run out of memory
 
-#define IN_MEMORY_DFT_COLS 64
+#define IN_MEMORY_DFT_COLS 32
 
 // GLWE(and Gadget) parameters
-#define NBASE      (1 << 12)
+#define NBASE      4096
 #define KBASE      1
 #define KAPPABASE  18
 #define L_TILDE_Q1 4
@@ -124,6 +124,9 @@ PolyBivDFT* onionpir_get_prepared_column(int64_t column)
 }
 
 // Function to pre-process some of the columns of the database
+//
+// The database is stored in a "prepared" DFT format that improves the performance of queries
+//
 // For the example, only the first IN_MEMORY_DFT_COLS are pre-processed for memory limitation reasons
 // Column 0 is stored in columns_dft[1], and so on until columns_dft[IN_MEMORY_DFT_COLS]
 // columns_dft[0] is used to store a 0-valued column placeholder used for columns that are
@@ -176,7 +179,8 @@ int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_pa
 	                           MATRIX_ROWS * db_params->ciphertext_nb_limbs};
 
 	//Prepare the column
-	biv_coefs_to_prep(module, &total_params, pos_biv_dft, pos_biv);
+	CHECK_CALL(biv_coefs_to_prep(module, &total_params, pos_biv_dft, pos_biv),
+	           "Column preparation (preprocessing) failed");
 	status = 0;
 cleanup:
 	delete_biv(pos_biv);
@@ -397,6 +401,9 @@ int main(int argc, char* argv[])
 		exit(1);
 	}
 
+	printf("General parameters: N = %d, k = %d, K = %d\n", NBASE, KBASE, KAPPABASE);
+	printf("\n");
+
 	// We set a minimum of 2 bits of noise standard deviation
 	// This sets the stdev to be at least 4 if, compared to
 	// the standard 3.2.
@@ -470,6 +477,28 @@ int main(int argc, char* argv[])
 
 	CHECK_CALL(st, "OnionPIR phase 0 (key generation) failed");
 
+	uint64_t db_size_bits = DB_BITS * NBASE * MATRIX_ROWS * MATRIX_COLS;
+
+	printf("Database geometry: %d rows x %d columns matrix\n", MATRIX_ROWS, MATRIX_COLS);
+	printf("Element size (cleartext): %.1f KiB\n", (double)(DB_BITS * NBASE) / 1024);
+	printf("Database size (cleartext): %.1f MiB\n", (double)db_size_bits / 8 / 1024 / 1024);
+
+	uint64_t prep_db_size_bytes = MATRIX_COLS * MATRIX_ROWS * poly_biv_bytes(db_params);
+
+	printf("Preprocessed DB size (plaintext in prepared form): %.1f MiB\n", (double)prep_db_size_bytes / 1024 / 1024);
+	printf(
+	    "Note that for this example, only the first %d columns of the DB are being stored in memory, and all others "
+	    "are set to 0\n",
+	    IN_MEMORY_DFT_COLS);
+
+	printf("\n");
+
+	printf("Row query size: %.1f KiB\n", (double)glwe_params_bytes(params_row_query) / 1024);
+	printf("Column query size: %.1f KiB\n", (double)glwe_params_bytes(params_col_query) / 1024);
+	printf("Response size: %.1f KiB\n", (double)glwe_params_bytes(final_params) / 1024);
+
+	printf("\n");
+
 	// Server pre-processing: generate the database columns
 	GLWECiphertext* res = new_glwe(final_params);
 	for (int c = 0; c <= IN_MEMORY_DFT_COLS; ++c)
@@ -505,6 +534,12 @@ int main(int argc, char* argv[])
 		printf("Selecting row %d, column %d\n", row, col);
 		--row;
 		--col;
+
+		if (col >= IN_MEMORY_DFT_COLS)
+		{
+			printf("Note: selected a column that has blank data, expect the output to be 0\n");
+		}
+
 		st = onionpir_client_phase1(module, &row_query, &col_query, sk_prep, row, col, params_row_query,
 		                            params_col_query, row_query_gad_params, col_query_gad_params);
 		CHECK_CALL(st, "OnionPIR phase 1 (query generation from row and column numbers) failed");
@@ -536,7 +571,8 @@ int main(int argc, char* argv[])
 		// for example, 4GB due to the format used in OnionPIR, would take 2s to return a result
 		//
 		// Creating the row and column query and decrypting the result is NOT part of this throughput
-		double throughput_bits_sec = DB_BITS * NBASE * MATRIX_ROWS * MATRIX_COLS * 1000 / ms_elapsed;
+		double throughput_bits_sec = db_size_bits * 1000 / ms_elapsed;
+		printf("\nTime taken: %fs\n", ms_elapsed / 1000);
 		printf("Server throughput (cleartext DB MiB per second): %.2f MiB/s\n", throughput_bits_sec / 8 / 1024 / 1024);
 		fflush(stdout);
 
