@@ -43,6 +43,18 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
 int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft);
 
+/**
+ * @brief Computes the half-external product between a GLWEGadget and
+ * a GLWE ciphertext, with outputs in the DFT domain and inputs in the prepared format (which is not necessarily the same as DFT for a)
+ *
+ * @param module                The backend module
+ * @param result_dft            The resulting GLWE ciphertext in DFT domain
+ * @param glwegadget_prep_ct    A prepared GLWEGadget to multiply with
+ * @param a_dft                 An bivariate polynomial in the DFT domain
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
 int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep);
 /**
@@ -129,9 +141,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
  * More specifically, extracts from GLWE(a_0 + a_1 * x + ... + a_d * x^d) position pos: GLWE(m * a_pos)
  * with d = enc_size - 1 and m = ceil(log2(enc_size))
  *
- * The algorithm used as well as a better explanation can be found in
- * https://github.com/Prividema/prividema-fhe/pull/64#issuecomment-4648948222
- *
+ * Adapted version of glwe_trace_expand for single-coefficient extraction.
  *
  * @param module The backend module
  * @param result The output result
@@ -149,7 +159,8 @@ int glwe_hom_trace(const MODULE* module, GLWECiphertext* result, int enc_size, u
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding GLWEGadgets
  *
- * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
+ * See the relevant section in the OnionPIR page of the documentation (@ref packed_glwegadget) for a description on
+ * packed GLWEGadgets
  *
  * @param module The backend module
  * @param results An array with pointers to the res_size output GLWEGadgets.
@@ -168,7 +179,8 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding prepared GLWEGadgets
  *
- * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
+ * See the relevant section in the OnionPIR page of the documentation (@ref packed_glwegadget) for a description on
+ * packed GLWEGadgets
  *
  * @param module The backend module
  * @param results An array with pointers to the res_size output prepared GLWEGadgets
@@ -199,7 +211,8 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
 /**
  * @brief Expands a packed GLWEGadget into a single GLWEGadgetPrep of "depth" res_size the original one
  *
- * See https://github.com/Prividema/prividema-fhe/pull/64 for an explanation on "packed" GLWEGadgets
+ * See the relevant section in the OnionPIR page of the documentation (@ref packed_glwegadget) for a description on
+ * packed GLWEGadgets
  *
  * This is a variant of packed_glwegadget_trace_expand_prepared that has all the results stored concatenated in a single object,
  * to enable the single half-external product optimisation used in our implementation of OnionPIR

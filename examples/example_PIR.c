@@ -24,12 +24,18 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-/*****************************************************************************
- * OionPIR example using Half-products:
+/**
+ * ***************************************************************************
+ * @file example_PIR.c
+ *
+ * OnionPIR example using Half-products:
  *
  * This file contains an example implementation of OnionPIR
  * (or possibly more closely OnionPIRv2) that leverages the double decomposition
  * technique and the base-2K representation together with the half-product.
+ *
+ * A description of the algorithm used can be found in the relevant documentation
+ * page (@ref onionPIR page)
  *
  * See:
  * OnionPIR: https://eprint.iacr.org/2021/1081
@@ -38,9 +44,9 @@
  *****************************************************************************/
 
 // Matrix dimenstions (number of columns, rows and logarithm of the columns)
-#define MATRIX_COLS 1024
-#define LOG2_COLS   10
-#define MATRIX_ROWS 1024
+#define MATRIX_COLS 256
+#define LOG2_COLS   8
+#define MATRIX_ROWS 256
 
 // How many columns to actually keep in memory
 // In a real application, all of them would be either in disk or memory
@@ -344,7 +350,9 @@ int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, 
 		CHECK_ALLOC(auto_key, "Automorphism key allocation failed in onionpir phase 0");
 
 		int st = compute_automorphism_key(module, auto_key, sk_prep, (int)p);
-		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
+		glwegadget_key_collection_put_key(
+		    auto_key_collection, auto_key,
+		    p);  // Put key in collection before error checking to avoid memory leak on fail
 		CHECK_CALL(st, "Automorphism key computation failed in onionpir phase 0");
 	}
 
@@ -382,12 +390,14 @@ int onionpir_client_phase1(const MODULE* module, GLWECiphertext** row_query, GLW
 	uint64_t col_num = column;
 	uint64_t row_num = row;
 
+	// Fill sel_col with the binary representation of col_num
 	for (int i = 0; i < LOG2_COLS; ++i)
 	{
 		sel_col[i] = (int64_t)col_num % 2;
 		col_num >>= 1;
 	}
 
+	// Set sel_row to be all-zeroes except on the selected row number
 	sel_row[row_num] = 1;
 
 	CHECK_CALL(
@@ -518,11 +528,15 @@ int main(int argc, char* argv[])
 		st = prepare_column(module, c, db_params, row_exp_gad_params);
 		CHECK_CALL(st, "Preprocessing of a column of the OnionPIR database failed");
 	}
-	printf("...\nThe full %d x %d matrix has been filled. Only a portion has been printed for readability\n",
-	       MATRIX_ROWS, MATRIX_COLS);
+	printf(
+	    "...\nAll the non-zero columns of the %d x %d matrix has been filled. Only a portion has been printed for "
+	    "readability\n",
+	    MATRIX_ROWS, MATRIX_COLS);
 
 	GLWECiphertext* row_query;
 	GLWECiphertext* col_query;
+
+	printf("\nPreparation/preprocessing stage done. You can now perform as many queries to the DB as desired\n");
 	while (1)
 	{
 		//Client phase 1: row and column query generation
