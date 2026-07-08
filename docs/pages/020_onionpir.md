@@ -30,15 +30,15 @@ all but one of the coefficients in the polynomials remain zeroed and unused.
 Then, for data transmission between the client and server, one can use a single polynomial's
 coefficients to _pack_ all the coefficients that describe all the BFV ciphertexts that
 need to be used, and encrypt it in a GLWE as usual.
-The server can later on use an operation called "homomorphic trace" or "trace expansion" (depending on the reference)
+The server can later on use an operation called "trace expansion"
 to homomorphically expand a single GLWE ciphertext into a collection of GLWE ciphertexts that
-each encrypt the
+each encrypt a each coefficient individualally.
 
 More formally, one can say that trace expansion is a process where a GLWE ciphertext of \f$ a(x) = a_0 + a_1 \cdot x + ... + a_d \cdot x^d\f$ is converted into a set of GLWE ciphertexts of \f$ a_0, a_1, \dots, a_d\f$ (possibly multiplied by a constant that depends on \f$d\f$).
 
 Given that the half-external product uses a GLWEGadget, however, this is not directly usable.
 For that reason, a way to pack GLWEGadgets into GLWE ciphertexts becomes necessary.
-Leveraging the fact that GLWEGadgets are nothing more than a collection of GLWEs themeselves,
+Leveraging the fact that GLWEGadgets are nothing more than a collection of GLWEs themselves,
 one can reuse the trace expansion algorithm if the original polynomial to encrypt is as follows:
 
 Let the plaintext be \f$ a(x) = a_0 + ... + a_d \cdot x^d \f$, \f$N\f$ be the polynomial degree and \f$\tilde{\ell}\f$ the GLWEGadget depth parameter.
@@ -60,14 +60,14 @@ Preparation:
 Query access (repeat as many times as wanted):
 
 1. Client: Use GLWEGadget packing to pack the GLWEGadget corresponding to the integer vector
-           that is all 0 except in the position correponding to the index of the row to be selected
+           that is all 0 except in the position corresponding to the index of the row to be selected
 2. Client: Use GLWEGadget packing to pack the GLWEGadget corresponding to the integer vector
            corresponding to the binary representation of column number to be selected.
 3. Client sends the 2 packed and encrypted queries to the server
 4. Server: perform trace expansion into the row query
 5. Server: Perform half-external products with the unpacked expanded values with each row of the database.
            Add each column's results together into a single GLWE
-6. Server: query expand the column query and use external product to convert the resuling GLWEGadgets into
+6. Server: query expand the column query and use external product to convert the resulting GLWEGadgets into
           GGSWs using the GGSW encryption(s) of \f$-s_i\f$
 7. Server: Use a tree of CMux using as inputs the column sums and as selectors the expansion from the previous step
 8. Server sends the resulting GLWE to the client
