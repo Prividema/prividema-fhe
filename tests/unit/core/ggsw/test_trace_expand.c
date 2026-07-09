@@ -58,6 +58,7 @@ struct criterion_test_params trace_params_fn()
 
 	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
 }
+
 PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
@@ -80,14 +81,14 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 
 	int bundled[] = {2, 4, 3, 5, 14, params_glwe->nn, params_glwe->nn - 1};
 
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
 
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksk, sk_prep, p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		compute_automorphism_key(module, auto_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
 	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
 	{
@@ -107,7 +108,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 			results[i] = new_glwe(params_glwe);
 		}
 
-		glwe_trace_expand(module, results, bund, glwe_ct, ksks);
+		glwe_trace_expand(module, results, bund, glwe_ct, auto_key_collection);
 
 		int a = 1;
 		for (int i = 0; i < bund; ++i)
@@ -127,7 +128,92 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 		free(results);
 	}
 
-	delete_automorphism_ksk_collection(ksks, 1);
+	delete_automorphism_key_collection(auto_key_collection, 1);
+
+	delete_glwe_secret_key(sk);
+	delete_glwe_secret_key_prepared(sk_prep);
+
+	delete_biv(biv_tmp);
+	delete_univ_rnx(tmp_rnx);
+	delete_univ_rnx(m_univ_rnx);
+	delete_univ_rnx(m_observed_rnx);
+	delete_univ_tnx(m_expected_tnx);
+	delete_glwe(glwe_ct);
+
+	DELETE_PVDA_PARAMS_GGSWGAD;
+}
+
+PvdaParamTest(hom_expand, no_noise, trace_params_fn)
+{
+	INIT_PVDA_PARAMS_GGSWGAD(param);
+
+	params_glwe->fast_uniform_nb_bits = 0;
+	sigma                             = 0;
+
+	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+
+	PolyUnivRnX* m_univ_rnx     = new_univ_rnx(params_glwe);
+	PolyUnivRnX* tmp_rnx        = new_univ_rnx(params_glwe);
+	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
+	PolyUnivRnX* m_observed_rnx = new_univ_rnx(params_glwe);
+	PolyBiv* biv_tmp            = new_biv(params_glwe);
+	GLWECiphertext* glwe_ct     = new_glwe(params_glwe);
+
+	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_prepare(module, sk_prep, sk);
+
+	int bundled[] = {2, 4, 3, 5, 14, params_glwe->nn, params_glwe->nn - 1};
+
+	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
+
+	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
+	{
+		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		compute_automorphism_key(module, auto_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
+	}
+	for (int i = 0; i < sizeof(bundled) / sizeof(bundled[0]); ++i)
+	{
+		int bund = bundled[i];
+
+		memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
+
+		// Get the message in univariate RnX form for expected result
+		rnx_random_vec(tmp_rnx, params_glwe);
+		for (int i = 0; i < bund; ++i) m_univ_rnx[i] = tmp_rnx[i];
+
+		glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
+
+		GLWECiphertext** results = calloc(bund, sizeof(GLWECiphertext*));
+		for (int i = 0; i < bund; ++i)
+		{
+			results[i] = new_glwe(params_glwe);
+		}
+
+		for (int i = 0; i < bund && i < 64; ++i)
+			glwe_hom_trace(module, results[i], bund, i, glwe_ct, auto_key_collection);
+
+		int a = 1;
+		for (int i = 0; i < bund && i < 64; ++i)
+		{
+			glwe_secret_decrypt(module, biv_tmp, sk_prep, results[i]);
+			biv_to_univ_rnx(params_glwe, m_observed_rnx, biv_tmp);
+			int64_t factor  = 1l << (next_pow2_log(bund));
+			double expected = factor * m_univ_rnx[i];
+			double actual   = m_observed_rnx[0];
+			cr_assert(lt(dbl, rnx_torus_distance(expected, actual), 0.001));
+			for (int p = 1; p < params_glwe->nn; ++p)
+			{
+				cr_assert(lt(dbl, rnx_torus_distance(0, m_observed_rnx[p]), 0.001));
+			}
+			delete_glwe(results[i]);
+		}
+		free(results);
+	}
+
+	delete_automorphism_key_collection(auto_key_collection, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -199,14 +285,14 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 
 	int bundled[] = {2, 4, 3, 5, 14, 1};
 
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
 
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksk, sk_prep, p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		compute_automorphism_key(module, auto_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
 
 	GGSWCiphertextPrep** ggsw_ksks = calloc(k, sizeof(GGSWCiphertext*));
@@ -232,7 +318,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_random_pol_znx(m_univ, bund, 1);
+		uniform_pow2_random_pol_znx(m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -242,8 +328,8 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 			results[i] = new_ggsw(params_ggsw);
 		}
 
-		packed_glwegadget_trace_expand_ggsw(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks,
-		                                    (const GGSWCiphertextPrep**)ggsw_ksks);
+		packed_glwegadget_trace_expand_ggsw(module, results, bund, params_glwegadget->l_tilde, glwe_ct,
+		                                    auto_key_collection, (const GGSWCiphertextPrep**)ggsw_ksks);
 
 		PolyUniv* expected_b = new_univ(params_glwe);
 		for (int b = 0; b < bund; ++b)
@@ -254,7 +340,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		}
 	}
 
-	delete_automorphism_ksk_collection(ksks, 1);
+	delete_automorphism_key_collection(auto_key_collection, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -286,14 +372,14 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 
 	int bundled[] = {2, 4, 3, 5, 14, 1};
 
-	GLWEAutomorphismKSKCollection* ksks = new_automorphism_ksk_collection(2 * params_glwe->nn);
+	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
 
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
-		int64_t p                = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKSK* ksk = new_automorphism_ksk(params_glwegadget);
-		prepare_automorphism_key(module, ksk, sk_prep, p);
-		glwegadget_ksk_collection_put_key(ksks, ksk, p);
+		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		compute_automorphism_key(module, auto_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
 
 	GGSWCiphertext** ggsw_ksks = calloc(k, sizeof(GGSWCiphertext*));
@@ -316,7 +402,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_random_pol_znx(m_univ, bund, 1);
+		uniform_pow2_random_pol_znx(m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -326,7 +412,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 			results[i] = new_glwegadget(params_glwegadget);
 		}
 
-		packed_glwegadget_trace_expand(module, results, bund, params_glwegadget->l_tilde, glwe_ct, ksks);
+		packed_glwegadget_trace_expand(module, results, bund, params_glwegadget->l_tilde, glwe_ct, auto_key_collection);
 
 		PolyUniv* expected_b = new_univ(params_glwe);
 		for (int b = 0; b < bund; ++b)
@@ -337,7 +423,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 		}
 	}
 
-	delete_automorphism_ksk_collection(ksks, 1);
+	delete_automorphism_key_collection(auto_key_collection, 1);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);

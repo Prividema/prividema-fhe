@@ -86,9 +86,7 @@ cleanup:
 void add_glwe_dft(GLWECiphertextDFT* result_dft, const GLWECiphertextDFT* glwe_lhs_dft,
                   const GLWECiphertextDFT* glwe_rhs_dft)
 {
-	//TODO: It would be good to move this to SPQLIOS/other backend for faster addition
-	// Not being done right now due to header namespace clash if we blindly include
-	// spqlios rnx functions.
+	//Note: we plan on substituting the loop for a spqlios call when available in the library
 	for (uint64_t t = 0; t < glwe_coef_number(result_dft->params); t++)
 		result_dft->vec[t] = glwe_lhs_dft->vec[t] + glwe_rhs_dft->vec[t];
 }

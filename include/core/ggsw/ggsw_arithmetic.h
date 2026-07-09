@@ -99,20 +99,20 @@ int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* result, con
  * @brief Expands a packed GLWEGadget into a set of corresponding GGSWs
  *
  *
- * @param module             The backend module
- * @param results            An array with pointers to the res_size output GGSWs
- * @param res_size           The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GGSWs.
- * @param l_tilde            The l_tilde with which the packed GLWEGadget was packed
- * @param packed_glwegadget  The packed GLWEGadget
- * @param auto_ksks          The KSK collection for trace expansion automorphisms
- * @param sk_encryptions     An array of pointers to encryptions of GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
+ * @param module              The backend module
+ * @param results             An array with pointers to the res_size output GGSWs
+ * @param res_size            The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GGSWs.
+ * @param l_tilde             The l_tilde with which the packed GLWEGadget was packed
+ * @param packed_glwegadget   The packed GLWEGadget
+ * @param auto_key_collection The key collection for trace expansion automorphisms
+ * @param sk_encryptions      An array of pointers to encryptions of GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
-                                        const GLWEAutomorphismKSKCollection* auto_ksks,
+                                        const GLWEAutomorphismKeyCollection* auto_ksks,
                                         const GGSWCiphertextPrep** sk_encryptions);
 
 /**
@@ -122,15 +122,15 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
  * This variant expands the GLWEGadget and uses the GGSWCiphertextPrep encryptions of -sk_i to convert it
  * into a GGSW.
  *
- * @param module The backend module
- * @param results An array with pointers to the res_size output prepared GGSWs.
- *                If NULL pointers are provided, they will be created and allocated by this function, and responsibility
- *                tranferred to the caller. This is the recommended mode of operation
- * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GGSWs.
- * @param l_tilde The l_tilde with which the packed GLWEGadget was packed
- * @param packed_glwegadget The packed GLWEGadget
- * @param auto_ksks The KSK collection for trace expansion automorphisms
- * @param sk_encryptions An array of pointers to encryptions to GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
+ * @param module              The backend module
+ * @param results              An array with pointers to the res_size output prepared GGSWs.
+ *                             If NULL pointers are provided, they will be created and allocated by this function, and responsibility
+ *                             tranferred to the caller. This is the recommended mode of operation
+ * @param res_size             The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GGSWs.
+ * @param l_tilde              The l_tilde with which the packed GLWEGadget was packed
+ * @param packed_glwegadget    The packed GLWEGadget
+ * @param auto_key_collection  The KSK collection for trace expansion automorphisms
+ * @param sk_encryptions       An array of pointers to encryptions to GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
  *
  *
  * @note It is recommended to call this function without having pre-allocated the results and therefore letting this function perform
@@ -148,6 +148,6 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 int packed_glwegadget_trace_expand_ggsw_prepared(const PvdaBackend* module, GGSWCiphertextPrep** results,
                                                  const GGSWParams* params_ggsw, int res_size, int l_tilde,
                                                  const GLWECiphertext* packed_glwegadget,
-                                                 const GLWEAutomorphismKSKCollection* auto_ksks,
+                                                 const GLWEAutomorphismKeyCollection* auto_key_collection,
                                                  const GGSWCiphertextPrep** sk_encryptions);
 #endif  // bivGGSW_H

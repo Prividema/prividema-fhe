@@ -1,8 +1,6 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
-#include <stdlib.h>
 
-#include "bivariate_polynomial.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "glwe_arithmetic.h"
 #include "glwe_params.h"
@@ -117,11 +115,14 @@ PvdaParamTest(copy_glwe, basic, default_params_fn)
 	GLWECiphertext* glwe_dst = new_glwe(params_glwe);
 	GLWECiphertext* glwe_src = new_glwe(params_glwe);
 
+	// Fills the source glwe glwe_src with random data
 	uniform_random_vec(params_glwe->nn, glwe_dst->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
 	                   params_glwe->kappa - 1);
 
+	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
 
+	// Checks that glwe_dst is equal to glwe_src
 	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
 
 	delete_glwe(glwe_dst);
@@ -131,7 +132,7 @@ PvdaParamTest(copy_glwe, basic, default_params_fn)
 }
 
 /**
- * @brief Tests whether copy_glwe works for a smaller destination than source
+ * @brief Tests whether copy_glwe works for a source larger than the destination
  *
  */
 PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
@@ -143,11 +144,14 @@ PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
 	                                           NOISE_UNIFORM_POWER_OF_TWO);
 	GLWECiphertext* glwe_dst = new_glwe(dst_params);
 
+	// Fills the source glwe glwe_src with random data
 	uniform_random_vec(params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
 	                   params_glwe->kappa - 1);
 
+	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
 
+	// Checks that glwe_dst is equal to glwe_src up to glwe_dst precision
 	for (uint64_t t = 0; t < glwe_coef_number(dst_params); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
 
 	delete_glwe(glwe_dst);
@@ -159,7 +163,7 @@ PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
 }
 
 /**
- * @brief Tests whether copy_glwe works for a smaller destination than source
+ * @brief Tests whether copy_glwe works for a source smaller than the destination
  *
  */
 PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
@@ -171,12 +175,16 @@ PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
 	                                           param->ciphertext_nb_limbs + param->k + 1, 0, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWECiphertext* glwe_dst = new_glwe(dst_params);
 
+	// Fills the source glwe glwe_src with random data
 	uniform_random_vec(params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
 	                   params_glwe->kappa - 1);
 
+	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
 	uint64_t t;
+	// Checks that the beggining (up to glwe_src precision) of glwe_dst is equal to glwe_src
 	for (t = 0; t < glwe_coef_number(params_glwe); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
+	// Checks that the remaining elements of glwe_dst are 0
 	for (; t < glwe_coef_number(dst_params); t++) cr_assert(eq(i64, glwe_dst->vec[t], 0));
 
 	delete_glwe(glwe_dst);
@@ -240,7 +248,7 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 	                   params_glwe->kappa - 1);
 
 	// Draws in Zn[X] the polynomial u
-	uniform_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);
@@ -280,13 +288,11 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
  */
 PvdaParamTest(glwe_coef_number_dft, basic, default_params_fn)
 {
-	// Parameters
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Asserts glwe_coef_number_dft returns NLIMBSBASE * params_glwe->nn / 2
 	cr_assert(eq(i64, glwe_coef_number_dft(params_glwe), NLIMBSBASE * params_glwe->nn / 2));
 
-	// Clean up
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
@@ -298,6 +304,7 @@ PvdaParamTest(new_glwe_dft, basic, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	GLWECiphertextDFT* glwe = new_glwe_dft(params_glwe);
+	// Asserts that the glwe is not null and its internal vector is also not null
 	cr_assert(eq(int, (glwe != NULL) && (glwe->vec != NULL), 1));
 
 	delete_glwe_dft(glwe);
@@ -307,10 +314,8 @@ PvdaParamTest(new_glwe_dft, basic, default_params_fn)
 
 PvdaParamTest(add_glwe_dft, basic, default_params_fn)
 {
-	// Parameters
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	// Variables
 	GLWECiphertextDFT* glwe_lhs_dft     = new_glwe_dft(params_glwe);
 	GLWECiphertextDFT* glwe_rhs_dft     = new_glwe_dft(params_glwe);
 	GLWECiphertextDFT* sum_computed_dft = new_glwe_dft(params_glwe);
@@ -340,23 +345,22 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	//! Variables
 	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(params_glwe);
-
-	GLWECiphertext* prod        = new_glwe(params_glwe);
-	GLWECiphertextDFT* glwe_dft = new_glwe_dft(params_glwe);
-	GLWECiphertext* glwe_ct     = new_glwe(params_glwe);
-	PolyUniv* u                 = new_univ(params_glwe);
-	PolyUnivDFT* u_dft          = new_univ_dft(module);
-	PolyUniv* prod_expected     = new_univ(params_glwe);
+	GLWECiphertext* prod                 = new_glwe(params_glwe);
+	GLWECiphertextDFT* glwe_dft          = new_glwe_dft(params_glwe);
+	GLWECiphertext* glwe_ct              = new_glwe(params_glwe);
+	PolyUniv* u                          = new_univ(params_glwe);
+	PolyUnivDFT* u_dft                   = new_univ_dft(module);
+	PolyUniv* prod_expected              = new_univ(params_glwe);
 
 	uint64_t nn = params_glwe->nn;
+
 	//! Draws input variables
 	// Draws uniformly the bivGLWE ciphertext in the DFT domain
 	uniform_random_vec_znx_dft(module, glwe_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
 
 	// Draws uniformly
-	uniform_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain

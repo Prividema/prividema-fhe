@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "backend.h"
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_arithmetic.h"
@@ -79,7 +80,7 @@ cleanup:
 	return status;
 }
 
-int prepare_ksk(const PvdaBackend* module, GLWEAutomorphismKSK* ksk, const GLWESecretKeyPrepared* new_key,
+int compute_ksk(const PvdaBackend* module, GLWEKSK* ksk, const GLWESecretKeyPrepared* new_key,
                 const GLWESecretKeyPrepared* old_key)
 {
 	int status = -1;
@@ -90,8 +91,6 @@ int prepare_ksk(const PvdaBackend* module, GLWEAutomorphismKSK* ksk, const GLWES
 	GLWEGadgetCiphertext* glwegad_tmp = new_glwegadget(ksk->params);
 
 	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in automorphism KSK preparation");
-
-	ksk->automorphism_p = 0;
 
 	for (int i = 0; i < k; ++i)
 	{
@@ -110,30 +109,31 @@ cleanup:
 	delete_glwegadget(glwegad_tmp);
 	return status;
 }
-int prepare_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKSK* automorphism_ksk,
+
+int compute_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKey* automorphism_key,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p)
 {
 	int status = -1;
 
 	if (!(automorphism_p & 1))
 	{  //If autmorphism_p is even
-		RAISE_ERROR("Cannot prepare autmorphism KSK for even p, operation is not well-defined");
+		RAISE_ERROR("Cannot prepare autmorphism key for even p, operation is not well-defined");
 	}
 
 	uint64_t k  = glwe_key->k;
 	uint64_t nn = glwe_key->nn;
 
-	GLWEGadgetCiphertext* glwegad_tmp = new_glwegadget(automorphism_ksk->params);
-	PolyUniv* auto_sk_tmp             = new_univ(automorphism_ksk->params->params_glwe);
+	GLWEGadgetCiphertext* glwegad_tmp = new_glwegadget(automorphism_key->glwe_ksk->params);
+	PolyUniv* auto_sk_tmp             = new_univ(automorphism_key->glwe_ksk->params->params_glwe);
 
-	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in automorphism KSK preparation");
-	CHECK_ALLOC(auto_sk_tmp, "Allocation failed in automorphism KSK preparation");
+	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in automorphism key computation");
+	CHECK_ALLOC(auto_sk_tmp, "Allocation failed in automorphism key computation");
 
-	automorphism_ksk->automorphism_p = automorphism_p;
+	automorphism_key->automorphism_p = automorphism_p;
 
 	for (int i = 0; i < k; ++i)
 	{
-		GLWEGadgetCiphertextPrep* gadget_ciph = automorphism_ksk->enc_s[i];
+		GLWEGadgetCiphertextPrep* gadget_ciph = automorphism_key->glwe_ksk->enc_s[i];
 
 		//sigma_p (sk_i)
 		pvda_znx_automorphism(module, automorphism_p, auto_sk_tmp, glwe_prepared_sk_extract_poly_coefs(glwe_key, i));
@@ -145,9 +145,9 @@ int prepare_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKSK* aut
 
 		//GLWEGadget(sigma_p(sk_i))
 		CHECK_CALL(glwegadget_secret_encrypt(module, glwegad_tmp, glwe_key, auto_sk_tmp),
-		           "GLWEGadget encryption failed in autmorphism KSK preparation");
+		           "GLWEGadget encryption failed in autmorphism key computation");
 		CHECK_CALL(glwegadget_prepare(module, gadget_ciph, glwegad_tmp),
-		           "GLWEGadget preparation failed in automorphism KSK preparation");
+		           "GLWEGadget preparation failed in automorphism key computation");
 	}
 
 	status = 0;
@@ -157,16 +157,16 @@ cleanup:
 	return status;
 }
 
-int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result,
-                            const GLWEAutomorphismKSK* automorphism_ksk, const GLWECiphertext* glwe)
+int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, const GLWEAutomorphismKey* auto_key,
+                            const GLWECiphertext* glwe)
 {
 	int status = -1;
 
 	uint64_t nn            = result->params->nn;
 	uint64_t k             = result->params->k;
-	size_t nrows           = automorphism_ksk->params->l_tilde;
+	size_t nrows           = auto_key->glwe_ksk->params->l_tilde;
 	uint64_t l_b_result    = glwe_params_l_b(result->params);
-	int64_t automorphism_p = automorphism_ksk->automorphism_p;
+	int64_t automorphism_p = auto_key->automorphism_p;
 
 	// This is the maximum internal precision of the result.
 	// It is the maximum of the input b precision and the number of columns (GLWEGaget l_tilde precision) in the
@@ -182,7 +182,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result,
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a);
 
 		// result = halfProd(C_auto(-s), auto(a)) = -halfProd(C_auto(s), a)
-		CHECK_CALL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
+		CHECK_CALL(glwegadget_half_prod(module, result, auto_key->glwe_ksk->enc_s[0], auto_tmp),
 		           "half product in automorphism failed");
 
 		// auto_tmp = auto_p(b)
@@ -210,7 +210,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result,
 		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a_0);
 
 		// result = halfProd(C_auto(-s_0), auto(a_0))
-		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, automorphism_ksk->enc_s[0], auto_tmp),
+		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, auto_key->glwe_ksk->enc_s[0], auto_tmp),
 		                 "half product in automorphism failed", cleanup2);
 
 		for (int i = 1; i < k; ++i)
@@ -220,7 +220,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result,
 			pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a_i);
 
 			// result = halfProd(C_auto(-s_i), auto(a_i)) = -halfProd(C_auto(s_i), a_i)
-			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, automorphism_ksk->enc_s[i], auto_tmp),
+			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, auto_key->glwe_ksk->enc_s[i], auto_tmp),
 			                 "half product in automorphism failed", cleanup2);
 
 			add_glwe(module, result, result, glwe_tmp);
@@ -242,7 +242,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result,
 	return status;
 }
 
-int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, const GLWEAutomorphismKSK* ksk,
+int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, const GLWEKSK* glwe_ksk,
                            const GLWECiphertext* glwe_ct)
 {
 	int status = -1;
@@ -254,7 +254,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 		PolyBiv a = glwe_extract_poly_view(glwe_ct, 0);
 		//result = GLWE_k(k_new) \hp a
 		//result = C_k(k_new) \hp a
-		CHECK_CALL(glwegadget_half_prod(module, result, ksk->enc_s[0], &a), "half product in automorphism failed");
+		CHECK_CALL(glwegadget_half_prod(module, result, glwe_ksk->enc_s[0], &a), "half product in automorphism failed");
 
 		// result = - (C_k(k_new) \hp a)
 		negate_glwe(module, result, result);
@@ -277,7 +277,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 
 		//result = GLWE_k(k_new[0]) \hp a_0
 		//result = C_k(k_new[0]) \hp a_0
-		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, ksk->enc_s[0], &a_0),
+		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, glwe_ksk->enc_s[0], &a_0),
 		                 "half product in automorphism failed", cleanup2);
 
 		for (int i = 1; i < k; ++i)
@@ -286,7 +286,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 
 			//result += C_k(k_new[i]) \hp a_i
 			//result = sum_{j=0}^{j=i} (C_k(k_new[j]) \hp a_j) (LOOP INVARIANT)
-			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, ksk->enc_s[i], &a_i),
+			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, glwe_ksk->enc_s[i], &a_i),
 			                 "half product in automorphism failed", cleanup2);
 
 			add_glwe(module, result, result, glwe_tmp);
@@ -308,7 +308,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 }
 
 int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
-                      const GLWEAutomorphismKSKCollection* ksks)
+                      const GLWEAutomorphismKeyCollection* auto_key_collection)
 {
 	int status = -1;
 
@@ -322,7 +322,8 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 	CHECK_ALLOC(tmp_glwe2, "Temp memory alloc in trace expansion failed");
 
 	// Step 0:
-	glwegadget_automorphism(module, tmp_glwe, glwegadget_ksk_collection_get_key(ksks, nn + 1), results[0]);
+	glwegadget_automorphism(module, tmp_glwe, glwegadget_key_collection_get_key(auto_key_collection, nn + 1),
+	                        results[0]);
 
 	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
 
@@ -341,9 +342,9 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 		for (b = 0; b < p && b + dist < res_size; ++b)
 		{
 			assert(b < res_size);
-			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
-			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
-			glwegadget_automorphism(module, tmp_glwe, ksk, results[b]);
+			GLWEAutomorphismKey* auto_key = glwegadget_key_collection_get_key(auto_key_collection, auto_p);
+			CHECK_ALLOC(auto_key, "KSK retrieval failed in trace expand");
+			glwegadget_automorphism(module, tmp_glwe, auto_key, results[b]);
 
 			add_glwe(module, tmp_glwe2, results[b], tmp_glwe);
 
@@ -355,9 +356,9 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 		for (; b < p; ++b)
 		{
 			assert(b < res_size);
-			GLWEAutomorphismKSK* ksk = glwegadget_ksk_collection_get_key(ksks, auto_p);
-			CHECK_ALLOC(ksk, "KSK retrieval failed in trace expand");
-			glwegadget_automorphism(module, tmp_glwe, ksk, results[b]);
+			GLWEAutomorphismKey* auto_key = glwegadget_key_collection_get_key(auto_key_collection, auto_p);
+			CHECK_ALLOC(auto_key, "KSK retrieval failed in trace expand");
+			glwegadget_automorphism(module, tmp_glwe, auto_key, results[b]);
 
 			add_glwe(module, tmp_glwe, results[b], tmp_glwe);
 
@@ -372,9 +373,64 @@ cleanup:
 	return status;
 }
 
+int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* result, int enc_size, uint64_t pos,
+                   const GLWECiphertext* glwe_ct, const GLWEAutomorphismKeyCollection* auto_key_collection)
+
+{
+	int status = -1;
+
+	uint64_t nn = glwe_ct->params->nn;
+
+	glwe_copy(result, glwe_ct);
+
+	GLWECiphertext* tmp_glwe = new_glwe(glwe_ct->params);
+	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
+
+	PolyBiv tmp_flattened = glwe_flattened_biv(tmp_glwe);
+
+	// Step 0:
+	glwegadget_automorphism(module, tmp_glwe, glwegadget_key_collection_get_key(auto_key_collection, nn + 1), result);
+
+	if (pos & 1)
+	{
+		sub_glwe(module, tmp_glwe, result, tmp_glwe);
+		pvda_vec_znx_rotate(module, -1, &tmp_flattened, &tmp_flattened);
+	}
+	else
+		add_glwe(module, tmp_glwe, result, tmp_glwe);
+	pos >>= 1;
+
+	normalize_glwe(module, result, tmp_glwe);
+
+	// Rest of the steps
+	for (uint64_t p = 2; p < enc_size; p *= 2)
+	{
+		int64_t auto_p                = (int64_t)nn / p + 1;
+		GLWEAutomorphismKey* auto_key = glwegadget_key_collection_get_key(auto_key_collection, auto_p);
+		CHECK_ALLOC(auto_key, "KSK retrieval failed in trace expand");
+		glwegadget_automorphism(module, tmp_glwe, auto_key, result);
+
+		if (pos & 1)
+		{
+			sub_glwe(module, tmp_glwe, result, tmp_glwe);
+			pvda_vec_znx_rotate(module, -p, &tmp_flattened, &tmp_flattened);
+		}
+		else
+			add_glwe(module, tmp_glwe, result, tmp_glwe);
+		pos >>= 1;
+
+		normalize_glwe(module, result, tmp_glwe);
+	}
+
+	status = 0;
+cleanup:
+	delete_glwe(tmp_glwe);
+	return status;
+}
+
 int packed_glwegadget_trace_expand(const PvdaBackend* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
                                    const GLWECiphertext* packed_glwegadget,
-                                   const GLWEAutomorphismKSKCollection* auto_ksks)
+                                   const GLWEAutomorphismKeyCollection* auto_key_collection)
 
 {
 	int status = -1;
@@ -404,7 +460,7 @@ int packed_glwegadget_trace_expand(const PvdaBackend* module, GLWEGadgetCipherte
 		}
 	}
 
-	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_ksks),
+	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_key_collection),
 	           "glwegadget_trace_expand failed in a GGSW trace expansion");
 
 	status = 0;
@@ -414,11 +470,11 @@ cleanup:
 
 	return status;
 }
-int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GLWEGadgetCiphertextPrep* results,
 
+int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GLWEGadgetCiphertextPrep* results,
                                                    const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
                                                    const GLWECiphertext* packed_glwegadget,
-                                                   const GLWEAutomorphismKSKCollection* auto_ksks)
+                                                   const GLWEAutomorphismKeyCollection* auto_key_collection)
 {
 	int status = -1;
 
@@ -434,13 +490,13 @@ int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GL
 		gptrs[r]          = &gadgets[r];
 	}
 
-	CHECK_CALL(packed_glwegadget_trace_expand(module, gptrs, res_size, l_tilde, packed_glwegadget, auto_ksks),
+	CHECK_CALL(packed_glwegadget_trace_expand(module, gptrs, res_size, l_tilde, packed_glwegadget, auto_key_collection),
 	           "GLWEGadget trace expansion failed");
 
 	CHECK_CALL(glwegadget_prepare(module, results, results_unprep),
 	           "GLWEGadget prepareation failed in trace expansion");
 
-	return 0;
+	status = 0;
 cleanup:
 	delete_glwegadget(results_unprep);
 	return status;
@@ -448,7 +504,7 @@ cleanup:
 
 int packed_glwegadget_trace_expand_prepared(const PvdaBackend* module, GLWEGadgetCiphertextPrep** results, int res_size,
                                             int l_tilde, const GLWECiphertext* packed_glwegadget,
-                                            const GLWEAutomorphismKSKCollection* auto_ksks)
+                                            const GLWEAutomorphismKeyCollection* auto_key_collection)
 {
 	int status = -1;
 
@@ -461,8 +517,9 @@ int packed_glwegadget_trace_expand_prepared(const PvdaBackend* module, GLWEGadge
 		CHECK_ALLOC(gadgets[r], "GLWEGadget allocation failed in trace expansion");
 	}
 
-	CHECK_CALL(packed_glwegadget_trace_expand(module, gadgets, res_size, l_tilde, packed_glwegadget, auto_ksks),
-	           "GLWEGadget trace expansion failed");
+	CHECK_CALL(
+	    packed_glwegadget_trace_expand(module, gadgets, res_size, l_tilde, packed_glwegadget, auto_key_collection),
+	    "GLWEGadget trace expansion failed");
 
 	for (int r = 0; r < res_size; ++r)
 	{

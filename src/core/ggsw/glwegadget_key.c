@@ -24,18 +24,16 @@ cleanup:
 	return -1;
 }
 
-GLWEAutomorphismKSK* new_automorphism_ksk(GLWEGadgetParams* params)
+GLWEKSK* new_glwe_ksk(GLWEGadgetParams* params)
 {
-	GLWEAutomorphismKSK* ksk = malloc(sizeof(GLWEAutomorphismKSK));
-	CHECK_ALLOC(ksk, "Automorphism KSK allocation failed");
+	GLWEKSK* ksk = malloc(sizeof(GLWEAutomorphismKey));
+	CHECK_ALLOC(ksk, "Automorphism key allocation failed");
 	ksk->params = params;
 
-	ksk->automorphism_p = -2;
-
 	ksk->enc_s = (GLWEGadgetCiphertextPrep**)calloc(params->params_glwe->k, sizeof(GLWEGadgetCiphertextPrep*));
-	CHECK_ALLOC(ksk, "Automorphism KSK allocation failed");
+	CHECK_ALLOC(ksk, "Automorphism key allocation failed");
 	CHECK_CALL(allocate_prepared_gadget_array(params, ksk->enc_s, params->params_glwe->k),
-	           "Failed to allocate automorphism KSK key");
+	           "Failed to allocate automorphism key");
 
 	return ksk;
 cleanup:
@@ -44,23 +42,47 @@ cleanup:
 	return NULL;
 }
 
-void delete_automorphism_ksk(GLWEAutomorphismKSK* automorphism_ksk)
+void delete_glwe_ksk(GLWEKSK* glwe_ksk)
 {
-	if (!automorphism_ksk) return;
-	for (int i = 0; i < automorphism_ksk->params->params_glwe->k; ++i)
+	if (!glwe_ksk) return;
+	for (int i = 0; i < glwe_ksk->params->params_glwe->k; ++i)
 	{
-		delete_glwegadget_prep(automorphism_ksk->enc_s[i]);
+		delete_glwegadget_prep(glwe_ksk->enc_s[i]);
 	}
-	free((void*)automorphism_ksk->enc_s);
-	free(automorphism_ksk);
+	free(glwe_ksk->enc_s);
+	free(glwe_ksk);
 }
 
-GLWEAutomorphismKSKCollection* new_automorphism_ksk_collection(uint64_t size)
+GLWEAutomorphismKey* new_automorphism_key(GLWEGadgetParams* params)
 {
-	GLWEAutomorphismKSKCollection* collection = malloc(sizeof(GLWEAutomorphismKSKCollection));
-	CHECK_ALLOC(collection, "Failed allocation of KSK collection");
-	collection->keys = calloc(size, sizeof(GLWEAutomorphismKSK*));
-	CHECK_ALLOC(collection->keys, "Failed allocation of KSK collection");
+	GLWEAutomorphismKey* auto_key = malloc(sizeof(GLWEAutomorphismKey));
+	CHECK_ALLOC(auto_key, "Automorphism key allocation failed");
+
+	auto_key->automorphism_p = -2;
+
+	auto_key->glwe_ksk = new_glwe_ksk(params);
+	CHECK_ALLOC(auto_key->glwe_ksk, "Automorphism key allocation failed");
+
+	return auto_key;
+cleanup:
+	if (auto_key) delete_glwe_ksk(auto_key->glwe_ksk);
+	free(auto_key);
+	return NULL;
+}
+
+void delete_automorphism_key(GLWEAutomorphismKey* automorphism_key)
+{
+	if (!automorphism_key) return;
+	delete_glwe_ksk(automorphism_key->glwe_ksk);
+	free(automorphism_key);
+}
+
+GLWEAutomorphismKeyCollection* new_automorphism_key_collection(uint64_t size)
+{
+	GLWEAutomorphismKeyCollection* collection = malloc(sizeof(GLWEAutomorphismKeyCollection));
+	CHECK_ALLOC(collection, "Failed allocation of automorphism key collection");
+	collection->keys = calloc(size, sizeof(GLWEAutomorphismKey*));
+	CHECK_ALLOC(collection->keys, "Failed allocation of automorphism key collection");
 	collection->size = size;
 	return collection;
 
@@ -71,36 +93,36 @@ cleanup:
 	return NULL;
 }
 
-GLWEAutomorphismKSK* glwegadget_ksk_collection_put_key(GLWEAutomorphismKSKCollection* collection,
-                                                       GLWEAutomorphismKSK* key, uint64_t pos)
+GLWEAutomorphismKey* glwegadget_key_collection_put_key(GLWEAutomorphismKeyCollection* collection,
+                                                       GLWEAutomorphismKey* key, uint64_t pos)
 {
 	if (pos >= collection->size)
 	{
 		return (void*)-1;
 	}
-	GLWEAutomorphismKSK* tmp = collection->keys[pos];
+	GLWEAutomorphismKey* tmp = collection->keys[pos];
 	collection->keys[pos]    = key;
 	return tmp;
 }
 
-GLWEAutomorphismKSK* glwegadget_ksk_collection_get_key(const GLWEAutomorphismKSKCollection* collection, uint64_t pos)
+GLWEAutomorphismKey* glwegadget_key_collection_get_key(const GLWEAutomorphismKeyCollection* collection, uint64_t pos)
 {
 	if (pos >= collection->size) return NULL;
 	return collection->keys[pos];
 }
 
-uint64_t delete_automorphism_ksk_collection(GLWEAutomorphismKSKCollection* automorphism_ksk, int deallocate_ksks)
+uint64_t delete_automorphism_key_collection(GLWEAutomorphismKeyCollection* automorphism_keys, int deallocate_keys)
 {
 	uint64_t count = 0;
-	if (deallocate_ksks)
+	if (deallocate_keys)
 	{
-		for (uint64_t i = 0; i < automorphism_ksk->size; ++i)
+		for (uint64_t i = 0; i < automorphism_keys->size; ++i)
 		{
-			if (automorphism_ksk->keys[i]) ++count;
-			delete_automorphism_ksk(automorphism_ksk->keys[i]);
+			if (automorphism_keys->keys[i]) ++count;
+			delete_automorphism_key(automorphism_keys->keys[i]);
 		}
 	}
-	free(automorphism_ksk->keys);
-	free(automorphism_ksk);
+	free(automorphism_keys->keys);
+	free(automorphism_keys);
 	return count;
 }

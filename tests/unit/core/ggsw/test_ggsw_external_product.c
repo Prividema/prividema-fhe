@@ -43,7 +43,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Draws uniformly both messages
-	uniform_random_pol_znx(u_univ, params_glwe->nn, params_glwe->kappa);
+	uniform_pow2_random_pol_znx(u_univ, params_glwe->nn, params_glwe->kappa);
 	uniform_random_biv_poly(params_glwe, m, 1);
 
 	// Computation with function

@@ -98,7 +98,7 @@ void bench_univ_biv_tnx(benchmark::State& state)
 
 	PolyUnivTnX* m = new_univ_tnx(params_glwe);
 	PolyBiv* m_biv = new_biv(params_glwe);
-	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
+	uniform_pow2_random_pol_znx((PolyUniv*)m, NBASE, 64);
 
 	for (auto _ : state)
 	{
@@ -124,7 +124,7 @@ void bench_biv_univ_tnx(benchmark::State& state)
 	PolyUnivTnX* m      = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_back = new_univ_tnx(params_glwe);
 	PolyBiv* m_biv      = new_biv(params_glwe);
-	uniform_random_pol_znx((PolyUniv*)m, NBASE, 64);
+	uniform_pow2_random_pol_znx((PolyUniv*)m, NBASE, 64);
 	univ_tnx_to_biv(params_glwe, m_biv, m, 0);
 
 	for (auto _ : state)

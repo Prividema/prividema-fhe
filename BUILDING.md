@@ -28,7 +28,7 @@ ON/OFF options:
 - `BUILD_TESTS`: Build the test files.
 - `ENABLE_DEBUG` : Enables additional debug prints and enables sanitizers.
 - `BUILD_DOCS` : Build the Documentation.
-- `BUILD_EXAMPLES`: Build the example executables (TODO)
+- `BUILD_EXAMPLES`: Build the example executables
 - `BUILD_BENCHMARKS`: Build the benchmarks (requires C++ compiler)
 - `BUILD_NATIVE`: Enables -march=native optimisations, makes output NON-portable
 - `PROFILING_OPTIONS`: Adds debugging options and info even in Release builds, intended for profiling traces

@@ -11,31 +11,39 @@
 int tfhe_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0,
                          const GLWECiphertext* c1, const GGSWCiphertext* sel, int normalize_sub)
 {
-	//TODO: this only supports res of equal precision than the inputs at the moment
-	// Since there is an external product, maybe at some point we want to drop some precision?
-	sub_glwe(module, res, c1, c0);
-	if (normalize_sub) CHECK_CALL(normalize_glwe(module, res, res), "normalization failed in CMux");
-	CHECK_CALL(ggsw_unprepared_external_product(module, res, res, sel), "GGSW external product failed in CMux");
+	int status = -1;
+
+	GLWECiphertext* tmp_glwe = new_glwe(c1->params);
+	CHECK_ALLOC(tmp_glwe, "Allocation failed in unprepared CMux");
+
+	sub_glwe(module, tmp_glwe, c1, c0);
+	if (normalize_sub) CHECK_CALL(normalize_glwe(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
+	CHECK_CALL(ggsw_unprepared_external_product(module, res, tmp_glwe, sel), "GGSW external product failed in CMux");
 	add_glwe(module, res, res, c0);
 
-	return 0;
+	status = 0;
 cleanup:
-	return -1;
+	delete_glwe(tmp_glwe);
+	return status;
 }
 
 int tfhe_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
               const GGSWCiphertextPrep* sel, int normalize_sub)
 {
-	//TODO: this only supports res of equal precision than the inputs at the moment
-	// we might want to allow a precision drop
-	sub_glwe(module, res, c1, c0);
-	if (normalize_sub) CHECK_CALL(normalize_glwe(module, res, res), "normalization failed in CMux");
-	CHECK_CALL(ggsw_external_product(module, res, res, sel), "GGSW external product failed in CMux");
+	int status = -1;
+
+	GLWECiphertext* tmp_glwe = new_glwe(c1->params);
+	CHECK_ALLOC(tmp_glwe, "Allocation failed in unprepared CMux");
+
+	sub_glwe(module, tmp_glwe, c1, c0);
+	if (normalize_sub) CHECK_CALL(normalize_glwe(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
+	CHECK_CALL(ggsw_external_product(module, res, tmp_glwe, sel), "GGSW external product failed in CMux");
 	add_glwe(module, res, res, c0);
 
-	return 0;
+	status = 0;
 cleanup:
-	return -1;
+	delete_glwe(tmp_glwe);
+	return status;
 }
 
 int tfhe_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
@@ -50,12 +58,13 @@ int tfhe_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECip
 	//Note: this check MUST go after glwe_tree definition and set-to-0 for correct error handling
 	if (sel_size < log_inp_cols)
 	{
-		RAISE_ERROR("Tried to use a CMux tree with less selection signals than the required for the number of inputs");
+		RAISE_ERROR("CMux tree with less selection signals than the required for the number of inputs");
 	}
 
 	for (int c = 0; c < inp_cols; ++c)
 	{
 		glwe_tree[0][c] = src[c];
+		if (delete_src) src[c] = NULL;
 	}
 
 	int used_cols = inp_cols;

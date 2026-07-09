@@ -53,7 +53,7 @@ void delete_glwe(GLWECiphertext* glwe);
 /**
  * @brief Debugging function to inspect GLWEs
  *
- * Inteded to inspect GLWE contets for debugging.
+ * Intended to inspect GLWE content for debugging.
  * It takes as input a secret key to decrypt. For debugging, a global variable could
  * be used to store the reference.
  *

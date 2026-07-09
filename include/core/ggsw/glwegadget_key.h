@@ -8,84 +8,105 @@
 /**
  * @file glwegadget_key.h
  *
- * @brief Contains data structures related GLWEGadget specific keys, mainly key-switching-keys.
+ * @brief Contains data structures related GLWEGadget specific keys, mainly key-switching-keys
+ * (and the automorphism keys).
  *
- * So far only KSK for automprphisms are here
  */
 
-typedef struct glwe_automorphism_keyswitching_key_t
+typedef struct glwe_ksk_t
 {
-	int automorphism_p;                ///< -2 represents uninitialized value, 0 if the KSK is not for an automorphism
 	GLWEGadgetParams* params;          ///< The GLWEGadgetParams associated with the gadgets used for key switching
 	GLWEGadgetCiphertextPrep** enc_s;  ///< A vector with pointers to the k prepared ciphertetxts of f(sk_i)
-} GLWEAutomorphismKSK;
+} GLWEKSK;
 
 /**
- * @brief Creates a new Key-switching-key (KSK)
+ * Create a GLWE Key-switching key (KSK)
  *
  * @param params The GLWEGadgetParams associated with the KSK
  *
  * @return NULL in case of failure, a new KSK otherwise
  *
  */
-GLWEAutomorphismKSK* new_automorphism_ksk(GLWEGadgetParams* params);
+GLWEKSK* new_glwe_ksk(GLWEGadgetParams* params);
+/**
+ * @brief Deletes a GLWE KSK
+ *
+ * @param glwe_ksk The GLWE KSK to delete
+ */
+void delete_glwe_ksk(GLWEKSK* glwe_ksk);
+
+typedef struct glwe_automorphism_keyswitching_key_t
+{
+	int automorphism_p;  ///< -2 represents uninitialized value, 0 if the KSK is not for an automorphism
+	GLWEKSK* glwe_ksk;
+} GLWEAutomorphismKey;
 
 /**
- * @brief Deletes a KSK
+ * @brief Creates a new automorphism key
  *
- * @param automorphism_ksk The KSK to delete
+ * @param params The GLWEGadgetParams associated with the automorphism key
+ *
+ * @return NULL in case of failure, a new automorphism key otherwise
+ *
  */
-void delete_automorphism_ksk(GLWEAutomorphismKSK* automorphism_ksk);
+GLWEAutomorphismKey* new_automorphism_key(GLWEGadgetParams* params);
 
 /**
- * Collection of KSKs
+ * @brief Deletes an automorphism key
+ *
+ * @param automorphism_key The automorphism key to delete
+ */
+void delete_automorphism_key(GLWEAutomorphismKey* automorphism_key);
+
+/**
+ * Collection of automorphism keys
  *
  */
-typedef struct glwe_automorphism_keyswitching_key_collection_t
+typedef struct glwe_automorphism_key_collection_t
 {
 	uint64_t size;               ///< Number of positions in the keys vector
-	GLWEAutomorphismKSK** keys;  ///< Pointers to KSKs
-} GLWEAutomorphismKSKCollection;
+	GLWEAutomorphismKey** keys;  ///< Pointers to automorphism keys
+} GLWEAutomorphismKeyCollection;
 
 /**
- * @brief Creates a KSK collection
+ * @brief Creates an automorphism key collection
  *
- * @param size The number of KSKs that the collection may contain
+ * @param size The number of automorphism keys that the collection may contain
  *
- * @return A new empty KSK collection, with no KSK present nor allocated. NULL in case of failure
+ * @return A new empty collection, with no automorphism keys present nor allocated. NULL in case of failure
  */
-GLWEAutomorphismKSKCollection* new_automorphism_ksk_collection(uint64_t size);
+GLWEAutomorphismKeyCollection* new_automorphism_key_collection(uint64_t size);
 
 /**
- * @brief Puts a KSK into the specified position in the collection. Returns previous occupant.
+ * @brief Puts an automorphism key into the specified position in the collection. Returns previous occupant.
  *
- * @param collection The KSK collection to put the KSK in
- * @param key The KSK to put (a pointer of) in the collection
- * @param pos The position in the collection where the KSK will be
+ * @param collection The automorphism key collection to put the automorphism key in
+ * @param key The automorphism key to put (a pointer of) in the collection
+ * @param pos The position in the collection where the automorphism key will be
  *
- * @return (a pointer to) The KSK that previously occupied position pos, NULL if unoccupied
+ * @return (a pointer to) The automorphism key that previously occupied position pos, NULL if unoccupied
  */
-GLWEAutomorphismKSK* glwegadget_ksk_collection_put_key(GLWEAutomorphismKSKCollection* collection,
-                                                       GLWEAutomorphismKSK* key, uint64_t pos);
+GLWEAutomorphismKey* glwegadget_key_collection_put_key(GLWEAutomorphismKeyCollection* collection,
+                                                       GLWEAutomorphismKey* key, uint64_t pos);
 
 /**
- * @brief Retrieves the KSK in position pos from a collection
+ * @brief Retrieves the automorphism key in position pos from a collection
  *
- * @param collection The KSK collection to fetch the KSK from
+ * @param collection The collection to fetch the automorphism key from
  * @param pos The position in the collection to fetch
  *
- * @return (a pointer to) The KSK  occupies position pos, NULL if unoccupied
+ * @return (a pointer to) The automorphism occupying position pos, NULL if unoccupied
  */
-GLWEAutomorphismKSK* glwegadget_ksk_collection_get_key(const GLWEAutomorphismKSKCollection* collection, uint64_t pos);
+GLWEAutomorphismKey* glwegadget_key_collection_get_key(const GLWEAutomorphismKeyCollection* collection, uint64_t pos);
 
 /**
- * @brief Deletes a KSK collection, optionally deallocating the KSKs in it
+ * @brief Deletes an automorphism key collection, optionally deallocating the keys in it
  *
- * @param automorphism_ksk The collection to delete
- * @param deallocate_ksks Whether to delete the KSKs pointed by it (1) or not (0)
+ * @param automorphism_keys The collection to delete
+ * @param deallocate_keys Whether to delete the keys pointed by it (1) or not (0)
  *
- * @return The number of KSKs that have been deleted while deleting the collection
+ * @return The number of keys that have been deleted while deleting the collection
  */
-uint64_t delete_automorphism_ksk_collection(GLWEAutomorphismKSKCollection* automorphism_ksk, int deallocate_ksks);
+uint64_t delete_automorphism_key_collection(GLWEAutomorphismKeyCollection* automorphism_keys, int deallocate_keys);
 
 #endif

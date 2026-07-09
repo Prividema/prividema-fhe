@@ -30,7 +30,21 @@
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int rand_uniform(int64_t* result, uint64_t nb_bits);
+int rand_uniform_pow2(int64_t* result, uint64_t nb_bits);
+
+/**
+ * @brief Generates a uniformly sampled random number in [limit_down, limit_up] via
+ * power-of-2 sampling and resampling if out-of-bounds
+ *
+ * @param result      The resulting uniformly sampled integer
+ * @param limit_down  The lower bound of the uniform sample
+ * @param limit_up  The lower bound of the uniform sample
+ *
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
+ */
+int rand_uniform(int64_t* result, int64_t limit_down, int64_t limit_up);
 
 /**
  * @brief Generates a gaussianly sampled random number with the given parameters.
@@ -62,7 +76,35 @@ int rand_normal(double* result, double mu, double sigma);
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
+int uniform_pow2_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
+
+/**
+ * @brief Generates a uniformly random binary \ZnX polynomial
+ *
+ * Coefficients are uniformly sampled in {0, 1}
+ *
+ * @param res     The result uniformly drawn \ZnX polynomial.
+ * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
+ */
+int binary_random_pol_znx(PolyUniv* res, uint64_t nn);
+
+/**
+ * @brief Generates a uniformly random \ZnX polynomial
+ *
+ * Coefficients are uniformly sampled in range [low_bound, high_bound]
+ *
+ * @param res         The result uniformly drawn \ZnX polynomial.
+ * @param nn          Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param low_bound   Lower bound of the generated numbers
+ * @param high_bound  Upperbound of the generated numbers
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise.
+ */
+int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound);
 
 /**
  * @brief Generates a random vector following a uniform distribution in res.
