@@ -136,10 +136,10 @@ PvdaParamTest(add_ggsw, basic, default_params_fn)
 	GGSWCiphertext* sum_computed = new_ggsw(params_ggsw);
 
 	// Draws uniformly the bivGGSW ciphertexts
-	uniform_random_vec(params_glwe->nn, ggsw_lhs->mat, ggsw_total_n_glwe_limbs(params_ggsw), params_glwe->nn,
-	                   params_glwe->kappa - 1);
-	uniform_random_vec(params_glwe->nn, ggsw_rhs->mat, ggsw_total_n_glwe_limbs(params_ggsw), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, ggsw_lhs->mat, ggsw_total_n_glwe_limbs(params_ggsw),
+	                        params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, ggsw_rhs->mat, ggsw_total_n_glwe_limbs(params_ggsw),
+	                        params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes ggsw_lhs + ggsw_rhs
 	add_ggsw(module, sum_computed, ggsw_lhs, ggsw_rhs);
@@ -175,11 +175,11 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	PolyUniv* prod_expected          = new_univ(params_glwe);
 
 	// Draws uniformly the Zn[X] constant
-	uniform_random_vec(params_glwe->nn, u, 1, params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, u, 1, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Draws uniformly the bivGGSW ciphertext
-	uniform_random_vec(params_glwe->nn, ggsw->mat, ggsw_total_n_glwe_limbs(params_ggsw), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, ggsw->mat, ggsw_total_n_glwe_limbs(params_ggsw), params_glwe->nn,
+	                        params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);

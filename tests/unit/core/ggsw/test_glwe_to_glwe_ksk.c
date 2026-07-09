@@ -44,7 +44,7 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	uniform_glwe_secret_key(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	compute_ksk(module, glwe_ksk, new_sk_prep, sk_prep);
@@ -100,7 +100,7 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 	uniform_glwe_secret_key(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	compute_ksk(module, glwe_ksk, new_sk_prep, sk_prep);

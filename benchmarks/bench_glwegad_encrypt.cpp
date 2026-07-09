@@ -32,7 +32,7 @@ void bench_glwegad_encrypt(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx(m, NBASE, MSGBITS);
+	uniform_pow2_random_pol_znx(module, m, NBASE, MSGBITS);
 
 	for (auto _ : state)
 	{

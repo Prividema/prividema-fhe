@@ -17,7 +17,7 @@ void bench_univ_biv_rnx(benchmark::State& state)
 
 	PolyUnivRnX* m = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv = new_biv(params_glwe);
-	rnx_random_vec(m, params_glwe);
+	rnx_random_vec(backend, m, params_glwe);
 
 	for (auto _ : state)
 	{
@@ -43,7 +43,7 @@ void bench_biv_normalize(benchmark::State& state)
 	PolyUnivRnX* m = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv = new_biv(params_glwe);
 
-	rnx_random_vec(m, params_glwe);
+	rnx_random_vec(backend, m, params_glwe);
 
 	univ_rnx_to_biv(params_glwe, m_biv, m, 0);
 
@@ -71,7 +71,7 @@ void bench_univ_biv_rnx_via_tnx(benchmark::State& state)
 	PolyUnivRnX* m     = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv     = new_biv(params_glwe);
 	PolyUnivTnX* m_tnx = new_univ_tnx(params_glwe);
-	rnx_random_vec(m, params_glwe);
+	rnx_random_vec(backend, m, params_glwe);
 
 	for (auto _ : state)
 	{
@@ -98,7 +98,7 @@ void bench_univ_biv_tnx(benchmark::State& state)
 
 	PolyUnivTnX* m = new_univ_tnx(params_glwe);
 	PolyBiv* m_biv = new_biv(params_glwe);
-	uniform_pow2_random_pol_znx((PolyUniv*)m, NBASE, 64);
+	uniform_pow2_random_pol_znx(backend, (PolyUniv*)m, NBASE, 64);
 
 	for (auto _ : state)
 	{
@@ -124,7 +124,7 @@ void bench_biv_univ_tnx(benchmark::State& state)
 	PolyUnivTnX* m      = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_back = new_univ_tnx(params_glwe);
 	PolyBiv* m_biv      = new_biv(params_glwe);
-	uniform_pow2_random_pol_znx((PolyUniv*)m, NBASE, 64);
+	uniform_pow2_random_pol_znx(backend, (PolyUniv*)m, NBASE, 64);
 	univ_tnx_to_biv(params_glwe, m_biv, m, 0);
 
 	for (auto _ : state)
@@ -152,7 +152,7 @@ void bench_biv_univ_rnx(benchmark::State& state)
 	PolyUnivRnX* m      = new_univ_rnx(params_glwe);
 	PolyUnivRnX* m_back = new_univ_rnx(params_glwe);
 	PolyBiv* m_biv      = new_biv(params_glwe);
-	rnx_random_vec(m, params_glwe);
+	rnx_random_vec(backend, m, params_glwe);
 	univ_rnx_to_biv(params_glwe, m_biv, m, 0);
 
 	for (auto _ : state)

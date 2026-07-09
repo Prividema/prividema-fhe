@@ -31,7 +31,7 @@ void bench_ggsw_encrypt(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_random_vec(NBASE, m, 1, NBASE, MSGBITS);
+	uniform_pow2_random_vec(module, NBASE, m, 1, NBASE, MSGBITS);
 
 	for (auto _ : state)
 	{

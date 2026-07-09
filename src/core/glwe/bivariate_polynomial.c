@@ -8,6 +8,7 @@
 #include <sys/select.h>
 #include <sys/types.h>
 
+#include "backend.h"
 #include "glwe_params.h"
 #include "logger.h"
 #include "maths_structures.h"
@@ -67,14 +68,14 @@ cleanup:
 	return NULL;
 }
 
-int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
+int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result)
 {
 	int status = -1;
 
 	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 
-	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
+	CHECK_CALL(normal_random_vec(module, rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
 	           "random normal vec generation failed");
 
 	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
@@ -88,13 +89,14 @@ cleanup:
 	return status;
 }
 
-int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int64_t precision)
+int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result,
+                            int64_t precision)
 {
 	int status = -1;
 
 	for (uint64_t i = 0; i < precision; i++)
 		for (uint64_t p = 0; p < result->nn; p++)
-			CHECK_CALL(rand_uniform_pow2(result->ptr + i * result->stride + p, params_glwe->kappa),
+			CHECK_CALL(pvda_rand_uniform_pow2(module, result->ptr + i * result->stride + p, params_glwe->kappa),
 			           "rand_uniform failed in uniform_random_biv_poly.");
 
 	status = 0;
@@ -121,7 +123,7 @@ int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_g
 	CHECK_ALLOC(err, "Failed alloc in fast uniform noise generation");
 
 	if (params_glwe->fast_uniform_nb_bits)
-		CHECK_CALL(uniform_pow2_random_pol_znx(err, nn, params_glwe->fast_uniform_nb_bits),
+		CHECK_CALL(uniform_pow2_random_pol_znx(module, err, nn, params_glwe->fast_uniform_nb_bits),
 		           "Uniform noise generation failed");
 	else
 	{

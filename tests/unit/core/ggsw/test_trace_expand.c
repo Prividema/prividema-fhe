@@ -97,7 +97,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 		memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		rnx_random_vec(tmp_rnx, params_glwe);
+		rnx_random_vec(module, tmp_rnx, params_glwe);
 		for (int i = 0; i < bund; ++i) m_univ_rnx[i] = tmp_rnx[i];
 
 		glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
@@ -181,7 +181,7 @@ PvdaParamTest(hom_expand, no_noise, trace_params_fn)
 		memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		rnx_random_vec(tmp_rnx, params_glwe);
+		rnx_random_vec(module, tmp_rnx, params_glwe);
 		for (int i = 0; i < bund; ++i) m_univ_rnx[i] = tmp_rnx[i];
 
 		glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
@@ -318,7 +318,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_pow2_random_pol_znx(m_univ, bund, 1);
+		uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -402,7 +402,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 		memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_pow2_random_pol_znx(m_univ, bund, 1);
+		uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 

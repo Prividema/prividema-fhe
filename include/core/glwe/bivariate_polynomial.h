@@ -70,13 +70,14 @@ PolyBiv* new_biv_custom_params(uint64_t nn, uint64_t biv_l);
  * the base-2k decomposition have been sampled from a normal distribution according
  * to the parameters
  *
+ * @param module The underlying compute module.
  * @param params_glwe The GLWE parameters
  * @param result The result bivariate polynomial.
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
+int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result);
 
 /**
  * @brief Computes a random uniform bivariate polynomial.
@@ -85,6 +86,7 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
  * the base-2k decomposition have been sampled from a uniform distribution according
  * to the parameters
  *
+ * @param module The underlying compute module.
  * @param params_glwe The bivGLWE parameters.
  * @param result     The output bivariate polynomial
  * @param precision The maximum degree in Y of the polynomial.
@@ -92,7 +94,8 @@ int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result);
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int64_t precision);
+int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result,
+                            int64_t precision);
 
 /**
  * @brief Adds two bivariate polynomials and puts the result in res.

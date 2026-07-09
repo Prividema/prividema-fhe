@@ -43,7 +43,7 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 	for (size_t i = 0; i < NB_SAMPLES; i++)
 	{
 		int64_t sample = 0;
-		if (rand_uniform(&sample, nb_bits) < 0) return -1;
+		if (pvda_rand_uniform_pow2(module, &sample, nb_bits) < 0) return -1;
 
 		// Epsilon 1e9 used to avoid floating point precision bad rounding
 		int box_n = (int)(((double)sample - (double)min + 1e-9) / step);
@@ -119,7 +119,7 @@ PvdaParamTest(normal_random_vec, basic, default_params_fn)
 	cr_assert(pol_univ != NULL);
 
 	//For now, random vec generation is unimplemented and thus the function should fail (-1)
-	cr_assert(normal_random_vec(pol_univ, params_glwe->nn * params_glwe->k, 0.0, 0.001) == -1);
+	cr_assert(normal_random_vec(module, pol_univ, params_glwe->nn * params_glwe->k, 0.0, 0.001) == -1);
 
 	free(pol_univ);
 

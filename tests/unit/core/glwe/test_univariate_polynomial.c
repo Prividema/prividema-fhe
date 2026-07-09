@@ -36,7 +36,7 @@ PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 	PolyUniv* a_t        = new_univ(params_glwe);
 	PolyUnivDFT* res_dft = new_univ_dft(module);
 
-	uniform_random_vec(params_glwe->nn, a, 1, params_glwe->nn, 8);
+	uniform_pow2_random_vec(module, params_glwe->nn, a, 1, params_glwe->nn, 8);
 
 	univ_coefs_to_dft(module, res_dft, a);
 	univ_dft_to_coefs(module, a_t, res_dft);
@@ -102,7 +102,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx, default_params_fn)
 	PolyUnivTnX* tnx_values = new_univ_tnx(params_glwe);
 	PolyUnivRnX* rnx_final  = new_univ_rnx(params_glwe);
 
-	rnx_random_vec(rnx_values, params_glwe);
+	rnx_random_vec(module, rnx_values, params_glwe);
 	for (int i = 0; i < vec_size; ++i)
 	{
 		rnx_values[i] = rnx_values[i] - floor(rnx_values[i]);
@@ -129,7 +129,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx, default_params_fn)
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
 
 	uint64_t precision = (1l << (64 - 53));
-	uniform_pow2_random_pol_znx(tnx_values, vec_size, 64);
+	uniform_pow2_random_pol_znx(module, tnx_values, vec_size, 64);
 
 	univ_tnx_to_rnx(params_glwe, rnx_values, tnx_values);
 	univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);

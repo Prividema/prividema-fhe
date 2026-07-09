@@ -37,7 +37,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	// Draws the message
 	uniform_glwe_secret_key(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(m_univ, params_glwe->nn, params_glwe->kappa);
+	uniform_pow2_random_pol_znx(module, m_univ, params_glwe->nn, params_glwe->kappa);
 
 	glwegadget_secret_encrypt(module, glwegadget, sk_prep, m_univ);
 
@@ -76,7 +76,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	uniform_glwe_secret_key(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
-	uniform_pow2_random_pol_znx(m_univ, D, params_glwe->kappa);
+	uniform_pow2_random_pol_znx(module, m_univ, D, params_glwe->kappa);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, D);
 

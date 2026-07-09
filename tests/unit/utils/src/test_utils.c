@@ -96,7 +96,7 @@ struct criterion_test_params default_params_fn()
 	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
 }
 
-int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe)
+int rnx_random_vec(const PvdaBackend* module, PolyUnivRnX* res, GLWEParams* params_glwe)
 {
 	int status = -1;
 
@@ -104,7 +104,7 @@ int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe)
 
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
 	// the memory representation is the same for isomprphic values
-	uniform_pow2_random_pol_znx((PolyUniv*)tmp_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)tmp_tnx, params_glwe->nn, 64);
 
 	univ_tnx_to_rnx(params_glwe, res, tmp_tnx);
 

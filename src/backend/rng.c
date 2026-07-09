@@ -8,6 +8,7 @@
 #include <string.h>
 #include <threads.h>
 
+#include "backend.h"
 #include "logger.h"
 #include "spqlios_alias.h"
 #include "utils.h"
@@ -36,7 +37,7 @@
                         if an error occurs during the generation.
     - On other Linux distributions : read /dev/urandom.
 */
-int read_rand(uint64_t* result, size_t bytes)
+inline int cpu_read_rand(uint64_t* result, size_t bytes)
 {
 // For Windows
 #ifdef _WIN32
@@ -75,18 +76,18 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
 }
 
-int rand_uniform_pow2(int64_t* result, uint64_t nb_bits)
+int ref_rand_uniform_pow2(const PvdaBackend* module, int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
 	assert(nb_bits <= 8 * sizeof(int64_t));
 
 	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
 	if (nb_bits == 8 * sizeof(int64_t))
-		return read_rand((uint64_t*)result, 8);
+		return cpu_read_rand((uint64_t*)result, 8);
 
 	else
 	{
-		if (read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
+		if (cpu_read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
 		reduce_uniform_n(result, (int)nb_bits);
 
@@ -96,7 +97,7 @@ int rand_uniform_pow2(int64_t* result, uint64_t nb_bits)
 	return 0;
 }
 
-int rand_uniform(int64_t* result, int64_t limit_down, int64_t limit_up)
+int ref_rand_uniform(const PvdaBackend* module, int64_t* result, int64_t limit_down, int64_t limit_up)
 {
 	uint64_t max_delta = (uint64_t)limit_up - (uint64_t)limit_down;
 	if (max_delta == UINT64_MAX) return -1;
@@ -108,7 +109,7 @@ int rand_uniform(int64_t* result, int64_t limit_down, int64_t limit_up)
 	int st;
 	do
 	{
-		st = read_rand(&tmp, INT_ROUND_UP_DIV(bits, 8));
+		st = cpu_read_rand(&tmp, INT_ROUND_UP_DIV(bits, 8));
 		if (st < 0) return -1;
 		tmp &= mask;
 	} while (tmp > max_delta);
@@ -145,9 +146,9 @@ cleanup:
 	return -1;
 }
 
-int uniform_pow2_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits)
+int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, uint64_t nb_bits)
 {
-	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
+	CHECK_CALL(cpu_read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
 	for (uint64_t p = 0; p < nn; p++)
 	{
 		reduce_uniform_n(res + p, (int)nb_bits);
@@ -157,9 +158,9 @@ cleanup:
 	return -1;
 }
 
-int binary_random_pol_znx(PolyUniv* res, uint64_t nn)
+int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn)
 {
-	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
+	CHECK_CALL(cpu_read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
 	for (uint64_t p = 0; p < nn; p++)
 	{
 		res[p] &= 1;
@@ -169,21 +170,23 @@ cleanup:
 	return -1;
 }
 
-int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
+int uniform_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
 {
 	for (uint64_t p = 0; p < nn; p++)
 	{
-		CHECK_CALL(rand_uniform(&res[p], low_bound, high_bound), "uniform RNG failed");
+		CHECK_CALL(pvda_rand_uniform(module, &res[p], low_bound, high_bound), "uniform RNG failed");
 	}
 	return 0;
 cleanup:
 	return -1;
 }
 
-int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits)
+int uniform_pow2_random_vec(const PvdaBackend* module, uint64_t limb_len, int64_t* res, uint64_t nb_limbs,
+                            uint64_t res_sl, uint64_t nb_bits)
 {
 	for (uint64_t i = 0; i < nb_limbs; i++)
-		CHECK_CALL(uniform_pow2_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
+		CHECK_CALL(uniform_pow2_random_pol_znx(module, res + i * res_sl, limb_len, nb_bits),
+		           "uniform random vec failed");
 	return 0;
 cleanup:
 	return -1;
@@ -209,7 +212,7 @@ int uniform_random_vec_znx_dft(const PvdaBackend* module, VecUnivDFT* result_dft
 	// Draws uniformly in Zn[X] the vector elements
 	for (int i = 0; i < vec_size; i++)
 		for (int p = 0; p < nn; p++)
-			CHECK_CALL(rand_uniform_pow2(tmp_space + i * nn + p, nb_bits),
+			CHECK_CALL(pvda_rand_uniform_pow2(module, tmp_space + i * nn + p, nb_bits),
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
@@ -224,7 +227,8 @@ cleanup:
 	return status;
 }
 
-int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma)
+int add_normal_random_vec(const PvdaBackend* module, double* res, size_t vec_size, const double* vec, double mu,
+                          double sigma)
 {
 	// Possible performance improvement here
 	for (int i = 0; i < vec_size; i++)
@@ -239,7 +243,7 @@ cleanup:
 	return -1;
 }
 
-int normal_random_vec(double* res, uint64_t res_size, double mu, double sigma)
+int normal_random_vec(const PvdaBackend* module, double* res, uint64_t res_size, double mu, double sigma)
 {
 	for (int i = 0; i < res_size; i++) CHECK_CALL(rand_normal(res + i, mu, sigma), "normal_random_vec failed");
 

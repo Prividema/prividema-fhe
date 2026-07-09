@@ -55,7 +55,7 @@ void test_expand_trace(benchmark::State& state)
 
 	memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
-	rnx_random_vec(m_univ_rnx, params_glwe);
+	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
 	glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
 
@@ -122,7 +122,7 @@ void test_hom_trace(benchmark::State& state)
 
 	memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
-	rnx_random_vec(m_univ_rnx, params_glwe);
+	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
 	glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
 
@@ -203,7 +203,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	int bund = D;
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
-	uniform_pow2_random_pol_znx(m_univ, bund, 1);
+	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -286,7 +286,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
-	uniform_pow2_random_pol_znx(m_univ, bund, 1);
+	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 

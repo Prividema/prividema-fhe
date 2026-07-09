@@ -37,8 +37,8 @@ void bench_glwegad_half_prod(benchmark::State& state)
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(u_univ, params_glwe->nn, UBITS);
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
+	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, UBITS);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	glwegadget_secret_encrypt(module, glwegad, sk_prep, u_univ);
@@ -89,8 +89,8 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(u_univ, params_glwe->nn, UBITS);
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
+	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, UBITS);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 	biv_coefs_to_dft(module, params_glwe, m_dft, m);
 
@@ -144,8 +144,8 @@ void bench_glwegad_half_prod_prep(benchmark::State& state)
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(u_univ, params_glwe->nn, UBITS);
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
+	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, UBITS);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 	biv_coefs_to_prep(module, params_glwe, m_prep, m);
 

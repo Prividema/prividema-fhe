@@ -18,7 +18,7 @@ PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
 
 	uint64_t nn = params_glwe->nn;
 
-	rnx_random_vec(initial_vec, params_glwe);
+	rnx_random_vec(module, initial_vec, params_glwe);
 
 	encode_slow_internal(interm_vec, nn, (complex double*)initial_vec);
 	decode_slow_internal((complex double*)final_vec, nn, interm_vec);

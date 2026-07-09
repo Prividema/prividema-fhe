@@ -84,10 +84,10 @@ PvdaParamTest(add_glwe, basic, default_params_fn)
 	GLWECiphertext* sum_computed = new_glwe(params_glwe);
 
 	// Draws in Zn[X] the bivGLWE's bivariate elements
-	uniform_random_vec(params_glwe->nn, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
-	uniform_random_vec(params_glwe->nn, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
 
 	// Computes glwe_lhs + glwe_rhs
 	add_glwe(module, sum_computed, glwe_lhs, glwe_rhs);
@@ -116,8 +116,8 @@ PvdaParamTest(copy_glwe, basic, default_params_fn)
 	GLWECiphertext* glwe_src = new_glwe(params_glwe);
 
 	// Fills the source glwe glwe_src with random data
-	uniform_random_vec(params_glwe->nn, glwe_dst->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe_dst->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
 
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
@@ -145,8 +145,8 @@ PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
 	GLWECiphertext* glwe_dst = new_glwe(dst_params);
 
 	// Fills the source glwe glwe_src with random data
-	uniform_random_vec(params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
 
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
@@ -176,8 +176,8 @@ PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
 	GLWECiphertext* glwe_dst = new_glwe(dst_params);
 
 	// Fills the source glwe glwe_src with random data
-	uniform_random_vec(params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
 
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
@@ -209,10 +209,10 @@ PvdaParamTest(sub_glwe, basic, default_params_fn)
 	GLWECiphertext* sub_observed = new_glwe(params_glwe);
 
 	// Draws in Zn[X] the bivGLWE's bivariate elements
-	uniform_random_vec(params_glwe->nn, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
-	uniform_random_vec(params_glwe->nn, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
 
 	// Computes glwe_lhs - glwe_rhs
 	sub_glwe(module, sub_observed, glwe_lhs, glwe_rhs);
@@ -244,11 +244,11 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 	PolyUniv* prod_expected       = new_univ(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
-	uniform_random_vec(params_glwe->nn, glwe->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                   params_glwe->kappa - 1);
+	uniform_pow2_random_vec(module, params_glwe->nn, glwe->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
+	                        params_glwe->kappa - 1);
 
 	// Draws in Zn[X] the polynomial u
-	uniform_pow2_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_pol_znx(module, u, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
 	univ_coefs_to_dft(module, u_dft, u);
@@ -360,7 +360,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 	uniform_random_vec_znx_dft(module, glwe_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
 
 	// Draws uniformly
-	uniform_pow2_random_pol_znx(u, params_glwe->nn, params_glwe->kappa - 1);
+	uniform_pow2_random_pol_znx(module, u, params_glwe->nn, params_glwe->kappa - 1);
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain

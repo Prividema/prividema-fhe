@@ -195,7 +195,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking");
 
 	// Draws uniformly in Zn[X,Y] the ajs'
-	CHECK_CALL(uniform_random_vec(k * nn, glwe->vec, l_a, (k + 1) * nn, kappa),
+	CHECK_CALL(uniform_pow2_random_vec(module, k * nn, glwe->vec, l_a, (k + 1) * nn, kappa),
 	           "A generation failed in glwe_secret_masking_dft");
 
 	// Computes Sum_j{0,k-1}[sk_j * a_j]

@@ -140,6 +140,7 @@ struct criterion_test_params default_params_fn();
  *
  * No cryptographic guarantees are given about the output randomness
  *
+ * @param module    A computation backend for RNG
  * @param res       The result.
  * @param res_size  The number of elements in the vector.
  *
@@ -147,5 +148,5 @@ struct criterion_test_params default_params_fn();
  * @retval 0 otherwise.
 
  */
-int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe);
+int rnx_random_vec(const PvdaBackend* module, PolyUnivRnX* res, GLWEParams* params_glwe);
 #endif
