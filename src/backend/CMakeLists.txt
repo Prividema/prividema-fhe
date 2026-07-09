@@ -6,7 +6,8 @@
 add_library(PVDA_BACKEND
 backend.c
 spqlios_alias.c
-rng.c)
+rng.c
+rng_cpu.c)
 
 # Set the output library name explicitly
 set_target_properties(PVDA_BACKEND PROPERTIES OUTPUT_NAME pvdabackend)

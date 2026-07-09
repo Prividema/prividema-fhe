@@ -36,6 +36,8 @@ typedef typeof(pvda_vec_znx_rotate) PVDA_VEC_ZNX_ROTATE_F;
 typedef typeof(pvda_module_extract_nn) PVDA_MODULE_EXTRACT_NN_F;
 typedef typeof(pvda_vmp_prepare_vec) PVDA_VMP_PREPARE_VEC_F;
 typedef typeof(pvda_rand_uniform_pow2) PVDA_RAND_UNIFORM_POW2_F;
+typedef typeof(pvda_rand_uniform_pow2_vec) PVDA_RAND_UNIFORM_POW2_VEC_F;
+typedef typeof(pvda_rand_uniform_binary_vec) PVDA_RAND_UNIFORM_BINARY_VEC_F;
 typedef typeof(pvda_rand_uniform) PVDA_RAND_UNIFORM_F;
 
 typedef struct pvda_virtual_table
@@ -68,6 +70,8 @@ typedef struct pvda_virtual_table
 	PVDA_MODULE_EXTRACT_NN_F* pvda_module_extract_nn;
 	PVDA_VMP_PREPARE_VEC_F* pvda_vmp_prepare_vec;
 	PVDA_RAND_UNIFORM_POW2_F* pvda_rand_uniform_pow2;
+	PVDA_RAND_UNIFORM_POW2_VEC_F* pvda_rand_uniform_pow2_vec;
+	PVDA_RAND_UNIFORM_BINARY_VEC_F* pvda_rand_uniform_binary_vec;
 	PVDA_RAND_UNIFORM_F* pvda_rand_uniform;
 } PvdaVirutalTable;
 

@@ -13,17 +13,6 @@
 #include "spqlios_alias.h"
 #include "utils.h"
 
-#ifdef _WIN32
-#define _USE_MATH_DEFINES
-#include <bcrypt.h>
-#include <windows.h>
-#pragma comment(lib, "bcrypt.lib")
-#endif
-
-#ifdef __linux__
-#include <sys/random.h>
-#endif
-
 // On some distros math.h doesn't define M_PI so we define it here just in case.
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -37,85 +26,6 @@
                         if an error occurs during the generation.
     - On other Linux distributions : read /dev/urandom.
 */
-inline int cpu_read_rand(uint64_t* result, size_t bytes)
-{
-// For Windows
-#ifdef _WIN32
-	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)result, bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
-	if (status != STATUS_SUCCESS) return log_message(LOG_ERROR, "BCryptGenRandom() Failed");
-
-// For MACOS/FreeBSD
-// According to arc4random's doc, the function crashes if an error occurs :
-// "Cryptographic randomness is considered fundamental — if it’s broken, continuing execution is unsafe."
-#elif defined(__APPLE__) || defined(__FreeBSD__)
-	arc4random_buf(result, bytes);
-
-// For Linux
-#elif defined(__linux__)
-
-	size_t rand_bytes = getrandom(result, bytes, 0);
-	if (rand_bytes != bytes) return -1;
-	return 0;
-
-// I don't know what system this block below would be (and it would be quite slow)
-// But for now we leave it for compatibility
-#else
-	// THIS IS VERY SLOW!
-	FILE* f = fopen("/dev/urandom", "rb");
-	if (!f) return log_perror("fopen");
-	int r = fread(result, 1, bytes, f);
-	fclose(f);
-	if (r != bytes) return log_perror("fread");
-#endif
-
-	return 0;
-}
-static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
-{
-	int shft = 64 - n_bits;
-	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
-}
-
-int ref_rand_uniform_pow2(const PvdaBackend* module, int64_t* result, uint64_t nb_bits)
-{
-	// As result points to an uint64_t  nb_bits shall not exceed its size
-	assert(nb_bits <= 8 * sizeof(int64_t));
-
-	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
-	if (nb_bits == 8 * sizeof(int64_t))
-		return cpu_read_rand((uint64_t*)result, 8);
-
-	else
-	{
-		if (cpu_read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
-
-		reduce_uniform_n(result, (int)nb_bits);
-
-		return 1;
-	}
-
-	return 0;
-}
-
-int ref_rand_uniform(const PvdaBackend* module, int64_t* result, int64_t limit_down, int64_t limit_up)
-{
-	uint64_t max_delta = (uint64_t)limit_up - (uint64_t)limit_down;
-	if (max_delta == UINT64_MAX) return -1;
-	uint64_t bits = next_pow2_log(max_delta + 1);
-	uint64_t mask = bits == 64 ? (UINT64_MAX) : (1ull << bits) - 1;
-
-	uint64_t tmp = 0;
-
-	int st;
-	do
-	{
-		st = cpu_read_rand(&tmp, INT_ROUND_UP_DIV(bits, 8));
-		if (st < 0) return -1;
-		tmp &= mask;
-	} while (tmp > max_delta);
-	*result = (int64_t)((uint64_t)limit_down + tmp);
-	return 0;
-}
 
 int rand_normal(double* result, double mu, double sigma)
 {
@@ -148,26 +58,12 @@ cleanup:
 
 int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, uint64_t nb_bits)
 {
-	CHECK_CALL(cpu_read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
-	for (uint64_t p = 0; p < nn; p++)
-	{
-		reduce_uniform_n(res + p, (int)nb_bits);
-	}
-	return 0;
-cleanup:
-	return -1;
+	return pvda_rand_uniform_pow2_vec(module, (int64_t*)res, nn, nb_bits);
 }
 
 int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn)
 {
-	CHECK_CALL(cpu_read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
-	for (uint64_t p = 0; p < nn; p++)
-	{
-		res[p] &= 1;
-	}
-	return 0;
-cleanup:
-	return -1;
+	return pvda_rand_uniform_binary_vec(module, (uint64_t*)res, nn);
 }
 
 int uniform_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound)

@@ -5,6 +5,7 @@
 #include "backend_private.h"
 #include "maths_structures.h"
 #include "rng.h"
+#include "rng_private.h"
 #include "spqlios_alias.h"
 
 void pvda_fill_spqlios(struct pvda_virtual_table* vt)
@@ -40,8 +41,10 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 
 void pvda_fill_ref_rng(struct pvda_virtual_table* vt)
 {
-	vt->pvda_rand_uniform_pow2 = ref_rand_uniform_pow2;
-	vt->pvda_rand_uniform      = ref_rand_uniform;
+	vt->pvda_rand_uniform_pow2       = ref_rand_uniform_pow2;
+	vt->pvda_rand_uniform_pow2_vec   = ref_rand_uniform_pow2_vec;
+	vt->pvda_rand_uniform_binary_vec = ref_rand_uniform_binary_vec;
+	vt->pvda_rand_uniform            = ref_rand_uniform;
 }
 
 PvdaBackend* pvda_new_spqlios_backend(int nn)
@@ -199,6 +202,16 @@ int pvda_vmp_prepare_vec(const PvdaBackend* backend, PolyBivPrep* pvec, uint64_t
 int pvda_rand_uniform_pow2(const PvdaBackend* backend, int64_t* result, uint64_t nb_bits)
 {
 	return backend->vt.pvda_rand_uniform_pow2(backend, result, nb_bits);
+}
+
+int pvda_rand_uniform_pow2_vec(const PvdaBackend* backend, int64_t* result, uint64_t n, uint64_t nb_bits)
+{
+	return backend->vt.pvda_rand_uniform_pow2_vec(backend, result, n, nb_bits);
+}
+
+int pvda_rand_uniform_binary_vec(const PvdaBackend* backend, uint64_t* result, uint64_t n)
+{
+	return backend->vt.pvda_rand_uniform_binary_vec(backend, result, n);
 }
 
 int pvda_rand_uniform(const PvdaBackend* backend, int64_t* result, int64_t limit_down, int64_t limit_up)
