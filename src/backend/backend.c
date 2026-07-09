@@ -8,6 +8,10 @@
 #include "rng_private.h"
 #include "spqlios_alias.h"
 
+#ifdef OPENSSL_BACKEND
+#include "rng_openssl.h"
+#endif
+
 void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 {
 	vt->pvda_new_vec_znx_dft           = spqlios_new_vec_znx_dft;
@@ -52,7 +56,11 @@ PvdaBackend* pvda_new_spqlios_backend(int nn)
 	PvdaBackend* res    = malloc(sizeof(PvdaBackend));
 	res->spqlios_module = spqlios_new_module_info(nn);
 	pvda_fill_spqlios(&res->vt);
+#ifdef OPENSSL_BACKEND
+	pvda_fill_openssl_rng(&res->vt);
+#else
 	pvda_fill_ref_rng(&res->vt);
+#endif
 	return res;
 }
 

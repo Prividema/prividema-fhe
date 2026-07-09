@@ -15,6 +15,14 @@
 #include "backend.h"
 #include "utils.h"
 
+/*
+    Read a random number depending on the OS :
+    - On Windows : Uses Windows' Cryptographic API called CNG.
+    - On MACOS/FreeBSD : Call to arc4random_buf.
+                        According to arc4random's doc, the whole program crashes
+                        if an error occurs during the generation.
+    - On other Linux distributions : read /dev/urandom.
+*/
 static inline int cpu_read_rand(uint64_t* result, size_t bytes)
 {
 // For Windows
@@ -48,6 +56,7 @@ static inline int cpu_read_rand(uint64_t* result, size_t bytes)
 
 	return 0;
 }
+
 static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 {
 	int shft = 64 - n_bits;

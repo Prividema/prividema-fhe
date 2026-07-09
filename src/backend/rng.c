@@ -18,15 +18,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-/*
-    Read a random number depending on the OS :
-    - On Windows : Uses Windows' Cryptographic API called CNG.
-    - On MACOS/FreeBSD : Call to arc4random_buf.
-                        According to arc4random's doc, the whole program crashes
-                        if an error occurs during the generation.
-    - On other Linux distributions : read /dev/urandom.
-*/
-
 int rand_normal(double* result, double mu, double sigma)
 {
 	RAISE_ERROR("Normal number generation not implemented");

@@ -42,6 +42,7 @@ option(PROFILING_OPTIONS "Add options to allow for proper profiling even in real
 option(BUILD_NATIVE "Enable march=native optimisations" OFF)
 option(ENABLE_DEBUG "Enable additional prints for debugging purpose" OFF)
 option(BUILD_DOCS "Build the documentation using Doxygen" OFF)
+option(OPENSSL_BACKEND "Allow using OpenSSL for some backend mathematics (for now RNG)" OFF)
 
 # ----------------------------------------
 # Debug print configuration

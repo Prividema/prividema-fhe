@@ -15,7 +15,6 @@
  * provides functions to sample different distributions)
  */
 
-
 /**
  * @brief Generates a gaussianly sampled random number with the given parameters.
  *
