@@ -4,6 +4,7 @@
 
 #include "backend_private.h"
 #include "maths_structures.h"
+#include "pvda_ffts.h"
 #include "rng.h"
 #include "rng_private.h"
 #include "spqlios_alias.h"
@@ -61,6 +62,7 @@ PvdaBackend* pvda_new_spqlios_backend(int nn)
 #else
 	pvda_fill_ref_rng(&res->vt);
 #endif
+	res->pvda_fft_data = new_fft_data(nn);
 	return res;
 }
 

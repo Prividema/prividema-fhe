@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "backend.h"
+#include "pvda_ffts.h"
 
 typedef struct module_info_t SPQLIOS_MODULE;
 
@@ -78,6 +79,7 @@ typedef struct pvda_virtual_table
 struct pvda_module_t
 {
 	SPQLIOS_MODULE* spqlios_module;
+	struct pvda_fft_data_t* pvda_fft_data;
 
 	PvdaVirutalTable vt;
 };
