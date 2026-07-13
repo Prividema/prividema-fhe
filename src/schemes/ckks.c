@@ -8,7 +8,10 @@
 
 #include "backend.h"
 #include "backend_private.h"  //todo remove
+#include "bivariate_polynomial.h"
+#include "glwe_params.h"
 #include "logger.h"
+#include "univariate_polynomial.h"
 #include "utils.h"
 
 void encode_slow_internal(double* out, uint64_t n, double complex* in)
@@ -112,7 +115,9 @@ int decode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slot
 	uint64_t nn    = backend->pvda_fft_data->nn;
 	uint64_t log2n = next_pow2_log(2 * nn);
 
-	for (uint64_t lvl = log2k; lvl > 0; --lvl)
+	complex_bitrev(inout, slots);
+
+	for (uint64_t lvl = 1; lvl <= log2k; ++lvl)
 	{
 		uint64_t lvl_len      = 1 << lvl;
 		uint64_t half_lvl_len = lvl_len >> 1;
@@ -128,25 +133,17 @@ int decode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slot
 				double complex v1, v2;
 				double complex root;
 
-				v1 = inout[p] + inout[p + half_lvl_len];
-
 				uint64_t root_idx = backend->pvda_fft_data->rotation_group[j] & mask;
-				root_idx          = (quad_lvl_len - root_idx) << log_gap;
+				root_idx          = root_idx << log_gap;
 				root              = backend->pvda_fft_data->roots[root_idx];
-				v2                = (inout[p] - inout[p + half_lvl_len]) * root;
 
-				inout[p]                = v1;
-				inout[p + half_lvl_len] = v2;
+				v1                      = inout[p];
+				v2                      = inout[p + half_lvl_len] * root;
+				inout[p]                = v1 + v2;
+				inout[p + half_lvl_len] = v1 - v2;
 			}
 		}
 	}
-
-	for (uint64_t i = 0; i < slots; ++i)
-	{
-		inout[i] /= (double)slots;
-	}
-
-	complex_bitrev(inout, slots);
 
 	return 0;
 }
@@ -179,6 +176,21 @@ cleanup:
 	{
 		free(in);
 	}
+	return 0;
+}
+
+int decode_internal(const PvdaBackend* backend, double complex* out, uint64_t slots, double* in)
+{
+	int status = -1;
+	for (int i = 0; i < slots; ++i)
+	{
+		out[i] = CMPLX(in[i], in[i + slots]);
+	}
+
+	decode_ifft(backend, out, slots);
+
+	status = 0;
+cleanup:
 	return 0;
 }
 
