@@ -74,7 +74,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 		normalize_glwe(module, glwe_norm, glwe_res);
 
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
-		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 		uint64_t nn = params_glwe->nn;
 		pvda_znx_automorphism(module, auto_p, m_expected_tnx, m_univ_tnx);
@@ -134,7 +134,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 		normalize_glwe(module, glwe_norm, glwe_res);
 
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
-		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 		uint64_t nn = params_glwe->nn;
 		pvda_znx_automorphism(module, auto_p, m_expected_tnx, m_univ_tnx);

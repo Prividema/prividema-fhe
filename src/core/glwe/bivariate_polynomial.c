@@ -198,7 +198,7 @@ cleanup:
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
 
-void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol_biv)
+void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol_biv, int64_t bit_offset)
 {
 	uint64_t nn      = params_glwe->nn;
 	uint64_t kappa   = params_glwe->kappa;
@@ -214,6 +214,9 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 			res_univ[p] += (double)pol_biv->ptr[(i - 1) * pol_biv->stride + p];
 			res_univ[p] *= pkappa;
 		}
+
+	if (bit_offset != 0)
+		for (uint64_t p = 0; p < nn; p++) res_univ[p] = ldexp(res_univ[p], bit_offset);
 }
 
 int univ_rnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ,
@@ -277,7 +280,7 @@ int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, P
 	return pvda_vec_znx_idft(module, res, a_dft, l);
 }
 
-int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol)
+int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol, int64_t bit_offset)
 {
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
@@ -290,9 +293,11 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 	{
 		for (uint64_t p = 0; p < nn; p++)
 		{
-			int shft_amt     = 64 - (int)kappa - (int)(i * kappa);
-			uint64_t add_amt = shft_amt > 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
-			                                : (pol->ptr[i * pol->stride + p] >> -shft_amt);
+			int64_t shft_amt = 64 + bit_offset - (int)kappa - (int)(i * kappa);
+			if (shft_amt >= 64 || shft_amt <= -64) continue;
+
+			uint64_t add_amt = shft_amt >= 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
+			                                 : ((pol->ptr[i * pol->stride + p]) >> -shft_amt);
 			res_tnx[p] += add_amt;
 		}
 	}
@@ -480,7 +485,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		// Add implicit bit. In the case of denormal numbers, this makes the computation wrong by
 		// the minimum non-denormal distance, which is a somewhat graceful failing
 		s_val |= (1UL << 52);
-		biv_decomp_internal(s_val, 52 - exp + bit_offset, res->ptr + p, res->stride, params_glwe);
+		biv_decomp_internal(s_val, 52ll - exp + bit_offset, res->ptr + p, res->stride, params_glwe);
 	}
 	return 0;
 }

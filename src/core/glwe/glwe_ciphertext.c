@@ -52,7 +52,7 @@ int print_coefs_glwe(const PvdaBackend* module, const GLWECiphertext* glwe, cons
 	//normalize_glwe(module, glwe, glwe);
 	CHECK_CALL(glwe_secret_decrypt(module, result_biv, sk_prep, glwe),
 	           "GLWE decryption in print_coefs_glwe function failed");
-	CHECK_CALL(biv_to_univ_tnx(glwe->params, result_tnx, result_biv),
+	CHECK_CALL(biv_to_univ_tnx(glwe->params, result_tnx, result_biv, 0),
 	           "Bivariate to TnX conversion failed in print_coefs_glwe function");
 
 	for (int i = 0; i < n; ++i)

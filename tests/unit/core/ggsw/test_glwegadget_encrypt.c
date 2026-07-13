@@ -81,7 +81,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, D);
 
 	glwe_secret_decrypt(module, phase_computed, sk_prep, glwe_ct);
-	biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
+	biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);
 
 	// Computes the expected result  m / 2^{kappa_tilde * i}
 	memset(phase_expected_univ_rnx, 0, poly_univ_rnx_bytes(params_glwe));

@@ -40,7 +40,7 @@ void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLW
 		GLWECiphertext glwe_ct = {params_glwe, ggsw_retrieve_bivglwe(ggsw, sk_idx, prec_lvl)};
 		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
 		cr_assert(code == 0);
-		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
+		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);
 
 		// Computes -m * sk_j / 2^{i*kappa_tilde}
 		if (sk_idx < params_ggsw->k_tilde)

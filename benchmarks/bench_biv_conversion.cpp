@@ -129,7 +129,7 @@ void bench_biv_univ_tnx(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		biv_to_univ_tnx(params_glwe, m_back, m_biv);
+		biv_to_univ_tnx(params_glwe, m_back, m_biv, 0);
 		benchmark::DoNotOptimize(m_back);
 	}
 
@@ -157,7 +157,7 @@ void bench_biv_univ_rnx(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		biv_to_univ_rnx(params_glwe, m_back, m_biv);
+		biv_to_univ_rnx(params_glwe, m_back, m_biv, 0);
 		benchmark::DoNotOptimize(m_back);
 	}
 

@@ -53,7 +53,7 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	normalize_glwe(module, glwe_norm, glwe_res);
 
 	glwe_secret_decrypt(module, m_auto, new_sk_prep, glwe_norm);
-	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 	uint64_t nn = params_glwe->nn;
 
@@ -109,7 +109,7 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 	normalize_glwe(module, glwe_norm, glwe_res);
 
 	glwe_secret_decrypt(module, m_auto, new_sk_prep, glwe_norm);
-	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 	uint64_t nn = params_glwe->nn;
 

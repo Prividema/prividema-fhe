@@ -163,8 +163,10 @@ uint64_t poly_biv_bytes(const GLWEParams* params_glwe);
  * @param params_glwe The bivGLWE parameters.
  * @param res_univ The result univariate polynomial in \RnX.
  * @param pol The input bivariate polynomial.
+ * @param bit_offset How many times the input has been right-shifted (divided by 2) / How many bits to left-shift (multiply by 2) the output
+ *                   Intended for use when the univ_to_biv has been used for a scaling factor.
  */
-void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol);
+void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol, int64_t bit_offset);
 
 /**
  * @brief Computes the bivariate decompositionof a polynomial in \RnX.
@@ -234,11 +236,13 @@ int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, P
  * @param params_glwe The GLWE parameters.
  * @param res_tnx The result univariate polynomial in Tn[X].
  * @param pol The input bivariate polynomial.
+ * @param bit_offset How many times the input has been right-shifted (divided by 2) / How many bits to left-shift (multiply by 2) the output
+ *                   Intended for use when the univ_to_biv has been used for a scaling factor.
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol);
+int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol, int64_t bit_offset);
 
 /**
  * @brief Computes the bivariate decomposition in Zn[X,Y] of a polynomial in Tn[X].
@@ -254,7 +258,8 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
  * @param params_glwe The GLWE parameters.
  * @param res The bivariate decomposition.
  * @param pol_tnx The univariate polynomial in fixed-point form
- * @param bit_offset How many times the input should be right-shifted (divided by 2)
+ * @param bit_offset How many times the input should be right-shifted (divided by 2).
+ *                   Intended to be used both for GLWEGadget encryption as well as scaling factors for schemes
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.

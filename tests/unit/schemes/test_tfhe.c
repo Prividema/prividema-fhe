@@ -59,7 +59,7 @@ PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
 
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
 
-	biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
+	biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);
 
 	int decomp_noise_bits = 15;  //TODO: put a real threshold
 	for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], m1[p], decomp_noise_bits);
@@ -74,7 +74,7 @@ PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
 
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
 
-	biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
+	biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);
 
 	for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], m2[p], decomp_noise_bits);
 
@@ -149,7 +149,7 @@ PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m1
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
-	biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
+	biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);
 	int decomp_noise_bits = 15;  //TODO: put a real threshold
 	for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], m1[p], decomp_noise_bits);
 
@@ -169,7 +169,7 @@ PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m2
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
-	biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
+	biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);
 	for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], m2[p], decomp_noise_bits);
 
 	delete_univ_tnx(m1);
@@ -243,7 +243,7 @@ PvdaParamTest(tfhe_cmux_prepared, with_error, default_params_fn)
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m1
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
-	biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
+	biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);
 	int decomp_noise_bits = 5;  //TODO: put a real threshold
 	for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], m1[p], decomp_noise_bits);
 
@@ -263,7 +263,7 @@ PvdaParamTest(tfhe_cmux_prepared, with_error, default_params_fn)
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m2
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
-	biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
+	biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);
 	for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], m2[p], decomp_noise_bits);
 
 	delete_univ_tnx(m1);
@@ -367,7 +367,7 @@ PvdaParamTest(tfhe_cmux_tree, normal, default_params_fn)
 		normalize_glwe(module, res, res);
 
 		glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
-		biv_to_univ_tnx(params_glwe, res_tnx, res_biv);
+		biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);
 
 		int decomp_noise_bits = 10;
 		for (int p = 0; p < params_glwe->nn; ++p) assert_tnx_close_enough(res_tnx[p], ms[sel][p], decomp_noise_bits);

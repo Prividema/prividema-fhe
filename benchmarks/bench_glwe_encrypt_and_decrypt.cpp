@@ -34,7 +34,7 @@ void bench_enc_dec_rnx(benchmark::State& state)
 	{
 		glwe_secret_encrypt_rnx(module, glwe_computed, sk_prep, m);
 		glwe_secret_decrypt(module, result_biv, sk_prep, glwe_computed);
-		biv_to_univ_rnx(params_glwe, result_univ, result_biv);
+		biv_to_univ_rnx(params_glwe, result_univ, result_biv, 0);
 		benchmark::DoNotOptimize(result_univ);
 	}
 
