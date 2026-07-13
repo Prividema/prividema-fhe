@@ -49,6 +49,8 @@ void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX*
  */
 void assert_tnx_close_enough(uint64_t a, uint64_t b, uint64_t bits);
 
+void assert_tnx_close_enough_vec(uint64_t* a, uint64_t* b, uint64_t n, uint64_t bits);
+
 typedef struct pvda_tst_params_t
 {
 	uint64_t nn;

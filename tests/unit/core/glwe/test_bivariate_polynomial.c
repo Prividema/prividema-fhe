@@ -159,10 +159,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	biv_to_univ_tnx(params_glwe, pol_univ_computed, pol_computed, 0);
 
 	int bits = glwe_params_l_a(params_glwe) * params_glwe->kappa;
-	for (uint64_t p = 0; p < params_glwe->nn; p++)
-	{
-		assert_tnx_close_enough(pol_univ[p], pol_univ_computed[p], bits);
-	}
+	assert_tnx_close_enough_vec(pol_univ, pol_univ_computed, params_glwe->nn, bits);
 
 	delete_univ_tnx(pol_univ);
 	delete_biv(pol_computed);
@@ -187,10 +184,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 	biv_to_univ_tnx(params_glwe, pol_univ_computed, pol_computed, 0);
 
 	int bits = glwe_params_l_a(params_glwe) * params_glwe->kappa;
-	for (uint64_t p = 0; p < params_glwe->nn; p++)
-	{
-		assert_tnx_close_enough(pol_univ[p], pol_univ_computed[p], bits);
-	}
+	assert_tnx_close_enough_vec(pol_univ, pol_univ_computed, params_glwe->nn, bits);
 
 	delete_univ_tnx(pol_univ);
 	delete_biv(pol_computed);
@@ -214,10 +208,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	biv_to_univ_tnx(params_glwe, pol_univ_computed, pol_computed, 0);
 
 	int bits = glwe_params_l_a(params_glwe) * params_glwe->kappa;
-	for (uint64_t p = 0; p < params_glwe->nn; p++)
-	{
-		assert_tnx_close_enough(pol_univ[p], pol_univ_computed[p], bits);
-	}
+	assert_tnx_close_enough_vec(pol_univ, pol_univ_computed, params_glwe->nn, bits);
 
 	delete_univ_tnx(pol_univ);
 	delete_biv(pol_computed);
@@ -236,13 +227,13 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
 	PolyBiv* biv            = new_biv(params_glwe);
 
-	uint64_t precision1 = (1ULL << (64 - 53));
+	int l     = glwe_params_l_a(params_glwe);
+	int kappa = params_glwe->kappa;
+	// Max precision according to biv representation
+	uint64_t precisionk = l * kappa;
 
-	int l               = glwe_params_l_a(params_glwe);
-	int kappa           = params_glwe->kappa;
-	uint64_t precision2 = l * kappa >= 64 ? 0 : (1ULL << (64 - l * kappa));
-
-	uint64_t precision = precision1 > precision2 ? precision1 : precision2;
+	// Max precision is limited by float precision
+	uint64_t precision = precisionk > 53 ? 53 : precisionk;
 
 	uniform_pow2_random_pol_znx(module, tnx_values, vec_size, 64);
 
@@ -250,11 +241,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 	biv_to_univ_rnx(params_glwe, rnx_values, biv, 0);
 	univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
 
-	for (uint64_t i = 0; i < vec_size; ++i)
-	{
-		uint64_t diff = tnx_final[i] > tnx_values[i] ? tnx_final[i] - tnx_values[i] : tnx_values[i] - tnx_final[i];
-		cr_assert(le(u64, diff, precision));
-	}
+	assert_tnx_close_enough_vec(tnx_final, tnx_values, vec_size, precisionk);
 
 	delete_univ_rnx(rnx_values);
 	delete_univ_tnx(tnx_values);
@@ -274,16 +261,16 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv_minus_offset, default
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
 	PolyBiv* biv            = new_biv(params_glwe);
 
-	uint64_t precision1 = (1ULL << (64 - 53));
-
 	for (int i = -5; i < 5; ++i)
 	{
 		int l     = glwe_params_l_a(params_glwe);
 		int kappa = params_glwe->kappa;
 
-		uint64_t precision2 = l * kappa - i >= 64 ? 0 : (1ULL << (64 - l * kappa + i));
+		// Max precision according to biv representation
+		uint64_t precisionk = l * kappa;
 
-		uint64_t precision = precision1 > precision2 ? precision1 : precision2;
+		// Max precision is limited by float precision
+		uint64_t precision = precisionk > 53 ? 53 : precisionk;
 
 		uniform_pow2_random_pol_znx(module, tnx_values, vec_size, 56);
 
@@ -291,11 +278,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv_minus_offset, default
 		biv_to_univ_rnx(params_glwe, rnx_values, biv, i);
 		univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
 
-		for (uint64_t i = 0; i < vec_size; ++i)
-		{
-			uint64_t diff = tnx_torus_distance(tnx_final[i], tnx_values[i]);
-			cr_assert(le(u64, diff, precision));
-		}
+		assert_tnx_close_enough_vec(tnx_final, tnx_values, vec_size, precisionk);
 	}
 
 	delete_univ_rnx(rnx_values);

@@ -57,6 +57,10 @@ void assert_tnx_close_enough(uint64_t a, uint64_t b, uint64_t bits)
 		cr_assert(lt(u64, diff, max_diff));
 	}
 }
+void assert_tnx_close_enough_vec(uint64_t* a, uint64_t* b, uint64_t n, uint64_t bits)
+{
+	for (uint64_t i = 0; i < n; ++i) assert_tnx_close_enough(a[i], b[i], bits);
+}
 
 struct criterion_test_params default_params_fn()
 {

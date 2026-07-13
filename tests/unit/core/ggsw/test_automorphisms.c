@@ -143,8 +143,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 		// is more conservative than usually needed
 		int64_t decomp_noise_bits = info_bits_half_prod(params_glwe, params_glwegadget);
 
-		for (int p = 0; p < params_glwe->nn; ++p)
-			assert_tnx_close_enough(m_observed_tnx[p], m_expected_tnx[p], decomp_noise_bits);
+		assert_tnx_close_enough_vec(m_observed_tnx, m_expected_tnx, nn, decomp_noise_bits);
 	}
 
 	delete_glwe_secret_key(sk);
