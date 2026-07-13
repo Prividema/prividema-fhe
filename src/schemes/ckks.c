@@ -213,3 +213,44 @@ void decode_slow_internal(double complex* out, uint64_t n, double* in)
 		pw &= pw_mask;
 	}
 }
+
+int ckks_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t slots, int64_t scale_bits,
+                double complex* in)
+{
+	int status = -1;
+
+	PolyUnivRnX* tmp = new_univ_rnx(params);
+
+	CHECK_ALLOC(tmp, "Tmp vector alloc failed in ckks encoding");
+
+	CHECK_CALL(encode_internal(backend, tmp, slots, in, 0), "CKKS encoding failed");
+
+	CHECK_CALL(univ_rnx_to_biv(params, out, tmp, -scale_bits), "Biv conversion + scaling in CKKS encoding failed");
+
+	status = 0;
+cleanup:
+
+	delete_univ_rnx(tmp);
+	return status;
+}
+
+int ckks_decode(const PvdaBackend* backend, const GLWEParams* params, double complex* out, uint64_t slots,
+                int64_t scale_bits, PolyBiv* in)
+
+{
+	int status = -1;
+
+	PolyUnivRnX* tmp = new_univ_rnx(params);
+
+	CHECK_ALLOC(tmp, "Tmp vector alloc failed in ckks decoding");
+
+	biv_to_univ_rnx(params, tmp, in, -scale_bits);
+
+	CHECK_CALL(decode_internal(backend, out, slots, tmp), "CKKS decoding failed");
+
+	status = 0;
+cleanup:
+
+	delete_univ_rnx(tmp);
+	return status;
+}
