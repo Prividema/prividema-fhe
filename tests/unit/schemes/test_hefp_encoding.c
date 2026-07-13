@@ -4,13 +4,13 @@
 #include <sys/types.h>
 
 #include "bivariate_polynomial.h"
-#include "ckks.h"
+#include "hefp.h"
 #include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-PvdaParamTest(ckks_internal_1, back_and_forth, default_params_fn)
+PvdaParamTest(hefp_internal_1, back_and_forth, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
@@ -21,8 +21,8 @@ PvdaParamTest(ckks_internal_1, back_and_forth, default_params_fn)
 
 	rnx_random_vec(module, initial_vec, params_glwe);
 
-	encode_slow_internal(interm_vec, nn, (complex double*)initial_vec);
-	decode_slow_internal((complex double*)final_vec, nn, interm_vec);
+	hefp_encode_slow_internal(interm_vec, nn, (complex double*)initial_vec);
+	hefp_decode_slow_internal((complex double*)final_vec, nn, interm_vec);
 
 	pvda_assert_polynomial_distance(params_glwe, initial_vec, final_vec, 0.0001, 0.0001);
 
@@ -32,7 +32,7 @@ PvdaParamTest(ckks_internal_1, back_and_forth, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(ckks_fft, forth_and_back_slow, default_params_fn)
+PvdaParamTest(hefp_fft, forth_and_back_slow, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
@@ -43,8 +43,8 @@ PvdaParamTest(ckks_fft, forth_and_back_slow, default_params_fn)
 
 	rnx_random_vec(module, initial_vec, params_glwe);
 
-	encode_internal(module, interm_vec, nn / 2, (complex double*)initial_vec, 0);
-	decode_slow_internal((complex double*)final_vec, nn, interm_vec);
+	hefp_encode_internal(module, interm_vec, nn / 2, (complex double*)initial_vec, 0);
+	hefp_decode_slow_internal((complex double*)final_vec, nn, interm_vec);
 
 	pvda_assert_polynomial_distance(params_glwe, initial_vec, final_vec, 0.0001, 0.0001);
 
@@ -54,7 +54,7 @@ PvdaParamTest(ckks_fft, forth_and_back_slow, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(ckks_fft, forth_slow_and_back, default_params_fn)
+PvdaParamTest(hefp_fft, forth_slow_and_back, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
@@ -65,8 +65,8 @@ PvdaParamTest(ckks_fft, forth_slow_and_back, default_params_fn)
 
 	rnx_random_vec(module, initial_vec, params_glwe);
 
-	encode_slow_internal(interm_vec, nn, (complex double*)initial_vec);
-	decode_internal(module, (complex double*)final_vec, nn / 2, interm_vec);
+	hefp_encode_slow_internal(interm_vec, nn, (complex double*)initial_vec);
+	hefp_decode_internal(module, (complex double*)final_vec, nn / 2, interm_vec);
 
 	pvda_assert_polynomial_distance(params_glwe, initial_vec, final_vec, 0.0001, 0.0001);
 
@@ -76,7 +76,7 @@ PvdaParamTest(ckks_fft, forth_slow_and_back, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(ckks_fft, forth_and_back, default_params_fn)
+PvdaParamTest(hefp_fft, forth_and_back, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
@@ -87,8 +87,8 @@ PvdaParamTest(ckks_fft, forth_and_back, default_params_fn)
 
 	rnx_random_vec(module, initial_vec, params_glwe);
 
-	encode_internal(module, interm_vec, nn / 2, (complex double*)initial_vec, 0);
-	decode_internal(module, (complex double*)final_vec, nn / 2, interm_vec);
+	hefp_encode_internal(module, interm_vec, nn / 2, (complex double*)initial_vec, 0);
+	hefp_decode_internal(module, (complex double*)final_vec, nn / 2, interm_vec);
 
 	pvda_assert_polynomial_distance(params_glwe, initial_vec, final_vec, 0.0001, 0.0001);
 
@@ -98,7 +98,7 @@ PvdaParamTest(ckks_fft, forth_and_back, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(ckks_encoding, forth_and_back, default_params_fn)
+PvdaParamTest(hefp_encoding, forth_and_back, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
@@ -118,8 +118,8 @@ PvdaParamTest(ckks_encoding, forth_and_back, default_params_fn)
 	{
 		univ_tnx_to_rnx(params_glwe, initial_vec, tmp_tnx);
 
-		ckks_encode(module, params_glwe, interm_vec, nn / 2, i, (complex double*)initial_vec);
-		ckks_decode(module, params_glwe, (complex double*)final_vec, nn / 2, i, interm_vec);
+		hefp_encode(module, params_glwe, interm_vec, nn / 2, i, (complex double*)initial_vec);
+		hefp_decode(module, params_glwe, (complex double*)final_vec, nn / 2, i, interm_vec);
 
 		pvda_assert_polynomial_distance(params_glwe, initial_vec, final_vec, 0.0001, 0.0001);
 	}

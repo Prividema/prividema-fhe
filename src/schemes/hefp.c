@@ -1,4 +1,4 @@
-#include "ckks.h"
+#include "hefp.h"
 
 #include <assert.h>
 #include <math.h>
@@ -14,7 +14,7 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-void encode_slow_internal(double* out, uint64_t n, double complex* in)
+void hefp_encode_slow_internal(double* out, uint64_t n, double complex* in)
 {
 	for (uint64_t i = 0; i < n; ++i)
 	{
@@ -56,7 +56,7 @@ void complex_bitrev(double complex* inout, uint64_t n)
 	}
 }
 
-int encode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slots)
+int hefp_encode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slots)
 {
 	// Adapted from Lattigo's SpecialFFTDouble
 	assert(slots >= 2);
@@ -105,7 +105,7 @@ int encode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slot
 	return 0;
 }
 
-int decode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slots)
+int hefp_decode_fft(const PvdaBackend* backend, double complex* inout, uint64_t slots)
 {
 	// Adapted from Lattigo's SpecialFFTDouble
 	assert(slots >= 2);
@@ -148,7 +148,7 @@ int decode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slot
 	return 0;
 }
 
-int encode_internal(const PvdaBackend* backend, double* out, uint64_t slots, double complex* in, int inplace)
+int hefp_encode_internal(const PvdaBackend* backend, double* out, uint64_t slots, double complex* in, int inplace)
 {
 	int status = -1;
 	if (!inplace)
@@ -156,14 +156,14 @@ int encode_internal(const PvdaBackend* backend, double* out, uint64_t slots, dou
 		double complex* tmp = calloc(slots, sizeof(double complex));
 		if (!tmp)
 		{
-			log_message(LOG_ERROR, "Memory allocation failed in not-inplace CKKS encoding");
+			log_message(LOG_ERROR, "Memory allocation failed in not-inplace HE Fixed Point encoding");
 			return -1;
 		}
 		memcpy(tmp, in, slots * sizeof(double complex));
 		in = tmp;
 	}
 
-	encode_ifft(backend, in, slots);
+	hefp_encode_ifft(backend, in, slots);
 
 	for (int i = 0; i < slots; ++i)
 	{
@@ -179,7 +179,7 @@ cleanup:
 	return 0;
 }
 
-int decode_internal(const PvdaBackend* backend, double complex* out, uint64_t slots, double* in)
+int hefp_decode_internal(const PvdaBackend* backend, double complex* out, uint64_t slots, double* in)
 {
 	int status = -1;
 	for (int i = 0; i < slots; ++i)
@@ -187,14 +187,14 @@ int decode_internal(const PvdaBackend* backend, double complex* out, uint64_t sl
 		out[i] = CMPLX(in[i], in[i + slots]);
 	}
 
-	decode_ifft(backend, out, slots);
+	hefp_decode_fft(backend, out, slots);
 
 	status = 0;
 cleanup:
 	return 0;
 }
 
-void decode_slow_internal(double complex* out, uint64_t n, double* in)
+void hefp_decode_slow_internal(double complex* out, uint64_t n, double* in)
 {
 	uint64_t pw      = 1;
 	uint64_t pw_mask = 2 * n - 1;
@@ -214,18 +214,19 @@ void decode_slow_internal(double complex* out, uint64_t n, double* in)
 	}
 }
 
-int ckks_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t slots, int64_t scale_bits,
+int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t slots, int64_t scale_bits,
                 double complex* in)
 {
 	int status = -1;
 
 	PolyUnivRnX* tmp = new_univ_rnx(params);
 
-	CHECK_ALLOC(tmp, "Tmp vector alloc failed in ckks encoding");
+	CHECK_ALLOC(tmp, "Tmp vector alloc failed in HE Fixed Point encoding");
 
-	CHECK_CALL(encode_internal(backend, tmp, slots, in, 0), "CKKS encoding failed");
+	CHECK_CALL(hefp_encode_internal(backend, tmp, slots, in, 0), "HE Fixed Point encoding failed");
 
-	CHECK_CALL(univ_rnx_to_biv(params, out, tmp, -scale_bits), "Biv conversion + scaling in CKKS encoding failed");
+	CHECK_CALL(univ_rnx_to_biv(params, out, tmp, -scale_bits),
+	           "Biv conversion + scaling in HE Fixed Point encoding failed");
 
 	status = 0;
 cleanup:
@@ -234,7 +235,7 @@ cleanup:
 	return status;
 }
 
-int ckks_decode(const PvdaBackend* backend, const GLWEParams* params, double complex* out, uint64_t slots,
+int hefp_decode(const PvdaBackend* backend, const GLWEParams* params, double complex* out, uint64_t slots,
                 int64_t scale_bits, PolyBiv* in)
 
 {
@@ -242,11 +243,11 @@ int ckks_decode(const PvdaBackend* backend, const GLWEParams* params, double com
 
 	PolyUnivRnX* tmp = new_univ_rnx(params);
 
-	CHECK_ALLOC(tmp, "Tmp vector alloc failed in ckks decoding");
+	CHECK_ALLOC(tmp, "Tmp vector alloc failed in HE Fixed Point decoding");
 
 	biv_to_univ_rnx(params, tmp, in, -scale_bits);
 
-	CHECK_CALL(decode_internal(backend, out, slots, tmp), "CKKS decoding failed");
+	CHECK_CALL(hefp_decode_internal(backend, out, slots, tmp), "HE Fixed Point decoding failed");
 
 	status = 0;
 cleanup:

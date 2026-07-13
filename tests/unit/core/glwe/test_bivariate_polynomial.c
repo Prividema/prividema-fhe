@@ -241,7 +241,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 	biv_to_univ_rnx(params_glwe, rnx_values, biv, 0);
 	univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
 
-	assert_tnx_close_enough_vec(tnx_final, tnx_values, vec_size, precisionk);
+	assert_tnx_close_enough_vec(tnx_final, tnx_values, vec_size, precision);
 
 	delete_univ_rnx(rnx_values);
 	delete_univ_tnx(tnx_values);
@@ -268,9 +268,10 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv_minus_offset, default
 
 		// Max precision according to biv representation
 		uint64_t precisionk = l * kappa;
+		if (i > 0) precisionk -= i;
 
 		// Max precision is limited by float precision
-		uint64_t precision = precisionk > 53 ? 53 : precisionk;
+		uint64_t precision = precisionk >= 53 ? 53 : precisionk;
 
 		uniform_pow2_random_pol_znx(module, tnx_values, vec_size, 56);
 
@@ -278,7 +279,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv_minus_offset, default
 		biv_to_univ_rnx(params_glwe, rnx_values, biv, i);
 		univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
 
-		assert_tnx_close_enough_vec(tnx_final, tnx_values, vec_size, precisionk);
+		assert_tnx_close_enough_vec(tnx_final, tnx_values, vec_size, precision);
 	}
 
 	delete_univ_rnx(rnx_values);

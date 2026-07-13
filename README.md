@@ -11,9 +11,9 @@ When complete, it will contain:
 - A core implementing bivariate (base-2K) polynomial arithmetic and
   implementations of GLWE, GLWEGadget and GGSW using said arithmetic
 - A scheme layer implementing:
-  - BFV/BGV
+  - HEInt
   - TFHE
-  - CKKS
+  - HEFixedPoint
   - Scheme-switching between the above (CHIMERA) [\[3\]]
   - Encoding and decoding functions from raw data to/from the polynomial representations that the schemes use
 
@@ -62,7 +62,7 @@ On the other hand, compared to RNS, base-2K has
 - slower multiplication because of carry propagation
 - larger keys because of the double decomposition
 
-In particular, it means that the BGV of CKKS product $\otimes_*$ is slightly slower in bivariate representation. In isolation, base-2K multiplication is still faster as a multiplication is followed by an external product and a rescaling, which are faster in the latter representation.
+In particular, it means that the BGV/BFV/CKKS-like products $\otimes_*$ can be slightly slower in bivariate representation. In isolation, base-2K multiplication is still faster as a multiplication is followed by an external product and a rescaling, which are faster in the latter representation.
 
 ## Library Structure
 
