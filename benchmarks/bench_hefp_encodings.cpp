@@ -1,24 +1,12 @@
 
 #include <benchmark/benchmark.h>
 
-#include <cmath>
-#include <cstring>
-
-#include "utils.hpp"
-
 extern "C" {
 #include "backend.h"
 #include "bivariate_polynomial.h"
-#include "ggsw_arithmetic.h"
-#include "ggsw_ciphertext.h"
-#include "ggsw_params.h"
-#include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
-#include "glwegadget_arithmetic.h"
-#include "glwegadget_key.h"
-#include "rng.h"
 #include "schemes/hefp.h"
+#include "schemes/hefp_private.h"
 #include "univariate_polynomial.h"
 }
 
@@ -67,7 +55,7 @@ void bench_hefp_decoding(benchmark::State& state)
 	for (auto _ : state)
 	{
 		hefp_decode(backend, params_glwe, (_Complex double*)final_vec, nn / 2, 0, interm_vec);
-		benchmark::DoNotOptimize(interm_vec);
+		benchmark::DoNotOptimize(final_vec);
 	}
 
 	delete_univ_rnx(final_vec);
@@ -79,3 +67,53 @@ void bench_hefp_decoding(benchmark::State& state)
 }
 
 BENCHMARK(bench_hefp_decoding);
+
+void bench_hefp_decoding_fft(benchmark::State& state)
+{
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
+
+	PolyUnivRnX* final_vec = new_univ_rnx(params_glwe);
+
+	uint64_t nn = params_glwe->nn;
+
+	for (auto _ : state)
+	{
+		hefp_decode_fft(backend, (_Complex double*)final_vec, nn / 2);
+		benchmark::DoNotOptimize(final_vec);
+	}
+
+	delete_univ_rnx(final_vec);
+
+	delete_glwe_params(params_glwe);
+	pvda_delete_backend(backend);
+}
+
+BENCHMARK(bench_hefp_decoding_fft);
+
+void bench_hefp_decoding_fft_slow(benchmark::State& state)
+{
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
+
+	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
+	PolyUnivRnX* final_vec   = new_univ_rnx(params_glwe);
+
+	uint64_t nn = params_glwe->nn;
+
+	for (auto _ : state)
+	{
+		hefp_decode_slow_internal((_Complex double*)final_vec, nn / 2, initial_vec);
+		benchmark::DoNotOptimize(final_vec);
+	}
+
+	delete_univ_rnx(initial_vec);
+	delete_univ_rnx(final_vec);
+
+	delete_glwe_params(params_glwe);
+	pvda_delete_backend(backend);
+}
+
+BENCHMARK(bench_hefp_decoding_fft_slow);

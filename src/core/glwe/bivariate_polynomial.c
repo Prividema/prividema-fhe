@@ -208,8 +208,8 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	double pkappa = exp2(-(double)kappa);
 	memset(res_univ, 0, poly_univ_rnx_bytes(params_glwe));
-	for (uint64_t i = start_l; i >= 1; --i)
-		for (uint64_t p = 0; p < nn; p++)
+	for (uint64_t p = 0; p < nn; p++)
+		for (uint64_t i = start_l; i >= 1; --i)
 		{
 			res_univ[p] += (double)pol_biv->ptr[(i - 1) * pol_biv->stride + p];
 			res_univ[p] *= pkappa;
