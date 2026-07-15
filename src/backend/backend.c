@@ -69,6 +69,7 @@ PvdaBackend* pvda_new_spqlios_backend(int nn)
 void pvda_delete_backend(PvdaBackend* backend)
 {
 	spqlios_delete_module_info(backend);
+	delete_fft_data(backend->pvda_fft_data);
 	free(backend);
 }
 

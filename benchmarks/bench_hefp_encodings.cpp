@@ -1,6 +1,8 @@
 
 #include <benchmark/benchmark.h>
 
+#include <cstring>
+
 extern "C" {
 #include "backend.h"
 #include "bivariate_polynomial.h"
@@ -22,6 +24,7 @@ void bench_hefp_encoding(benchmark::State& state)
 	PolyBiv* interm_vec      = new_biv(params_glwe);
 	PolyUnivTnX* tmp_tnx     = new_univ_tnx(params_glwe);
 
+	memset(initial_vec, 0, poly_univ_rnx_bytes(params_glwe));
 	uint64_t nn = params_glwe->nn;
 
 	for (auto _ : state)
@@ -75,6 +78,7 @@ void bench_hefp_decoding_fft(benchmark::State& state)
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
 	PolyUnivRnX* final_vec = new_univ_rnx(params_glwe);
+	memset(final_vec, 0, poly_univ_rnx_bytes(params_glwe));
 
 	uint64_t nn = params_glwe->nn;
 
@@ -100,6 +104,7 @@ void bench_hefp_decoding_fft_slow(benchmark::State& state)
 
 	PolyUnivRnX* initial_vec = new_univ_rnx(params_glwe);
 	PolyUnivRnX* final_vec   = new_univ_rnx(params_glwe);
+	memset(initial_vec, 0, poly_univ_rnx_bytes(params_glwe));
 
 	uint64_t nn = params_glwe->nn;
 
