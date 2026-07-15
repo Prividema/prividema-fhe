@@ -11,6 +11,7 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(benchmark)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
+set(BENCHMARK_ENABLE_ASSEMBLY_TESTS OFF CACHE BOOL "" FORCE)
 
 # Collect all test source files
 file(GLOB BENCH_FILES bench*.c bench*.cpp)
