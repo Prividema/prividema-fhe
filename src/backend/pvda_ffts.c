@@ -32,14 +32,19 @@ static inline void init_group(uint32_t* vec, int nn)
 
 struct pvda_fft_data_t* new_fft_data(uint64_t nn)
 {
+	const int num_ntt_tables = 10;
+
 	struct pvda_fft_data_t* ans = malloc(sizeof(struct pvda_fft_data_t));
 	CHECK_ALLOC(ans, "failed allocation of Prividema FFT data");
 
 	ans->nn             = nn;
 	ans->roots          = calloc(2 * nn + 1, sizeof(double complex));
 	ans->rotation_group = calloc(nn / 4, sizeof(int32_t));
-	CHECK_ALLOC(ans->roots, "failed allocation of roots in Privideam FFT data");
-	CHECK_ALLOC(ans->rotation_group, "failed allocation of rotation group in Privideam FFT data");
+	ans->num_ntt_tables = num_ntt_tables;
+	ans->ntt_tables     = calloc(num_ntt_tables, sizeof(struct ntt_root_table_t));
+	CHECK_ALLOC(ans->roots, "failed allocation of roots in Prividema FFT data");
+	CHECK_ALLOC(ans->rotation_group, "failed allocation of rotation group in Prividema FFT data");
+	CHECK_ALLOC(ans->ntt_tables, "failed allocation for NTT tables in prividema FFT data");
 
 	init_roots(ans->roots, nn);
 	init_group(ans->rotation_group, nn);
@@ -55,5 +60,43 @@ void delete_fft_data(struct pvda_fft_data_t* data)
 	if (!data) return;
 	free(data->roots);
 	free(data->rotation_group);
+
+	if (data->ntt_tables)
+		for (uint64_t i = 0; i < data->num_ntt_tables; ++i)
+		{
+			free(data->ntt_tables[i].roots);
+		}
+	free(data->ntt_tables);
+
 	free(data);
+}
+
+NTTRoot* get_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
+{
+	for (uint64_t i = 0; i < data->num_ntt_tables; ++i)
+	{
+		if (data->ntt_tables[i].t == t) return data->ntt_tables[i].roots;
+	}
+	return NULL;
+}
+
+int generate_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
+{
+	struct ntt_root_table_t* table_entry = NULL;
+	for (uint64_t i = 0; i < data->num_ntt_tables; ++i)
+	{
+		if (data->ntt_tables[i].t == t)
+		{
+			return 1;
+		}
+		if (data->ntt_tables[i].t == 0)
+		{
+			table_entry = &data->ntt_tables[i];
+		}
+	}
+
+	table_entry->t     = t;
+	table_entry->roots = calloc(2 * data->nn + 1, sizeof(NTTRoot));
+
+	return -1;
 }

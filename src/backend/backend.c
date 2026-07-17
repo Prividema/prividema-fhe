@@ -6,7 +6,7 @@
 #include "maths_structures.h"
 #include "pvda_ffts.h"
 #include "rng.h"
-#include "rng_private.h"
+#include "rng_cpu.h"
 #include "spqlios_alias.h"
 
 #ifdef OPENSSL_BACKEND
