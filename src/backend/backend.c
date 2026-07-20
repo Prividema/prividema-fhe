@@ -4,45 +4,14 @@
 
 #include "backend_private.h"
 #include "impls/rng_cpu.h"
+#include "impls/spqlios_alias.h"
 #include "maths_structures.h"
 #include "pvda_ffts.h"
 #include "rng.h"
-#include "spqlios_alias.h"
 
 #ifdef OPENSSL_BACKEND
 #include "rng_openssl.h"
 #endif
-
-void pvda_fill_spqlios(struct pvda_virtual_table* vt)
-{
-	vt->pvda_new_vec_znx_dft           = spqlios_new_vec_znx_dft;
-	vt->pvda_vec_znx_dft               = spqlios_vec_znx_dft;
-	vt->pvda_delete_vec_znx_dft        = spqlios_delete_vec_znx_dft;
-	vt->pvda_new_vec_znx_big           = spqlios_new_vec_znx_big;
-	vt->pvda_vec_znx_idft              = spqlios_vec_znx_idft;
-	vt->pvda_delete_vec_znx_big        = spqlios_delete_vec_znx_big;
-	vt->pvda_new_svp_ppol              = spqlios_new_svp_ppol;
-	vt->pvda_svp_prepare               = spqlios_svp_prepare;
-	vt->pvda_svp_apply_dft             = spqlios_svp_apply_dft;
-	vt->pvda_svp_apply_dft_to_dft      = spqlios_svp_apply_dft_to_dft;
-	vt->pvda_delete_svp_ppol           = spqlios_delete_svp_ppol;
-	vt->pvda_new_vmp_pmat              = spqlios_new_vmp_pmat;
-	vt->pvda_vmp_prepare_contiguous    = spqlios_vmp_prepare_contiguous;
-	vt->pvda_vmp_apply_dft             = spqlios_vmp_apply_dft;
-	vt->pvda_vmp_apply_dft_to_dft      = spqlios_vmp_apply_dft_to_dft;
-	vt->pvda_vmp_apply_prepared_to_dft = spqlios_vmp_apply_prepared_to_dft;
-	vt->pvda_delete_vmp_pmat           = spqlios_delete_vmp_pmat;
-	vt->pvda_vec_znx_normalize_base2k  = spqlios_vec_znx_normalize_base2k;
-	vt->pvda_znx_small_product         = spqlios_znx_small_product;
-	vt->pvda_vec_znx_negate            = spqlios_vec_znx_negate;
-	vt->pvda_vec_znx_add               = spqlios_vec_znx_add;
-	vt->pvda_vec_znx_sub               = spqlios_vec_znx_sub;
-	vt->pvda_znx_automorphism          = spqlios_znx_automorphism;
-	vt->pvda_vec_znx_automorphism      = spqlios_vec_znx_automorphism;
-	vt->pvda_vec_znx_rotate            = spqlios_vec_znx_rotate;
-	vt->pvda_module_extract_nn         = spqlios_module_extract_nn;
-	vt->pvda_vmp_prepare_vec           = spqlios_vmp_prepare_vec;
-}
 
 void pvda_fill_ref_rng(struct pvda_virtual_table* vt)
 {

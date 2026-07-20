@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"

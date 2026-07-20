@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#include "backend_arithmetic.h"
 #include "ggsw_arithmetic.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"

@@ -21,7 +21,6 @@
 #include "glwegadget_key.h"
 #include "maths_structures.h"
 #include "schemes/tfhe.h"
-#include "spqlios_alias.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 

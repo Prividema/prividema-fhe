@@ -2,6 +2,7 @@
 #include <criterion/new/assert.h>
 #include <float.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "core/ggsw/ggsw_arithmetic.h"
 #include "core/glwe/glwe_arithmetic.h"

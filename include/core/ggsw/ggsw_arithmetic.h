@@ -5,7 +5,6 @@
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwegadget_key.h"
-#include "spqlios_alias.h"
 
 /**
  *

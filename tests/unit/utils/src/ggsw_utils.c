@@ -2,13 +2,12 @@
 #include <criterion/internal/new_asserts.h>
 #include <string.h>
 
+#include "backend_arithmetic.h"
+#include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
-#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "glwegadget_ciphertext.h"
-#include "spqlios_alias.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 

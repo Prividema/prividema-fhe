@@ -9,8 +9,9 @@
 #include <threads.h>
 
 #include "backend.h"
+#include "backend_arithmetic.h"
+#include "backend_rng.h"
 #include "logger.h"
-#include "spqlios_alias.h"
 #include "utils.h"
 
 // On some distros math.h doesn't define M_PI so we define it here just in case.

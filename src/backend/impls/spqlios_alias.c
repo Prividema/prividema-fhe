@@ -1,4 +1,4 @@
-#include "spqlios_alias.h"
+#include "impls/spqlios_alias.h"
 
 #include <assert.h>
 #include <stdint.h>
@@ -244,6 +244,37 @@ int spqlios_vmp_prepare_vec(const PvdaBackend* module, double* pvec, uint64_t nr
 cleanup:
 	free(tmp_space);
 	return status;
+}
+
+void pvda_fill_spqlios(struct pvda_virtual_table* vt)
+{
+	vt->pvda_new_vec_znx_dft           = spqlios_new_vec_znx_dft;
+	vt->pvda_vec_znx_dft               = spqlios_vec_znx_dft;
+	vt->pvda_delete_vec_znx_dft        = spqlios_delete_vec_znx_dft;
+	vt->pvda_new_vec_znx_big           = spqlios_new_vec_znx_big;
+	vt->pvda_vec_znx_idft              = spqlios_vec_znx_idft;
+	vt->pvda_delete_vec_znx_big        = spqlios_delete_vec_znx_big;
+	vt->pvda_new_svp_ppol              = spqlios_new_svp_ppol;
+	vt->pvda_svp_prepare               = spqlios_svp_prepare;
+	vt->pvda_svp_apply_dft             = spqlios_svp_apply_dft;
+	vt->pvda_svp_apply_dft_to_dft      = spqlios_svp_apply_dft_to_dft;
+	vt->pvda_delete_svp_ppol           = spqlios_delete_svp_ppol;
+	vt->pvda_new_vmp_pmat              = spqlios_new_vmp_pmat;
+	vt->pvda_vmp_prepare_contiguous    = spqlios_vmp_prepare_contiguous;
+	vt->pvda_vmp_apply_dft             = spqlios_vmp_apply_dft;
+	vt->pvda_vmp_apply_dft_to_dft      = spqlios_vmp_apply_dft_to_dft;
+	vt->pvda_vmp_apply_prepared_to_dft = spqlios_vmp_apply_prepared_to_dft;
+	vt->pvda_delete_vmp_pmat           = spqlios_delete_vmp_pmat;
+	vt->pvda_vec_znx_normalize_base2k  = spqlios_vec_znx_normalize_base2k;
+	vt->pvda_znx_small_product         = spqlios_znx_small_product;
+	vt->pvda_vec_znx_negate            = spqlios_vec_znx_negate;
+	vt->pvda_vec_znx_add               = spqlios_vec_znx_add;
+	vt->pvda_vec_znx_sub               = spqlios_vec_znx_sub;
+	vt->pvda_znx_automorphism          = spqlios_znx_automorphism;
+	vt->pvda_vec_znx_automorphism      = spqlios_vec_znx_automorphism;
+	vt->pvda_vec_znx_rotate            = spqlios_vec_znx_rotate;
+	vt->pvda_module_extract_nn         = spqlios_module_extract_nn;
+	vt->pvda_vmp_prepare_vec           = spqlios_vmp_prepare_vec;
 }
 /*
 int spqlios_vec_rnx_negate(const PvdaModule* module, double* res, uint64_t res_size, uint64_t res_sl, const double* a,
