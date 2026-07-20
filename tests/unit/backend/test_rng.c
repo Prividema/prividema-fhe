@@ -118,7 +118,8 @@ PvdaParamTest(normal_random_vec, basic, default_params_fn)
 	VecUnivRnX* pol_univ = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
 	cr_assert(pol_univ != NULL);
 
-	cr_assert(normal_random_vec(pol_univ, params_glwe->nn * params_glwe->k, 0.0, 0.001) == 0);
+	//For now, random vec generation is unimplemented and thus the function should fail (-1)
+	cr_assert(normal_random_vec(pol_univ, params_glwe->nn * params_glwe->k, 0.0, 0.001) == -1);
 
 	free(pol_univ);
 
@@ -137,7 +138,7 @@ PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 
 	cr_assert(uniform_random_vec_znx_dft(module, res_dft, params_glwe->k, 2) == 0);
 
-	pvda_vec_znx_dft(module, res_dft, params_glwe->k, res, params_glwe->k, params_glwe->nn);
+	pvda_vec_znx_dft(module, res_dft, params_glwe->k, res);
 
 	free(res_dft);
 	free(res);

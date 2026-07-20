@@ -18,27 +18,31 @@ PvdaParamTest(transform_glwe_secret_key_not_dft_to_dft, basic, default_params_fn
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	GLWESecretKey* sk        = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyDFT* sk_dft = alloc_glwe_secret_key_dft(params_glwe);
-	PolyUniv* expected_poly  = new_univ(params_glwe);
+	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	PolyUniv* expected_poly        = new_univ(params_glwe);
 
 	// Draws uniformly in Zn[X] the bivGLWE secret key's values
 	uniform_glwe_secret_key(module, sk, 3);
 
 	// Computes the bivGLWE secret key in the DFT domain
-	transform_glwe_secret_key_not_dft_to_dft(module, sk_dft, sk);
+	glwe_sk_prepare(module, sk_prep, sk);
 
 	for (int k = 0; k < params_glwe->k; ++k)
 	{
-		univ_dft_to_coefs(module, expected_poly, glwe_sk_extract_poly_dft(sk_dft, k));
+		univ_dft_to_coefs(module, expected_poly, glwe_prepared_sk_extract_poly_dft(sk_prep, k));
 		for (int p = 0; p < params_glwe->nn; ++p)
 		{
 			cr_assert(eq(i64, expected_poly[p], glwe_sk_extract_poly(sk, k)[p]));
 		}
+		for (int p = 0; p < params_glwe->nn; ++p)
+		{
+			cr_assert(eq(i64, glwe_prepared_sk_extract_poly_coefs(sk_prep, k)[p], glwe_sk_extract_poly(sk, k)[p]));
+		}
 	}
 
 	delete_glwe_secret_key(sk);
-	delete_glwe_secret_key_dft(sk_dft);
+	delete_glwe_secret_key_prepared(sk_prep);
 	delete_univ(expected_poly);
 
 	DELETE_PVDA_PARAMS_GLWE;

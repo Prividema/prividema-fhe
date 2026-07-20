@@ -7,7 +7,9 @@
 In this case make sure that pkg-config is also installed for portability between different OS.
 - For Windows users, also make sure that [Cryptography API: Next Generation](https://learn.microsoft.com/en-us/windows/win32/seccng/cng-portal) is installed, as it is required for the random number generator.
 
-- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) will be installed automatically by CMake if github.com is reachable.
+- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) is bundled as a submodule. One should:
+  - Either have cloned this repository recursively with `git clone --recurse-submodules`
+  - or run `git submodule update --init --recursive` at least once after cloning it
 
 ## To compile and run
 
@@ -26,7 +28,7 @@ ON/OFF options:
 - `BUILD_TESTS`: Build the test files.
 - `ENABLE_DEBUG` : Enables additional debug prints and enables sanitizers.
 - `BUILD_DOCS` : Build the Documentation.
-- `BUILD_EXAMPLES`: Build the example executables (TODO)
+- `BUILD_EXAMPLES`: Build the example executables
 - `BUILD_BENCHMARKS`: Build the benchmarks (requires C++ compiler)
 - `BUILD_NATIVE`: Enables -march=native optimisations, makes output NON-portable
 - `PROFILING_OPTIONS`: Adds debugging options and info even in Release builds, intended for profiling traces

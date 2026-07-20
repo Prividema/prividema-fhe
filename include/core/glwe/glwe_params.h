@@ -4,12 +4,26 @@
 #include <stdint.h>
 
 /**
+ * @brief Parameters object for a GLWE problem/ciphertext
  *
  * @file glwe_params.h
  *
  * This file contains the definition of GLWE parameters, as well as accessor/helper functions for parameters
  * that can be derived from them
  */
+
+/**
+ *
+ * @brief enum for the available distributions to sample the error/noise used in FHE encryption operations
+ *
+ */
+typedef enum noise_type_t {
+	NOISE_UNIFORM_POWER_OF_TWO,  ///< Uniform noise, with the range being restricted to powers of 2. The smallest suitable one is selected from sigma.
+	NOISE_UNIFORM,   ///< Uniform noise withouth the power-of-2 restriction in its internal sampling.
+	                 ///< This will make it significantly slower, albeit potentially more precise
+	NOISE_BINOMIAL,  ///< Binomial noise (on the last limb, with p=0.5, ie, symmetric)
+	NOISE_NORMAL     ///< Normal noise (implementation at the moment is a proof of concept)
+} NoiseType;
 
 /**
  * @brief Parameters object for a GLWE problem/ciphertext
@@ -25,7 +39,18 @@ typedef struct glwe_ct_params
 	                               ///< In other words, \f$ \ell_a \cdot k + \ell_b \f$.
 	                               ///<
 	///< Only \f$ \ell_a = \ell_b \f$ and \f$ \ell_a = \ell_b + 1 \f$ are supported due to memory layout.
-	double sigma;  ///< The standard deviation of the error distribution.
+	union {
+		double normal_sigma;  ///< When the noise type is normal, this contains the stdev of the normal
+		uint64_t
+		    binomial_n;  ///< When the noise type is binomial, this contains the parameter n used to sample a binomial on the last limb
+		int64_t
+		    uniform_range;  ///< When a uniform noise is selected, this value encodes the limits of the uniform distribution to be added to the last limb
+		uint64_t
+		    fast_uniform_nb_bits;  ///< When a "fast" uniform noise type is selected, this contains the number of bits of uniform randomness
+		                           ///< that the last limb should have added
+	};
+
+	NoiseType noise_type;  ///< The type of noise that will be used for encryption
 } GLWEParams;
 
 /**
@@ -36,10 +61,12 @@ typedef struct glwe_ct_params
  * @param kappa The exponent for the base-2^kappa representation.
  * @param n_limbs \f$ \ell_a \cdot k + \ell_b \f$
  * @param sigma The standard deviation of the error distribution.
+ * @param noise_type The type of noise that will be used for encryption
  * @return The newly allocated parameters object, or NULL if it failed the allocation
  *
  */
-GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma);
+GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma,
+                            NoiseType noise_type);
 
 /**
  * @brief Deletes the set of bivGLWE parameters.
@@ -69,6 +96,13 @@ uint64_t glwe_params_l_b(const GLWEParams* params_glwe);
  * @param params_glwe The GLWE parameters.
  */
 uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
+
+/**
+ * @brief Returns the standard deviation of the noise that is added for encryption
+ *
+ * @param params_glwe The GLWE parameters.
+ */
+double glwe_params_stdev(const GLWEParams* params_glwe);
 
 /**
  * @brief The number of bytes needed to store a GLWE ciphertext in bivariate form.

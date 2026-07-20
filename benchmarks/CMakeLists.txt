@@ -7,13 +7,13 @@ FetchContent_Declare(
   benchmark
   GIT_REPOSITORY https://github.com/google/benchmark.git
   GIT_TAG        v1.9.5
-  CMAKE_ARGS     -DBENCHMARK_ENABLE_GTEST_TESTS=OFF
+  CMAKE_ARGS     -DBENCHMARK_ENABLE_GTEST_TESTS=OFF -DBENCHMARK_ENABLE_ASSEMBLY_TESTS=OFF
 )
 FetchContent_MakeAvailable(benchmark)
 set(BENCHMARK_ENABLE_TESTING OFF CACHE BOOL "" FORCE)
 
 # Collect all test source files
-file(GLOB BENCH_FILES *.c *.cpp)
+file(GLOB BENCH_FILES bench*.c bench*.cpp)
 
 # Create test executables for each test file
 foreach(bench_file ${BENCH_FILES})
@@ -21,7 +21,7 @@ foreach(bench_file ${BENCH_FILES})
   get_filename_component(bench_name ${bench_file} NAME_WE)
 
   # Create executable
-  add_executable(${bench_name} ${bench_file})
+  add_executable(${bench_name} ${bench_file} utils.cpp)
 
   # Link with the main project library
   target_link_libraries(${bench_name} PRIVATE PVDA_COMMON PVDA_GLWE PVDA_GGSW PVDA_BACKEND libspqlios benchmark::benchmark_main)
@@ -30,3 +30,7 @@ foreach(bench_file ${BENCH_FILES})
   target_include_directories(${bench_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 endforeach()
+
+add_executable(bench_all ${BENCH_FILES} utils.cpp)
+target_link_libraries(bench_all PRIVATE PVDA_COMMON PVDA_GLWE PVDA_GGSW PVDA_BACKEND libspqlios benchmark::benchmark_main)
+target_include_directories(bench_all PRIVATE ${PROJECT_SOURCE_DIR}/include)

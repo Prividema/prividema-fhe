@@ -6,6 +6,7 @@
 #include "bivariate_polynomial.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 #include "spqlios_alias.h"
 
 /**
@@ -51,17 +52,69 @@ GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 void delete_glwe(GLWECiphertext* glwe);
 
 /**
+ * @brief Debugging function to inspect GLWEs
+ *
+ * Intended to inspect GLWE content for debugging.
+ * It takes as input a secret key to decrypt. For debugging, a global variable could
+ * be used to store the reference.
+ *
+ * Prints the n first (lowest degree) coefficients of the decryption.
+ * Additionally, if shft is non-zero, the resulting coefficients will be bit-shifted
+ * by that amount, which is intended to be used with BFV-like encodings.
+ *
+ * Only able to output the 64 MSBs of the encrypted message/phase
+ *
+ * @param module The backend module
+ * @param glwe The glwe to print
+ * @param sk_prep The prepared secret key for the glwe
+ * @param n How many coefficients to print
+ * @param shft How much to right-shift the end result to truncate noise in BFV-like encodings
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
+ */
+int print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+                     int shft);
+
+/**
+ * @brief Copies a GLWE ciphertext
+ *
+ * @param src The source GLWE ciphertext
+ * @param dst The destination GLWE ciphertext
+ */
+void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
+
+/**
+ * @brief Returns a PolyBiv view of the pos'th element (in a_0, ..., a_k = b) in a GLWE
+ *
+ * @param glwe_ct Source GLWE
+ * @param pos Position to create a view of
+ *
+ * @returns A PolyBiv view (does NOT own memory) of the pos'th element in the GLWE
+ */
+PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
+
+/**
+ * @brief Returns a flattened PolyBiv view of the GLWE
+ *
+ * @param glwe_ct Source GLWE
+ *
+ * @returns A PolyBiv view (does NOT own memory) of the GLWE as if it were a single PolyBiv
+ */
+PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct);
+
+/**
  * @brief Encrypts a phase (message + noise) and puts it in result.
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param phase message + noise.
  *
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase);
 
 /**
@@ -69,13 +122,13 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* result, cons
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param m_univ_rnx  The univariate secret message to encrypt
  *
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx);
 
 /**
@@ -83,13 +136,13 @@ int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const 
  *
  * @param module Additionnal information for backend.
  * @param result The result bivariate ciphertext.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param m_univ_tnx  The univariate secret message to encrypt
  *
  * @retval -1 if an error occurs.
  * @retval  -0 othwerwise.
  */
-int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx);
 
 /**
@@ -98,28 +151,14 @@ int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const 
  *
  * @param module Additionnal information for backend.
  * @param result The bivariate phase.
- * @param sk_dft The secret key in the DFT domain.
+ * @param sk_prep The prepared secret key
  * @param glwe The bivGLWE ciphertext.
  *
  * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
  * @retval  0 othwerwise.
  */
-int glwe_secret_decrypt(const MODULE* module, PolyBiv* result, const GLWESecretKeyDFT* sk_dft,
+int glwe_secret_decrypt(const MODULE* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe);
-/**
- * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertext
- *
- * Critically, it is not a pointer to a contiguous PolyBiv! Due to the memory
- * layout of GLWECiphertext, it is strided, that is, there are other data
- * between the different limbs of the polynomial
- *
- * @param glwe_ct The GLWECiphertext from which to retrieve the start of a bivariate polynomial
- * @param pos The index of the polynomial whose start is to be retrieved
- *
- * @return The start of a strided bivariate polynomial
- *
- */
-PolyBiv* glwe_extract_start_poly(const GLWECiphertext* glwe_ct, uint64_t pos);
 
 // bivGLWE IN DFT PART (begin)
 

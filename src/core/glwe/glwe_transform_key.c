@@ -1,11 +1,17 @@
 #include "glwe_transform_key.h"
 
+#include <string.h>
+
+#include "bivariate_polynomial.h"
 #include "glwe_key.h"
+#include "maths_structures.h"
 #include "univariate_polynomial.h"
 
-void transform_glwe_secret_key_not_dft_to_dft(const MODULE* module, GLWESecretKeyDFT* result_dft,
-                                              const GLWESecretKey* sk)
+void glwe_sk_prepare(const MODULE* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk)
 {
-	for (uint64_t j = 0; j < sk->k; j++)
-		univ_coefs_to_dft(module, glwe_sk_extract_poly_dft(result_dft, j), glwe_sk_extract_poly(sk, j));
+	uint64_t sk_size = sk->nn * sk->k * sizeof(PolyUniv);
+	memcpy(result_dft->values_coef, sk->values, sk_size);
+	uint64_t nn    = sk->nn;
+	PolyBiv sk_biv = new_biv_view(nn, sk->k, nn, sk->values);
+	pvda_vec_znx_dft(module, result_dft->values, sk->k, &sk_biv);
 }

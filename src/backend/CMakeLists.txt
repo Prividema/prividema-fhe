@@ -3,7 +3,7 @@
 # ----------------------------------------
 
 # Create BACKEND shared library
-add_library(PVDA_BACKEND SHARED
+add_library(PVDA_BACKEND
 backend.c
 spqlios_alias.c
 rng.c)
@@ -18,5 +18,5 @@ target_include_directories(PVDA_BACKEND
     PUBLIC
         ${PROJECT_SOURCE_DIR}/include/backend   # Public headers for consumers
     PRIVATE
-        ${PROJECT_SOURCE_DIR}/build/_deps/spqlios-src/spqlios/arithmetic/  # Internal headers only
+        ${PROJECT_SOURCE_DIR}/spqlios-arithmetic/spqlios/arithmetic/  # Internal headers only
 )

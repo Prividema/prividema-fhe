@@ -32,6 +32,21 @@
 void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX* a, PolyUnivRnX* b, double max_err,
                                      double critical_err);
 
+/**
+ * @brief Given a number of bits of precision "bits", checks that 2 tnx values are not different by more than the error from using said precision
+ * Raise a cr error if far
+ *
+ * This function takes into account the errors that might be added during bivariate-univariate tnx conversion.
+ * For that reason, it will at least tolerate a 1 bit difference between a and b in all cases,
+ * even when the precision bits are higher than 64.
+ *
+ * @params a A TnX value
+ * @params b A TnX value
+ * @params bits the precision bits, usually something derived from K*l
+ *
+ */
+void assert_tnx_close_enough(uint64_t a, uint64_t b, uint64_t bits);
+
 typedef struct pvda_tst_params_t
 {
 	uint64_t nn;
@@ -51,10 +66,11 @@ typedef struct pvda_tst_params_t
 /**
  * Internal use function to fill the sigma value of PvdaTstParams and get its value.
  *
- * Since sigma can be specified as a power, the actual stdev or left to a default to be
- * computed according to the other params, this function does that.
+ * The stdev can be specified in three ways:
  *
- *
+ * - A value of 0 will generate the default sigma, which is going to be 4 bits in the last limb: 2^(4-K*l_a)
+ * - A positive value is taken as-is as a double
+ * - A negative values is interpreted as an exponent r and sigma is set to 2^-r
  */
 double generate_sigma(PvdaTstParams* p);
 
@@ -62,10 +78,11 @@ double generate_sigma(PvdaTstParams* p);
 
 #define DELETE_PVDA_PARAMS_BASE    pvda_delete_module_info(module);
 
-#define INIT_PVDA_PARAMS_GLWE(PRS)                   \
-	INIT_PVDA_PARAMS_BASE((PRS))                     \
-	double sigma            = generate_sigma((PRS)); \
-	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs, sigma);
+#define INIT_PVDA_PARAMS_GLWE(PRS)                                                                                  \
+	INIT_PVDA_PARAMS_BASE((PRS))                                                                                    \
+	double sigma            = generate_sigma((PRS));                                                                \
+	GLWEParams* params_glwe = new_glwe_params((PRS)->nn, (PRS)->k, (PRS)->kappa, (PRS)->ciphertext_nb_limbs, sigma, \
+	                                          NOISE_UNIFORM_POWER_OF_TWO);
 
 #define DELETE_PVDA_PARAMS_GLWE \
 	DELETE_PVDA_PARAMS_BASE     \
@@ -116,4 +133,17 @@ struct criterion_test_params default_params_fn();
                                                                                   \
 	ParameterizedTest(PvdaTstParams* param, suite_name, test_name)
 
+/**
+ * @brief Generates a RnX random vector uniformly sampled between -0.5 and 0.5
+ *
+ * No cryptographic guarantees are given about the output randomness
+ *
+ * @param res       The result.
+ * @param res_size  The number of elements in the vector.
+ *
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
+
+ */
+int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe);
 #endif

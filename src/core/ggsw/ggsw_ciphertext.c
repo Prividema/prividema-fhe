@@ -1,6 +1,6 @@
 #include "ggsw_ciphertext.h"
 
-#include <math.h>
+#include <assert.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -9,6 +9,7 @@
 #include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "univariate_polynomial.h"
@@ -42,18 +43,26 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 	free(ggsw);
 }
 
-VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t j, int64_t i)
+VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl)
 {
+	assert(prec_lvl >= 1);
+
 	// bivGLWE parameters
 	const GLWEParams* params_glwe = ggsw_ct->params->params_glwe;
 
 	// bivGGSW parameters
 	uint64_t k_tilde = ggsw_ct->params->k_tilde;
 
-	return ggsw_ct->mat + ((i - 1) * (k_tilde + 1) + j) * glwe_coef_number(params_glwe);
+	return ggsw_ct->mat + ((prec_lvl - 1) * (k_tilde + 1) + sk_idx) * glwe_coef_number(params_glwe);
 }
 
-int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyDFT* sk_dft,
+PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
+{
+	PolyBiv res = new_biv_view(ggsw_ct->params->params_glwe->nn, ggsw_total_n_glwe_limbs(ggsw_ct->params),
+	                           (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat);
+	return res;
+}
+int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ)
 {
 	int status = -1;
@@ -72,15 +81,12 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 	PolyUnivDFT* m_univ_dft     = new_univ_dft(module);   // DFT(msg)
 	PolyUnivDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
 	PolyUniv* m_skj_univ        = new_univ(params_glwe);  // -msg * sk_j
-	// compute_phase_ij requires some extra temp space
-	PolyUnivRnX* tmp_sp1 = new_univ_rnx(params_glwe);
 	// Temp space for -m * sk * 2^{-kappa_tilde}
-	PolyBiv* glwe_biv_msg = new_biv_poly(params_glwe);
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 
 	CHECK_ALLOC(m_univ_dft, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(m_skj_univ_dft, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(m_skj_univ, "malloc failed in ggsw_secret_encrypt");
-	CHECK_ALLOC(tmp_sp1, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)
@@ -96,7 +102,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 			if (j < params_glwe->k)
 			{
 				// Computes DFT(msg * sk_j)
-				mult_vec_znx_dft(module, m_skj_univ_dft, 1, glwe_sk_extract_poly_dft(sk_dft, j), 1, m_univ_dft, 1);
+				pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, glwe_prepared_sk_extract_poly_dft(sk_prep, j),
+				                          m_univ_dft, 1);
 
 				// Computes -DFT(msg * sk_j)
 				for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
@@ -106,31 +113,26 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 				           "vec_znx_idft_p failed in compute_phase_ij");
 			}
 
-			// Computes m_skj_univ / 2^{kappa_tilde*i}
-			for (uint64_t p = 0; p < nn; p++)
-				tmp_sp1[p] = ldexp((k == j) ? (double)m_univ[p] : (double)m_skj_univ[p], -params_ggsw->kappa_tilde * i);
-
-			CHECK_CALL(add_normal_random_vec(tmp_sp1, nn, tmp_sp1, 0.0, params_glwe->sigma),
-			           "error addition failed in ggsw encryption");
-
-			// Compute the base-2^kappa decomposition of tmp_sp1
-			CHECK_CALL(univ_rnx_to_biv(params_glwe, glwe_biv_msg, tmp_sp1, 0),
+			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (k == j) ? m_univ : m_skj_univ,
+			                           params_ggsw->kappa_tilde * i),
 			           "univ_to_biv failed in compute_phase_ij");
+
+			CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+			           "Noise addition failed in GGSW encryption");
 		}
 		// Get the pointer for the result position
 		VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
 		GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
-		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_dft, glwe_biv_msg),
+		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
 		           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
 	}
 
 	status = 0;
 
 cleanup:
-	free(glwe_biv_msg);
-	delete_univ_rnx(tmp_sp1);
+	delete_biv(glwe_biv_msg);
 	delete_univ_dft(m_skj_univ_dft);
 	delete_univ(m_skj_univ);
 	delete_univ_dft(m_univ_dft);
@@ -139,9 +141,9 @@ cleanup:
 }
 // bivGGSW DFT PART (begin)
 
-GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw)
+GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw)
 {
-	GGSWCiphertextDFT* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextDFT));
+	GGSWCiphertextPrep* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextPrep));
 	CHECK_ALLOC(ggsw_mat_dft, "malloc in new_ggsw_dft");
 
 	ggsw_mat_dft->params = params_ggsw;
@@ -152,24 +154,28 @@ GGSWCiphertextDFT* new_ggsw_dft(const GGSWParams* params_ggsw)
 
 	return ggsw_mat_dft;
 cleanup:
-	free(ggsw_mat_dft);
+	delete_ggsw_prep(ggsw_mat_dft);
 	return NULL;
 }
 
-void delete_ggsw_dft(GGSWCiphertextDFT* ggsw_dft)
+void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft)
 {
 	if (!ggsw_dft) return;
 	free(ggsw_dft->mat);
 	free(ggsw_dft);
 }
 
-VecBivDFT* ggsw_retrieve_bivglwe_dft(GGSWCiphertextDFT* ggsw_dft_ct, int64_t j, int64_t i)
+int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
 {
-	// bivGLWE parameters
-	const GLWEParams* params_glwe = ggsw_dft_ct->params->params_glwe;
+	int status = -1;
 
-	// bivGGSW parameters
-	uint64_t k_tilde = ggsw_dft_ct->params->k_tilde;
+	size_t nrows = ggsw_prepared->params->ciphertext_nb_limbs_tilde;
+	size_t ncols = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
 
-	return ggsw_dft_ct->mat + ((i - 1) * (k_tilde + 1) + j) * 2 * glwe_coef_number_dft(params_glwe);
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_prepared->mat, ggsw_ct->mat, nrows, ncols),
+	           "VMP prepare for GLWEGadget prepare failed");
+
+	status = 0;
+cleanup:
+	return status;
 }

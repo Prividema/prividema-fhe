@@ -20,6 +20,8 @@
  * @param res_dft The resulting DFT univariate polynomial
  * @param a       The input univariate polynomial (in coefficient space)
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv* a);
 
@@ -29,6 +31,9 @@ int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv
  * @param module The backend module
  * @param res    The resulitng coefficient-space univariate polynomial
  * @param a_dft  The input DFT-domain polynomial
+ *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int univ_dft_to_coefs(const MODULE* module, PolyUniv* res, const PolyUnivDFT* a_dft);
 
@@ -36,8 +41,8 @@ int univ_dft_to_coefs(const MODULE* module, PolyUniv* res, const PolyUnivDFT* a_
  * @brief Returns the number of bytes needed to store a univariate \ZnX polynomial.
  *
  * @param params_glwe The GLWE parameters.
- * @return Number of bytes needed to store a univariate \ZnX polynomial wiht the given parameters
  *
+ * @return Number of bytes needed to store a univariate \ZnX polynomial wiht the given parameters
  */
 uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
 
@@ -45,11 +50,19 @@ uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
  * @brief Returns the number of bytes needed to store a univariate real polynomial.
  *
  * @param params_glwe The GLWE parameters.
- * @return Number of bytes needed to store a univariate \RnX polynomial wiht the given parameters
  *
+ * @return Number of bytes needed to store a univariate \RnX polynomial wiht the given parameters
  */
 uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe);
 
+/**
+ * @brief Returns the number of bytes needed to store a univariate Tnx polynomial
+ *
+ * @param params_glwe The GLWE parameters.
+ *
+ * @return Number of bytes needed to store a univariate \TnX polynomial wiht the given parameters
+ */
+uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe);
 /**
  * @brief Allocate a new univariate polynomial (in coefficient space)
  *
@@ -121,6 +134,8 @@ void delete_univ_dft(PolyUnivDFT* pol);
  * @param res         The resulting \TnX polynomial
  * @param a           The input \RnX polynomial
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX* a);
 
@@ -131,6 +146,8 @@ int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX
  * @param res         The resulting \RnX polynomial
  * @param a           The input \TnX polynomial
  *
+ * @retval -1 if an error occurs
+ * @retval 0 otherwise
  */
 int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX* a);
 

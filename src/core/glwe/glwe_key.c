@@ -5,7 +5,6 @@
 #include <stdlib.h>
 
 #include "glwe_params.h"
-#include "logger.h"
 #include "rng.h"
 #include "spqlios_alias.h"
 #include "utils.h"
@@ -34,7 +33,32 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(uniform_random_vec(nn, glwe_sk_extract_poly(sk, 0), sk->k, nn, nb_bits),
+	CHECK_CALL(uniform_pow2_random_pol_znx(sk->values, nn * sk->k, nb_bits),
+	           "random vector generation failed in key generation");
+
+	return 0;
+cleanup:
+	return -1;
+}
+
+int binary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk)
+{
+	uint64_t nn = pvda_module_extract_nn(module);
+	// The Secret key values
+	// Uniform random generation of k Zn[X] polynomials.
+	CHECK_CALL(binary_random_pol_znx(sk->values, nn * sk->k), "random vector generation failed in key generation");
+
+	return 0;
+cleanup:
+	return -1;
+}
+
+int ternary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk)
+{
+	uint64_t nn = pvda_module_extract_nn(module);
+	// The Secret key values
+	// Uniform random generation of k Zn[X] polynomials.
+	CHECK_CALL(uniform_random_pol_znx(sk->values, nn * sk->k, -1, 1),
 	           "random vector generation failed in key generation");
 
 	return 0;
@@ -55,35 +79,45 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 	free(sk);
 }
 
-GLWESecretKeyDFT* alloc_glwe_secret_key_dft(GLWEParams* params_glwe)
+GLWESecretKeyPrepared* alloc_glwe_secret_key_prepared(GLWEParams* params_glwe)
 {
-	uint64_t j           = 0;
-	GLWESecretKeyDFT* sk = malloc(sizeof(GLWESecretKeyDFT));
+	uint64_t j                = 0;
+	GLWESecretKeyPrepared* sk = calloc(sizeof(GLWESecretKeyPrepared), 1);
 	CHECK_ALLOC(sk, "sk's malloc failed in new_glwe_secret_key.");
 	sk->nn = params_glwe->nn;
 	sk->k  = params_glwe->k;
 
 	sk->values = malloc(params_glwe->nn * params_glwe->k * sizeof(PolyUnivDFT));
 	CHECK_ALLOC(sk->values, "values' malloc failed in alloc_glwe_secret_key_dft");
+	sk->values_coef = malloc(params_glwe->nn * params_glwe->k * sizeof(PolyUniv));
+	CHECK_ALLOC(sk->values, "values' coef malloc failed in alloc_glwe_secret_key_dft");
 
 	return sk;
 cleanup:
 
+	if (sk) free(sk->values_coef);
 	if (sk) free(sk->values);
 	free(sk);
 	return NULL;
 }
 
-PolyUnivDFT* glwe_sk_extract_poly_dft(const GLWESecretKeyDFT* sk_dft, uint64_t pos)
+PolyUnivDFT* glwe_prepared_sk_extract_poly_dft(const GLWESecretKeyPrepared* sk_prep, uint64_t pos)
 {
-	assert(pos >= 0 && pos < sk_dft->k);
-	return sk_dft->values + sk_dft->nn * pos;
+	assert(pos >= 0 && pos < sk_prep->k);
+	return sk_prep->values + sk_prep->nn * pos;
 }
 
-void delete_glwe_secret_key_dft(GLWESecretKeyDFT* sk_dft)
+PolyUniv* glwe_prepared_sk_extract_poly_coefs(const GLWESecretKeyPrepared* sk_prep, uint64_t pos)
 {
-	if (!sk_dft) return;
+	assert(pos >= 0 && pos < sk_prep->k);
+	return sk_prep->values_coef + sk_prep->nn * pos;
+}
 
-	free(sk_dft->values);
-	free(sk_dft);
+void delete_glwe_secret_key_prepared(GLWESecretKeyPrepared* sk_prep)
+{
+	if (!sk_prep) return;
+
+	free(sk_prep->values);
+	free(sk_prep->values_coef);
+	free(sk_prep);
 }

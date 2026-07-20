@@ -2,24 +2,26 @@
 
 #include <stdio.h>
 
-void printf_poly_biv(PolyBiv* pol, int64_t pol_sl, int64_t nn, int64_t l)
+void printf_poly_biv(PolyBiv* pol)
 {
 	printf("\n");
-	for (uint64_t i = 1; i <= l; i++)
+	for (uint64_t i = 0; i < pol->l; i++)
 	{
 		printf("\nY^%ld : ", i);
-		for (uint64_t p = 0; p < nn; p++)
-			printf((pol[(i - 1) * pol_sl + p] < 0) ? "%ld X^%ld " : "%ld X^%ld ", pol[(i - 1) * pol_sl + p], p);
+		for (uint64_t p = 0; p < pol->nn; p++) printf("%ld X^%ld ", pol->ptr[(i - 1) * pol->stride + p], p);
 	}
 }
 
-void printf_vec_poly_biv(VecBiv* pols, int64_t pols_nb, int64_t nn, int64_t l)
+void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
 {
-	printf("\n");
-	for (uint64_t j = 0; j < pols_nb; j++)
+	for (int l = 0; l < max_l && l < biv->l; ++l)
 	{
-		printf("\n%ld-th component : ", j);
-		printf_poly_biv(pols + j * nn, pols_nb * nn, nn, l);
+		printf("Biv lvl %03d: ", l);
+
+		for (int p = 0; p < max_n && p < biv->nn; ++p)
+		{
+			printf("%03ld ", biv->ptr[l * biv->stride + p]);
+		}
 		printf("\n");
 	}
 }

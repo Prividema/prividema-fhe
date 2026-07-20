@@ -10,10 +10,11 @@ set(GGSW_SRCS
     ggsw_key.c
     glwegadget_arithmetic.c
     glwegadget_ciphertext.c
+    glwegadget_key.c
 )
 
 # Create a shared library named GGSW
-add_library(PVDA_GGSW SHARED ${GGSW_SRCS})
+add_library(PVDA_GGSW ${GGSW_SRCS})
 
 # Set the output library name explicitly
 set_target_properties(PVDA_GGSW PROPERTIES OUTPUT_NAME pvdaggsw)

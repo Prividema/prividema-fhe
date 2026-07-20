@@ -4,17 +4,22 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "bivariate_polynomial.h"
 #include "rng.h"
 
 int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv* a)
 {
-	pvda_vec_znx_dft(module, res_dft, 1, a, 1, pvda_module_extract_nn(module));
-	return 1;
+	uint64_t nn   = pvda_module_extract_nn(module);
+	PolyBiv a_biv = new_biv_view(nn, 1, nn, a);
+	pvda_vec_znx_dft(module, res_dft, 1, &a_biv);
+	return 0;
 }
 
 int univ_dft_to_coefs(const MODULE* module, PolyUniv* res, const PolyUnivDFT* a_dft)
 {
-	return pvda_vec_znx_idft(module, res, 1, a_dft, pvda_module_extract_nn(module));
+	uint64_t nn     = pvda_module_extract_nn(module);
+	PolyBiv res_biv = new_biv_view(nn, 1, nn, res);
+	return pvda_vec_znx_idft(module, &res_biv, a_dft, 1);
 }
 
 uint64_t poly_univ_bytes(const GLWEParams* params_glwe)
@@ -27,7 +32,7 @@ uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe
 
 uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivTnX); }
 
-PolyUniv* new_univ(const GLWEParams* params_glwe) { return malloc(poly_univ_bytes(params_glwe)); }
+PolyUniv* new_univ(const GLWEParams* params_glwe) { return aligned_alloc(64, poly_univ_bytes(params_glwe)); }
 
 void delete_univ(PolyUniv* pol) { free(pol); }
 
@@ -49,7 +54,7 @@ int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX
 	{
 		res[i] = (uint64_t)(ldexp(a[i] - floor(a[i]), 64));
 	}
-	return 1;
+	return 0;
 }
 
 int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX* a)
@@ -58,5 +63,5 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
 	{
 		res[i] = ldexp((double)((int64_t)a[i]), -64);
 	}
-	return 1;
+	return 0;
 }

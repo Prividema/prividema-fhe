@@ -75,7 +75,7 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
 }
 
-int rand_uniform(int64_t* result, uint64_t nb_bits)
+int rand_uniform_pow2(int64_t* result, uint64_t nb_bits)
 {
 	// As result points to an uint64_t  nb_bits shall not exceed its size
 	assert(nb_bits <= 8 * sizeof(int64_t));
@@ -96,56 +96,56 @@ int rand_uniform(int64_t* result, uint64_t nb_bits)
 	return 0;
 }
 
-/*
-    Approximate inverse error function (erfinv) using Winitzki
-    approximation
-
-    If you have a uniform random variable X which is uniformly distributed
-    between 0 and 1, you can map it to any distribution by using its inverse CDF.
-
-    Since the iCDF of the normal distribution can be expressed with erfinv.
-    We use this function for performance purpose.
-
-    See Winitzki's paper called "A handy approximation for the error
-    function and its inverse" or https://en.wikipedia.org/wiki/Error_function.
- */
-double erfinv(double x)
+int rand_uniform(int64_t* result, int64_t limit_down, int64_t limit_up)
 {
-	double a           = 0.147;
-	double ln_1minusx2 = log(1.0 - x * x);
-	double term1       = (2 / (M_PI * a)) + (ln_1minusx2 / 2.0);
-	double term2       = ln_1minusx2 / a;
-	return (x > 0 ? 1 : -1) * sqrt(sqrt(term1 * term1 - term2) - term1);
+	uint64_t max_delta = (uint64_t)limit_up - (uint64_t)limit_down;
+	if (max_delta == UINT64_MAX) return -1;
+	uint64_t bits = next_pow2_log(max_delta + 1);
+	uint64_t mask = bits == 64 ? (UINT64_MAX) : (1ull << bits) - 1;
+
+	uint64_t tmp = 0;
+
+	int st;
+	do
+	{
+		st = read_rand(&tmp, INT_ROUND_UP_DIV(bits, 8));
+		if (st < 0) return -1;
+		tmp &= mask;
+	} while (tmp > max_delta);
+	*result = (int64_t)((uint64_t)limit_down + tmp);
+	return 0;
 }
 
-/*
-    This function transforms a uniformly sampled variable into a normally
-    distributed variable using the inverse Cumulative Distribution Function
-    (CDF).
- */
 int rand_normal(double* result, double mu, double sigma)
 {
+	RAISE_ERROR("Normal number generation not implemented");
+	/*
+	// This function used to transforms a uniformly sampled variable into a normally
+	// distributed variable using the inverse Cumulative Distribution Function
+	// (CDF).
+	// Its implementation has been removed since it used an approximation of the iCDF
 	// Generate a uniform number in [0, 2^64]
-	uint64_t uniform;
-	CHECK_CALL(read_rand(&uniform, 8), "Rng failed in rand_normal");
+	  uint64_t uniform;
+	  CHECK_CALL(read_rand(&uniform, 8), "Rng failed in rand_normal");
 
-	// Scale uniform in (0,1) to U : U still follows a uniform distribution.
-	double uu = ((double)uniform) / ((double)UINT64_MAX);
+	  // Scale uniform in (0,1) to U : U still follows a uniform distribution.
+	  double uu = ((double)uniform) / ((double)UINT64_MAX);
 
-	// Compute Z the inverse CDF of the normal distribution applied to U.
-	double zz = sqrt(2.0) * erfinv(2.0 * uu - 1.0);
+	  // Compute Z the inverse CDF of the normal distribution applied to U.
+	  double zz = sqrt(2.0) * erfinv(2.0 * uu - 1.0);
 
-	// Scale and Shift with mu and sigma.
-	// Z follows a normal distribution in (0,1)
-	// Thus result will follow (mu, sigma)
-	*result = mu + sigma * zz;
+	  // Scale and Shift with mu and sigma.
+	  // Z follows a normal distribution in (0,1)
+	  // Thus result will follow (mu, sigma)
+	  *result = mu + sigma * zz;
 
-	return 0;
+	  return 0;
+  */
 cleanup:
 	return -1;
 }
 
-int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits)
+int uniform_pow2_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits)
 {
 	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
 	for (uint64_t p = 0; p < nn; p++)
@@ -157,14 +157,40 @@ cleanup:
 	return -1;
 }
 
-int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits)
+int binary_random_pol_znx(PolyUniv* res, uint64_t nn)
 {
-	for (uint64_t i = 0; i < nb_limbs; i++)
-		CHECK_CALL(uniform_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
+	CHECK_CALL(read_rand((uint64_t*)res, sizeof(int64_t) * nn), "rng error");
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		res[p] &= 1;
+	}
 	return 0;
 cleanup:
 	return -1;
 }
+
+int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
+{
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		CHECK_CALL(rand_uniform(&res[p], low_bound, high_bound), "uniform RNG failed");
+	}
+	return 0;
+cleanup:
+	return -1;
+}
+
+int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits)
+{
+	for (uint64_t i = 0; i < nb_limbs; i++)
+		CHECK_CALL(uniform_pow2_random_pol_znx(res + i * res_sl, limb_len, nb_bits), "uniform random vec failed");
+	return 0;
+cleanup:
+	return -1;
+}
+
+//Forward declaration due to legacy folder structure
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr);
 
 int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
 {
@@ -183,11 +209,12 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
 	// Draws uniformly in Zn[X] the vector elements
 	for (int i = 0; i < vec_size; i++)
 		for (int p = 0; p < nn; p++)
-			CHECK_CALL(rand_uniform(tmp_space + i * nn + p, nb_bits),
+			CHECK_CALL(rand_uniform_pow2(tmp_space + i * nn + p, nb_bits),
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	pvda_vec_znx_dft(module, result_dft, vec_size, tmp_space, vec_size, nn);
+	PolyBiv tmp_biv = new_biv_view(nn, vec_size, nn, tmp_space);
+	pvda_vec_znx_dft(module, result_dft, vec_size, &tmp_biv);
 
 	status = 0;
 
