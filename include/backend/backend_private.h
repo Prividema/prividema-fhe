@@ -5,6 +5,7 @@
 
 #include "backend.h"
 #include "backend_arithmetic.h"
+#include "backend_nt.h"
 #include "backend_rng.h"
 #include "pvda_ffts.h"
 
@@ -42,6 +43,7 @@ typedef typeof(pvda_rand_uniform_pow2) PVDA_RAND_UNIFORM_POW2_F;
 typedef typeof(pvda_rand_uniform_pow2_vec) PVDA_RAND_UNIFORM_POW2_VEC_F;
 typedef typeof(pvda_rand_uniform_binary_vec) PVDA_RAND_UNIFORM_BINARY_VEC_F;
 typedef typeof(pvda_rand_uniform) PVDA_RAND_UNIFORM_F;
+typedef typeof(pvda_ring_2nth_root) PVDA_RING_2NTH_ROOT_F;
 
 typedef struct pvda_virtual_table
 {
@@ -76,6 +78,7 @@ typedef struct pvda_virtual_table
 	PVDA_RAND_UNIFORM_POW2_VEC_F* pvda_rand_uniform_pow2_vec;
 	PVDA_RAND_UNIFORM_BINARY_VEC_F* pvda_rand_uniform_binary_vec;
 	PVDA_RAND_UNIFORM_F* pvda_rand_uniform;
+	PVDA_RING_2NTH_ROOT_F* pvda_ring_2nth_root;
 } PvdaVirutalTable;
 
 struct pvda_module_t
