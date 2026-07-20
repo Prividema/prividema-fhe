@@ -13,14 +13,6 @@
 #include "rng_openssl.h"
 #endif
 
-void pvda_fill_ref_rng(struct pvda_virtual_table* vt)
-{
-	vt->pvda_rand_uniform_pow2       = ref_rand_uniform_pow2;
-	vt->pvda_rand_uniform_pow2_vec   = ref_rand_uniform_pow2_vec;
-	vt->pvda_rand_uniform_binary_vec = ref_rand_uniform_binary_vec;
-	vt->pvda_rand_uniform            = ref_rand_uniform;
-}
-
 PvdaBackend* pvda_new_spqlios_backend(int nn)
 {
 	PvdaBackend* res    = malloc(sizeof(PvdaBackend));

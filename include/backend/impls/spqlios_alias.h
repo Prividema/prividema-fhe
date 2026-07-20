@@ -5,7 +5,6 @@
 
 #include "backend.h"
 #include "backend_private.h"
-#include "maths_structures.h"
 
 /**
  *
