@@ -13,7 +13,15 @@ pvda_ffts.c)
 # Set the output library name explicitly
 set_target_properties(PVDA_BACKEND PROPERTIES OUTPUT_NAME pvdabackend)
 
-target_link_libraries(PVDA_BACKEND PRIVATE libspqlios PVDA_COMMON)
+target_link_libraries(PVDA_BACKEND PRIVATE PVDA_COMMON)
+
+if(BUILD_SHARED_LIBS)
+  target_link_libraries(PVDA_BACKEND PRIVATE libspqlios)
+else()
+  target_link_libraries(PVDA_BACKEND PRIVATE libspqlios-static)
+endif()
+
+
 
 if(OPENSSL_BACKEND)
 
