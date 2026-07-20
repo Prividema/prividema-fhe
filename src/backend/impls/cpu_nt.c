@@ -45,4 +45,4 @@ uint64_t ref_ring_2nth_root(const PvdaBackend* backend, uint64_t t)
 	}
 }
 
-void pvda_fill_ref_nt(struct pvda_virtual_table* vt) { vt->pvda_ring_2nth_root = ref_ring_2nth_root; }
+void pvda_fill_cpu_nt(struct pvda_virtual_table* vt) { vt->pvda_ring_2nth_root = ref_ring_2nth_root; }

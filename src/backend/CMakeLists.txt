@@ -6,6 +6,7 @@
 add_library(PVDA_BACKEND
 backend.c
 impls/spqlios_alias.c
+impls/cpu_nt.c
 rng.c
 impls/rng_cpu.c
 pvda_ffts.c)

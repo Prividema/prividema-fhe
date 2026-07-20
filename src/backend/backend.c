@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "backend_private.h"
+#include "impls/cpu_nt.h"
 #include "impls/rng_cpu.h"
 #include "impls/spqlios_alias.h"
 #include "maths_structures.h"
@@ -24,6 +25,7 @@ PvdaBackend* pvda_new_spqlios_backend(int nn)
 	pvda_fill_ref_rng(&res->vt);
 #endif
 	res->pvda_fft_data = new_fft_data(nn);
+	pvda_fill_cpu_nt(&res->vt);
 	return res;
 }
 
@@ -189,4 +191,9 @@ int pvda_rand_uniform_binary_vec(const PvdaBackend* backend, uint64_t* result, u
 int pvda_rand_uniform(const PvdaBackend* backend, int64_t* result, int64_t limit_down, int64_t limit_up)
 {
 	return backend->vt.pvda_rand_uniform(backend, result, limit_down, limit_up);
+}
+
+uint64_t pvda_ring_2nth_root(const PvdaBackend* backend, uint64_t t)
+{
+	return backend->vt.pvda_ring_2nth_root(backend, t);
 }
