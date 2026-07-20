@@ -2,7 +2,6 @@
 #define bivGLWE_KEY_H
 
 #include "backend.h"
-#include "bivariate_polynomial.h"
 #include "glwe_params.h"
 
 /**

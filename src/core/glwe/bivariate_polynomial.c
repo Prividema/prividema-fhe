@@ -9,6 +9,8 @@
 #include <sys/types.h>
 
 #include "backend.h"
+#include "backend_arithmetic.h"
+#include "backend_rng.h"
 #include "glwe_params.h"
 #include "logger.h"
 #include "maths_structures.h"

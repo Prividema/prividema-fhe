@@ -15,7 +15,6 @@
 #include "ggsw_params.h"
 #include "glwe_key.h"
 #include "maths_structures.h"
-#include "spqlios_alias.h"
 
 /**
  * @brief GGSW Ciphertext in the coefficient space.

@@ -1,6 +1,7 @@
 #include <benchmark/benchmark.h>
 
 extern "C" {
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
 #include "rng.h"

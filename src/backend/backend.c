@@ -3,10 +3,10 @@
 #include <stdlib.h>
 
 #include "backend_private.h"
+#include "impls/rng_cpu.h"
 #include "maths_structures.h"
 #include "pvda_ffts.h"
 #include "rng.h"
-#include "rng_cpu.h"
 #include "spqlios_alias.h"
 
 #ifdef OPENSSL_BACKEND

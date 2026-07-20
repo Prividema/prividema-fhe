@@ -4,6 +4,8 @@
 #include <stdint.h>
 
 #include "backend.h"
+#include "backend_arithmetic.h"
+#include "backend_rng.h"
 #include "pvda_ffts.h"
 
 typedef struct module_info_t SPQLIOS_MODULE;

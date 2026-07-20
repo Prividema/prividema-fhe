@@ -3,7 +3,6 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"

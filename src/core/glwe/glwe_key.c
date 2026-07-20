@@ -7,7 +7,6 @@
 #include "backend.h"
 #include "glwe_params.h"
 #include "rng.h"
-#include "spqlios_alias.h"
 #include "utils.h"
 
 GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe)

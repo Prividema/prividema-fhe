@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include "backend.h"
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 
 int univ_coefs_to_dft(const PvdaBackend* module, PolyUnivDFT* res_dft, const PolyUniv* a)

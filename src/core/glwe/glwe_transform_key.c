@@ -2,10 +2,10 @@
 
 #include <string.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "glwe_key.h"
 #include "maths_structures.h"
-#include "univariate_polynomial.h"
 
 void glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk)
 {

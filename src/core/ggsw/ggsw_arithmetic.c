@@ -16,8 +16,6 @@
 #include "glwegadget_arithmetic.h"
 #include "maths_structures.h"
 #include "rng.h"
-#include "spqlios_alias.h"
-#include "univariate_polynomial.h"
 #include "utils.h"
 
 // bivGGSW PART (begin)

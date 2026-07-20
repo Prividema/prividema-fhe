@@ -4,7 +4,6 @@
 
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
-#include "ggsw_utils.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"

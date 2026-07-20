@@ -1,6 +1,7 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 
+#include "backend_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
 #include "glwe_arithmetic.h"
 #include "glwe_params.h"

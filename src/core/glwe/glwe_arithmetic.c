@@ -3,6 +3,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"

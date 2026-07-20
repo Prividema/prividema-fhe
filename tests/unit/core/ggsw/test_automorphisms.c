@@ -4,6 +4,7 @@
 #include <float.h>
 #include <stdint.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"

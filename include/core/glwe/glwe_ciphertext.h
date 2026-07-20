@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#include "bivariate_polynomial.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "maths_structures.h"

@@ -7,7 +7,7 @@ add_library(PVDA_BACKEND
 backend.c
 spqlios_alias.c
 rng.c
-rng_cpu.c
+impls/rng_cpu.c
 pvda_ffts.c)
 
 # Set the output library name explicitly
@@ -19,7 +19,7 @@ if(OPENSSL_BACKEND)
 
   find_package(OpenSSL REQUIRED)
 
-  target_sources(PVDA_BACKEND PRIVATE rng_openssl.c)
+  target_sources(PVDA_BACKEND PRIVATE impls/rng_openssl.c)
 
   target_link_libraries(PVDA_BACKEND PRIVATE  OpenSSL::Crypto)
 

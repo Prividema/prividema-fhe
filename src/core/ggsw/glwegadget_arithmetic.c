@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "backend.h"
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_arithmetic.h"
@@ -14,7 +15,6 @@
 #include "glwe_params.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
-#include "logger.h"
 #include "maths_structures.h"
 #include "univariate_polynomial.h"
 #include "utils.h"

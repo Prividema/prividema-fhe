@@ -4,14 +4,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
-#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
 #include "rng.h"
-#include "spqlios_alias.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 

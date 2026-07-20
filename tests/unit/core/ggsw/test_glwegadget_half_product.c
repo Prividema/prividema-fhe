@@ -14,7 +14,6 @@
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 {

@@ -2,7 +2,6 @@
 #define PARTIAL_GGSW_H
 
 #include "backend.h"
-#include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
