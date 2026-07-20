@@ -11,7 +11,7 @@
 #include "rng.h"
 
 #ifdef OPENSSL_BACKEND
-#include "rng_openssl.h"
+#include "impls/rng_openssl.h"
 #endif
 
 PvdaBackend* pvda_new_spqlios_backend(int nn)
