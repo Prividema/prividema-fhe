@@ -3,6 +3,8 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include "backend.h"
+#include "backend_nt.h"
 #include "utils.h"
 
 static inline void init_roots(double complex* vec, int nn)
@@ -80,7 +82,7 @@ NTTRoot* get_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
 	return NULL;
 }
 
-int generate_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
+int generate_ntt_table(const PvdaBackend* backend, struct pvda_fft_data_t* data, uint64_t t)
 {
 	struct ntt_root_table_t* table_entry = NULL;
 	for (uint64_t i = 0; i < data->num_ntt_tables; ++i)
@@ -95,8 +97,20 @@ int generate_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
 		}
 	}
 
+	const uint64_t n_elems = 2 * data->nn + 1;
+
 	table_entry->t     = t;
 	table_entry->roots = calloc(2 * data->nn + 1, sizeof(NTTRoot));
+
+	NTTRoot r = pvda_ring_2nth_root(backend, t);
+	NTTRoot v = 1;
+
+	for (uint64_t i = 0; i < n_elems; ++i)
+	{
+		table_entry->roots[i] = v;
+		v *= r;
+		v %= t;
+	}
 
 	return -1;
 }

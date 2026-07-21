@@ -4,7 +4,9 @@
 #include <complex.h>
 #include <stdint.h>
 
-typedef __int128_t NTTRoot;
+#include "backend.h"
+
+typedef __int64_t NTTRoot;
 
 struct ntt_root_table_t
 {
@@ -35,7 +37,7 @@ void delete_fft_data(struct pvda_fft_data_t* data);
  * @retval 1 if t is already present
  *
  */
-int generate_ntt_table(struct pvda_fft_data_t* data, uint64_t t);
+int generate_ntt_table(const PvdaBackend* backend, struct pvda_fft_data_t* data, uint64_t t);
 
 /**
  *

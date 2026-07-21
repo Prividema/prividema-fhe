@@ -37,7 +37,7 @@ Test(twoth_root, works_16)
 	uint64_t nn          = 16;
 	PvdaBackend* backend = pvda_new_spqlios_backend(nn);
 
-	uint64_t ps[] = {3329, 12289, 8380417};  // 1073741789};
+	uint64_t ps[] = {3329, 12289, 8380417};
 
 	for (int i = 0; i < sizeof(ps) / sizeof(ps[0]); ++i)
 	{
