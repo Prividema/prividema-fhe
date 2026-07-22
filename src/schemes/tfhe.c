@@ -85,9 +85,13 @@ int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, const GLWECipherte
 		for (c = 0; c < used_cols; c += 2)
 		{
 			if (c + 1 < used_cols)
+			{
 				CHECK_CALL(
-				    tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], selectors[l], 1),
+				    tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], selectors[l], 0),
 				    "CMux failed in a CMux tree");
+				CHECK_CALL(normalize_glwe(module, glwe_tree[l + 1][c / 2], glwe_tree[l + 1][c / 2]),
+				           "normalization failed in CMux tree");
+			}
 			else
 			{
 				glwe_copy(glwe_tree[l + 1][c / 2], glwe_tree[l][c]);
