@@ -7,7 +7,8 @@ add_library(PVDA_SCHEMES
 scheme.c
 tfhe.c
 hefp.c
-hefp_internals.c)
+hefp_internals.c
+heint.c)
 
 # Set the output library name explicitly
 set_target_properties(PVDA_SCHEMES PROPERTIES OUTPUT_NAME pvda_schemes)
