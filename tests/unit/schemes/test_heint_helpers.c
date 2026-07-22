@@ -51,13 +51,12 @@ Test(heint_helpers, mont_mult)
 			x_m = montgomery_encode_32bit(x, pi);
 			y_m = montgomery_encode_32bit(y, pi);
 
-			uint64_t xy_m           = x_m * y_m;
-			uint64_t xy_m_redc      = montgomery_red_32bit(xy_m, pi, p_tild);
-			uint64_t xy_m_redc_norm = montgomery_red_32bit(xy_m_redc, pi, p_tild);
+			uint64_t xy_m        = montgomery_mult_32bit(x_m, y_m, pi, p_tild);
+			uint64_t xy_observed = montgomery_decode_32bit(xy_m, pi, p_tild);
 
 			uint64_t expc_val = (x * y) % pi;
 
-			cr_assert(eq(u64, xy_m_redc_norm, expc_val));
+			cr_assert(eq(u64, xy_observed, expc_val));
 		}
 	}
 
