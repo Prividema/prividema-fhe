@@ -41,7 +41,11 @@ uint64_t montgomery_red_32bit(uint64_t m, uint64_t q, uint64_t q_tild)
 	uint64_t v = ((m & bitmask_32bit) * q_tild) & bitmask_32bit;
 	uint64_t w = m + v * q;
 	uint64_t r = w >> 32;
-	//TODO: change to constant time
-	if (r >= q) return r - q;
-	return r;
+	/*
+   * The following is a branchless version of:
+	  if (r >= q) return r - q;
+	  return r;
+	*/
+	uint64_t msk = -((uint64_t)(r >= q));  // All 0 or all 1
+	return r - (msk & q);
 }
