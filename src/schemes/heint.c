@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <stdint.h>
+#include <sys/types.h>
 
 const uint64_t bitmask_32bit = 0x00000000FFFFFFFF;
 
@@ -53,4 +54,22 @@ uint64_t montgomery_red_32bit(uint64_t m, uint64_t q, uint64_t q_tild)
 	*/
 	uint64_t msk = -((uint64_t)(r >= q));  // All 0 or all 1
 	return r - (msk & q);
+}
+
+uint64_t montgomery_pow_exp_32bit(uint64_t base_m, uint64_t exp, uint64_t q, uint64_t q_tild, uint64_t one_m)
+{
+	uint64_t ans_m = one_m;
+	uint64_t mult  = base_m;
+
+	while (exp > 0)
+	{
+		if (exp & 1)
+		{
+			ans_m = montgomery_mult_32bit(ans_m, mult, q, q_tild);
+		}
+		exp  = exp / 2;
+		mult = montgomery_mult_32bit(mult, mult, q, q_tild);
+	}
+
+	return ans_m;
 }

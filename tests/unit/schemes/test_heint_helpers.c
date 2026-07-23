@@ -7,6 +7,7 @@
 #include "backend.h"
 #include "backend_rng.h"
 #include "heint.h"
+#include "impls/cpu_nt.h"
 
 Test(heint_helpers, inverse_via_euclid)
 {
@@ -57,6 +58,37 @@ Test(heint_helpers, mont_mult)
 			uint64_t expc_val = (x * y) % pi;
 
 			cr_assert(eq(u64, xy_observed, expc_val));
+		}
+	}
+
+	pvda_delete_backend(rng_backend);
+}
+
+Test(heint_helpers, mont_pow)
+{
+	PvdaBackend* rng_backend = pvda_new_spqlios_backend(4);
+	uint64_t primes[]        = {3, 5, 7, 13, 6701, 7793, 2147483647};
+
+	for (size_t i = 0; i < sizeof(primes) / sizeof(primes[0]); ++i)
+	{
+		uint64_t pi     = primes[i];
+		uint64_t p_tild = (1ull << 32) - mod_inv(pi, 1ull << 32);
+		uint64_t one_m  = montgomery_encode_32bit(1, pi);
+
+		for (size_t r = 0; r < 100; ++r)
+		{
+			uint64_t x, ex;
+			pvda_rand_uniform(rng_backend, &x, 1, pi - 1);
+			pvda_rand_uniform(rng_backend, &ex, 1, pi - 1);
+
+			uint64_t x_m;
+			x_m = montgomery_encode_32bit(x, pi);
+
+			uint64_t x_exp_m  = montgomery_pow_exp_32bit(x_m, ex, pi, p_tild, one_m);
+			uint64_t obs_val  = montgomery_decode_32bit(x_exp_m, pi, p_tild);
+			uint64_t expc_val = pow_exp(x, ex, pi);
+
+			cr_assert(eq(u64, obs_val, expc_val));
 		}
 	}
 
