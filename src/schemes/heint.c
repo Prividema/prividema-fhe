@@ -1,8 +1,17 @@
 #include "heint.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <sys/types.h>
+
+#include "backend.h"
+#include "backend_private.h"
+#include "bivariate_polynomial.h"
+#include "pvda_ffts.h"
+#include "univariate_polynomial.h"
+#include "utils.h"
 
 const uint64_t bitmask_32bit = 0x00000000FFFFFFFF;
 
@@ -72,4 +81,100 @@ uint64_t montgomery_pow_exp_32bit(uint64_t base_m, uint64_t exp, uint64_t q, uin
 	}
 
 	return ans_m;
+}
+
+//void internal_slow_ntt_heint;
+
+int internal_slow_intt_heint(uint64_t nn, uint64_t* root_table_m, uint64_t* out_int, uint64_t* in, uint64_t t)
+{
+	int status = -1;
+
+	uint64_t t_tild        = (1ull << 32) - mod_inv(t, 1ull << 32);
+	uint64_t log2n         = next_pow2_log(nn + 1);
+	uint64_t twice_nn_mask = (1ull << log2n) - 1;
+	uint64_t n_inv         = mod_inv(nn, t);
+	uint64_t n_inv_m       = montgomery_encode_32bit(n_inv, t);
+
+	uint64_t* in_m = malloc(nn * sizeof(uint64_t));
+	CHECK_ALLOC(in_m, "failed malloc in heint encoding");
+
+	for (size_t i = 0; i < nn; ++i)
+	{
+		// TODO: warning: non-constant-time operation depending on plaintext!!
+		in_m[i] = montgomery_encode_32bit(in[i], t);
+	}
+
+	for (size_t i = 0; i < nn; ++i)
+	{
+		// 32-bit montgomery arithmetic
+		uint32_t sum = 0;
+
+		for (size_t j = 0; j < nn / 2; ++j)
+		{
+			uint64_t p1     = in_m[j] * root_table_m[(-5 * j * i) & twice_nn_mask];
+			uint32_t p1_red = montgomery_red_32bit(p1, t, t_tild);
+
+			uint64_t p2     = in_m[j + nn / 2] * root_table_m[(5 * j * i) & twice_nn_mask];
+			uint32_t p2_red = montgomery_red_32bit(p2, t, t_tild);
+
+			sum += p1_red;
+			sum += p2_red;
+		}
+
+		uint64_t sum_n_m = (uint64_t)sum * n_inv_m;
+		uint64_t sum_red = montgomery_red_32bit(sum_n_m, t, t_tild);
+		uint64_t sum_dec = montgomery_decode_32bit(sum_red, t, t_tild);
+		out_int[i]       = sum_dec;
+	}
+	status = 0;
+cleanup:
+	free(in_m);
+	return status;
+}
+
+int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t slots, int64_t t,
+                 uint64_t* in)
+{
+	int status  = -1;
+	uint64_t nn = pvda_module_extract_nn(backend);
+
+	assert(t <= (1ll << 31));
+
+	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
+	uint64_t* out_int      = malloc(nn * sizeof(uint64_t));
+	uint64_t* out_tnx      = malloc(nn * sizeof(uint64_t));
+
+	CHECK_ALLOC(out_int, "malloc failed in heint encoding");
+	CHECK_ALLOC(root_table_m, "failed malloc in heint encoding");
+	CHECK_ALLOC(root_table, "root table not found");
+	CHECK_ALLOC(out_tnx, "malloc failed in heint encoding");
+
+	if (slots != nn)
+	{
+		RAISE_ERROR("Unsupported (for now) number of slots != N");
+	}
+
+	for (size_t i = 0; i < 2 * nn + 1; ++i)
+	{
+		root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
+	}
+	internal_slow_intt_heint(nn, root_table_m, out_int, in, t);
+
+	double scale_fact = 1.0 / t;
+	double* out_rnx   = malloc(nn * sizeof(double));
+	CHECK_ALLOC(out_rnx, "failed malloc in heint encoding");
+
+	for (size_t i = 0; i < nn; ++i)
+	{
+		out_rnx[i] = scale_fact * out_int[i];
+	}
+
+	univ_rnx_to_tnx(params, out_tnx, out_rnx);
+	univ_tnx_to_biv(params, out, out_tnx, 0);
+
+	status = 0;
+cleanup:
+
+	return status;
 }
