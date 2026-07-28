@@ -85,7 +85,8 @@ uint64_t montgomery_pow_exp_32bit(uint64_t base_m, uint64_t exp, uint64_t q, uin
 
 //void internal_slow_ntt_heint;
 
-int internal_slow_intt_heint(uint64_t nn, uint64_t* root_table_m, uint64_t* out_int, uint64_t* in, uint64_t t)
+int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* root_table_m, uint64_t* out_int,
+                             uint64_t* in, uint64_t t)
 {
 	int status = -1;
 
@@ -111,10 +112,11 @@ int internal_slow_intt_heint(uint64_t nn, uint64_t* root_table_m, uint64_t* out_
 
 		for (size_t j = 0; j < nn / 2; ++j)
 		{
-			uint64_t p1     = in_m[j] * root_table_m[(-5 * j * i) & twice_nn_mask];
-			uint32_t p1_red = montgomery_red_32bit(p1, t, t_tild);
+			uint64_t root_num = backend->pvda_fft_data->rotation_group[j] * i;
+			uint64_t p1       = in_m[j] * root_table_m[(-root_num) & twice_nn_mask];
+			uint32_t p1_red   = montgomery_red_32bit(p1, t, t_tild);
 
-			uint64_t p2     = in_m[j + nn / 2] * root_table_m[(5 * j * i) & twice_nn_mask];
+			uint64_t p2     = in_m[j + nn / 2] * root_table_m[root_num & twice_nn_mask];
 			uint32_t p2_red = montgomery_red_32bit(p2, t, t_tild);
 
 			sum += p1_red;
@@ -125,6 +127,51 @@ int internal_slow_intt_heint(uint64_t nn, uint64_t* root_table_m, uint64_t* out_
 		uint64_t sum_red = montgomery_red_32bit(sum_n_m, t, t_tild);
 		uint64_t sum_dec = montgomery_decode_32bit(sum_red, t, t_tild);
 		out_int[i]       = sum_dec;
+	}
+	status = 0;
+cleanup:
+	free(in_m);
+	return status;
+}
+
+int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* root_table_m, uint64_t* out_int,
+                            uint64_t* in, uint64_t t)
+{
+	int status = -1;
+
+	uint64_t t_tild        = (1ull << 32) - mod_inv(t, 1ull << 32);
+	uint64_t log2n         = next_pow2_log(nn + 1);
+	uint64_t twice_nn_mask = (1ull << log2n) - 1;
+	uint64_t n_inv         = mod_inv(nn, t);
+	uint64_t n_inv_m       = montgomery_encode_32bit(n_inv, t);
+
+	uint64_t* in_m = malloc(nn * sizeof(uint64_t));
+	CHECK_ALLOC(in_m, "failed malloc in heint encoding");
+
+	for (size_t i = 0; i < nn; ++i)
+	{
+		// TODO: warning: non-constant-time operation depending on plaintext!!
+		in_m[i] = montgomery_encode_32bit(in[i], t);
+	}
+
+	for (size_t i = 0; i < nn / 2; ++i)
+	{
+		// 32-bit montgomery arithmetic
+		uint32_t sum_1 = 0;
+		uint32_t sum_2 = 0;
+
+		for (size_t j = 0; j < nn; ++j)
+		{
+			uint64_t root_num = backend->pvda_fft_data->rotation_group[i] * j;
+			uint64_t air1     = montgomery_mult_32bit(in_m[j], root_table_m[(root_num)&twice_nn_mask], t, t_tild);
+			uint64_t air2     = montgomery_mult_32bit(in_m[j], root_table_m[(-root_num) & twice_nn_mask], t, t_tild);
+
+			sum_1 += air1;
+			sum_2 += air2;
+		}
+
+		out_int[i]          = montgomery_decode_32bit(sum_1, t, t_tild);
+		out_int[i + nn / 2] = montgomery_decode_32bit(sum_2, t, t_tild);
 	}
 	status = 0;
 cleanup:
@@ -159,7 +206,7 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	{
 		root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
 	}
-	internal_slow_intt_heint(nn, root_table_m, out_int, in, t);
+	internal_slow_intt_heint(backend, nn, root_table_m, out_int, in, t);
 
 	double scale_fact = 1.0 / t;
 	double* out_rnx   = malloc(nn * sizeof(double));

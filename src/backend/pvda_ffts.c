@@ -25,7 +25,7 @@ static inline void init_group(uint32_t* vec, int nn)
 	uint32_t v    = 1;
 	uint32_t mask = 2 * nn - 1;
 
-	for (int i = 0; i < nn / 4; ++i)
+	for (int i = 0; i < nn; ++i)
 	{
 		vec[i] = v;
 		v *= r;
@@ -42,7 +42,7 @@ struct pvda_fft_data_t* new_fft_data(uint64_t nn)
 
 	ans->nn             = nn;
 	ans->roots          = calloc(2 * nn + 1, sizeof(double complex));
-	ans->rotation_group = calloc(nn / 4, sizeof(int32_t));
+	ans->rotation_group = calloc(nn, sizeof(int32_t));
 	ans->num_ntt_tables = num_ntt_tables;
 	ans->ntt_tables     = calloc(num_ntt_tables, sizeof(struct ntt_root_table_t));
 	CHECK_ALLOC(ans->roots, "failed allocation of roots in Prividema FFT data");
