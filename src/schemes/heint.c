@@ -83,8 +83,6 @@ uint64_t montgomery_pow_exp_32bit(uint64_t base_m, uint64_t exp, uint64_t q, uin
 	return ans_m;
 }
 
-//void internal_slow_ntt_heint;
-
 int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* root_table_m, uint64_t* out_int,
                              uint64_t* in, uint64_t t)
 {
@@ -191,11 +189,13 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
 	uint64_t* out_int      = malloc(nn * sizeof(uint64_t));
 	uint64_t* out_tnx      = malloc(nn * sizeof(uint64_t));
+	double* out_rnx        = malloc(nn * sizeof(double));
 
 	CHECK_ALLOC(out_int, "malloc failed in heint encoding");
 	CHECK_ALLOC(root_table_m, "failed malloc in heint encoding");
 	CHECK_ALLOC(root_table, "root table not found");
 	CHECK_ALLOC(out_tnx, "malloc failed in heint encoding");
+	CHECK_ALLOC(out_rnx, "failed malloc in heint encoding");
 
 	if (slots != nn)
 	{
@@ -209,8 +209,6 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	internal_slow_intt_heint(backend, nn, root_table_m, out_int, in, t);
 
 	double scale_fact = 1.0 / t;
-	double* out_rnx   = malloc(nn * sizeof(double));
-	CHECK_ALLOC(out_rnx, "failed malloc in heint encoding");
 
 	for (size_t i = 0; i < nn; ++i)
 	{
@@ -222,6 +220,49 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 
 	status = 0;
 cleanup:
+	free(root_table_m);
+	free(out_int);
+	free(out_tnx);
+	free(out_rnx);
+
+	return status;
+}
+
+int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t* out, uint64_t slots, int64_t t,
+                 PolyBiv* in)
+{
+	int status  = -1;
+	uint64_t nn = pvda_module_extract_nn(backend);
+
+	assert(t <= (1ll << 31));
+
+	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
+	uint64_t* tmp_tnx      = malloc(nn * sizeof(uint64_t));
+	double* in_rnx         = malloc(nn * sizeof(double));
+
+	CHECK_ALLOC(root_table_m, "failed malloc in heint encoding");
+	CHECK_ALLOC(root_table, "root table not found");
+	CHECK_ALLOC(tmp_tnx, "malloc failed in heint encoding");
+	CHECK_ALLOC(in_rnx, "failed malloc in heint encoding");
+
+	if (slots != nn) RAISE_ERROR("Unsupported (for now) number of slots != N");
+
+	biv_to_univ_rnx(params, in_rnx, in, 0);
+
+	for (size_t i = 0; i < nn; ++i) in_rnx[i] = in_rnx[i] < 0 ? 1 + in_rnx[i] : in_rnx[i];
+	// Scale and round
+	for (size_t i = 0; i < nn; ++i) tmp_tnx[i] = llround(t * in_rnx[i]);
+
+	// Prepare root table
+	for (size_t i = 0; i < 2 * nn + 1; ++i) root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
+
+	internal_slow_ntt_heint(backend, nn, root_table_m, out, tmp_tnx, t);
+	status = 0;
+cleanup:
+	free(root_table_m);
+	free(tmp_tnx);
+	free(in_rnx);
 
 	return status;
 }
