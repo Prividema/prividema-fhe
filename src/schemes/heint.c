@@ -164,6 +164,7 @@ int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* r
 			uint64_t air1     = montgomery_mult_32bit(in_m[j], root_table_m[(root_num)&twice_nn_mask], t, t_tild);
 			uint64_t air2     = montgomery_mult_32bit(in_m[j], root_table_m[(-root_num) & twice_nn_mask], t, t_tild);
 
+			// Radix R (32-bit) addition
 			sum_1 += air1;
 			sum_2 += air2;
 		}
@@ -202,19 +203,22 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 		RAISE_ERROR("Unsupported (for now) number of slots != N");
 	}
 
+	// Prepare roots in montgomery form
 	for (size_t i = 0; i < 2 * nn + 1; ++i)
 	{
 		root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
 	}
+
+	// Perform iNTT
 	internal_slow_intt_heint(backend, nn, root_table_m, out_int, in, t);
 
+	// Scale output (BFV style)
 	double scale_fact = 1.0 / t;
+	for (size_t i = 0; i < nn; ++i) out_rnx[i] = scale_fact * out_int[i];
 
-	for (size_t i = 0; i < nn; ++i)
-	{
-		out_rnx[i] = scale_fact * out_int[i];
-	}
-
+	// Since all positions can share the same scale factor,
+	// go rnx -> tnx -> biv since it is faster than the
+	// direct rnx -> biv conversion (which supports different scales)
 	univ_rnx_to_tnx(params, out_tnx, out_rnx);
 	univ_tnx_to_biv(params, out, out_tnx, 0);
 
@@ -250,7 +254,9 @@ int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t*
 
 	biv_to_univ_rnx(params, in_rnx, in, 0);
 
+	// Use the [0,1] torus representation
 	for (size_t i = 0; i < nn; ++i) in_rnx[i] = in_rnx[i] < 0 ? 1 + in_rnx[i] : in_rnx[i];
+
 	// Scale and round
 	for (size_t i = 0; i < nn; ++i) tmp_tnx[i] = llround(t * in_rnx[i]);
 
