@@ -10,6 +10,7 @@
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
+#include "math_utils.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"

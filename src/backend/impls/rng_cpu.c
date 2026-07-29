@@ -1,4 +1,5 @@
 
+#include "math_utils.h"
 #ifdef _WIN32
 #define _USE_MATH_DEFINES
 #include <bcrypt.h>

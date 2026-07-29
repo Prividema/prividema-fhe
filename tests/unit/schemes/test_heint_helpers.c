@@ -6,8 +6,9 @@
 
 #include "backend.h"
 #include "backend_rng.h"
-#include "heint.h"
 #include "impls/cpu_nt.h"
+#include "math_utils.h"
+#include "montgomery_arith.h"
 
 Test(heint_helpers, inverse_via_euclid)
 {
@@ -40,7 +41,8 @@ Test(heint_helpers, mont_mult)
 	for (size_t i = 0; i < sizeof(primes) / sizeof(primes[0]); ++i)
 	{
 		uint64_t pi     = primes[i];
-		uint64_t p_tild = (1ull << 32) - mod_inv(pi, 1ull << 32);
+		uint64_t p_tild = montgomery_tild_32bit(pi);
+		uint64_t r2modp = montgomery_r2modq_32bit(pi);
 
 		for (size_t r = 0; r < 100; ++r)
 		{
@@ -49,8 +51,8 @@ Test(heint_helpers, mont_mult)
 			pvda_rand_uniform(rng_backend, &y, 1, pi - 1);
 
 			uint64_t x_m, y_m;
-			x_m = montgomery_encode_32bit(x, pi);
-			y_m = montgomery_encode_32bit(y, pi);
+			x_m = montgomery_encode_32bit(x, pi, p_tild, r2modp);
+			y_m = montgomery_encode_32bit(y, pi, p_tild, r2modp);
 
 			uint64_t xy_m        = montgomery_mult_32bit(x_m, y_m, pi, p_tild);
 			uint64_t xy_observed = montgomery_decode_32bit(xy_m, pi, p_tild);
@@ -72,8 +74,9 @@ Test(heint_helpers, mont_pow)
 	for (size_t i = 0; i < sizeof(primes) / sizeof(primes[0]); ++i)
 	{
 		uint64_t pi     = primes[i];
-		uint64_t p_tild = (1ull << 32) - mod_inv(pi, 1ull << 32);
-		uint64_t one_m  = montgomery_encode_32bit(1, pi);
+		uint64_t p_tild = montgomery_tild_32bit(pi);
+		uint64_t r2modp = montgomery_r2modq_32bit(pi);
+		uint64_t one_m  = montgomery_encode_32bit(1, pi, p_tild, r2modp);
 
 		for (size_t r = 0; r < 100; ++r)
 		{
@@ -82,7 +85,7 @@ Test(heint_helpers, mont_pow)
 			pvda_rand_uniform(rng_backend, &ex, 1, pi - 1);
 
 			uint64_t x_m;
-			x_m = montgomery_encode_32bit(x, pi);
+			x_m = montgomery_encode_32bit(x, pi, p_tild, r2modp);
 
 			uint64_t x_exp_m  = montgomery_pow_exp_32bit(x_m, ex, pi, p_tild, one_m);
 			uint64_t obs_val  = montgomery_decode_32bit(x_exp_m, pi, p_tild);

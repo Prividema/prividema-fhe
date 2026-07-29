@@ -6,6 +6,7 @@
 #include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
+#include "math_utils.h"
 #include "utils.h"
 
 int tfhe_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0,

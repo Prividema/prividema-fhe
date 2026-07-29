@@ -8,6 +8,7 @@
 
 #include "glwe_params.h"
 #include "math.h"
+#include "math_utils.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"

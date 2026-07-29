@@ -8,6 +8,7 @@
 
 #include "backend.h"
 #include "backend_private.h"
+#include "math_utils.h"
 #include "utils.h"
 
 void hefp_encode_slow_internal(double* out, uint64_t n, double complex* in)

@@ -9,6 +9,7 @@
 #include "glwe_params.h"
 #include "heint.h"
 #include "maths_structures.h"
+#include "montgomery_arith.h"
 #include "pvda_ffts.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -145,9 +146,11 @@ Test(heint_internals, sanity1)
 
 	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
+	uint64_t t_tild        = montgomery_tild_32bit(t);
+	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	for (size_t i = 0; i < 2 * nn + 1; ++i)
 	{
-		root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
+		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
 	}
 	int st = internal_slow_intt_heint(backend, nn, root_table_m, out_tnx, in_tnx, t);
 
@@ -174,9 +177,11 @@ Test(heint_internals, sanity2)
 
 	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
+	uint64_t t_tild        = montgomery_tild_32bit(t);
+	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	for (size_t i = 0; i < 2 * nn + 1; ++i)
 	{
-		root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
+		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
 	}
 	int st = internal_slow_ntt_heint(backend, nn, root_table_m, out_tnx, in_tnx, t);
 
@@ -204,9 +209,11 @@ Test(heint_internals, backforth)
 
 	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
+	uint64_t t_tild        = montgomery_tild_32bit(t);
+	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	for (size_t i = 0; i < 2 * nn + 1; ++i)
 	{
-		root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
+		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
 	}
 	int st  = internal_slow_intt_heint(backend, nn, root_table_m, mid_tnx, in_tnx, t);
 	int st2 = internal_slow_ntt_heint(backend, nn, root_table_m, out_tnx, mid_tnx, t);

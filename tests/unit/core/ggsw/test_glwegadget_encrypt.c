@@ -10,10 +10,10 @@
 #include "glwe_transform_key.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_utils.h"
+#include "math_utils.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 /**
  * @brief Tests ggsw_secret_encrpyt

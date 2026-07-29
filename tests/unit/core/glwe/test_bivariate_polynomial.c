@@ -4,14 +4,13 @@
 #include <inttypes.h>
 #include <math.h>
 #include <stdint.h>
-#include <stdlib.h>
 
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
+#include "math_utils.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 //! COMMON PART (begin)
 

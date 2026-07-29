@@ -9,98 +9,31 @@
 #include "backend.h"
 #include "backend_private.h"
 #include "bivariate_polynomial.h"
+#include "math_utils.h"
+#include "montgomery_arith.h"
 #include "pvda_ffts.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
-
-const uint64_t bitmask_32bit = 0x00000000FFFFFFFF;
-
-uint64_t mod_inv(int64_t x, int64_t mod)
-{
-	// Extended Euclidean algorithm
-	// See https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Computing_multiplicative_inverses_in_modular_structures
-	// if you need a refresher/source
-	int64_t r, t, r_new, t_new;
-	t     = 0;
-	r     = mod;
-	t_new = 1;
-	r_new = x;
-
-	while (r_new)
-	{
-		uint64_t q = r / r_new;
-
-		uint64_t t_tmp = t - q * t_new;
-		t              = t_new;
-		t_new          = t_tmp;
-
-		uint64_t r_tmp = r - q * r_new;
-		r              = r_new;
-		r_new          = r_tmp;
-	}
-
-	if (t < 0) t += mod;
-	return t;
-}
-
-uint64_t montgomery_encode_32bit(uint64_t x, uint64_t q) { return (x << 32) % q; }
-uint64_t montgomery_decode_32bit(uint64_t x, uint64_t q, uint64_t q_tild) { return montgomery_red_32bit(x, q, q_tild); }
-uint64_t montgomery_mult_32bit(uint64_t x_m, uint64_t y_m, uint64_t q, uint64_t q_tild)
-{
-	return montgomery_red_32bit(x_m * y_m, q, q_tild);
-}
-
-uint64_t montgomery_red_32bit(uint64_t m, uint64_t q, uint64_t q_tild)
-{
-	assert(q <= (1ll << 31));
-	uint64_t v = ((m & bitmask_32bit) * q_tild) & bitmask_32bit;
-	uint64_t w = m + v * q;
-	uint64_t r = w >> 32;
-	/*
-   * The following is a branchless version of:
-	  if (r >= q) return r - q;
-	  return r;
-	*/
-	uint64_t msk = -((uint64_t)(r >= q));  // All 0 or all 1
-	return r - (msk & q);
-}
-
-uint64_t montgomery_pow_exp_32bit(uint64_t base_m, uint64_t exp, uint64_t q, uint64_t q_tild, uint64_t one_m)
-{
-	uint64_t ans_m = one_m;
-	uint64_t mult  = base_m;
-
-	while (exp > 0)
-	{
-		if (exp & 1)
-		{
-			ans_m = montgomery_mult_32bit(ans_m, mult, q, q_tild);
-		}
-		exp  = exp / 2;
-		mult = montgomery_mult_32bit(mult, mult, q, q_tild);
-	}
-
-	return ans_m;
-}
 
 int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* root_table_m, uint64_t* out_int,
                              uint64_t* in, uint64_t t)
 {
 	int status = -1;
 
-	uint64_t t_tild        = (1ull << 32) - mod_inv(t, 1ull << 32);
+	uint64_t t_tild        = montgomery_tild_32bit(t);
+	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	uint64_t log2n         = next_pow2_log(nn + 1);
 	uint64_t twice_nn_mask = (1ull << log2n) - 1;
 	uint64_t n_inv         = mod_inv(nn, t);
-	uint64_t n_inv_m       = montgomery_encode_32bit(n_inv, t);
+
+	uint64_t n_inv_m = montgomery_encode_32bit(n_inv, t, t_tild, r2modt);
 
 	uint64_t* in_m = malloc(nn * sizeof(uint64_t));
 	CHECK_ALLOC(in_m, "failed malloc in heint encoding");
 
 	for (size_t i = 0; i < nn; ++i)
 	{
-		// TODO: warning: non-constant-time operation depending on plaintext!!
-		in_m[i] = montgomery_encode_32bit(in[i], t);
+		in_m[i] = montgomery_encode_32bit(in[i], t, t_tild, r2modt);
 	}
 
 	for (size_t i = 0; i < nn; ++i)
@@ -137,19 +70,19 @@ int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* r
 {
 	int status = -1;
 
-	uint64_t t_tild        = (1ull << 32) - mod_inv(t, 1ull << 32);
+	uint64_t t_tild        = montgomery_tild_32bit(t);
+	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	uint64_t log2n         = next_pow2_log(nn + 1);
 	uint64_t twice_nn_mask = (1ull << log2n) - 1;
 	uint64_t n_inv         = mod_inv(nn, t);
-	uint64_t n_inv_m       = montgomery_encode_32bit(n_inv, t);
+	uint64_t n_inv_m       = montgomery_encode_32bit(n_inv, t, t_tild, r2modt);
 
 	uint64_t* in_m = malloc(nn * sizeof(uint64_t));
 	CHECK_ALLOC(in_m, "failed malloc in heint encoding");
 
 	for (size_t i = 0; i < nn; ++i)
 	{
-		// TODO: warning: non-constant-time operation depending on plaintext!!
-		in_m[i] = montgomery_encode_32bit(in[i], t);
+		in_m[i] = montgomery_encode_32bit(in[i], t, t_tild, r2modt);
 	}
 
 	for (size_t i = 0; i < nn / 2; ++i)
@@ -187,6 +120,8 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	assert(t <= (1ll << 31));
 
 	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	uint64_t t_tild        = montgomery_tild_32bit(t);
+	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
 	uint64_t* out_int      = malloc(nn * sizeof(uint64_t));
 	uint64_t* out_tnx      = malloc(nn * sizeof(uint64_t));
@@ -206,7 +141,7 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	// Prepare roots in montgomery form
 	for (size_t i = 0; i < 2 * nn + 1; ++i)
 	{
-		root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
+		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
 	}
 
 	// Perform iNTT
@@ -241,6 +176,8 @@ int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t*
 	assert(t <= (1ll << 31));
 
 	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	uint64_t t_tild        = montgomery_tild_32bit(t);
+	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
 	uint64_t* tmp_tnx      = malloc(nn * sizeof(uint64_t));
 	double* in_rnx         = malloc(nn * sizeof(double));
@@ -261,7 +198,7 @@ int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t*
 	for (size_t i = 0; i < nn; ++i) tmp_tnx[i] = llround(t * in_rnx[i]);
 
 	// Prepare root table
-	for (size_t i = 0; i < 2 * nn + 1; ++i) root_table_m[i] = montgomery_encode_32bit(root_table[i], t);
+	for (size_t i = 0; i < 2 * nn + 1; ++i) root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
 
 	internal_slow_ntt_heint(backend, nn, root_table_m, out, tmp_tnx, t);
 	status = 0;
