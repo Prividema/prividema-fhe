@@ -15,10 +15,10 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* root_table_m, uint64_t* out_int,
-                             uint64_t* in, uint64_t t)
+int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t* out_int, uint64_t* in, uint64_t t)
 {
-	int status = -1;
+	int status  = -1;
+	uint64_t nn = pvda_module_extract_nn(backend);
 
 	uint64_t t_tild        = montgomery_tild_32bit(t);
 	uint64_t r2modt        = montgomery_r2modq_32bit(t);
@@ -28,8 +28,15 @@ int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* 
 
 	uint64_t n_inv_m = montgomery_encode_32bit(n_inv, t, t_tild, r2modt);
 
-	uint64_t* in_m = malloc(nn * sizeof(uint64_t));
+	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
+	uint64_t* in_m         = malloc(nn * sizeof(uint64_t));
+	CHECK_ALLOC(root_table, "root table not found");
 	CHECK_ALLOC(in_m, "failed malloc in heint encoding");
+	CHECK_ALLOC(root_table_m, "failed malloc in heint encoding");
+
+	// Prepare root table
+	for (size_t i = 0; i < 2 * nn + 1; ++i) root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
 
 	for (size_t i = 0; i < nn; ++i)
 	{
@@ -62,23 +69,29 @@ int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* 
 	status = 0;
 cleanup:
 	free(in_m);
+	free(root_table_m);
 	return status;
 }
 
-int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* root_table_m, uint64_t* out_int,
-                            uint64_t* in, uint64_t t)
+int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t* out_int, uint64_t* in, uint64_t t)
 {
 	int status = -1;
 
+	uint64_t nn            = pvda_module_extract_nn(backend);
 	uint64_t t_tild        = montgomery_tild_32bit(t);
 	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	uint64_t log2n         = next_pow2_log(nn + 1);
 	uint64_t twice_nn_mask = (1ull << log2n) - 1;
-	uint64_t n_inv         = mod_inv(nn, t);
-	uint64_t n_inv_m       = montgomery_encode_32bit(n_inv, t, t_tild, r2modt);
 
-	uint64_t* in_m = malloc(nn * sizeof(uint64_t));
+	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
+	uint64_t* in_m         = malloc(nn * sizeof(uint64_t));
+	CHECK_ALLOC(root_table, "root table not found");
 	CHECK_ALLOC(in_m, "failed malloc in heint encoding");
+	CHECK_ALLOC(root_table_m, "failed malloc in heint encoding");
+
+	// Prepare root table
+	for (size_t i = 0; i < 2 * nn + 1; ++i) root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
 
 	for (size_t i = 0; i < nn; ++i)
 	{
@@ -108,6 +121,7 @@ int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t nn, uint64_t* r
 	status = 0;
 cleanup:
 	free(in_m);
+	free(root_table_m);
 	return status;
 }
 
@@ -145,7 +159,7 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	}
 
 	// Perform iNTT
-	internal_slow_intt_heint(backend, nn, root_table_m, out_int, in, t);
+	internal_slow_intt_heint(backend, out_int, in, t);
 
 	// Scale output (BFV style)
 	double scale_fact = 1.0 / t;
@@ -175,15 +189,9 @@ int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t*
 
 	assert(t <= (1ll << 31));
 
-	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
-	uint64_t t_tild        = montgomery_tild_32bit(t);
-	uint64_t r2modt        = montgomery_r2modq_32bit(t);
-	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
-	uint64_t* tmp_tnx      = malloc(nn * sizeof(uint64_t));
-	double* in_rnx         = malloc(nn * sizeof(double));
+	uint64_t* tmp_tnx = malloc(nn * sizeof(uint64_t));
+	double* in_rnx    = malloc(nn * sizeof(double));
 
-	CHECK_ALLOC(root_table_m, "failed malloc in heint encoding");
-	CHECK_ALLOC(root_table, "root table not found");
 	CHECK_ALLOC(tmp_tnx, "malloc failed in heint encoding");
 	CHECK_ALLOC(in_rnx, "failed malloc in heint encoding");
 
@@ -197,13 +205,9 @@ int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t*
 	// Scale and round
 	for (size_t i = 0; i < nn; ++i) tmp_tnx[i] = llround(t * in_rnx[i]);
 
-	// Prepare root table
-	for (size_t i = 0; i < 2 * nn + 1; ++i) root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
-
-	internal_slow_ntt_heint(backend, nn, root_table_m, out, tmp_tnx, t);
+	internal_slow_ntt_heint(backend, out, tmp_tnx, t);
 	status = 0;
 cleanup:
-	free(root_table_m);
 	free(tmp_tnx);
 	free(in_rnx);
 

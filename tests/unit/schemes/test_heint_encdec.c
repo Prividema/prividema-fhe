@@ -9,7 +9,6 @@
 #include "glwe_params.h"
 #include "heint.h"
 #include "maths_structures.h"
-#include "montgomery_arith.h"
 #include "pvda_ffts.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -144,22 +143,13 @@ Test(heint_internals, sanity1)
 	generate_ntt_table(backend, t);
 	uniform_random_pol_znx(backend, in_tnx, nn, 0, t - 1);
 
-	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
-	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
-	uint64_t t_tild        = montgomery_tild_32bit(t);
-	uint64_t r2modt        = montgomery_r2modq_32bit(t);
-	for (size_t i = 0; i < 2 * nn + 1; ++i)
-	{
-		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
-	}
-	int st = internal_slow_intt_heint(backend, nn, root_table_m, out_tnx, in_tnx, t);
+	int st = internal_slow_intt_heint(backend, out_tnx, in_tnx, t);
 
 	cr_assert(eq(i32, st, 0));
 	pvda_delete_backend(backend);
 	delete_univ_tnx(in_tnx);
 	delete_univ_tnx(out_tnx);
 	delete_glwe_params(params_glwe);
-	free(root_table_m);
 }
 
 Test(heint_internals, sanity2)
@@ -175,22 +165,13 @@ Test(heint_internals, sanity2)
 	generate_ntt_table(backend, t);
 	uniform_random_pol_znx(backend, in_tnx, nn, 0, t - 1);
 
-	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
-	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
-	uint64_t t_tild        = montgomery_tild_32bit(t);
-	uint64_t r2modt        = montgomery_r2modq_32bit(t);
-	for (size_t i = 0; i < 2 * nn + 1; ++i)
-	{
-		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
-	}
-	int st = internal_slow_ntt_heint(backend, nn, root_table_m, out_tnx, in_tnx, t);
+	int st = internal_slow_ntt_heint(backend, out_tnx, in_tnx, t);
 
 	cr_assert(eq(i32, st, 0));
 	pvda_delete_backend(backend);
 	delete_univ_tnx(in_tnx);
 	delete_univ_tnx(out_tnx);
 	delete_glwe_params(params_glwe);
-	free(root_table_m);
 }
 
 Test(heint_internals, backforth)
@@ -207,16 +188,8 @@ Test(heint_internals, backforth)
 	generate_ntt_table(backend, t);
 	uniform_random_pol_znx(backend, in_tnx, nn, 0, t - 1);
 
-	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
-	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
-	uint64_t t_tild        = montgomery_tild_32bit(t);
-	uint64_t r2modt        = montgomery_r2modq_32bit(t);
-	for (size_t i = 0; i < 2 * nn + 1; ++i)
-	{
-		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
-	}
-	int st  = internal_slow_intt_heint(backend, nn, root_table_m, mid_tnx, in_tnx, t);
-	int st2 = internal_slow_ntt_heint(backend, nn, root_table_m, out_tnx, mid_tnx, t);
+	int st  = internal_slow_intt_heint(backend, mid_tnx, in_tnx, t);
+	int st2 = internal_slow_ntt_heint(backend, out_tnx, mid_tnx, t);
 	cr_assert(eq(i32, st, 0));
 	cr_assert(eq(i32, st2, 0));
 
@@ -230,5 +203,4 @@ Test(heint_internals, backforth)
 	delete_univ_tnx(out_tnx);
 	delete_univ_tnx(mid_tnx);
 	delete_glwe_params(params_glwe);
-	free(root_table_m);
 }
