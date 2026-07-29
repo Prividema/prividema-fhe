@@ -11,8 +11,8 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t slots, int64_t scale_bits,
-                double complex* in)
+int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t n_slots,
+                int64_t scale_bits, double complex* in)
 {
 	int status = -1;
 
@@ -20,7 +20,7 @@ int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* o
 
 	CHECK_ALLOC(tmp, "Tmp vector alloc failed in HE Fixed Point encoding");
 
-	CHECK_CALL(hefp_encode_internal(backend, tmp, slots, in, 0), "HE Fixed Point encoding failed");
+	CHECK_CALL(hefp_encode_internal(backend, tmp, n_slots, in, 0), "HE Fixed Point encoding failed");
 
 	CHECK_CALL(univ_rnx_to_biv(params, out, tmp, -scale_bits),
 	           "Biv conversion + scaling in HE Fixed Point encoding failed");
@@ -32,7 +32,7 @@ cleanup:
 	return status;
 }
 
-int hefp_decode(const PvdaBackend* backend, const GLWEParams* params, double complex* out, uint64_t slots,
+int hefp_decode(const PvdaBackend* backend, const GLWEParams* params, double complex* out, uint64_t n_slots,
                 int64_t scale_bits, PolyBiv* in)
 
 {
@@ -44,7 +44,7 @@ int hefp_decode(const PvdaBackend* backend, const GLWEParams* params, double com
 
 	biv_to_univ_rnx(params, tmp, in, -scale_bits);
 
-	CHECK_CALL(hefp_decode_internal(backend, out, slots, tmp), "HE Fixed Point decoding failed");
+	CHECK_CALL(hefp_decode_internal(backend, out, n_slots, tmp), "HE Fixed Point decoding failed");
 
 	status = 0;
 cleanup:
