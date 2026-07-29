@@ -11,6 +11,21 @@
 #include "math_utils.h"
 #include "utils.h"
 
+/**
+ * @brief Slow hefp encoding function
+ *
+ * Encoding funtion for HEFixedPoint that does not use the fast-fourier transform algorithm
+ * (complexity n log n) nor precomputed roots of unity, but rather used the
+ * textbook definition of HEFP encoding.
+ * Only supports number of slots = degree of polynomial / 2
+ * Intended for testing that the FFT-based functions give the same results
+ *
+ * @param out An output n-lenght double vector
+ * @param n The degree of the resulting polynomial or equivalently twice the number
+ *          of complex input slots
+ * @param in vector of n/2 complex values
+ *
+ */
 void hefp_encode_slow_internal(double* out, uint64_t n, double complex* in)
 {
 	for (uint64_t i = 0; i < n; ++i)
@@ -29,6 +44,12 @@ void hefp_encode_slow_internal(double* out, uint64_t n, double complex* in)
 	}
 }
 
+/**
+ * @brief Performs an in-place bit-reversal of complex values in a vector of length n
+ *
+ * @param inout Vector of length n that is bit-reversed in-place
+ * @param n     length of said vector
+ */
 void complex_bitrev(double complex* inout, uint64_t n)
 {
 	int64_t j = 0;
