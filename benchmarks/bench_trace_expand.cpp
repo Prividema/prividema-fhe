@@ -234,6 +234,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);
+	delete_univ(m_univ);
 }
 BENCHMARK(test_expand_compressed_trace);
 
@@ -317,5 +318,6 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);
+	delete_univ(m_univ);
 }
 BENCHMARK(test_expand_compressed_trace_gad);

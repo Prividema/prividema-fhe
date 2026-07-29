@@ -42,34 +42,33 @@ void bench_heint_encoding(benchmark::State& state)
 	pvda_delete_backend(backend);
 }
 BENCHMARK(bench_heint_encoding);
-/*
 
-void bench_hefp_decoding(benchmark::State& state)
+void bench_heint_decoding(benchmark::State& state)
 {
-    PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
-    GLWEParams* params_glwe =
-        new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
+	PvdaBackend* backend = pvda_new_spqlios_backend(NBASE);
+	GLWEParams* params_glwe =
+	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
-    PolyUnivRnX* final_vec = new_univ_rnx(params_glwe);
-    PolyBiv* interm_vec    = new_biv(params_glwe);
-    PolyUnivTnX* tmp_tnx   = new_univ_tnx(params_glwe);
+	PolyUnivTnX* final_vec = new_univ_tnx(params_glwe);
+	PolyBiv* interm_vec    = new_biv(params_glwe);
+	memset(interm_vec->ptr, 0, poly_biv_bytes(params_glwe));
+	PolyUnivTnX* tmp_tnx = new_univ_tnx(params_glwe);
 
-    uint64_t nn = params_glwe->nn;
+	generate_ntt_table(backend, TBASE);
+	uint64_t nn = params_glwe->nn;
 
-    for (auto _ : state)
-    {
-        hefp_decode(backend, params_glwe, (_Complex double*)final_vec, nn / 2, 0, interm_vec);
-        benchmark::DoNotOptimize(final_vec);
-    }
+	for (auto _ : state)
+	{
+		heint_decode(backend, params_glwe, final_vec, nn, TBASE, interm_vec);
+		benchmark::DoNotOptimize(final_vec);
+	}
 
-    delete_univ_rnx(final_vec);
-    delete_biv(interm_vec);
-    delete_univ_tnx(tmp_tnx);
+	delete_univ_tnx(final_vec);
+	delete_biv(interm_vec);
+	delete_univ_tnx(tmp_tnx);
 
-    delete_glwe_params(params_glwe);
-    pvda_delete_backend(backend);
+	delete_glwe_params(params_glwe);
+	pvda_delete_backend(backend);
 }
 
-BENCHMARK(bench_hefp_decoding);
-
-*/
+BENCHMARK(bench_heint_decoding);
