@@ -12,7 +12,7 @@
 #define SIGMABASE  (ldexp(1.0, SIGMABITS - (LBASE) * KAPPABASE))
 #define SKBITS     3  // bit size of secret key coefficients
 
-// For BGV/BFV encoding only
+// For HEInt encoding only
 #define TBASE 65077249
 
 #endif

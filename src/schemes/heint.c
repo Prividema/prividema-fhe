@@ -160,7 +160,7 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	// Perform iNTT
 	internal_slow_intt_heint(backend, out_int, in, t);
 
-	// Scale output (BFV style)
+	// Scale output
 	double scale_fact = 1.0 / t;
 	for (size_t i = 0; i < nn; ++i) out_rnx[i] = scale_fact * out_int[i];
 
