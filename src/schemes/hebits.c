@@ -1,16 +1,15 @@
-#include "tfhe.h"
-
 #include <string.h>
 
 #include "ggsw_arithmetic.h"
 #include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
+#include "hebits.h"
 #include "math_utils.h"
 #include "utils.h"
 
-int tfhe_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0,
-                         const GLWECiphertext* c1, const GGSWCiphertext* sel, int normalize_sub)
+int hebits_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0,
+                           const GLWECiphertext* c1, const GGSWCiphertext* sel, int normalize_sub)
 {
 	int status = -1;
 
@@ -28,8 +27,8 @@ cleanup:
 	return status;
 }
 
-int tfhe_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
-              const GGSWCiphertextPrep* sel, int normalize_sub)
+int hebits_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+                const GGSWCiphertextPrep* sel, int normalize_sub)
 {
 	int status = -1;
 
@@ -47,8 +46,8 @@ cleanup:
 	return status;
 }
 
-int tfhe_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
-                   const GGSWCiphertextPrep** selectors, int sel_size, int delete_src)
+int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
+                     const GGSWCiphertextPrep** selectors, int sel_size, int delete_src)
 {
 	GLWEParams* aggregation_params = res->params;
 	int64_t log_inp_cols           = next_pow2_log(inp_cols);
@@ -87,7 +86,7 @@ int tfhe_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECip
 		{
 			if (c + 1 < used_cols)
 				CHECK_CALL(
-				    tfhe_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], selectors[l], 1),
+				    hebits_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], selectors[l], 1),
 				    "CMux failed in a CMux tree");
 			else
 			{

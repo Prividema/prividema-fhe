@@ -11,9 +11,9 @@ When complete, it will contain:
 - A core implementing bivariate (base-2K) polynomial arithmetic and
   implementations of GLWE, GLWEGadget and GGSW using said arithmetic
 - A scheme layer implementing:
-  - HEInt
-  - TFHE
-  - HEFixedPoint
+  - HEIntegers (HEInt)
+  - HEBits
+  - HEFixedPoint (HEFP)
   - Scheme-switching between the above (CHIMERA) [\[3\]]
   - Encoding and decoding functions from raw data to/from the polynomial representations that the schemes use
 

@@ -20,7 +20,7 @@
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
 #include "maths_structures.h"
-#include "schemes/tfhe.h"
+#include "schemes/hebits.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
@@ -296,8 +296,8 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 
 	// CMux selection tree (that is, arbitrary-size CMux)
 	// This function can deallocate its input, which we do for memory efficiency reasons
-	st = tfhe_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree_first_level, MATRIX_COLS,
-	                    (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
+	st = hebits_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree_first_level, MATRIX_COLS,
+	                      (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
 	CHECK_CALL_LABEL(st, "CMux tree failed in onionpir server", cleanup3);
 
 	status = 0;

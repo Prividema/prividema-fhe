@@ -11,13 +11,13 @@
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
+#include "hebits.h"
 #include "rng.h"
 #include "test_utils.h"
-#include "tfhe.h"
 #include "univariate_polynomial.h"
 
 /** The test is done without error, it is a proof of concept*/
-PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
+PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -55,7 +55,7 @@ PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
 	memset(m_sel, 0, poly_univ_bytes(params_glwe));
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
-	tfhe_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
+	hebits_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
 
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
 
@@ -70,7 +70,7 @@ PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
 	m_sel[0] = 1;
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
-	tfhe_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
+	hebits_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
 
 	glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
 
@@ -97,8 +97,7 @@ PvdaParamTest(tfhe_cmux_unprepared, without_error, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-/** The test is done without error, it is a proof of concept*/
-PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
+PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -144,7 +143,7 @@ PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
 	ggsw_prepare(module, ggsw_prep, ggsw);
 	// And use it as the selector in a Mux gate.
 	// The output should be a ciphertext of m1
-	tfhe_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
+	hebits_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
 
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m1
@@ -164,7 +163,7 @@ PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
 
 	// And use it as the selector in a Mux gate.
 	// The output should now be a ciphertext of m2 due to the selection signal being 1
-	tfhe_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
+	hebits_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
 
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m2
@@ -193,10 +192,10 @@ PvdaParamTest(tfhe_cmux_prepared, without_error, default_params_fn)
 }
 
 /**
- * Tests that the TFHE CMux gate works as intended (select an input using an
+ * Tests that the HEBits CMux gate works as intended (select an input using an
  * encrypted selection signal)
  */
-PvdaParamTest(tfhe_cmux_prepared, with_error, default_params_fn)
+PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -238,7 +237,7 @@ PvdaParamTest(tfhe_cmux_prepared, with_error, default_params_fn)
 	ggsw_prepare(module, ggsw_prep, ggsw);
 	// And use it as the selector in a Mux gate.
 	// The output should be a ciphertext of m1
-	tfhe_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
+	hebits_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
 
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m1
@@ -258,7 +257,7 @@ PvdaParamTest(tfhe_cmux_prepared, with_error, default_params_fn)
 
 	// And use it as the selector in a Mux gate.
 	// The output should now be a ciphertext of m2 due to the selection signal being 1
-	tfhe_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
+	hebits_cmux(module, res, glwe1, glwe2, ggsw_prep, 1);
 
 	// Check that indeed res is an encryption of m1 with at least the decomp_noise_bits MSB
 	// equal to m2
@@ -286,7 +285,7 @@ PvdaParamTest(tfhe_cmux_prepared, with_error, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(tfhe_cmux_tree, normal, default_params_fn)
+PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -362,8 +361,8 @@ PvdaParamTest(tfhe_cmux_tree, normal, default_params_fn)
 		// Do not forget to restore sel to the actual value since we destroyed it while decomposing it
 		sel = selections[i];
 
-		tfhe_cmux_tree(module, res, (const GLWECiphertext**)glwes, num_msgs, (const GGSWCiphertextPrep**)selector,
-		               msgs_log2, 0);
+		hebits_cmux_tree(module, res, (const GLWECiphertext**)glwes, num_msgs, (const GGSWCiphertextPrep**)selector,
+		                 msgs_log2, 0);
 		normalize_glwe(module, res, res);
 
 		glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);

@@ -5,7 +5,7 @@
 # Create SCHEMES library
 add_library(PVDA_SCHEMES
 scheme.c
-tfhe.c
+hebits.c
 hefp.c
 hefp_internals.c
 heint.c)
