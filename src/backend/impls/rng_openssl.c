@@ -7,6 +7,7 @@
 #include <stdint.h>
 
 #include "backend.h"
+#include "math_utils.h"
 #include "utils.h"
 
 static inline void reduce_uniform_n(int64_t* tgt, int n_bits)

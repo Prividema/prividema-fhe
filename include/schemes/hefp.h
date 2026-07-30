@@ -1,6 +1,7 @@
 #ifndef HEFP_H
 #define HEFP_H
 
+#include "maths_structures.h"
 #ifndef _cplusplus
 #include <complex.h>
 #endif

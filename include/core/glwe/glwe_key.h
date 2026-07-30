@@ -3,6 +3,7 @@
 
 #include "backend.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 
 /**
  *
