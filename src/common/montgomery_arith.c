@@ -45,6 +45,7 @@ uint64_t montgomery_pow_exp_32bit(uint64_t base_m, uint64_t exp, uint64_t q, uin
 	uint64_t ans_m = one_m;
 	uint64_t mult  = base_m;
 
+	// square and multiply
 	while (exp > 0)
 	{
 		if (exp & 1)

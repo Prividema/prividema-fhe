@@ -4,6 +4,13 @@
 #include "backend.h"
 #include "maths_structures.h"
 
+/**
+ * @file backend_arithmetic.h
+ * @brief Arithmetic backend functions for prividema
+ *
+ * Refer to spqlios' documentation for the functions here
+ */
+
 VecUnivDFT* pvda_new_vec_znx_dft(const PvdaBackend* backend, uint64_t size);
 
 int pvda_vec_znx_dft(const PvdaBackend* backend, PolyBivDFT* res, uint64_t res_size, const PolyBiv* a);

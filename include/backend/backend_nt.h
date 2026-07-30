@@ -5,10 +5,18 @@
 
 #include "backend.h"
 
+/**
+ * @file backend_nt.h
+ *
+ * @brief Number-theory functions in the Prividema-FHE backend
+ *
+ *
+ */
+
 /*
  * @brief Finds the primitive 2n-th root of ring Z_t
  *
- *
+ * @param backend The prividema backend
  */
 uint64_t pvda_ring_2nth_root(const PvdaBackend* backend, uint64_t t);
 
