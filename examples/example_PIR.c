@@ -60,8 +60,8 @@
 // GLWE(and Gadget) parameters
 #define NBASE      4096
 #define KBASE      1
-#define KAPPABASE  18
-#define L_TILDE_Q1 4
+#define KAPPABASE  19
+#define L_TILDE_Q1 3
 
 // Elements in the database are technically in the torus.
 // For simplicity, in this example the data we would like to put is
@@ -76,7 +76,7 @@
 // is margin for the noise
 //
 // Even more succintly, the data in the database belongs in ZnX mod 2^(DB_BITS)
-#define DB_BITS  54ll
+#define DB_BITS  57ll
 #define SHFT_AMT (64 - DB_BITS)
 
 // Size of the square submatrix for which we print the DB contents at the beggining
@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, 12, col_sum_sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEParams* final_params = new_glwe_params(NBASE, KBASE, KAPPABASE, 10, sigma5, NOISE_UNIFORM_POWER_OF_TWO);
 
-	GLWEParams* db_params = new_glwe_params(NBASE, KBASE, KAPPABASE, 8, 0, NOISE_UNIFORM_POWER_OF_TWO);
+	GLWEParams* db_params = new_glwe_params(NBASE, KBASE, KAPPABASE, 6, 0, NOISE_UNIFORM_POWER_OF_TWO);
 
 	//Client phase 0: secret and evaluation key generation
 	GLWESecretKeyPrepared* sk_prep;
