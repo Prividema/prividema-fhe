@@ -51,11 +51,10 @@ int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t* out_int, uint
 		for (size_t j = 0; j < nn / 2; ++j)
 		{
 			uint64_t root_num = backend->pvda_fft_data->rotation_group[j] * i;
-			uint64_t p1       = in_m[j] * root_table_m[(-root_num) & twice_nn_mask];
-			uint32_t p1_red   = montgomery_red_32bit(p1, t, t_tild);
+			uint32_t p1_red   = montgomery_mult_32bit(in_m[j], root_table_m[(-root_num) & twice_nn_mask], t, t_tild);
 
-			uint64_t p2     = in_m[j + nn / 2] * root_table_m[root_num & twice_nn_mask];
-			uint32_t p2_red = montgomery_red_32bit(p2, t, t_tild);
+			uint32_t p2_red =
+			    montgomery_mult_32bit(in_m[j + nn / 2], root_table_m[root_num & twice_nn_mask], t, t_tild);
 
 			sum += p1_red;
 			sum += p2_red;
