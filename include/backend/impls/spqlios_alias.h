@@ -11,7 +11,7 @@
  * @file spqlios_alias.h
  *
  *
- * Functions needed to implement and delte a splqios module, as well as set funtions to them in prividema
+ * Functions needed to implement and delete a splqios module, as well as set functions to them in Prividema
  *
  */
 

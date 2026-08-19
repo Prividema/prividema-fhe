@@ -15,8 +15,10 @@ uint64_t montgomery_tild_32bit(uint64_t q) { return (1ull << 32) - mod_inv(q, 1u
 
 uint64_t montgomery_r2modq_32bit(uint64_t q)
 {
-	// r = 2^32 ==> r^2 = 2^64
+	// We want to compute r^2 mod q, but that would overflow a single value
+	// since r = 2^32 ==> r^2 = 2^64
 	// Therefore we want 2^64 mod q, which is equal to (2^64 - q) mod q,
+	// and which in C unsigned arithmetic is represented by (-q) mod q
 	return (-q) % q;
 }
 uint64_t montgomery_decode_32bit(uint64_t x, uint64_t q, uint64_t q_tild) { return montgomery_red_32bit(x, q, q_tild); }

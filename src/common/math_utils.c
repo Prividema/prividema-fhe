@@ -7,7 +7,7 @@ uint64_t mod_inv(int64_t x, int64_t mod)
 {
 	// Extended Euclidean algorithm
 	// See https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Computing_multiplicative_inverses_in_modular_structures
-	// if you need a refresher/source
+	// for reference
 	int64_t r, t, r_new, t_new;
 	t     = 0;
 	r     = mod;

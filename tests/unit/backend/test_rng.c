@@ -107,32 +107,6 @@ Test(rand_uniform_16, test_rand_uniform)
 	pvda_delete_backend(backend);
 }
 
-// Test rand_normal with Jarque-Bera test
-// Test(rand_normal, test_rand_normal)
-// {
-// 	double data[NB_SAMPLES];
-// 	for (int i = 0; i < NB_SAMPLES; i++)
-// 		if (rand_normal(data + i, 0, 1) < 0) cr_fail("rand_normal failed");
-//
-// 	double jjbb = jarque_bera(data, NB_SAMPLES);
-// 	cr_assert(lt(dbl, jjbb, chi_critical_05[1]), "Expect %f < %f\n", jjbb, chi_critical_05[1]);
-// }
-
-// PvdaParamTest(normal_random_vec, basic, default_params_fn)
-// {
-// 	INIT_PVDA_PARAMS_GLWE(param);
-//
-// 	VecUnivRnX* pol_univ = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
-// 	cr_assert(pol_univ != NULL);
-//
-// 	//For now, random vec generation is unimplemented and thus the function should fail (-1)
-// 	cr_assert(normal_random_vec(module, pol_univ, params_glwe->nn * params_glwe->k, 0.0, 0.001) == -1);
-//
-// 	free(pol_univ);
-//
-// 	DELETE_PVDA_PARAMS_GLWE;
-// }
-
 PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);

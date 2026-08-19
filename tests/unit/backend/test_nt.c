@@ -32,6 +32,10 @@ static inline uint64_t pow_exp_mod(uint64_t base, uint64_t exp, uint64_t m)
 	return ans;
 }
 
+/**
+ * Tetsing that the algorithm to find the 2N'th negative root of unity actually finds a
+ * 2N'th negative root of unity
+ */
 Test(twoth_root, works_16)
 {
 	uint64_t nn          = 16;

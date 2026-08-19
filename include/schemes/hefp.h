@@ -12,11 +12,10 @@
 
 /**
  * @brief Encodes "n_slots" complex numbers from using scale 2^-scale_bits from its slots representation to a
- * coefficient reprseenstation.
+ * coefficient representation.
  *
  * @param backend The computation backend
- * @param params The GLWEParams, used for knowlege of N the polynomial number of coefficients and the depth of
- *               the bivariate output
+ * @param params The GLWEParams
  * @param out    The output bivariate polynomial
  * @param n_slots The number of elements to encode. Should be a power of 2 and at most N/2.
  * @param scale_bits The scale factor \Delta is 2^-scale_bits
@@ -33,9 +32,8 @@ int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* o
  * @brief Decodes a bivariate polynomial encoding HEFixedPoint n_slots slots back into the n_slots complex values
  *
  * @param backend The computation backend
- * @param params The GLWEParams, used for knowlege of N the polynomial number of coefficients and the depth of
- *               the bivariate output
- * @param out    The output n_slots-lenght vector of complex values
+ * @param params The GLWEParams
+ * @param out    The output n_slots-length vector of complex values
  * @param n_slots The number of elements encoded. Should be a power of 2 and at most N/2.
  * @param scale_bits The scale factor \Delta is 2^-scale_bits
  * @param in A bivariate polynomial encoding some HEFixedPoint numbers

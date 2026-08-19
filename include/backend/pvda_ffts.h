@@ -15,7 +15,7 @@ typedef int64_t NTTRoot;
  */
 struct ntt_root_table_t
 {
-	uint64_t t;      ///<  the modulus for which this list has been computed
+	uint64_t t;      ///<  Modulus for which this list has been computed
 	NTTRoot* roots;  ///< The list of powers of the primitive 2N-th root of unity modulo t
 };
 
@@ -39,7 +39,7 @@ struct pvda_fft_data_t
  *
  * @param nn The parameter N (number of coefficients per polynomial)
  *
- * @return NULL in case of failure, a newly allocated object('s pointer') othwerise
+ * @return NULL in case of failure, a newly allocated object('s pointer') otherwise
  */
 struct pvda_fft_data_t* new_fft_data(uint64_t nn);
 
@@ -55,7 +55,7 @@ void delete_fft_data(struct pvda_fft_data_t* data);
  *
  *
  * @param data The Prividema-FHE FFT data object
- * @param t The modulus for which the table is to be retieved
+ * @param t Modulus for which the table is to be relieved
  *
  * @return A pointer to the vector of NTTRoots if found, NULL otherwise
  */

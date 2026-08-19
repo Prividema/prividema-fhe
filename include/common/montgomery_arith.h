@@ -9,7 +9,7 @@
  * q being the modulus used, it must be at most 2^31
  *
  * @param x       The number to encode
- * @param q       The modulus to encode for, N in the original paper
+ * @param q       The modulus to encode for, N in the original 1985 Montgomery paper
  * @param q_tild  -q^-1 mod R, that is, N' in the original paper
  *                One would obtain said value using montgomery_tild_32bit
  * @param r2modq  (R^2 mod q), obtained using montgomery_r2modq_32bit
@@ -25,7 +25,7 @@
 uint64_t montgomery_encode_32bit(uint64_t x, uint64_t q, uint64_t q_tild, uint64_t r2modq);
 
 /**
- * @brief Computes -q^-1 mod R (with R = 2^32) (N' in the original Montgomery paper)
+ * @brief Computes -q^-1 mod R (with R = 2^32) (N' in the original 1985 Montgomery paper)
  *
  * @param q modulus
  *
@@ -91,9 +91,7 @@ uint64_t montgomery_mult_32bit(uint64_t x_m, uint64_t y_m, uint64_t q, uint64_t 
  *
  * @returns base^exp in montgomery form
  *
- * @warning This function uses the square-and-multiply algorithm and thus side-channels might
- *          allow an attacker to retrieve exp.
- *          Do not use with confidential exp
+ * @warning This function uses the square-and-multiply algorithm and thus is not constant time.
  */
 uint64_t montgomery_pow_exp_32bit(uint64_t base_m, uint64_t exp, uint64_t q, uint64_t q_tild, uint64_t one_m);
 

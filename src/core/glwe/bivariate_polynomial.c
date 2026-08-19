@@ -299,6 +299,8 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 			int64_t shft_amt = 64 + bit_offset - (int)kappa - (int)(i * kappa);
 			if (shft_amt >= 64 || shft_amt <= -64) continue;
 
+			// Deal correctly with negative shift amounts, since
+			// left shift by negative number is undefined behaviour in C
 			uint64_t add_amt = shft_amt >= 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
 			                                 : ((pol->ptr[i * pol->stride + p]) >> -shft_amt);
 			res_tnx[p] += add_amt;

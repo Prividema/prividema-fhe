@@ -3,6 +3,13 @@
 #include <stdint.h>
 
 /**
+ * @file cpu_nt.h
+ *
+ * CPU-based implementation of Number-Theory operations
+ *
+ */
+
+/**
  * @brief Computes base^exp mod m
  *
  * @warning Non-constant-time on exp
@@ -24,4 +31,5 @@ uint64_t pow_exp(uint64_t base, uint64_t exp, uint64_t m);
  * @param vt The prividema virtual table to populate
  */
 void pvda_fill_cpu_nt(struct pvda_virtual_table* vt);
+
 #endif

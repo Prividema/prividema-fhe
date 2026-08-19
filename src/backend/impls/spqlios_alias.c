@@ -276,10 +276,3 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 	vt->pvda_module_extract_nn         = spqlios_module_extract_nn;
 	vt->pvda_vmp_prepare_vec           = spqlios_vmp_prepare_vec;
 }
-/*
-int spqlios_vec_rnx_negate(const PvdaModule* module, double* res, uint64_t res_size, uint64_t res_sl, const double* a,
-                        uint64_t a_size, uint64_t a_sl)
-{
-    vec_rnx_negate(module, res, res_size, res_sl, a, a_size, a_sl);
-    return 1;
-}*/

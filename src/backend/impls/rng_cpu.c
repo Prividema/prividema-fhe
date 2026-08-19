@@ -45,9 +45,8 @@ static inline int cpu_read_rand(uint64_t* result, size_t bytes)
 	if (rand_bytes != bytes) return -1;
 	return 0;
 
-// I don't know what system this block below would be (and it would be quite slow)
-// But for now we leave it for compatibility
 #else
+	// Fallback for unknown systems
 	// THIS IS VERY SLOW!
 	FILE* f = fopen("/dev/urandom", "rb");
 	if (!f) return log_perror("fopen");

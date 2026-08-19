@@ -35,6 +35,7 @@ static inline void init_group(uint32_t* vec, int nn)
 
 struct pvda_fft_data_t* new_fft_data(uint64_t nn)
 {
+	// Maximum number of NTT tables that the struct will be able to hold
 	const int num_ntt_tables = 10;
 
 	struct pvda_fft_data_t* ans = malloc(sizeof(struct pvda_fft_data_t));
