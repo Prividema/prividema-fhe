@@ -12,6 +12,7 @@
 #include "ggsw_ciphertext.h"
 #include "ggsw_key.h"
 #include "ggsw_params.h"
+#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
@@ -264,6 +265,8 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 		CHECK_CALL_LABEL(st, "Trace by column half-product failed in onionpir server", cleanup2);
 		st = glwe_dft_to_coef(module, glwe_tree_first_level[c], tmp_glwe_dft);
 		CHECK_CALL_LABEL(st, "DFT to coefficient form failed after column half-product in onionpir server", cleanup2);
+		st = normalize_glwe(module, glwe_tree_first_level[c], glwe_tree_first_level[c]);
+		CHECK_CALL_LABEL(st, "normalization failed after column half-product in onionpir server", cleanup2);
 	}
 
 	// Delete the row selection gadget to lower peak memory consumption

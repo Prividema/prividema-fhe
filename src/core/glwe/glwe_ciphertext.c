@@ -59,7 +59,10 @@ int print_coefs_glwe(const PvdaBackend* module, const GLWECiphertext* glwe, cons
 	for (int i = 0; i < n; ++i)
 	{
 		if (shft)
-			printf("%lx (%ld)  ", result_tnx[i], ((result_tnx[i] >> (shft - 1)) + 1) >> 1);
+		{
+			uint64_t rval = ((uint64_t)result_tnx[i] + (1ull << (shft - 1))) >> shft;
+			printf("%lx (%ld)  ", result_tnx[i], rval);
+		}
 		else
 			printf("%lx (%ld) ", result_tnx[i], result_tnx[i]);
 	}
