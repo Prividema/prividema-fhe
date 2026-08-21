@@ -4,8 +4,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#include "backend.h"
 #include "maths_structures.h"
-#include "spqlios_alias.h"
 
 /**
  *
@@ -14,37 +14,6 @@
  * Prividema random number generation (takes randomness from system source,
  * provides functions to sample different distributions)
  */
-
-// =============================================
-// |                                           |
-// |              Random Numbers               |
-// |                                           |
-// =============================================
-
-/**
- * @brief Generates a uniformly sampled random number in [-2^(nb_bits-1), 2^(nb_bits-1))
- *
- * @param result  The resulting uniformly sampled integer
- * @param nb_bits The number of bits of the result
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int rand_uniform_pow2(int64_t* result, uint64_t nb_bits);
-
-/**
- * @brief Generates a uniformly sampled random number in [limit_down, limit_up] via
- * power-of-2 sampling and resampling if out-of-bounds
- *
- * @param result      The resulting uniformly sampled integer
- * @param limit_down  The lower bound of the uniform sample
- * @param limit_up  The lower bound of the uniform sample
- *
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int rand_uniform(int64_t* result, int64_t limit_down, int64_t limit_up);
 
 /**
  * @brief Generates a gaussianly sampled random number with the given parameters.
@@ -69,6 +38,7 @@ int rand_normal(double* result, double mu, double sigma);
  *
  * Coefficients are uniformly sampled in range [-2^(nb_bits-1), 2^(nb_bits-1))
  *
+ * @param module  The backend object
  * @param res     The result uniformly drawn \ZnX polynomial.
  * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
  * @param nb_bits Number of randomness bits per coefficient.
@@ -76,26 +46,28 @@ int rand_normal(double* result, double mu, double sigma);
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_pow2_random_pol_znx(PolyUniv* res, uint64_t nn, uint64_t nb_bits);
+int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, uint64_t nb_bits);
 
 /**
  * @brief Generates a uniformly random binary \ZnX polynomial
  *
  * Coefficients are uniformly sampled in {0, 1}
  *
+ * @param module  The backend object
  * @param res     The result uniformly drawn \ZnX polynomial.
  * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int binary_random_pol_znx(PolyUniv* res, uint64_t nn);
+int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn);
 
 /**
  * @brief Generates a uniformly random \ZnX polynomial
  *
  * Coefficients are uniformly sampled in range [low_bound, high_bound]
  *
+ * @param module      The backend object
  * @param res         The result uniformly drawn \ZnX polynomial.
  * @param nn          Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
  * @param low_bound   Lower bound of the generated numbers
@@ -104,7 +76,8 @@ int binary_random_pol_znx(PolyUniv* res, uint64_t nn);
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound);
+int uniform_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, int64_t low_bound,
+                           int64_t high_bound);
 
 /**
  * @brief Generates a random vector following a uniform distribution in res.
@@ -113,6 +86,7 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_
  * elements with a uniformly sampled random integer of nb_bits, between
  * [-2^(nb_bits-1), 2^(nb_bits-1))
  *
+ * @param module   The backend object
  * @param limb_len The size of each limb. A common value could be \N or \f$kN\f$ (to fill the A's)
  * @param res      The result.
  * @param nb_limbs The number of limbs. In other words, how many times we fill limb_len words.
@@ -125,7 +99,8 @@ int uniform_random_pol_znx(PolyUniv* res, uint64_t nn, int64_t low_bound, int64_
  * @retval  0 otherwise.
  *
  */
-int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint64_t res_sl, uint64_t nb_bits);
+int uniform_pow2_random_vec(const PvdaBackend* module, uint64_t limb_len, int64_t* res, uint64_t nb_limbs,
+                            uint64_t res_sl, uint64_t nb_bits);
 
 /**
  * @brief Generates a random vector following a uniform distribution and return it in the DFT domain.
@@ -139,11 +114,12 @@ int uniform_random_vec(uint64_t limb_len, int64_t* res, uint64_t nb_limbs, uint6
  * @retval 0 otherwise.
  *
  */
-int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);
+int uniform_random_vec_znx_dft(const PvdaBackend* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);
 
 /**
  * @brief Generates a Random Vector following a normal distribution.
  *
+ * @param module    The backend object
  * @param res       The result.
  * @param res_size  The number of elements in the vector.
  * @param mu        The mean value of the distribution.
@@ -153,13 +129,14 @@ int uniform_random_vec_znx_dft(const MODULE* module, VecUnivDFT* result_dft, uin
  * @retval 0 otherwise.
 
  */
-int normal_random_vec(double* res, uint64_t res_size, double mu, double sigma);
+int normal_random_vec(const PvdaBackend* module, double* res, uint64_t res_size, double mu, double sigma);
 
 /**
  * @brief Adds a random normally sampled number to each element of vec
  *
  * res and vec can be the same vector for in-place addition
  *
+ * @param module    The backend object
  * @param res       The result.
  * @param vec_size  The number of elements in the vectors.
  * @param vec       The input vector.
@@ -170,6 +147,7 @@ int normal_random_vec(double* res, uint64_t res_size, double mu, double sigma);
  * @retval 0 otherwise.
  *
  */
-int add_normal_random_vec(double* res, size_t vec_size, const double* vec, double mu, double sigma);
+int add_normal_random_vec(const PvdaBackend* module, double* res, size_t vec_size, const double* vec, double mu,
+                          double sigma);
 
 #endif  // RNG_H

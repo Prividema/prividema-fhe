@@ -44,7 +44,7 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	uniform_glwe_secret_key(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	compute_ksk(module, glwe_ksk, new_sk_prep, sk_prep);
@@ -53,14 +53,13 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	normalize_glwe(module, glwe_norm, glwe_res);
 
 	glwe_secret_decrypt(module, m_auto, new_sk_prep, glwe_norm);
-	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 	uint64_t nn = params_glwe->nn;
 
 	int64_t decomp_noise_bits = info_bits_half_prod(params_glwe, params_glwegadget);
 
-	for (int p = 0; p < params_glwe->nn; ++p)
-		assert_tnx_close_enough(m_observed_tnx[p], m_univ_tnx[p], decomp_noise_bits);
+	assert_tnx_close_enough_vec(m_observed_tnx, m_univ_tnx, nn, decomp_noise_bits);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -100,7 +99,7 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 	uniform_glwe_secret_key(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	compute_ksk(module, glwe_ksk, new_sk_prep, sk_prep);
@@ -109,15 +108,14 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 	normalize_glwe(module, glwe_norm, glwe_res);
 
 	glwe_secret_decrypt(module, m_auto, new_sk_prep, glwe_norm);
-	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 	uint64_t nn = params_glwe->nn;
 
 	//Not the real bound (it should be looser), but it is enough for now
 	int64_t decomp_noise_bits = info_bits_half_prod(params_glwe, params_glwegadget);
 
-	for (int p = 0; p < params_glwe->nn; ++p)
-		assert_tnx_close_enough(m_observed_tnx[p], m_univ_tnx[p], decomp_noise_bits);
+	assert_tnx_close_enough_vec(m_observed_tnx, m_univ_tnx, nn, decomp_noise_bits);
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);

@@ -1,13 +1,13 @@
-#ifndef TFHE_H
-#define TFHE_H
+#ifndef HEBITS_H
+#define HEBITS_H
 
 #include "ggsw_ciphertext.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 
 /**
- * @file tfhe.h
- * @brief TFHE-related operations
+ * @file hebits.h
+ * @brief HEBits-related operations
  *
  */
 
@@ -27,8 +27,8 @@
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int tfhe_cmux_unprepared(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
-                         const GGSWCiphertext* sel, int normalize_sub);
+int hebits_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0,
+                           const GLWECiphertext* c1, const GGSWCiphertext* sel, int normalize_sub);
 
 /**
  * @brief Performs a CMux (secret inputs and selector multiplex) operation
@@ -46,8 +46,8 @@ int tfhe_cmux_unprepared(const MODULE* module, GLWECiphertext* res, const GLWECi
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int tfhe_cmux(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
-              const GGSWCiphertextPrep* sel, int normalize_sub);
+int hebits_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* c0, const GLWECiphertext* c1,
+                const GGSWCiphertextPrep* sel, int normalize_sub);
 
 /**
  * @brief Select one GLWE ciphertext out of many using an encrypted selection signal, using a Mux tree
@@ -73,9 +73,7 @@ int tfhe_cmux(const MODULE* module, GLWECiphertext* res, const GLWECiphertext* c
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int tfhe_cmux_tree(const MODULE* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
-                   const GGSWCiphertextPrep** selectors, int sel_size, int delete_src);
-
-void tfhe_blindrotate(MODULE* module, GLWECiphertext* res, const GLWECiphertext*);
+int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
+                     const GGSWCiphertextPrep** selectors, int sel_size, int delete_src);
 
 #endif

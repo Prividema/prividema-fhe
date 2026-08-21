@@ -14,7 +14,7 @@ extern "C" {
 
 void bench_encrypt_rnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -26,7 +26,7 @@ void bench_encrypt_rnx(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	rnx_random_vec(m, params_glwe);
+	rnx_random_vec(module, m, params_glwe);
 
 	for (auto _ : state)
 	{
@@ -36,7 +36,7 @@ void bench_encrypt_rnx(benchmark::State& state)
 
 	delete_univ_rnx(m);
 	delete_glwe(glwe_computed);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -46,7 +46,7 @@ BENCHMARK(bench_encrypt_rnx);
 
 void bench_encrypt_tnx(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
@@ -58,7 +58,7 @@ void bench_encrypt_tnx(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m, NBASE, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m, NBASE, 64);
 
 	for (auto _ : state)
 	{
@@ -68,7 +68,7 @@ void bench_encrypt_tnx(benchmark::State& state)
 
 	delete_univ_tnx(m);
 	delete_glwe(glwe_computed);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
@@ -78,7 +78,7 @@ BENCHMARK(bench_encrypt_tnx);
 
 void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 {
-	MODULE* module          = pvda_new_module_info(NBASE);
+	PvdaBackend* module     = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_NORMAL);
 
 	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
@@ -89,7 +89,7 @@ void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m, NBASE, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m, NBASE, 64);
 
 	for (auto _ : state)
 	{
@@ -99,7 +99,7 @@ void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 
 	delete_univ_tnx(m);
 	delete_glwe(glwe_computed);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);

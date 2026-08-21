@@ -14,7 +14,6 @@
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 {
@@ -52,8 +51,8 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	//Generate the public vector m and the data that will be in the gadget u
-	uniform_pow2_random_pol_znx(u_univ, params_glwe->nn, 3);
-	uniform_pow2_random_pol_znx(m_univ_tnx, params_glwe->nn, 62);
+	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, 3);
+	uniform_pow2_random_pol_znx(module, m_univ_tnx, params_glwe->nn, 62);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	//Compute the (negacyclic) polynomial product of u*m
@@ -79,7 +78,7 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 
 	// Decrypt the result into um_observed, which should be u*m
 	glwe_secret_decrypt(module, um_observed, sk_prep, glwe);
-	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed);
+	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed, 0);
 
 	//Assert that the observed and expected values for u*m are close enough
 	pvda_assert_polynomial_distance(params_glwe, um_observed_rnx, um_expected_rnx, err_length, critical_err_length);
@@ -138,8 +137,8 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	//Generate the public vector m and the data that will be in the gadget u
-	uniform_pow2_random_pol_znx(u_univ, params_glwe->nn, 3);
-	uniform_pow2_random_pol_znx(m_univ_tnx, params_glwe->nn, 62);
+	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, 3);
+	uniform_pow2_random_pol_znx(module, m_univ_tnx, params_glwe->nn, 62);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	//Compute the (negacyclic) polynomial product of u*m
@@ -169,7 +168,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 
 	// Decrypt the result into um_observed, which should be u*m
 	glwe_secret_decrypt(module, um_observed, sk_prep, glwe);
-	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed);
+	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed, 0);
 
 	//Assert that the observed and expected values for u*m are close enough
 	pvda_assert_polynomial_distance(params_glwe, um_observed_rnx, um_expected_rnx, err_length, critical_err_length);
@@ -230,8 +229,8 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	//Generate the public vector m and the data that will be in the gadget u
-	uniform_pow2_random_pol_znx(u_univ, params_glwe->nn, 3);
-	uniform_pow2_random_pol_znx(m_univ_tnx, params_glwe->nn, 62);
+	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, 3);
+	uniform_pow2_random_pol_znx(module, m_univ_tnx, params_glwe->nn, 62);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	//Compute the (negacyclic) polynomial product of u*m
@@ -261,7 +260,7 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 
 	// Decrypt the result into um_observed, which should be u*m
 	glwe_secret_decrypt(module, um_observed, sk_prep, glwe);
-	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed);
+	biv_to_univ_rnx(params_glwe, um_observed_rnx, um_observed, 0);
 
 	//Assert that the observed and expected values for u*m are close enough
 	pvda_assert_polynomial_distance(params_glwe, um_observed_rnx, um_expected_rnx, err_length, critical_err_length);

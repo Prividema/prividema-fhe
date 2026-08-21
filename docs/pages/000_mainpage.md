@@ -11,15 +11,15 @@ When complete, it will contain:
 - A core implementing bivariate (base-2K) polynomial arithmetic and
   implementations of GLWE, GLWEGadget and GGSW using said arithmetic
 - A scheme layer implementing:
-  - BFV/BGV
-  - TFHE
-  - CKKS
+  - HEInteger (HEInt)
+  - HEBits  
+  - HEFixedPoint (HEFP)
   - Scheme-switching between the above (CHIMERA)
   - Encoding and decoding functions from raw data to/from the polynomial representations that the schemes use
 
 ## Library Structure
 
-The prividema-lib library is designed as a modular and layered framework to support a wide range of privacy-preserving applications. Some applications may require direct access to low-level mathematical primitives such as bivariate polynomial operations, GLWE, or GGSW, while others may benefit from higher-level implementations of complete FHE schemes such as TFHE, BFV, or CKKS. This layered design allows developers to use only the components required for their specific use case, reducing complexity and improving flexibility.
+The prividema-lib library is designed as a modular and layered framework to support a wide range of privacy-preserving applications. Some applications may require direct access to low-level mathematical primitives such as bivariate polynomial operations, GLWE, or GGSW, while others may benefit from higher-level implementations of complete FHE scheme abstractions  over fixed point values, integer values or circuit/LUT-based operations. This layered design allows developers to use only the components required for their specific use case, reducing complexity and improving flexibility.
 
 The library is organized into the following main layers:
 
@@ -32,7 +32,7 @@ such as logging, error handling, and general helper functions.
 - Core: This layer implements the fundamental mathematical structures and low-level cryptographic primitives:
   - GLWE: functions and data structures for GLWE ciphertexts and operations
   - GGSW / GLWEGadget: functions and implementations related to GGSW ciphertexts and GLWEGadget constructions
-- Schemes: This layer contains the implementation of complete FHE schemes built on top of the core primitives, including BFV, CKKS, TFHE, and scheme-switching mechanisms such as Chimera.
+- Schemes: This layer contains the implementation of complete FHE schemes built on top of the core primitives, including HEFixedPoint, HEIntegers, HEBits, and scheme-switching mechanisms such as Chimera.
 - Applications: This layer implements the different privacy-preserving circuits required by the project such as Private Information Retrieval (PIR) and biometric authentication.
 
 The library is implemented in C to enable low-level optimizations (using AVX). The widespread availability of C toolchains and the possibility of calling C functions through foreign function interfaces (FFI) from most programming languages make the library suitable for integration into diverse software environments. In addition, the independent structure of the layers allows developers to choose the appropriate level of abstraction for their applications while maintaining high performance and interoperability.

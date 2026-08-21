@@ -6,6 +6,7 @@
 #include <string.h>
 #include <sys/types.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
@@ -16,13 +17,11 @@
 #include "glwegadget_arithmetic.h"
 #include "maths_structures.h"
 #include "rng.h"
-#include "spqlios_alias.h"
-#include "univariate_polynomial.h"
 #include "utils.h"
 
 // bivGGSW PART (begin)
 
-int normalize_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw)
+int normalize_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw)
 {
 	int status                    = -1;
 	const GGSWParams* params_ggsw = result->params;
@@ -50,7 +49,8 @@ cleanup:
 	return status;
 }
 
-void add_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs, const GGSWCiphertext* ggsw_rhs)
+void add_ggsw(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs,
+              const GGSWCiphertext* ggsw_rhs)
 {
 	uint64_t nn           = res->params->params_glwe->nn;
 	PolyBiv res_flattened = ggsw_flattened_biv(res);
@@ -59,7 +59,8 @@ void add_ggsw(const MODULE* module, GGSWCiphertext* res, const GGSWCiphertext* g
 	pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
-int const_mult_ggsw(const MODULE* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw, const PolyUnivDFT* u_dft)
+int const_mult_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw,
+                    const PolyUnivDFT* u_dft)
 
 {
 	int status = -1;
@@ -92,7 +93,7 @@ cleanup:
 	return status;
 }
 
-int ggsw_unprepared_external_product(const MODULE* module,
+int ggsw_unprepared_external_product(const PvdaBackend* module,
                                      GLWECiphertext* result,      // result
                                      const GLWECiphertext* glwe,  // bivGLWE ciphertext
                                      const GGSWCiphertext* ggsw   // bivGGSW ciphertext
@@ -133,7 +134,7 @@ cleanup:
 
 	return status;
 }
-int ggsw_external_product_to_dft(const MODULE* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
+int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
                                  const GGSWCiphertextPrep* ggsw_prepared)
 {
 	int status = -1;
@@ -153,7 +154,7 @@ cleanup:
 
 	return status;
 }
-int ggsw_external_product(const MODULE* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe,
                           const GGSWCiphertextPrep* ggsw_prepared)
 {
 	int status = -1;
@@ -171,7 +172,7 @@ cleanup:
 	return status;
 }
 
-int packed_glwegadget_trace_expand_ggsw(const MODULE* module, GGSWCiphertext** results, int res_size, int l_tilde,
+int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
                                         const GLWEAutomorphismKeyCollection* auto_key_collection,
                                         const GGSWCiphertextPrep** sk_encryptions)
@@ -233,7 +234,7 @@ cleanup:
 	return status;
 }
 
-int packed_glwegadget_trace_expand_ggsw_prepared(const MODULE* module, GGSWCiphertextPrep** results,
+int packed_glwegadget_trace_expand_ggsw_prepared(const PvdaBackend* module, GGSWCiphertextPrep** results,
                                                  const GGSWParams* params_ggsw, int res_size, int l_tilde,
                                                  const GLWECiphertext* packed_glwegadget,
                                                  const GLWEAutomorphismKeyCollection* auto_key_collection,

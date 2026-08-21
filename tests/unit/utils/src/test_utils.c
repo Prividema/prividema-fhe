@@ -8,6 +8,7 @@
 
 #include "glwe_params.h"
 #include "math.h"
+#include "math_utils.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -57,6 +58,10 @@ void assert_tnx_close_enough(uint64_t a, uint64_t b, uint64_t bits)
 		cr_assert(lt(u64, diff, max_diff));
 	}
 }
+void assert_tnx_close_enough_vec(uint64_t* a, uint64_t* b, uint64_t n, uint64_t bits)
+{
+	for (uint64_t i = 0; i < n; ++i) assert_tnx_close_enough(a[i], b[i], bits);
+}
 
 struct criterion_test_params default_params_fn()
 {
@@ -96,7 +101,7 @@ struct criterion_test_params default_params_fn()
 	return cr_make_param_array(PvdaTstParams, default_params, sizeof(default_params) / sizeof(default_params[0]));
 }
 
-int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe)
+int rnx_random_vec(const PvdaBackend* module, PolyUnivRnX* res, GLWEParams* params_glwe)
 {
 	int status = -1;
 
@@ -104,7 +109,7 @@ int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe)
 
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
 	// the memory representation is the same for isomprphic values
-	uniform_pow2_random_pol_znx((PolyUniv*)tmp_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)tmp_tnx, params_glwe->nn, 64);
 
 	univ_tnx_to_rnx(params_glwe, res, tmp_tnx);
 

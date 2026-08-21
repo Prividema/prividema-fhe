@@ -8,8 +8,12 @@
 #include <sys/select.h>
 #include <sys/types.h>
 
+#include "backend.h"
+#include "backend_arithmetic.h"
+#include "backend_rng.h"
 #include "glwe_params.h"
 #include "logger.h"
+#include "math_utils.h"
 #include "maths_structures.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -67,14 +71,14 @@ cleanup:
 	return NULL;
 }
 
-int normal_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result)
+int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result)
 {
 	int status = -1;
 
 	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
 	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 
-	CHECK_CALL(normal_random_vec(rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
+	CHECK_CALL(normal_random_vec(module, rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
 	           "random normal vec generation failed");
 
 	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
@@ -88,13 +92,14 @@ cleanup:
 	return status;
 }
 
-int uniform_random_biv_poly(const GLWEParams* params_glwe, PolyBiv* result, int64_t precision)
+int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result,
+                            int64_t precision)
 {
 	int status = -1;
 
 	for (uint64_t i = 0; i < precision; i++)
 		for (uint64_t p = 0; p < result->nn; p++)
-			CHECK_CALL(rand_uniform_pow2(result->ptr + i * result->stride + p, params_glwe->kappa),
+			CHECK_CALL(pvda_rand_uniform_pow2(module, result->ptr + i * result->stride + p, params_glwe->kappa),
 			           "rand_uniform failed in uniform_random_biv_poly.");
 
 	status = 0;
@@ -104,12 +109,13 @@ cleanup:
 	return status;
 }
 
-void add_biv_poly(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
+void add_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
+                  const PolyBiv* b)
 {
 	pvda_vec_znx_add(module, res, a, b);
 }
 
-int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	int status = -1;
 
@@ -120,7 +126,7 @@ int add_biv_fast_uni_noise(const MODULE* module, const GLWEParams* params_glwe, 
 	CHECK_ALLOC(err, "Failed alloc in fast uniform noise generation");
 
 	if (params_glwe->fast_uniform_nb_bits)
-		CHECK_CALL(uniform_pow2_random_pol_znx(err, nn, params_glwe->fast_uniform_nb_bits),
+		CHECK_CALL(uniform_pow2_random_pol_znx(module, err, nn, params_glwe->fast_uniform_nb_bits),
 		           "Uniform noise generation failed");
 	else
 	{
@@ -150,7 +156,7 @@ cleanup:
 	return status;
 }
 
-int add_biv_noise(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+int add_biv_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	switch (params_glwe->noise_type)
 	{
@@ -195,7 +201,7 @@ cleanup:
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
 
-void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol_biv)
+void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol_biv, int64_t bit_offset)
 {
 	uint64_t nn      = params_glwe->nn;
 	uint64_t kappa   = params_glwe->kappa;
@@ -205,12 +211,15 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	double pkappa = exp2(-(double)kappa);
 	memset(res_univ, 0, poly_univ_rnx_bytes(params_glwe));
-	for (uint64_t i = start_l; i >= 1; --i)
-		for (uint64_t p = 0; p < nn; p++)
+	for (uint64_t p = 0; p < nn; p++)
+		for (uint64_t i = start_l; i >= 1; --i)
 		{
 			res_univ[p] += (double)pol_biv->ptr[(i - 1) * pol_biv->stride + p];
 			res_univ[p] *= pkappa;
 		}
+
+	if (bit_offset != 0)
+		for (uint64_t p = 0; p < nn; p++) res_univ[p] = ldexp(res_univ[p], bit_offset);
 }
 
 int univ_rnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ,
@@ -253,14 +262,14 @@ cleanup:
 	return status;
 }
 
-int biv_coefs_to_dft(const MODULE* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
+int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
 {
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
 	pvda_vec_znx_dft(module, res_dft, l, a);
 	return 0;
 }
-int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
+int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
 {
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
@@ -268,13 +277,13 @@ int biv_coefs_to_prep(const MODULE* module, const GLWEParams* params_glwe, PolyB
 	return 0;
 }
 
-int biv_dft_to_coefs(const MODULE* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
+int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
 	uint64_t l = glwe_params_l_a(params_glwe);
 	return pvda_vec_znx_idft(module, res, a_dft, l);
 }
 
-int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol)
+int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol, int64_t bit_offset)
 {
 	uint64_t nn    = params_glwe->nn;
 	uint64_t kappa = params_glwe->kappa;
@@ -287,9 +296,13 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 	{
 		for (uint64_t p = 0; p < nn; p++)
 		{
-			int shft_amt     = 64 - (int)kappa - (int)(i * kappa);
-			uint64_t add_amt = shft_amt > 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
-			                                : (pol->ptr[i * pol->stride + p] >> -shft_amt);
+			int64_t shft_amt = 64 + bit_offset - (int)kappa - (int)(i * kappa);
+			if (shft_amt >= 64 || shft_amt <= -64) continue;
+
+			// Deal correctly with negative shift amounts, since
+			// left shift by negative number is undefined behaviour in C
+			uint64_t add_amt = shft_amt >= 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
+			                                 : ((pol->ptr[i * pol->stride + p]) >> -shft_amt);
 			res_tnx[p] += add_amt;
 		}
 	}
@@ -477,7 +490,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
 		// Add implicit bit. In the case of denormal numbers, this makes the computation wrong by
 		// the minimum non-denormal distance, which is a somewhat graceful failing
 		s_val |= (1UL << 52);
-		biv_decomp_internal(s_val, 52 - exp + bit_offset, res->ptr + p, res->stride, params_glwe);
+		biv_decomp_internal(s_val, 52ll - exp + bit_offset, res->ptr + p, res->stride, params_glwe);
 	}
 	return 0;
 }

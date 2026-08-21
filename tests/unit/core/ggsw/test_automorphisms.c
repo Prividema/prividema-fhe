@@ -4,6 +4,7 @@
 #include <float.h>
 #include <stdint.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
@@ -60,7 +61,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	int auto_ps[] = {1, 3, 5, 7, 9, 13, 21, 29, 45, 91, -1, -3};
@@ -74,7 +75,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 		normalize_glwe(module, glwe_norm, glwe_res);
 
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
-		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 		uint64_t nn = params_glwe->nn;
 		pvda_znx_automorphism(module, auto_p, m_expected_tnx, m_univ_tnx);
@@ -120,7 +121,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 	uniform_glwe_secret_key(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx((PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	int auto_ps[] = {1, 3, 5, 7, 9, 13, 21, 29, 45, 91, -1, -3};
@@ -134,7 +135,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 		normalize_glwe(module, glwe_norm, glwe_res);
 
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
-		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto);
+		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
 
 		uint64_t nn = params_glwe->nn;
 		pvda_znx_automorphism(module, auto_p, m_expected_tnx, m_univ_tnx);
@@ -143,8 +144,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 		// is more conservative than usually needed
 		int64_t decomp_noise_bits = info_bits_half_prod(params_glwe, params_glwegadget);
 
-		for (int p = 0; p < params_glwe->nn; ++p)
-			assert_tnx_close_enough(m_observed_tnx[p], m_expected_tnx[p], decomp_noise_bits);
+		assert_tnx_close_enough_vec(m_observed_tnx, m_expected_tnx, nn, decomp_noise_bits);
 	}
 
 	delete_glwe_secret_key(sk);

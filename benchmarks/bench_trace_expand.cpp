@@ -7,6 +7,7 @@
 #include "utils.hpp"
 
 extern "C" {
+#include "backend.h"
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
 #include "ggsw_ciphertext.h"
@@ -27,7 +28,7 @@ extern "C" {
 
 void test_expand_trace(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -54,7 +55,7 @@ void test_expand_trace(benchmark::State& state)
 
 	memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
-	rnx_random_vec(m_univ_rnx, params_glwe);
+	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
 	glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
 
@@ -85,7 +86,7 @@ void test_expand_trace(benchmark::State& state)
 	delete_univ_rnx(m_univ_rnx);
 	delete_glwe(glwe_ct);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 }
@@ -94,7 +95,7 @@ BENCHMARK(test_expand_trace);
 
 void test_hom_trace(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -121,7 +122,7 @@ void test_hom_trace(benchmark::State& state)
 
 	memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
-	rnx_random_vec(m_univ_rnx, params_glwe);
+	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
 	glwe_secret_encrypt_rnx(module, glwe_ct, sk_prep, m_univ_rnx);
 
@@ -145,7 +146,7 @@ void test_hom_trace(benchmark::State& state)
 	delete_univ_rnx(m_univ_rnx);
 	delete_glwe(glwe_ct);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 }
@@ -154,7 +155,7 @@ BENCHMARK(test_hom_trace);
 
 void test_expand_compressed_trace(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -202,7 +203,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	int bund = D;
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
-	uniform_pow2_random_pol_znx(m_univ, bund, 1);
+	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -229,16 +230,17 @@ void test_expand_compressed_trace(benchmark::State& state)
 
 	delete_biv(biv_tmp);
 	delete_glwe(glwe_ct);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);
+	delete_univ(m_univ);
 }
 BENCHMARK(test_expand_compressed_trace);
 
 void test_expand_compressed_trace_gad(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -285,7 +287,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
-	uniform_pow2_random_pol_znx(m_univ, bund, 1);
+	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -312,9 +314,10 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 
 	delete_biv(biv_tmp);
 	delete_glwe(glwe_ct);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);
+	delete_univ(m_univ);
 }
 BENCHMARK(test_expand_compressed_trace_gad);

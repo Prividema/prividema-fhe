@@ -1,7 +1,7 @@
 #ifndef PARTIAL_GGSW_H
 #define PARTIAL_GGSW_H
 
-#include "bivariate_polynomial.h"
+#include "backend.h"
 #include "glwe_ciphertext.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
@@ -25,7 +25,7 @@
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
+int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a);
 
 /**
@@ -40,7 +40,7 @@ int glwegadget_half_prod(const MODULE* module, GLWECiphertext* result,
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft);
 
 /**
@@ -55,7 +55,7 @@ int glwegadget_half_prod_dft_to_dft(const MODULE* module, GLWECiphertextDFT* res
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT* result_dft,
+int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep);
 /**
  * @brief Computes an automorphism key for an automorphism of degree automorphism_p from
@@ -70,7 +70,7 @@ int glwegadget_half_prod_prepared_to_dft(const MODULE* module, GLWECiphertextDFT
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKey* automorphism_key,
+int compute_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKey* automorphism_key,
                              const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
 /**
  * @brief Computes a KSK (Key-Switching Key) for GLWE keyswitching from old_key to new_key
@@ -83,7 +83,7 @@ int compute_automorphism_key(const MODULE* module, GLWEAutomorphismKey* automorp
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int compute_ksk(const MODULE* module, GLWEKSK* ksk, const GLWESecretKeyPrepared* new_key,
+int compute_ksk(const PvdaBackend* module, GLWEKSK* ksk, const GLWESecretKeyPrepared* new_key,
                 const GLWESecretKeyPrepared* old_key);
 /**
  * @brief Performs the automorphism of a GLWE ciphertext, i.e. sets its polynomials a(X, Y) to a(X^p, Y)
@@ -97,7 +97,7 @@ int compute_ksk(const MODULE* module, GLWEKSK* ksk, const GLWESecretKeyPrepared*
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const GLWEAutomorphismKey* auto_key,
+int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, const GLWEAutomorphismKey* auto_key,
                             const GLWECiphertext* glwe);
 /**
  * @brief Performs a key-switch on a GLWE using an already prepared KSK
@@ -110,7 +110,7 @@ int glwegadget_automorphism(const MODULE* module, GLWECiphertext* result, const 
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const GLWEKSK* glwe_ksk,
+int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, const GLWEKSK* glwe_ksk,
                            const GLWECiphertext* glwe_ct);
 
 /**
@@ -132,7 +132,7 @@ int glwe_to_glwe_keyswitch(const MODULE* module, GLWECiphertext* result, const G
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
+int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int res_size, const GLWECiphertext* glwe_ct,
                       const GLWEAutomorphismKeyCollection* auto_key_collection);
 
 /**
@@ -153,7 +153,7 @@ int glwe_trace_expand(const MODULE* module, GLWECiphertext** results, int res_si
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_hom_trace(const MODULE* module, GLWECiphertext* result, int enc_size, uint64_t pos,
+int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* result, int enc_size, uint64_t pos,
                    const GLWECiphertext* glwe_ct, const GLWEAutomorphismKeyCollection* auto_key_collection);
 
 /**
@@ -173,7 +173,7 @@ int glwe_hom_trace(const MODULE* module, GLWECiphertext* result, int enc_size, u
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
+int packed_glwegadget_trace_expand(const PvdaBackend* module, GLWEGadgetCiphertext** results, int res_size, int l_tilde,
                                    const GLWECiphertext* packed_glwegadget,
                                    const GLWEAutomorphismKeyCollection* auto_key_collection);
 /**
@@ -204,7 +204,7 @@ int packed_glwegadget_trace_expand(const MODULE* module, GLWEGadgetCiphertext** 
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiphertextPrep** results, int res_size,
+int packed_glwegadget_trace_expand_prepared(const PvdaBackend* module, GLWEGadgetCiphertextPrep** results, int res_size,
                                             int l_tilde, const GLWECiphertext* packed_glwegadget,
                                             const GLWEAutomorphismKeyCollection* auto_key_collection);
 
@@ -229,7 +229,7 @@ int packed_glwegadget_trace_expand_prepared(const MODULE* module, GLWEGadgetCiph
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int packed_glwegadget_trace_expand_prepared_single(const MODULE* module, GLWEGadgetCiphertextPrep* results,
+int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GLWEGadgetCiphertextPrep* results,
                                                    const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
                                                    const GLWECiphertext* packed_glwegadget,
                                                    const GLWEAutomorphismKeyCollection* auto_key_collection);

@@ -4,10 +4,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "backend.h"
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
-#include "rng.h"
 
-int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv* a)
+int univ_coefs_to_dft(const PvdaBackend* module, PolyUnivDFT* res_dft, const PolyUniv* a)
 {
 	uint64_t nn   = pvda_module_extract_nn(module);
 	PolyBiv a_biv = new_biv_view(nn, 1, nn, a);
@@ -15,7 +16,7 @@ int univ_coefs_to_dft(const MODULE* module, PolyUnivDFT* res_dft, const PolyUniv
 	return 0;
 }
 
-int univ_dft_to_coefs(const MODULE* module, PolyUniv* res, const PolyUnivDFT* a_dft)
+int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const PolyUnivDFT* a_dft)
 {
 	uint64_t nn     = pvda_module_extract_nn(module);
 	PolyBiv res_biv = new_biv_view(nn, 1, nn, res);
@@ -40,9 +41,9 @@ PolyUnivRnX* new_univ_rnx(const GLWEParams* params_glwe) { return malloc(poly_un
 
 void delete_univ_rnx(PolyUnivRnX* pol) { free(pol); }
 
-PolyUnivDFT* new_univ_dft(const MODULE* module) { return pvda_new_vec_znx_dft(module, 1); }
+PolyUnivDFT* new_univ_dft(const PvdaBackend* module) { return pvda_new_vec_znx_dft(module, 1); }
 
-void delete_univ_dft(PolyUnivDFT* pol) { pvda_delete_vec_znx_dft(pol); }
+void delete_univ_dft(const PvdaBackend* module, PolyUnivDFT* pol) { pvda_delete_vec_znx_dft(module, pol); /*TODO fix*/ }
 
 PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe) { return malloc(poly_univ_tnx_bytes(params_glwe)); }
 

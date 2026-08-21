@@ -17,7 +17,7 @@ extern "C" {
 
 void bench_glwegad_encrypt(benchmark::State& state)
 {
-	MODULE* module = pvda_new_module_info(NBASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
@@ -32,7 +32,7 @@ void bench_glwegad_encrypt(benchmark::State& state)
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx(m, NBASE, MSGBITS);
+	uniform_pow2_random_pol_znx(module, m, NBASE, MSGBITS);
 
 	for (auto _ : state)
 	{
@@ -41,7 +41,7 @@ void bench_glwegad_encrypt(benchmark::State& state)
 	}
 
 	delete_univ(m);
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegad);
 	delete_glwe_secret_key(sk);

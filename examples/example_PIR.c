@@ -6,6 +6,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "backend.h"
 #include "bivariate_polynomial.h"
 #include "ggsw_arithmetic.h"
 #include "ggsw_ciphertext.h"
@@ -20,8 +21,7 @@
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
 #include "maths_structures.h"
-#include "schemes/tfhe.h"
-#include "spqlios_alias.h"
+#include "schemes/hebits.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
@@ -150,7 +150,7 @@ PolyBivDFT* onionpir_get_prepared_column(int64_t column)
 // Column 0 is stored in columns_dft[1], and so on until columns_dft[IN_MEMORY_DFT_COLS]
 // columns_dft[0] is used to store a 0-valued column placeholder used for columns that are
 // greater than IN_MEMORY_DFT_COLS
-int prepare_column(const MODULE* module, int64_t column, const GLWEParams* db_params,
+int prepare_column(const PvdaBackend* module, int64_t column, const GLWEParams* db_params,
                    const GLWEGadgetParams* query1_params)
 {
 	int status = -1;
@@ -209,7 +209,7 @@ cleanup:
 // Performs the server tasks in OnionPIR: receive the packed GLWEGadgets,
 // unpack them (expand them), do the Half-product per each column, and finally
 // select a column with the CMux tree
-int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, const GLWEGadgetParams* query1_params,
+int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params, const GLWEGadgetParams* query1_params,
                     const GLWEParams* db_params, const GLWEParams* aggregation_params,
                     const GLWEAutomorphismKeyCollection* auto_key_collection, const GGSWCiphertextPrep** ggsw_ksks,
                     GLWECiphertext* res, const GLWECiphertext* row_query, const GLWECiphertext* col_query)
@@ -299,8 +299,8 @@ int onionpir_server(const MODULE* module, const GGSWParams* ggsw_ksk_params, con
 
 	// CMux selection tree (that is, arbitrary-size CMux)
 	// This function can deallocate its input, which we do for memory efficiency reasons
-	st = tfhe_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree_first_level, MATRIX_COLS,
-	                    (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
+	st = hebits_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree_first_level, MATRIX_COLS,
+	                      (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
 	CHECK_CALL_LABEL(st, "CMux tree failed in onionpir server", cleanup3);
 
 	status = 0;
@@ -322,7 +322,7 @@ cleanup1:
 }
 
 // Setup phase for the client in the protocol: secret and evaluation key generation
-int onionpir_client_phase0(MODULE* module, GLWESecretKeyPrepared** sk_prep_out, int sk_bits, GLWEParams* sk_params,
+int onionpir_client_phase0(PvdaBackend* module, GLWESecretKeyPrepared** sk_prep_out, int sk_bits, GLWEParams* sk_params,
                            GLWEAutomorphismKeyCollection** auto_key_collection_out,
                            const GLWEGadgetParams* auto_ksk_params, GGSWCiphertextPrep*** ggsw_ksks_out,
                            const GGSWParams* auto_ggsw_params)
@@ -371,7 +371,7 @@ cleanup:
 
 // Initial client phase: generate the row and column packed GLWEGadgets according to the
 // desired row and column to select
-int onionpir_client_phase1(const MODULE* module, GLWECiphertext** row_query, GLWECiphertext** col_query,
+int onionpir_client_phase1(const PvdaBackend* module, GLWECiphertext** row_query, GLWECiphertext** col_query,
                            const GLWESecretKeyPrepared* sk_prep, int row, int column,
                            const GLWEParams* params_row_query, const GLWEParams* params_col_query,
                            const GLWEGadgetParams* row_query_gad_params, const GLWEGadgetParams* col_query_gad_params)
@@ -442,10 +442,10 @@ int main(int argc, char* argv[])
 	//
 	// In other words: these values of sigma all correspond to the same security level
 	// We need different values since we change the torus precision (similar to modulo switching)
-	double sigma8  = ldexp(1.0, 2 - 8 * KAPPABASE);
-	double sigma5  = ldexp(1.0, 2 - 5 * KAPPABASE);
-	double sigma6  = ldexp(1.0, 2 - 6 * KAPPABASE);
-	MODULE* module = pvda_new_module_info(NBASE);
+	double sigma8       = ldexp(1.0, 2 - 8 * KAPPABASE);
+	double sigma5       = ldexp(1.0, 2 - 5 * KAPPABASE);
+	double sigma6       = ldexp(1.0, 2 - 6 * KAPPABASE);
+	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 
 	// Automorphims keys
 	double auto_key_sigma = sigma8;
@@ -625,7 +625,7 @@ int main(int argc, char* argv[])
 
 	delete_glwe_secret_key_prepared(sk_prep);
 
-	pvda_delete_module_info(module);
+	pvda_delete_backend(module);
 
 	delete_glwe_params(params_glwe_autokey);
 	delete_glwegadget_params(auto_key_params);

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
@@ -41,7 +42,7 @@ void delete_glwe(GLWECiphertext* glwe)
 	free(glwe);
 }
 
-int print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
+int print_coefs_glwe(const PvdaBackend* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
                      int shft)
 {
 	int status              = -1;
@@ -52,7 +53,7 @@ int print_coefs_glwe(const MODULE* module, const GLWECiphertext* glwe, const GLW
 	//normalize_glwe(module, glwe, glwe);
 	CHECK_CALL(glwe_secret_decrypt(module, result_biv, sk_prep, glwe),
 	           "GLWE decryption in print_coefs_glwe function failed");
-	CHECK_CALL(biv_to_univ_tnx(glwe->params, result_tnx, result_biv),
+	CHECK_CALL(biv_to_univ_tnx(glwe->params, result_tnx, result_biv, 0),
 	           "Bivariate to TnX conversion failed in print_coefs_glwe function");
 
 	for (int i = 0; i < n; ++i)
@@ -137,7 +138,7 @@ void delete_glwe_dft(GLWECiphertextDFT* glwe)
 	free(glwe);
 }
 
-int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, const PolyUnivDFT* u_dft,
+int const_mult_glwe_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft, const PolyUnivDFT* u_dft,
                         const GLWECiphertextDFT* glwe_dft)
 {
 	// Computes DFT(u * glwe)
@@ -147,7 +148,7 @@ int const_mult_glwe_dft(const MODULE* module, GLWECiphertextDFT* result_dft, con
 	return 0;
 }
 
-int glwe_coef_to_dft(const MODULE* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct)
+int glwe_coef_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct)
 {
 	int status = -1;
 
@@ -159,7 +160,7 @@ cleanup:
 	return status;
 }
 
-int glwe_dft_to_coef(const MODULE* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft)
+int glwe_dft_to_coef(const PvdaBackend* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft)
 {
 	int status             = -1;
 	PolyBiv glwe_flattened = glwe_flattened_biv(res_ct);
@@ -172,7 +173,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase)
 {
 	int status = -1;
@@ -198,7 +199,7 @@ int glwe_secret_encrypt_phase(const MODULE* module, GLWECiphertext* glwe, const 
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking");
 
 	// Draws uniformly in Zn[X,Y] the ajs'
-	CHECK_CALL(uniform_random_vec(k * nn, glwe->vec, l_a, (k + 1) * nn, kappa),
+	CHECK_CALL(uniform_pow2_random_vec(module, k * nn, glwe->vec, l_a, (k + 1) * nn, kappa),
 	           "A generation failed in glwe_secret_masking_dft");
 
 	// Computes Sum_j{0,k-1}[sk_j * a_j]
@@ -253,7 +254,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_rnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx)
 {
 	int status         = -1;
@@ -272,7 +273,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_encrypt_tnx(const MODULE* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx)
 {
 	int status = -1;
@@ -292,7 +293,7 @@ cleanup:
 	return status;
 }
 
-int glwe_secret_decrypt(const MODULE* module, PolyBiv* res, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* res, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe)
 {
 	const GLWEParams* params = glwe->params;

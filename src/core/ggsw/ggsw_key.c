@@ -5,12 +5,11 @@
 
 #include "glwe_key.h"
 #include "rng.h"
-#include "spqlios_alias.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-int generate_glwegad_to_ggsw_ksk(const MODULE* module, GGSWCiphertextPrep** ggsw_ksks, const GGSWParams* ggsw_params,
-                                 const GLWESecretKeyPrepared* sk_prep)
+int generate_glwegad_to_ggsw_ksk(const PvdaBackend* module, GGSWCiphertextPrep** ggsw_ksks,
+                                 const GGSWParams* ggsw_params, const GLWESecretKeyPrepared* sk_prep)
 {
 	int status  = -1;
 	uint64_t nn = ggsw_params->params_glwe->nn;

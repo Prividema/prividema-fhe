@@ -15,7 +15,6 @@
 #include "ggsw_params.h"
 #include "glwe_key.h"
 #include "maths_structures.h"
-#include "spqlios_alias.h"
 
 /**
  * @brief GGSW Ciphertext in the coefficient space.
@@ -94,7 +93,7 @@ PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ);
 
 /**
@@ -110,7 +109,8 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  * */
-int ggsw_public_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWEPublicKey* pk, const PolyUniv* m_univ);
+int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWEPublicKey* pk,
+                        const PolyUniv* m_univ);
 
 // =============================================
 // |                                           |
@@ -158,6 +158,6 @@ void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft);
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
+int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
 
 #endif  // bivGGSW_CIPHERTEXT_H

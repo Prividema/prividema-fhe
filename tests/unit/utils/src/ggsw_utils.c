@@ -2,17 +2,16 @@
 #include <criterion/internal/new_asserts.h>
 #include <string.h>
 
+#include "backend_arithmetic.h"
+#include "bivariate_polynomial.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
-#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "glwegadget_ciphertext.h"
-#include "spqlios_alias.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
+void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
                 const PolyUniv* expected, double max_err, double critical_err)
 {
 	const GGSWParams* params_ggsw        = ggsw->params;
@@ -40,7 +39,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 		GLWECiphertext glwe_ct = {params_glwe, ggsw_retrieve_bivglwe(ggsw, sk_idx, prec_lvl)};
 		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
 		cr_assert(code == 0);
-		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
+		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);
 
 		// Computes -m * sk_j / 2^{i*kappa_tilde}
 		if (sk_idx < params_ggsw->k_tilde)
@@ -64,7 +63,7 @@ void check_ggsw(const MODULE* module, const GGSWCiphertext* ggsw, const GLWESecr
 	delete_biv(phase_computed);
 	delete_univ_rnx(phase_observed_univ_rnx);
 	delete_univ_rnx(phase_expected_univ_rnx);
-	delete_univ_dft(m_skj_univ_dft);
-	delete_univ_dft(m_univ_dft);
+	delete_univ_dft(module, m_skj_univ_dft);
+	delete_univ_dft(module, m_univ_dft);
 	delete_univ(m_skj_univ);
 }

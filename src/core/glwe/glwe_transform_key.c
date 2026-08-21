@@ -2,12 +2,12 @@
 
 #include <string.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "glwe_key.h"
 #include "maths_structures.h"
-#include "univariate_polynomial.h"
 
-void glwe_sk_prepare(const MODULE* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk)
+void glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* result_dft, const GLWESecretKey* sk)
 {
 	uint64_t sk_size = sk->nn * sk->k * sizeof(PolyUniv);
 	memcpy(result_dft->values_coef, sk->values, sk_size);

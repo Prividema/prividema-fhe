@@ -6,6 +6,8 @@
 set(COMMON_SRCS
     logger.c
     maths_structures.c
+    math_utils.c
+    montgomery_arith.c
     utils.c
 )
 

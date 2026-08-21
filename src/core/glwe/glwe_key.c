@@ -4,9 +4,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "backend.h"
 #include "glwe_params.h"
 #include "rng.h"
-#include "spqlios_alias.h"
 #include "utils.h"
 
 GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe)
@@ -28,12 +28,12 @@ cleanup:
 	return NULL;
 }
 
-int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits)
+int uniform_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits)
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(uniform_pow2_random_pol_znx(sk->values, nn * sk->k, nb_bits),
+	CHECK_CALL(uniform_pow2_random_pol_znx(module, sk->values, nn * sk->k, nb_bits),
 	           "random vector generation failed in key generation");
 
 	return 0;
@@ -41,24 +41,25 @@ cleanup:
 	return -1;
 }
 
-int binary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk)
+int binary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk)
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(binary_random_pol_znx(sk->values, nn * sk->k), "random vector generation failed in key generation");
+	CHECK_CALL(binary_random_pol_znx(module, sk->values, nn * sk->k),
+	           "random vector generation failed in key generation");
 
 	return 0;
 cleanup:
 	return -1;
 }
 
-int ternary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk)
+int ternary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk)
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(uniform_random_pol_znx(sk->values, nn * sk->k, -1, 1),
+	CHECK_CALL(uniform_random_pol_znx(module, sk->values, nn * sk->k, -1, 1),
 	           "random vector generation failed in key generation");
 
 	return 0;

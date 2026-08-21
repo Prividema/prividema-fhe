@@ -4,17 +4,16 @@
 
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
-#include "ggsw_utils.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwe_transform_key.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_utils.h"
+#include "math_utils.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
-#include "utils.h"
 
 /**
  * @brief Tests ggsw_secret_encrpyt
@@ -37,7 +36,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	// Draws the message
 	uniform_glwe_secret_key(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(m_univ, params_glwe->nn, params_glwe->kappa);
+	uniform_pow2_random_pol_znx(module, m_univ, params_glwe->nn, params_glwe->kappa);
 
 	glwegadget_secret_encrypt(module, glwegadget, sk_prep, m_univ);
 
@@ -76,12 +75,12 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	uniform_glwe_secret_key(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 	memset(m_univ, 0, poly_univ_bytes(params_glwe));
-	uniform_pow2_random_pol_znx(m_univ, D, params_glwe->kappa);
+	uniform_pow2_random_pol_znx(module, m_univ, D, params_glwe->kappa);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, D);
 
 	glwe_secret_decrypt(module, phase_computed, sk_prep, glwe_ct);
-	biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
+	biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);
 
 	// Computes the expected result  m / 2^{kappa_tilde * i}
 	memset(phase_expected_univ_rnx, 0, poly_univ_rnx_bytes(params_glwe));

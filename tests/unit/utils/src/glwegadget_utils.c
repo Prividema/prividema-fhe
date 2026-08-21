@@ -5,12 +5,14 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
-void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad, const GLWESecretKeyPrepared* sk_prep,
-                      const PolyUniv* expected, double max_err, double critical_err)
+void check_glwegadget(const PvdaBackend* module, const GLWEGadgetCiphertext* glwegad,
+                      const GLWESecretKeyPrepared* sk_prep, const PolyUniv* expected, double max_err,
+                      double critical_err)
 {
 	const GLWEGadgetParams* params_glwegad = glwegad->params;
 	const GLWEParams* params_glwe          = params_glwegad->params_glwe;
@@ -27,7 +29,7 @@ void check_glwegadget(const MODULE* module, const GLWEGadgetCiphertext* glwegad,
 		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegad, prec_lvl)};
 		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
 		cr_assert(code == 0);
-		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed);
+		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);
 
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
 			phase_expected_univ_rnx[p] = ldexp((double)expected[p], -(params_glwegad->kappa_tilde * prec_lvl));

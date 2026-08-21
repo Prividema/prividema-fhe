@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#include "backend.h"
+#include "ggsw_params.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
 
@@ -47,6 +49,8 @@ void pvda_assert_polynomial_distance(const GLWEParams* params_glwe, PolyUnivRnX*
  */
 void assert_tnx_close_enough(uint64_t a, uint64_t b, uint64_t bits);
 
+void assert_tnx_close_enough_vec(uint64_t* a, uint64_t* b, uint64_t n, uint64_t bits);
+
 typedef struct pvda_tst_params_t
 {
 	uint64_t nn;
@@ -74,9 +78,9 @@ typedef struct pvda_tst_params_t
  */
 double generate_sigma(PvdaTstParams* p);
 
-#define INIT_PVDA_PARAMS_BASE(PRS) MODULE* module = pvda_new_module_info((PRS)->nn);
+#define INIT_PVDA_PARAMS_BASE(PRS) PvdaBackend* module = pvda_new_spqlios_backend((PRS)->nn);
 
-#define DELETE_PVDA_PARAMS_BASE    pvda_delete_module_info(module);
+#define DELETE_PVDA_PARAMS_BASE    pvda_delete_backend(module);
 
 #define INIT_PVDA_PARAMS_GLWE(PRS)                                                                                  \
 	INIT_PVDA_PARAMS_BASE((PRS))                                                                                    \
@@ -138,6 +142,7 @@ struct criterion_test_params default_params_fn();
  *
  * No cryptographic guarantees are given about the output randomness
  *
+ * @param module    A computation backend for RNG
  * @param res       The result.
  * @param res_size  The number of elements in the vector.
  *
@@ -145,5 +150,5 @@ struct criterion_test_params default_params_fn();
  * @retval 0 otherwise.
 
  */
-int rnx_random_vec(PolyUnivRnX* res, GLWEParams* params_glwe);
+int rnx_random_vec(const PvdaBackend* module, PolyUnivRnX* res, GLWEParams* params_glwe);
 #endif

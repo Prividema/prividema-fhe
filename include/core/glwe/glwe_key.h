@@ -1,8 +1,9 @@
 #ifndef bivGLWE_KEY_H
 #define bivGLWE_KEY_H
 
-#include "bivariate_polynomial.h"
+#include "backend.h"
 #include "glwe_params.h"
+#include "maths_structures.h"
 
 /**
  *
@@ -59,7 +60,7 @@ GLWESecretKey* alloc_glwe_secret_key(GLWEParams* params_glwe);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb_bits);
+int uniform_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits);
 
 /**
  * @brief Draws a binary secret key
@@ -70,7 +71,7 @@ int uniform_glwe_secret_key(const MODULE* module, GLWESecretKey* sk, uint64_t nb
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int binary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk);
+int binary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk);
 
 /**
  * @brief Draws a ternary secret key
@@ -81,7 +82,7 @@ int binary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ternary_glwe_secret_key(const MODULE* module, GLWESecretKey* sk);
+int ternary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk);
 
 /**
  * @brief Returns a pointer to the pos'th polynomial in the secret key

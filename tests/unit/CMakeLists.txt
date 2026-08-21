@@ -48,7 +48,6 @@ function(BuildUnitTests testfiles libname)
     # Link libraries
     target_link_libraries(${test_name} PRIVATE
             ${libname}
-            libspqlios
             PVDA_UTEST_UTILS
             PVDA_CORE
             # Criterion via pkg-config
@@ -74,6 +73,7 @@ endfunction()
 # Build all unit tests
 # ------------------------------------------------------------
 
+BuildUnitTests(TEST_BACKEND_FILES PVDA_BACKEND)
 BuildUnitTests(TEST_COMMON_FILES  PVDA_COMMON)
 BuildUnitTests(TEST_GGSW_FILES    PVDA_CORE)
 BuildUnitTests(TEST_GLWE_FILES    PVDA_CORE)

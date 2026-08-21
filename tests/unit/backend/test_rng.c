@@ -2,6 +2,8 @@
 #include <criterion/new/assert.h>
 #include <stdlib.h>
 
+#include "backend.h"
+#include "backend_rng.h"
 #include "core/glwe/glwe_params.h"
 #include "rng.h"
 #include "stat_utils.h"
@@ -22,7 +24,7 @@
  * a given number of boxes and then build a distribution
  * by generating random numbers.
  */
-int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
+int rand_uniform_aux(const PvdaBackend* module, uint64_t nb_bits, int nb_boxes)
 {
 	int64_t max, min;
 	if (nb_bits == 8 * sizeof(int64_t))
@@ -43,7 +45,7 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 	for (size_t i = 0; i < NB_SAMPLES; i++)
 	{
 		int64_t sample = 0;
-		if (rand_uniform(&sample, nb_bits) < 0) return -1;
+		if (pvda_rand_uniform_pow2(module, &sample, nb_bits) < 0) return -1;
 
 		// Epsilon 1e9 used to avoid floating point precision bad rounding
 		int box_n = (int)(((double)sample - (double)min + 1e-9) / step);
@@ -70,11 +72,12 @@ int rand_uniform_aux(uint64_t nb_bits, int nb_boxes)
 
 Test(rand_uniform_64, test_rand_uniform)
 {
-	int count = 0;
+	PvdaBackend* backend = pvda_new_spqlios_backend(4);
+	int count            = 0;
 	for (int i = 0; i < 100; i++)
 	{
 		int c;
-		if ((c = rand_uniform_aux(64, 100)) < 0) cr_fatal("Error occured during generation");
+		if ((c = rand_uniform_aux(backend, 64, 100)) < 0) cr_fatal("Error occured during generation");
 		count += c;
 	}
 
@@ -84,13 +87,16 @@ Test(rand_uniform_64, test_rand_uniform)
 	// So the number of failures should be in range 5 +- 4.
 	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
 	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
+
+	pvda_delete_backend(backend);
 }
 
 // Test rand_uniform on the interval [-32768,32767]
 Test(rand_uniform_16, test_rand_uniform)
 {
-	int count = 0;
-	for (int i = 0; i < 100; i++) count += rand_uniform_aux(16, 100);
+	PvdaBackend* backend = pvda_new_spqlios_backend(4);
+	int count            = 0;
+	for (int i = 0; i < 100; i++) count += rand_uniform_aux(backend, 16, 100);
 
 	// As Chi-squared has 5% chance of failing, we count the number of times it fails.
 	// On 100 iterations it fails 5 times in average.
@@ -98,32 +104,7 @@ Test(rand_uniform_16, test_rand_uniform)
 	// So the number of failures should be in range 5 +- 4.
 	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
 	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
-}
-
-// Test rand_normal with Jarque-Bera test
-Test(rand_normal, test_rand_normal)
-{
-	double data[NB_SAMPLES];
-	for (int i = 0; i < NB_SAMPLES; i++)
-		if (rand_normal(data + i, 0, 1) < 0) cr_fail("rand_normal failed");
-
-	double jjbb = jarque_bera(data, NB_SAMPLES);
-	cr_assert(lt(dbl, jjbb, chi_critical_05[1]), "Expect %f < %f\n", jjbb, chi_critical_05[1]);
-}
-
-PvdaParamTest(normal_random_vec, basic, default_params_fn)
-{
-	INIT_PVDA_PARAMS_GLWE(param);
-
-	VecUnivRnX* pol_univ = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
-	cr_assert(pol_univ != NULL);
-
-	//For now, random vec generation is unimplemented and thus the function should fail (-1)
-	cr_assert(normal_random_vec(pol_univ, params_glwe->nn * params_glwe->k, 0.0, 0.001) == -1);
-
-	free(pol_univ);
-
-	DELETE_PVDA_PARAMS_GLWE;
+	pvda_delete_backend(backend);
 }
 
 PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
@@ -137,8 +118,6 @@ PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 	cr_assert(res_dft != NULL);
 
 	cr_assert(uniform_random_vec_znx_dft(module, res_dft, params_glwe->k, 2) == 0);
-
-	pvda_vec_znx_dft(module, res_dft, params_glwe->k, res);
 
 	free(res_dft);
 	free(res);

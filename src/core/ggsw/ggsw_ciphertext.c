@@ -4,14 +4,13 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "ggsw_params.h"
-#include "glwe_arithmetic.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
 #include "rng.h"
-#include "spqlios_alias.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
@@ -62,7 +61,7 @@ PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
 	                           (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat);
 	return res;
 }
-int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ)
 {
 	int status = -1;
@@ -133,9 +132,9 @@ int ggsw_secret_encrypt(const MODULE* module, GGSWCiphertext* result, const GLWE
 
 cleanup:
 	delete_biv(glwe_biv_msg);
-	delete_univ_dft(m_skj_univ_dft);
+	delete_univ_dft(module, m_skj_univ_dft);
 	delete_univ(m_skj_univ);
-	delete_univ_dft(m_univ_dft);
+	delete_univ_dft(module, m_univ_dft);
 
 	return status;
 }
@@ -165,7 +164,7 @@ void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft)
 	free(ggsw_dft);
 }
 
-int ggsw_prepare(const MODULE* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
+int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
 {
 	int status = -1;
 

@@ -3,7 +3,6 @@
 
 #include <stdint.h>
 
-#include "bivariate_polynomial.h"
 #include "ggsw_params.h"
 #include "glwe_key.h"
 
@@ -74,8 +73,8 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
  * @param n How many coefficients to print
  *
  */
-int print_coefs_gad(const MODULE* module, const GLWEGadgetCiphertext* glwe_gad, const GLWESecretKeyPrepared* sk_prep,
-                    int n);
+int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwe_gad,
+                    const GLWESecretKeyPrepared* sk_prep, int n);
 
 /**
  * @brief A GLWEGadget ciphertext that has been preprocessed for use in a half-external product
@@ -116,8 +115,8 @@ void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct);
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
-                              const PolyUniv* m_univ);
+int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result,
+                              const GLWESecretKeyPrepared* sk_prep, const PolyUniv* m_univ);
 
 /**
  * @brief Encrypts a univariate integer polynomial into a GLWEGadget
@@ -131,7 +130,7 @@ int glwegadget_secret_encrypt(const MODULE* module, GLWEGadgetCiphertext* result
  * @param m_univ The univariate plaintext
  *
  */
-void glwegadget_public_encrypt(const MODULE* module, GLWEGadgetCiphertext* result, const GLWEPublicKey* pk,
+void glwegadget_public_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result, const GLWEPublicKey* pk,
                                const PolyUniv* m_univ);
 /**
  *
@@ -145,7 +144,7 @@ void glwegadget_public_encrypt(const MODULE* module, GLWEGadgetCiphertext* resul
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_packed_secret_encrypt(const MODULE* module, GLWECiphertext* result,
+int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* result,
                                      const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,
                                      const PolyUniv* m_univ, uint64_t d);
 
@@ -169,7 +168,7 @@ VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t
  * @retval 0 otherwise
  *
  */
-int glwegadget_prepare(const MODULE* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
+int glwegadget_prepare(const PvdaBackend* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
                        const GLWEGadgetCiphertext* glwegad_ct);
 
 #endif  // PARTIALGGSW_CIPHERTEXT_H
