@@ -6,26 +6,32 @@
 #include <string.h>
 #include <time.h>
 
-uint64_t LOG_FLAG = LOG_ERROR;
+uint8_t LOG_FLAG = LOG_ERROR | LOG_WARN | LOG_INFO | LOG_DEBUG;
 
 // LOG_FLAG Setter
-void set_log_flag(unsigned char flag) { LOG_FLAG = flag; }
+void set_log_flag(unsigned char flag) { if (flag < 16) LOG_FLAG = flag; }
 
 // Get string representation of log level
 const char* log_level_str(LogLevel level)
 {
-	switch (level)
+	switch (level & 0xff)
 	{
 		case LOG_DEBUG:
 			return "DEBUG";
 		case LOG_INFO:
-			return "INFO";
+			return "INFO ";
 		case LOG_WARN:
-			return "WARN";
+			return "WARN ";
 		case LOG_ERROR:
 			return "ERROR";
-		default:
-			return "UNKNOWN";
+		case LOG_USR1:
+			return "USR1";
+		case LOG_USR2:
+			return "USR2";
+		case LOG_USR3:
+			return "USR3";
+		case LOG_USR4:
+			return "USR4";
 	}
 }
 
@@ -54,8 +60,7 @@ int log_message(LogLevel level, const char* fmt, ...)
 
 	printf("\n");  // newline at the end
 
-	if (level == LOG_ERROR) return -1;
-	return 0;
+	return (level == LOG_ERROR) ? -1 : 0;
 }
 
 // Perror with logger
