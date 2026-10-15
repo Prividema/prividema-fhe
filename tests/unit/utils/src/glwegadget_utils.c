@@ -26,7 +26,7 @@ void check_glwegadget(const PvdaBackend* module, const GLWEGadgetCiphertext* glw
 		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
 		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
-		GLWECiphertext glwe_ct = {params_glwe, glwegadget_extract_bivglwe(glwegad, prec_lvl)};
+		GLWECiphertext glwe_ct = glwegadget_glwe_view(glwegad, prec_lvl);
 		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
 		cr_assert(code == 0);
 		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);

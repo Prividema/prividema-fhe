@@ -42,7 +42,7 @@ void delete_ggsw(GGSWCiphertext* ggsw)
 	free(ggsw);
 }
 
-VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl)
+GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl)
 {
 	assert(prec_lvl >= 1);
 
@@ -52,7 +52,8 @@ VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t p
 	// bivGGSW parameters
 	uint64_t k_tilde = ggsw_ct->params->k_tilde;
 
-	return ggsw_ct->mat + ((prec_lvl - 1) * (k_tilde + 1) + sk_idx) * glwe_coef_number(params_glwe);
+	uint64_t offset = ((prec_lvl - 1) * (k_tilde + 1) + sk_idx) * glwe_coef_number(params_glwe);
+	return (GLWECiphertext){params_glwe, ggsw_ct->mat + offset};
 }
 
 PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
@@ -119,9 +120,8 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const
 			CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
 			           "Noise addition failed in GGSW encryption");
 		}
-		// Get the pointer for the result position
-		VecBiv* glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
-		GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
+		// View on the result positiopn
+		GLWECiphertext glwe_ct = ggsw_glwe_view(result, j, i);
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
 		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),

@@ -83,7 +83,7 @@ PvdaParamTest(ggsw_Sj_Yti, basic, default_params_fn)
 	{
 		uint64_t j        = (ij % (params_ggsw->k_tilde + 1));
 		uint64_t i        = ij / (params_ggsw->k_tilde + 1) + 1;
-		VecBiv* ct_mat_ij = ggsw_retrieve_bivglwe(ggsw, j, i);
+		VecBiv* ct_mat_ij = ggsw_glwe_view(ggsw, j, i).vec;
 
 		// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 		ct_mat_ij[0] = 1;
@@ -192,8 +192,8 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	{
 		uint64_t jj           = (iijj % (params_ggsw->k_tilde + 1));
 		uint64_t ii           = iijj / (params_ggsw->k_tilde + 1) + 1;
-		VecBiv* ct_mat_ii_jj  = ggsw_retrieve_bivglwe(ggsw, jj, ii);
-		VecBiv* res_mat_ii_jj = ggsw_retrieve_bivglwe(product_computed, jj, ii);
+		VecBiv* ct_mat_ii_jj  = ggsw_glwe_view(ggsw, jj, ii).vec;
+		VecBiv* res_mat_ii_jj = ggsw_glwe_view(product_computed, jj, ii).vec;
 		for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 		{
 			uint64_t j      = (ij % (params_glwe->k + 1));

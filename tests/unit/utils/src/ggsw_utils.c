@@ -36,7 +36,7 @@ void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLW
 		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
 
 		// Retrieves the phase, which should equal -m * sk_j / 2^{kappa_tilde * i}) + err
-		GLWECiphertext glwe_ct = {params_glwe, ggsw_retrieve_bivglwe(ggsw, sk_idx, prec_lvl)};
+		GLWECiphertext glwe_ct = ggsw_glwe_view(ggsw, sk_idx, prec_lvl);
 		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);
 		cr_assert(code == 0);
 		biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);

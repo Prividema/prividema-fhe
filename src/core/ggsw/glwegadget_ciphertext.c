@@ -43,7 +43,7 @@ int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwe_
 {
 	for (int l = 0; l < glwe_gad->params->l_tilde; ++l)
 	{
-		GLWECiphertext limb = {glwe_gad->params->params_glwe, glwegadget_extract_bivglwe(glwe_gad, l + 1)};
+		GLWECiphertext limb = glwegadget_glwe_view(glwe_gad, l + 1);
 		printf("Gadget lvl %03d: ", l);
 		CHECK_CALL(print_coefs_glwe(module, &limb, sk_prep, n, 0), "GLWE printig failed in GLWEGadget printing");
 		printf("\n");
@@ -78,9 +78,11 @@ void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct)
 	free(glwegadget_prep_ct);
 }
 
-VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t i)
+GLWECiphertext glwegadget_glwe_view(const GLWEGadgetCiphertext* glwegadget_ct, uint64_t i)
 {
-	return glwegadget_ct->mat + (i - 1) * glwe_coef_number(glwegadget_ct->params->params_glwe);
+	const GLWEParams* params_glwe = glwegadget_ct->params->params_glwe;
+	uint64_t offset = (i - 1) * glwe_coef_number(params_glwe);
+	return (GLWECiphertext){params_glwe,glwegadget_ct->mat + offset};
 }
 
 int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result,
@@ -106,9 +108,8 @@ int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* r
 		CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
 		           "Noise addition failed in GLWEGadget encryption");
 
-		// Get the pointer for the result position
-		VecBiv* glwe_vec       = glwegadget_extract_bivglwe(result, i);
-		GLWECiphertext glwe_ct = {params_glwe, glwe_vec};
+		// View on the result position
+		GLWECiphertext glwe_ct  = glwegadget_glwe_view(result, i);
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec (ie, add A * S)
 		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),

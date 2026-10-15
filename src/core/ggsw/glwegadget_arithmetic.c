@@ -455,7 +455,7 @@ int packed_glwegadget_trace_expand(const PvdaBackend* module, GLWEGadgetCipherte
 			GLWECiphertext* tmp = malloc(sizeof(GLWECiphertext));
 			CHECK_ALLOC(tmp, "Malloc failed in GGSW trace expansion");
 			tmp->params                                       = results[res_num]->params->params_glwe;
-			tmp->vec                                          = glwegadget_extract_bivglwe(results[res_num], prec_lvl);
+			tmp->vec                                          = glwegadget_glwe_view(results[res_num], prec_lvl).vec;
 			results_glwe[(prec_lvl - 1) * res_size + res_num] = tmp;
 		}
 	}
@@ -486,7 +486,7 @@ int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GL
 	for (int r = 0; r < res_size; ++r)
 	{
 		gadgets[r].params = params_glwegad;
-		gadgets[r].mat    = glwegadget_extract_bivglwe(results_unprep, 1 + r * params_glwegad->l_tilde);
+		gadgets[r].mat    = glwegadget_glwe_view(results_unprep, 1 + r * params_glwegad->l_tilde).vec;
 		gptrs[r]          = &gadgets[r];
 	}
 

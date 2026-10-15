@@ -32,12 +32,10 @@ int normalize_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSW
 	{
 		uint64_t i = limb_i / (params_ggsw->k_tilde + 1) + 1;
 		uint64_t j = (limb_i % (params_ggsw->k_tilde + 1));
-		// The pointer to biGLWE(-m * sk_j * Y^i)
-		VecBiv* result_glwe_vec       = ggsw_retrieve_bivglwe(result, j, i);
-		GLWECiphertext glwe_normalize = {.params = params_glwe, .vec = result_glwe_vec};
-
-		VecBiv* input_glwe_vec         = ggsw_retrieve_bivglwe(ggsw, j, i);
-		GLWECiphertext input_normalize = {.params = ggsw->params->params_glwe, .vec = input_glwe_vec};
+		
+		// View on bigGLWE(-m * sk_j * Y^i)
+		GLWECiphertext glwe_normalize = ggsw_glwe_view(result, j, i);
+		GLWECiphertext input_normalize = ggsw_glwe_view(ggsw, j, i);
 
 		normalize_glwe(module, &glwe_normalize, &input_normalize);
 	}
@@ -196,7 +194,7 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 			GLWECiphertext* tmp = malloc(sizeof(GLWECiphertext));
 			CHECK_ALLOC(tmp, "Malloc failed in GGSW trace expansion");
 			tmp->params                                       = results[res_num]->params->params_glwe;
-			tmp->vec                                          = ggsw_retrieve_bivglwe(results[res_num], k, prec_lvl);
+			tmp->vec                                          = ggsw_glwe_view(results[res_num], k, prec_lvl).vec;
 			results_glwe[(prec_lvl - 1) * res_size + res_num] = tmp;
 		}
 	}
@@ -211,12 +209,10 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 	{
 		for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
 		{
-			GLWECiphertext in = {results[res_num]->params->params_glwe,
-			                     ggsw_retrieve_bivglwe(results[res_num], k, prec_lvl)};
+			GLWECiphertext in = ggsw_glwe_view(results[res_num], k, prec_lvl);
 			for (int i = 0; i < k; ++i)
 			{
-				GLWECiphertext res = {results[res_num]->params->params_glwe,
-				                      ggsw_retrieve_bivglwe(results[res_num], i, prec_lvl)};
+				GLWECiphertext res = ggsw_glwe_view(results[res_num], i, prec_lvl);
 
 				// GGSW(-sk_i) HALFPROD GLWE(m * 2^-jK) = GLWE(-s_i * m * 2^-jK)
 				CHECK_CALL(ggsw_external_product(module, &res, &in, sk_encryptions[i]),

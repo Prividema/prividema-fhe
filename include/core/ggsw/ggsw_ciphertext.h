@@ -14,6 +14,7 @@
 
 #include "ggsw_params.h"
 #include "glwe_key.h"
+#include "glwe_ciphertext.h"
 #include "maths_structures.h"
 
 /**
@@ -68,9 +69,9 @@ void delete_ggsw(GGSWCiphertext* ggsw);
  * @param sk_idx      The j-th component of the secret key.
  * @param prec_lvl    The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$
  *
- * @return A Pointer to the associated Bivariate GLWE.
+ * @return A GLWECiphertext view (does NOT own memory) if the associated bivariate GLWE.
  */
-VecBiv* ggsw_retrieve_bivglwe(GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
+GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
 /**
  * @brief Returns a PolyBiv (view) representing a flattened GGSW: a polybiv with all the limbs in layout order

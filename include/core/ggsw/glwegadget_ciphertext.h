@@ -5,6 +5,7 @@
 
 #include "ggsw_params.h"
 #include "glwe_key.h"
+#include "glwe_ciphertext.h"
 
 /**
  *
@@ -21,7 +22,7 @@
  *
  * Given all of that, we decided not to provide a decryption function.
  * If needed (as in the tests, which one can take as an example) the GLWE decryption function(s) can be used
- * together with the glwegadget_extract_bivglwe function, but, again, outside of debugging it is
+ * together with the glwegadget_glwe_view function, but, again, outside of debugging it is
  * higly unlikely one might need to to that.
  */
 
@@ -149,13 +150,14 @@ int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* 
                                      const PolyUniv* m_univ, uint64_t d);
 
 /**
- * @brief Retreive a bivglwe from a GLWEGadget (halfGGSW for k = 1)
+ * @brief Retreive a bivglwe from a GLWEGadget (halfGGSW for k = 1).
  *
- * @param glwegadget_ct     The GLWEGadget ciphertext
- * @param i                 The index of the GLWE to retrievie, from 1 to l_tilde included
+ * @param glwegadget_ct     The GLWEGadget ciphertext.
+ * @param i                 The index of the GLWE to retrievie, from 1 to l_tilde included.
  *
+ * @return a GLWECiphertext view (does NOT own memory) of the i-th GLWE.
  */
-VecBiv* glwegadget_extract_bivglwe(GLWEGadgetCiphertext* glwegadget_ct, uint64_t i);
+GLWECiphertext  glwegadget_glwe_view(const GLWEGadgetCiphertext* glwegadget_ct, uint64_t i);
 
 /**
  * @brief Prepares a GLWEGadget for use in a half-external product
