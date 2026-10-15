@@ -81,7 +81,7 @@ cleanup:
 }
 
 //Forward declaration due to legacy folder structure
-PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr);
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr);
 
 int uniform_random_vec_znx_dft(const PvdaBackend* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
 {

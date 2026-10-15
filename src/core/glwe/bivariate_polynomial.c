@@ -39,7 +39,7 @@ cleanup:
 	return NULL;
 }
 
-PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr)
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr)
 {
 	PolyBiv r = {nn, l, stride, ptr};
 	return r;
@@ -597,7 +597,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 
 	for (int l = 0; l < res->l; ++l)
 	{
-		memset(res->ptr + res->stride * l, 0, sizeof(PolyBivUnderlying) * res->nn);
+		memset(res->ptr + res->stride * l, 0, sizeof(int64_t) * res->nn);
 	}
 
 	// Decompose the tnx values into sign and magintude
@@ -641,7 +641,7 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 
 	for (int l = 0; l < res->l; ++l)
 	{
-		memset(res->ptr + res->stride * l, 0, sizeof(PolyBivUnderlying) * res->nn);
+		memset(res->ptr + res->stride * l, 0, sizeof(int64_t) * res->nn);
 	}
 
 	// Decompose the znx values into sign and magintude

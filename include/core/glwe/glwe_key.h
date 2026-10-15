@@ -23,7 +23,7 @@ typedef struct glwe_secret_key
 {
 	uint64_t nn;      ///< Degree of the polynomials
 	uint64_t k;       ///< Number of polynomials of degree nn in key
-	VecUniv* values;  ///< Flattened vector of the k polynomials of degree nn
+	int64_t* values;  ///< Flattened vector of the k polynomials of degree nn
 } GLWESecretKey;
 
 /**
@@ -33,7 +33,7 @@ typedef struct glwe_prep_secret_key
 {
 	uint64_t nn;           ///< Degree of the polynomials
 	uint64_t k;            ///< Number of polynomials of degree nn in key
-	VecUniv* values_coef;  ///< Flattened vector of the k polynomials of degree nn
+	int64_t* values_coef;  ///< Flattened vector of the k polynomials of degree nn
 	VecUnivDFT* values;    ///< Flattened vector of the k polynomials of degree nn
 
 } GLWESecretKeyPrepared;

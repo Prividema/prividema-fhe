@@ -38,7 +38,7 @@ void printf_poly_univ_RnX(double* pol, int64_t nn)
 	for (uint64_t p = 0; p < nn; p++) printf(" %lf X^%ld ", pol[p], p);
 }
 
-void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t nn)
+void printf_vec_poly_univ(int64_t* pols, int64_t pols_size, int64_t nn)
 {
 	printf("\n");
 	for (uint64_t j = 0; j < pols_size; j++)

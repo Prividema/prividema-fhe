@@ -39,7 +39,7 @@ typedef struct glwegadget_ciphertext
 	/// matrix of size l_tilde * n_limbs, each row the contents of a GLWECiphertext
 	///
 	/// See \ref glwegadget_encoding "GLWEGadget's memory layout expanation" for more details
-	MatBiv* mat;
+	int64_t* mat;
 } GLWEGadgetCiphertext;
 
 /**

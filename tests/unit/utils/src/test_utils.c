@@ -129,7 +129,7 @@ void printf_glwe(GLWECiphertext* glwe)
 
 void printf_glwe_dft(MODULE* module, GLWECiphertextDFT* glwe_dft)
 {
-    VecBiv* glwe_vec = malloc(glwe_params_bytes(glwe_dft->params));
+    int64_t* glwe_vec = malloc(glwe_params_bytes(glwe_dft->params));
     pvda_vec_znx_idft(module, glwe_vec, glwe_params_n_limbs(glwe_dft->params), glwe_dft->vec,
                       glwe_params_n_limbs(glwe_dft->params));
 

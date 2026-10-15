@@ -34,7 +34,7 @@ typedef struct ggsw_ciphertext
 	///
 	/// See \ref ggsw_encoding "the section on GGSW ciphertext encoding" for a
 	/// more in-depth explanation.
-	MatBiv* mat;
+	int64_t* mat;
 
 } GGSWCiphertext;
 

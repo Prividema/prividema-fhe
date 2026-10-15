@@ -46,7 +46,7 @@ PolyBiv* new_biv(const GLWEParams* params_glwe);
  *         should NOT have delete_biv called on.
  *
  */
-PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr);
+PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr);
 
 /**
  * @brief Deletes a bivariate polynomial

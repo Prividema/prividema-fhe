@@ -34,30 +34,15 @@
 typedef uint64_t PolyUnivTnX;
 
 /**
- * @brief Represents a vector of univariate \TnX polynomials (flattened, each encoded as in PolyUnivTnX)
- */
-typedef uint64_t VecUnivTnX;
-
-/**
  * @brief Represents a \RnX polynomial.
  * @note The implicit lenght is \N for a polynomial in \RnX
  */
 typedef double PolyUnivRnX;
 
 /**
- * @brief Represents a vector of univariate \RnX polynomial (flattened, each encoded as in PolyUnivRnX)
- */
-typedef double VecUnivRnX;
-
-/**
  * @brief Represents a \ZnX polynomial
  */
 typedef int64_t PolyUniv;
-
-/**
- * @brief Represents a vector of \ZnX polynomials (flattened, each encoded as in PolyUniv)
- */
-typedef int64_t VecUniv;
 
 /**
  * @brief Represents a univariate polynomial in the DFT domain.
@@ -74,12 +59,6 @@ typedef double VecUnivDFT;
 // |          Bivariate Structures             |
 // |                                           |
 // =============================================
-
-/**
- * @brief Typedef for the underlying data type of bivariate polynomials
- *        Should not be used directly by the user in most cases
- */
-typedef int64_t PolyBivUnderlying;
 
 /**
  * @brief Structure for bivariate polynomials and views thereof
@@ -110,18 +89,8 @@ typedef struct poly_biv_t
 	                 ///< number of elements * depth of elements
 	int64_t stride;  ///< Stride (distance) betwween consecutive limbs of the bivariate polynomial, in elements.
 	                 ///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
-	PolyBivUnderlying* ptr;  ///< Pointer to the underlying data
+	int64_t* ptr;  ///< Pointer to the underlying data
 } PolyBiv;
-
-/**
- * @brief Represents a bivariate polynomial vector (flattened). In process of being deprecated in favour of PolyBiv.
- */
-typedef int64_t VecBiv;
-
-/**
- * @brief Represents a bivariate polynomial matrix (flattened)
- */
-typedef int64_t MatBiv;
 
 /**
  * @brief Represents a bivariate polynomial in the DFT domain.
@@ -188,6 +157,6 @@ void printf_poly_univ_RnX(double* pol, int64_t nn);
  * @param pols_size   The size of the vector.
  * @param nn           The degree of the chosen cyclotomic polynomial.
  */
-void printf_vec_poly_univ(VecBiv* pols, int64_t pols_size, int64_t nn);
+void printf_vec_poly_univ(int64_t* pols, int64_t pols_size, int64_t nn);
 
 #endif

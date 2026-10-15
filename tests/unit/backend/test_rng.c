@@ -112,7 +112,7 @@ PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 	VecUnivDFT* res_dft = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
 
-	VecUniv* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));
+	int64_t* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));
 
 	cr_assert(res != NULL);
 	cr_assert(res_dft != NULL);

@@ -22,7 +22,7 @@ GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params)
 
 	glwegadget->params = params;
 
-	glwegadget->mat = calloc(glwegadget_coef_number(params), sizeof(MatBiv));
+	glwegadget->mat = calloc(glwegadget_coef_number(params), sizeof(int64_t));
 	CHECK_ALLOC(glwegadget->mat, "alloc failed in GLWEGadget creation");
 
 	return glwegadget;

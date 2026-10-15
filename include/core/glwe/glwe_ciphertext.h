@@ -31,7 +31,7 @@ typedef struct glwe_ciphertext
 	 * (see dedicated document/page for details)
 	 *
 	 */
-	VecBiv* vec;
+	int64_t* vec;
 } GLWECiphertext;
 
 /**
