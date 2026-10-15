@@ -13,8 +13,8 @@
  */
 
 #include "ggsw_params.h"
-#include "glwe_key.h"
 #include "glwe_ciphertext.h"
+#include "glwe_key.h"
 #include "maths_structures.h"
 
 /**

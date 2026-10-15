@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 #include "ggsw_params.h"
-#include "glwe_key.h"
 #include "glwe_ciphertext.h"
+#include "glwe_key.h"
 
 /**
  *
@@ -157,7 +157,7 @@ int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* 
  *
  * @return a GLWECiphertext view (does NOT own memory) of the i-th GLWE.
  */
-GLWECiphertext  glwegadget_glwe_view(const GLWEGadgetCiphertext* glwegadget_ct, uint64_t i);
+GLWECiphertext glwegadget_glwe_view(const GLWEGadgetCiphertext* glwegadget_ct, uint64_t i);
 
 /**
  * @brief Prepares a GLWEGadget for use in a half-external product

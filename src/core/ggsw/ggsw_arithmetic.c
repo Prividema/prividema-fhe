@@ -25,16 +25,15 @@ int normalize_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSW
 {
 	int status                    = -1;
 	const GGSWParams* params_ggsw = result->params;
-	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 
 	// Normalization of the bivGGSW ciphertext
 	for (uint64_t limb_i = 0; limb_i < ggsw_num_rows(params_ggsw); ++limb_i)
 	{
 		uint64_t i = limb_i / (params_ggsw->k_tilde + 1) + 1;
 		uint64_t j = (limb_i % (params_ggsw->k_tilde + 1));
-		
-		// View on bigGLWE(-m * sk_j * Y^i)
-		GLWECiphertext glwe_normalize = ggsw_glwe_view(result, j, i);
+
+		// View on biGLWE(-m * sk_j * Y^i)
+		GLWECiphertext glwe_normalize  = ggsw_glwe_view(result, j, i);
 		GLWECiphertext input_normalize = ggsw_glwe_view(ggsw, j, i);
 
 		normalize_glwe(module, &glwe_normalize, &input_normalize);

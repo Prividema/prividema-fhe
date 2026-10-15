@@ -81,8 +81,8 @@ void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct)
 GLWECiphertext glwegadget_glwe_view(const GLWEGadgetCiphertext* glwegadget_ct, uint64_t i)
 {
 	const GLWEParams* params_glwe = glwegadget_ct->params->params_glwe;
-	uint64_t offset = (i - 1) * glwe_coef_number(params_glwe);
-	return (GLWECiphertext){params_glwe,glwegadget_ct->mat + offset};
+	uint64_t offset               = (i - 1) * glwe_coef_number(params_glwe);
+	return (GLWECiphertext){params_glwe, glwegadget_ct->mat + offset};
 }
 
 int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result,
@@ -109,7 +109,7 @@ int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* r
 		           "Noise addition failed in GLWEGadget encryption");
 
 		// View on the result position
-		GLWECiphertext glwe_ct  = glwegadget_glwe_view(result, i);
+		GLWECiphertext glwe_ct = glwegadget_glwe_view(result, i);
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec (ie, add A * S)
 		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
