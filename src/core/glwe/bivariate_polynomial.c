@@ -168,8 +168,8 @@ int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_g
 		memset(err, 0, nn * sizeof(int64_t));
 	}
 	int64_t l_a           = glwe_params_l_a(params_glwe);
-	PolyBiv last_limb_res = biv_view(nn, 1, nn, res->ptr + nn * (l_a - 1));
-	PolyBiv last_limb_a   = biv_view(nn, 1, nn, a->ptr + nn * (l_a - 1));
+	PolyBiv last_limb_res = biv_view(nn, 1, res->stride, res->ptr + res->stride * (l_a - 1));
+	PolyBiv last_limb_a   = biv_view(nn, 1, a->stride, a->ptr + a->stride * (l_a - 1));
 	PolyBiv err_biv       = biv_view(nn, 1, nn, err);
 
 	if (res != a)
