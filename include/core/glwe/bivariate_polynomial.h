@@ -54,12 +54,12 @@ void delete_biv(PolyBiv* biv);
  *         should NOT have delete_biv called on.
  *
  */
-PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr);
+PolyBiv biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr);
 
 /**
  * @brief View of the limbs of a bivariate polynomial as a flat Znx array, for element-wise backend operations
  */
-static inline ZnxVec biv_as_znx_vec(const PolyBiv* p) { return znx_vec_view(p->nn, p->l, p->stride, p->ptr); }
+static inline ZnxVec biv_as_znx_vec(const PolyBiv* p) { return znx_vec_view(p->nn, p->nb_limbs, p->stride, p->ptr); }
 
 /** @brief res = a + b, limb by limb (no carry propagation) */
 int biv_add(const PvdaBackend* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b);

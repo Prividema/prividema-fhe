@@ -120,7 +120,7 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t column,
                                               int64_t biv_depth, int64_t rows)
 {
-	assert(biv->l == biv_depth * rows);
+	assert(biv->nb_limbs == biv_depth * rows);
 
 	for (int i = 0; i < rows; ++i)
 	{

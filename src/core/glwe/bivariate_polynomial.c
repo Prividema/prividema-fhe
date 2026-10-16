@@ -28,10 +28,10 @@ PolyBiv* new_biv(const GLWEParams* params_glwe)
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
 	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
 
-	pol->nn     = params_glwe->nn;
-	pol->l      = glwe_params_l_a(params_glwe);
-	pol->stride = (int64_t)pol->nn;
-	pol->ptr    = calloc(pol->l * pol->nn, sizeof(int64_t));
+	pol->nn     	= params_glwe->nn;
+	pol->nb_limbs	= glwe_params_l_a(params_glwe);
+	pol->stride 	= (int64_t)pol->nn;
+	pol->ptr    	= calloc(pol->nb_limbs * pol->nn, sizeof(int64_t));
 	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
 	return pol;
 cleanup:
@@ -39,7 +39,7 @@ cleanup:
 	return NULL;
 }
 
-PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr)
+PolyBiv biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr)
 {
 	PolyBiv r = {nn, l, stride, ptr};
 	return r;
@@ -94,10 +94,10 @@ PolyBiv* new_biv_custom_params(uint64_t nn, uint64_t biv_l)
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
 	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
 
-	pol->nn     = nn;
-	pol->l      = biv_l;
-	pol->stride = (int64_t)nn;
-	pol->ptr    = calloc(biv_l * nn, sizeof(int64_t));
+	pol->nn     	= nn;
+	pol->nb_limbs	= biv_l;
+	pol->stride 	= (int64_t)nn;
+	pol->ptr    	= calloc(biv_l * nn, sizeof(int64_t));
 	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
 	return pol;
 cleanup:
@@ -168,9 +168,9 @@ int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_g
 		memset(err, 0, nn * sizeof(int64_t));
 	}
 	int64_t l_a           = glwe_params_l_a(params_glwe);
-	PolyBiv last_limb_res = new_biv_view(nn, 1, nn, res->ptr + nn * (l_a - 1));
-	PolyBiv last_limb_a   = new_biv_view(nn, 1, nn, a->ptr + nn * (l_a - 1));
-	PolyBiv err_biv       = new_biv_view(nn, 1, nn, err);
+	PolyBiv last_limb_res = biv_view(nn, 1, nn, res->ptr + nn * (l_a - 1));
+	PolyBiv last_limb_a   = biv_view(nn, 1, nn, a->ptr + nn * (l_a - 1));
+	PolyBiv err_biv       = biv_view(nn, 1, nn, err);
 
 	if (res != a)
 	{
@@ -632,7 +632,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
 	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
 
-	for (int l = 0; l < res->l; ++l)
+	for (int l = 0; l < res->nb_limbs; ++l)
 	{
 		memset(res->ptr + res->stride * l, 0, sizeof(int64_t) * res->nn);
 	}
@@ -676,7 +676,7 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 	CHECK_ALLOC(mag_vec, "Failed malloc in tnx biv conversion");
 	CHECK_ALLOC(sgn_vec, "Failed malloc in tnx biv conversion");
 
-	for (int l = 0; l < res->l; ++l)
+	for (int l = 0; l < res->nb_limbs; ++l)
 	{
 		memset(res->ptr + res->stride * l, 0, sizeof(int64_t) * res->nn);
 	}

@@ -5,7 +5,7 @@
 void printf_poly_biv(PolyBiv* pol)
 {
 	printf("\n");
-	for (uint64_t i = 0; i < pol->l; i++)
+	for (uint64_t i = 0; i < pol->nb_limbs; i++)
 	{
 		printf("\nY^%ld : ", i);
 		for (uint64_t p = 0; p < pol->nn; p++) printf("%ld X^%ld ", pol->ptr[(i - 1) * pol->stride + p], p);
@@ -14,7 +14,7 @@ void printf_poly_biv(PolyBiv* pol)
 
 void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
 {
-	for (int l = 0; l < max_l && l < biv->l; ++l)
+	for (int l = 0; l < max_l && l < biv->nb_limbs; ++l)
 	{
 		printf("Biv lvl %03d: ", l);
 

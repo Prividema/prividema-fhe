@@ -58,8 +58,8 @@ GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int
 
 ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct)
 {
-	GGSWParams* ggsw_params = ggsw_ct->params;
-	GLWEParams* glwe_params = ggsw_params->params_glwe;
+	const GGSWParams* ggsw_params = ggsw_ct->params;
+	const GLWEParams* glwe_params = ggsw_params->params_glwe;
 	return znx_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(ggsw_params), (int64_t)glwe_params->nn, ggsw_ct->mat);
 }
 

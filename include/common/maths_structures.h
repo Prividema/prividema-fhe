@@ -61,35 +61,19 @@ typedef double VecUnivDFT;
 // =============================================
 
 /**
- * @brief Structure for bivariate polynomials and views thereof
- *
- *
- * The following convention is used:
- * - PolyBivs residing in the heap are proper polynomial. They are
- *   to be created/destroyed with the new and delete functions, and they own
- *   the underlying memory
- * - PolyBivs residing in the stack are views, that is, refer to unowned memory.
- *   They are either returned by value or created directly on the stack by
- *   the functions that use them.
- *   No functions exist for creation/destruction, C scoping rules should be used.
- *
- * Vectors of bivariate polynomials are also represented using this structure.
- * The depth is adjusted as needed for that reason.
- *
- * As a general rule, and for a less technical explanation:
- *  - If we want a bivariate polynomial, most of the time use PolyBiv* and constructor/destructor
- *  - If we want a view to a bivariate polynomial (probably one of the a_is of a GLWE), then have a Polybiv that resides on the stack that acts as a view.
- *    Use the extract functions to get said object, and do not use delete_biv on them
- *
+ * @brief Structure for bivariate polynomials.
+ * 
+ * Owners are created with new_biv/new_biv_custom_params and freed with delete_biv.
+ * 
+ * Views are created with biv_view ot the *_extract_poly_view functions and must not be deleted.
  */
 typedef struct poly_biv_t
 {
-	uint64_t nn;     ///< The polynomial degree
-	uint64_t l;      ///< Depth of the bivariate polynomial, or, in the case of a vector of bivariate polynomials
-	                 ///< number of elements * depth of elements
-	int64_t stride;  ///< Stride (distance) betwween consecutive limbs of the bivariate polynomial, in elements.
-	                 ///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
-	int64_t* ptr;  ///< Pointer to the underlying data
+	uint64_t nn;       	///< Ring dimension (also number of coefficient in one polynomial)
+	uint64_t nb_limbs; 	///< The number of limbs (base-2^K digits) of the polynomial
+	int64_t stride;  	///< Stride (distance) between consecutive limbs of the bivariate polynomial, in elements.
+	                 	///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
+	int64_t* ptr;  		///< Pointer to the underlying data
 } PolyBiv;
 
 /**
