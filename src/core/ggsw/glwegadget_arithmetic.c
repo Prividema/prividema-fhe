@@ -32,7 +32,8 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params);
 	CHECK_ALLOC(glwe_dft, "Allocation failed in half-product");
 
-	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, a, glwegadget_prep_ct->mat, nrows, ncols_in),
+	ZnxVec v = biv_as_znx_vec(a);
+	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, &v, glwegadget_prep_ct->mat, nrows, ncols_in),
 	           "vmp apply falied in half product");
 
 	CHECK_CALL(glwe_dft_to_coef(module, result, glwe_dft),
@@ -179,7 +180,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 
 		// auto_tmp = auto_p(a)
 		PolyBiv a = glwe_extract_poly_view(glwe, 0);
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a);
+		biv_automorphism(module, automorphism_p, auto_tmp, &a);
 
 		// result = halfProd(C_auto(-s), auto(a)) = -halfProd(C_auto(s), a)
 		CHECK_CALL(glwegadget_half_prod(module, result, auto_key->glwe_ksk->enc_s[0], auto_tmp),
@@ -187,11 +188,11 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 
 		// auto_tmp = auto_p(b)
 		PolyBiv b = glwe_extract_poly_view(glwe, k);
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &b);
+		biv_automorphism(module, automorphism_p, auto_tmp, &b);
 
 		// result += auto_tmp ==> result = -halfProc(c_auto(s), auto(a)) + (0, auto(b))
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
-		pvda_vec_znx_add(module, &result_b, &result_b, auto_tmp);
+		biv_add(module, &result_b, &result_b, auto_tmp);
 
 		status = 0;
 	cleanup:
@@ -207,7 +208,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 
 		// auto_tmp = auto_p(a_0)
 		PolyBiv a_0 = glwe_extract_poly_view(glwe, 0);
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a_0);
+		biv_automorphism(module, automorphism_p, auto_tmp, &a_0);
 
 		// result = halfProd(C_auto(-s_0), auto(a_0))
 		CHECK_CALL_LABEL(glwegadget_half_prod(module, result, auto_key->glwe_ksk->enc_s[0], auto_tmp),
@@ -217,7 +218,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 		{
 			// auto_tmp = auto_p(a_i)
 			PolyBiv a_i = glwe_extract_poly_view(glwe, i);
-			pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &a_i);
+			biv_automorphism(module, automorphism_p, auto_tmp, &a_i);
 
 			// result = halfProd(C_auto(-s_i), auto(a_i)) = -halfProd(C_auto(s_i), a_i)
 			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, auto_key->glwe_ksk->enc_s[i], auto_tmp),
@@ -228,11 +229,11 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 
 		// auto_tmp = auto_p(b)
 		PolyBiv b = glwe_extract_poly_view(glwe, k);
-		pvda_vec_znx_automorphism(module, automorphism_p, auto_tmp, &b);
+		biv_automorphism(module, automorphism_p, auto_tmp, &b);
 
 		// result += auto_tmp ==> result = -sum_i(halfProd(c_auto(s), auto(a_i))) + (0, auto(b))
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
-		pvda_vec_znx_add(module, &result_b, &result_b, auto_tmp);
+		biv_add(module, &result_b, &result_b, auto_tmp);
 		status = 0;
 	cleanup2:
 		delete_biv(auto_tmp);
@@ -262,7 +263,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 		PolyBiv b        = glwe_extract_poly_view(glwe_ct, k);
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
 		//result = (0, b) - result = (0, b) - (C_k(k_new) \hp a)
-		pvda_vec_znx_add(module, &result_b, &result_b, &b);
+		biv_add(module, &result_b, &result_b, &b);
 
 		status = 0;
 	cleanup:;
@@ -297,7 +298,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 
 		PolyBiv b        = glwe_extract_poly_view(glwe_ct, k);
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
-		pvda_vec_znx_add(module, &result_b, &result_b, &b);
+		biv_add(module, &result_b, &result_b, &b);
 		status = 0;
 	cleanup2:
 		delete_glwe(glwe_tmp);
@@ -328,7 +329,7 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
 
 	sub_glwe(module, tmp_glwe, results[0], tmp_glwe);
-	PolyBiv tmp_flattened = glwe_flattened_biv(tmp_glwe);
+	ZnxVec tmp_flattened = glwe_as_znx_vec(tmp_glwe);
 	pvda_vec_znx_rotate(module, -1, &tmp_flattened, &tmp_flattened);
 	normalize_glwe(module, results[1], tmp_glwe);
 	normalize_glwe(module, results[0], tmp_glwe2);
@@ -386,7 +387,7 @@ int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* result, int enc_si
 	GLWECiphertext* tmp_glwe = new_glwe(glwe_ct->params);
 	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
 
-	PolyBiv tmp_flattened = glwe_flattened_biv(tmp_glwe);
+	ZnxVec tmp_flattened = glwe_as_znx_vec(tmp_glwe);
 
 	// Step 0:
 	glwegadget_automorphism(module, tmp_glwe, glwegadget_key_collection_get_key(auto_key_collection, nn + 1), result);

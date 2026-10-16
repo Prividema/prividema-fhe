@@ -56,12 +56,13 @@ GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int
 	return (GLWECiphertext){params_glwe, ggsw_ct->mat + offset};
 }
 
-PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct)
+ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct)
 {
-	PolyBiv res = new_biv_view(ggsw_ct->params->params_glwe->nn, ggsw_total_n_glwe_limbs(ggsw_ct->params),
-	                           (int64_t)ggsw_ct->params->params_glwe->nn, ggsw_ct->mat);
-	return res;
+	GGSWParams* ggsw_params = ggsw_ct->params;
+	GLWEParams* glwe_params = ggsw_params->params_glwe;
+	return znx_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(ggsw_params), (int64_t)glwe_params->nn, ggsw_ct->mat);
 }
+
 int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ)
 {

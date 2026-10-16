@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#include "backend_types.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
@@ -93,13 +94,13 @@ void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
 PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
 
 /**
- * @brief Returns a flattened PolyBiv view of the GLWE
+ * @brief Flat Znx view of the whole ciphertext (all limbs of all elements, in memory order), for element-wise operations.
  *
  * @param glwe_ct Source GLWE
  *
  * @returns A PolyBiv view (does NOT own memory) of the GLWE as if it were a single PolyBiv
  */
-PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct);
+ZnxVec glwe_as_znx_vec(const GLWECiphertext* glwe_ct);
 
 /**
  * @brief Encrypts a phase (message + noise) and puts it in result.

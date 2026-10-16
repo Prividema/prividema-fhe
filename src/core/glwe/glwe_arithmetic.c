@@ -25,7 +25,7 @@ int normalize_glwe(const PvdaBackend* module, GLWECiphertext* result, const GLWE
 	{
 		PolyBiv aj_biv  = glwe_extract_poly_view(glwe, j);
 		PolyBiv res_biv = glwe_extract_poly_view(result, j);
-		CHECK_CALL(pvda_vec_znx_normalize_base2k(module, kappa, &res_biv, &aj_biv),
+		CHECK_CALL(biv_normalize(module, kappa, &res_biv, &aj_biv),
 		           "vec_znx_normalize_base2k_p failed in normalize_glwe");
 	}
 	status = 0;
@@ -38,26 +38,26 @@ cleanup:
 void add_glwe(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
               const GLWECiphertext* glwe_rhs)
 {
-	PolyBiv lhs_flattened = glwe_flattened_biv(glwe_lhs);
-	PolyBiv rhs_flattened = glwe_flattened_biv(glwe_rhs);
-	PolyBiv res_flattened = glwe_flattened_biv(result);
+	ZnxVec lhs_flattened = glwe_as_znx_vec(glwe_lhs);
+	ZnxVec rhs_flattened = glwe_as_znx_vec(glwe_rhs);
+	ZnxVec res_flattened = glwe_as_znx_vec(result);
 	pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 void sub_glwe(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe_lhs,
               const GLWECiphertext* glwe_rhs)
 {
-	PolyBiv lhs_flattened = glwe_flattened_biv(glwe_lhs);
-	PolyBiv rhs_flattened = glwe_flattened_biv(glwe_rhs);
-	PolyBiv res_flattened = glwe_flattened_biv(result);
+	ZnxVec lhs_flattened = glwe_as_znx_vec(glwe_lhs);
+	ZnxVec rhs_flattened = glwe_as_znx_vec(glwe_rhs);
+	ZnxVec res_flattened = glwe_as_znx_vec(result);
 	pvda_vec_znx_sub(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 void negate_glwe(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe)
 {
-	uint64_t nn            = result->params->nn;
-	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
-	PolyBiv res_flattened  = glwe_flattened_biv(result);
+	uint64_t nn           = result->params->nn;
+	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
+	ZnxVec res_flattened  = glwe_as_znx_vec(result);
 	pvda_vec_znx_negate(module, &res_flattened, &glwe_flattened);
 }
 
@@ -72,7 +72,7 @@ int const_mult_glwe(const PvdaBackend* module, GLWECiphertext* result, const Pol
 	CHECK_ALLOC(u_glwe_dft, "u_glwe_dft's malloc failed in const_mult_glwe.");
 
 	// Computes DFT(u * glwe)
-	PolyBiv glwe_flattened = glwe_flattened_biv(glwe);
+	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
 	pvda_svp_apply_dft(module, u_glwe_dft->vec, glwe_params_n_limbs(result->params), u_dft, &glwe_flattened);
 
 	// Computes it out of the DFT domain

@@ -10,17 +10,17 @@
 
 int univ_coefs_to_dft(const PvdaBackend* module, PolyUnivDFT* res_dft, const PolyUniv* a)
 {
-	uint64_t nn   = pvda_module_extract_nn(module);
-	PolyBiv a_biv = new_biv_view(nn, 1, nn, a);
-	pvda_vec_znx_dft(module, res_dft, 1, &a_biv);
+	uint64_t nn  = pvda_module_extract_nn(module);
+	ZnxVec a_vec = znx_vec_view(nn, 1, nn, (int64_t*)a);
+	pvda_vec_znx_dft(module, res_dft, 1, &a_vec);
 	return 0;
 }
 
 int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const PolyUnivDFT* a_dft)
 {
-	uint64_t nn     = pvda_module_extract_nn(module);
-	PolyBiv res_biv = new_biv_view(nn, 1, nn, res);
-	return pvda_vec_znx_idft(module, &res_biv, a_dft, 1);
+	uint64_t nn    = pvda_module_extract_nn(module);
+	ZnxVec res_vec = znx_vec_view(nn, 1, nn, res);
+	return pvda_vec_znx_idft(module, &res_vec, a_dft, 1);
 }
 
 uint64_t poly_univ_bytes(const GLWEParams* params_glwe)

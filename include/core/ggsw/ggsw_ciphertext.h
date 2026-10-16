@@ -80,7 +80,7 @@ GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int
  *
  * @return A view to the flattened (memory) representation of the GGSW. See @ref ggsw_encoding
  */
-PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct);
+ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct);
 
 /**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the

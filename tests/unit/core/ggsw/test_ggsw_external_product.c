@@ -60,9 +60,10 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	//Computes u*m manually
 	univ_coefs_to_dft(module, u_univ_dft, u_univ);
-	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_dft, m);
+	ZnxVec m_vec = biv_as_znx_vec(m);
+	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_dft, &m_vec);
 	biv_dft_to_coefs(module, params_glwe, um, um_dft);
-	pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, um, um);
+	biv_normalize(module, params_glwe->kappa, um, um);
 	biv_to_univ_rnx(params_glwe, um_univ_rnx, um, 0);
 
 	//! Asserts um_computed_univ(X) = u * m_univ

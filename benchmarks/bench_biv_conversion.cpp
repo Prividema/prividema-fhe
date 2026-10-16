@@ -50,7 +50,7 @@ void bench_biv_normalize(benchmark::State& state)
 
 	for (auto _ : state)
 	{
-		pvda_vec_znx_normalize_base2k(backend, params_glwe->kappa, m_biv, m_biv);
+		biv_normalize(backend, params_glwe->kappa, m_biv, m_biv);
 		benchmark::DoNotOptimize(m_biv);
 	}
 

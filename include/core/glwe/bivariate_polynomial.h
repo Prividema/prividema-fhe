@@ -2,6 +2,7 @@
 #define BIVARIATE_POLYNOMIAL_H
 
 #include "backend.h"
+#include "backend_types.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
 
@@ -33,6 +34,13 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
 PolyBiv* new_biv(const GLWEParams* params_glwe);
 
 /**
+ * @brief Deletes a bivariate polynomial
+ *
+ * @param biv The bivariate polynomial to delete
+ */
+void delete_biv(PolyBiv* biv);
+
+/**
  * @brief Creates a new bivariate polynomial view,
  * that is, a PolyBiv that does NOT own the memory it refers to
  *
@@ -49,11 +57,21 @@ PolyBiv* new_biv(const GLWEParams* params_glwe);
 PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr);
 
 /**
- * @brief Deletes a bivariate polynomial
- *
- * @param biv The bivariate polynomial to delete
+ * @brief View of the limbs of a bivariate polynomial as a flat Znx array, for element-wise backend operations
  */
-void delete_biv(PolyBiv* biv);
+static inline ZnxVec biv_as_znx_vec(const PolyBiv* p) { return znx_vec_view(p->nn, p->l, p->stride, p->ptr); }
+
+/** @brief res = a + b, limb by limb (no carry propagation) */
+int biv_add(const PvdaBackend* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b);
+
+/** @brief res = a - b, limb by limb (no carry propagation) */
+int biv_sub(const PvdaBackend* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b);
+
+/** @brief res = a(X^p), limb by limb */
+int biv_automorphism(const PvdaBackend* module, int64_t p, PolyBiv* res, const PolyBiv* a);
+
+/** @brief res = a with carry propagated across limbs in base 2^(log2_base)*/
+int biv_normalize(const PvdaBackend* module, uint64_t log2_base, PolyBiv* res, const PolyBiv* a);
 
 /**
  * @brief Creates an allocated bivariate polynomial
@@ -106,8 +124,8 @@ int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_
  * @param a The left-hand side bivariate polynomial.
  * @param b The right-hand side bivariate polynomial.
  */
-void add_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
-                  const PolyBiv* b);
+int add_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
+                 const PolyBiv* b);
 
 /**
  * @brief Adds noise to the bivariate polynomial

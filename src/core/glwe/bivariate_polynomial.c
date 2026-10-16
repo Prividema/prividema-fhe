@@ -45,6 +45,40 @@ PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr)
 	return r;
 }
 
+int biv_add(const PvdaBackend* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
+{
+	ZnxVec r  = biv_as_znx_vec(res);
+	ZnxVec va = biv_as_znx_vec(a);
+	ZnxVec vb = biv_as_znx_vec(b);
+
+	return pvda_vec_znx_add(module, &r, &va, &vb);
+}
+
+int biv_sub(const PvdaBackend* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
+{
+	ZnxVec r  = biv_as_znx_vec(res);
+	ZnxVec va = biv_as_znx_vec(a);
+	ZnxVec vb = biv_as_znx_vec(b);
+
+	return pvda_vec_znx_sub(module, &r, &va, &vb);
+}
+
+int biv_automorphism(const PvdaBackend* module, int64_t p, PolyBiv* res, const PolyBiv* a)
+{
+	ZnxVec r  = biv_as_znx_vec(res);
+	ZnxVec va = biv_as_znx_vec(a);
+
+	return pvda_vec_znx_automorphism(module, p, &r, &va);
+}
+
+int biv_normalize(const PvdaBackend* module, uint64_t log2_base, PolyBiv* res, const PolyBiv* a)
+{
+	ZnxVec r  = biv_as_znx_vec(res);
+	ZnxVec va = biv_as_znx_vec(a);
+
+	return pvda_vec_znx_normalize_base2k(module, log2_base, &r, &va);
+}
+
 void delete_biv(PolyBiv* biv)
 {
 	if (biv)
@@ -109,10 +143,10 @@ cleanup:
 	return status;
 }
 
-void add_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
-                  const PolyBiv* b)
+int add_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
+                 const PolyBiv* b)
 {
-	pvda_vec_znx_add(module, res, a, b);
+	return biv_add(module, res, a, b);
 }
 
 int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
@@ -147,7 +181,7 @@ int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_g
 			RAISE_ERROR("Strided fast uniform noise addition not implemented");
 		}
 	}
-	pvda_vec_znx_add(module, &last_limb_res, &last_limb_a, &err_biv);
+	biv_add(module, &last_limb_res, &last_limb_a, &err_biv);
 
 	status = 0;
 cleanup:
@@ -266,21 +300,24 @@ int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, P
 {
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
-	pvda_vec_znx_dft(module, res_dft, l, a);
+	ZnxVec v    = biv_as_znx_vec(a);
+	pvda_vec_znx_dft(module, res_dft, l, &v);
 	return 0;
 }
 int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
 {
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
-	pvda_vmp_prepare_vec(module, res_prep, l, a);
+	ZnxVec v    = biv_as_znx_vec(a);
+	pvda_vmp_prepare_vec(module, res_prep, l, &v);
 	return 0;
 }
 
 int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
 {
 	uint64_t l = glwe_params_l_a(params_glwe);
-	return pvda_vec_znx_idft(module, res, a_dft, l);
+	ZnxVec v   = biv_as_znx_vec(res);
+	return pvda_vec_znx_idft(module, &v, a_dft, l);
 }
 
 int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol, int64_t bit_offset)
