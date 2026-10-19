@@ -124,7 +124,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 			CHECK_CALL(biv_dft_to_coefs(module, params, as_j, as_j_dft),
 			           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
 
-			add_biv_poly(module, params, acc, acc, as_j);
+			biv_add(module, acc, acc, as_j);
 		}
 	}
 	else
@@ -139,7 +139,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 		           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
 	}
 
-	add_biv_poly(module, params, acc, acc, phase);
+	biv_add(module, acc, acc, phase);
 
 	// The pointer to the last row of the ciphertext vector (B)
 	PolyBiv b = glwe_extract_poly_view(glwe, k);

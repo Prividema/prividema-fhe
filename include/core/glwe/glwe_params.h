@@ -4,18 +4,16 @@
 #include <stdint.h>
 
 /**
- * @brief Parameters object for a GLWE problem/ciphertext
- *
  * @file glwe_params.h
  *
+ * @brief Parameters object for a GLWE problem/ciphertext.
+ *
  * This file contains the definition of GLWE parameters, as well as accessor/helper functions for parameters
- * that can be derived from them
+ * that can be derived from them.
  */
 
 /**
- *
  * @brief enum for the available distributions to sample the error/noise used in FHE encryption operations
- *
  */
 typedef enum noise_type_t {
 	NOISE_UNIFORM_POWER_OF_TWO,  ///< Uniform noise, with the range being restricted to powers of 2. The smallest suitable one is selected from sigma.
@@ -27,7 +25,6 @@ typedef enum noise_type_t {
 
 /**
  * @brief Parameters object for a GLWE problem/ciphertext
- *
  */
 typedef struct glwe_ct_params
 {

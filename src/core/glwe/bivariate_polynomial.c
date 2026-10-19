@@ -19,9 +19,11 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-//! BIV POLY PART (begin)
-
-uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_params_l_a(params_glwe) * params_glwe->nn; }
+// =============================================
+// |                                           |
+// |                  PolyBiv                  |
+// |                                           |
+// =============================================
 
 PolyBiv* new_biv(const GLWEParams* params_glwe)
 {
@@ -34,16 +36,55 @@ PolyBiv* new_biv(const GLWEParams* params_glwe)
 	pol->ptr    	= calloc(pol->nb_limbs * pol->nn, sizeof(int64_t));
 	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
 	return pol;
+
 cleanup:
 	delete_biv(pol);
 	return NULL;
 }
+
+// =============================================
+// |                                           |
+// |                   Views                   |
+// |                                           |
+// =============================================
 
 PolyBiv biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr)
 {
 	PolyBiv r = {nn, l, stride, ptr};
 	return r;
 }
+
+PolyBiv* new_biv_custom_params(uint64_t nn, uint64_t biv_l)
+{
+	PolyBiv* pol = malloc(sizeof(PolyBiv));
+	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
+
+	pol->nn     	= nn;
+	pol->nb_limbs	= biv_l;
+	pol->stride 	= (int64_t)nn;
+	pol->ptr    	= calloc(biv_l * nn, sizeof(int64_t));
+	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
+	return pol;
+
+cleanup:
+	delete_biv(pol);
+	return NULL;
+}
+
+void delete_biv(PolyBiv* biv)
+{
+	if (biv)
+	{
+		free(biv->ptr);
+		biv->ptr = NULL;
+	}
+	free(biv);
+}
+// =============================================
+// |                                           |
+// |                Operations                 |
+// |                                           |
+// =============================================
 
 int biv_add(const PvdaBackend* module, PolyBiv* res, const PolyBiv* a, const PolyBiv* b)
 {
@@ -77,76 +118,6 @@ int biv_normalize(const PvdaBackend* module, uint64_t log2_base, PolyBiv* res, c
 	ZnxVec va = biv_as_znx_vec(a);
 
 	return pvda_vec_znx_normalize_base2k(module, log2_base, &r, &va);
-}
-
-void delete_biv(PolyBiv* biv)
-{
-	if (biv)
-	{
-		free(biv->ptr);
-		biv->ptr = NULL;
-	}
-	free(biv);
-}
-
-PolyBiv* new_biv_custom_params(uint64_t nn, uint64_t biv_l)
-{
-	PolyBiv* pol = malloc(sizeof(PolyBiv));
-	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
-
-	pol->nn     	= nn;
-	pol->nb_limbs	= biv_l;
-	pol->stride 	= (int64_t)nn;
-	pol->ptr    	= calloc(biv_l * nn, sizeof(int64_t));
-	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
-	return pol;
-cleanup:
-	delete_biv(pol);
-	return NULL;
-}
-
-int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result)
-{
-	int status = -1;
-
-	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
-	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
-
-	CHECK_CALL(normal_random_vec(module, rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
-	           "random normal vec generation failed");
-
-	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
-	           "univ to biv conversion failed in normal random biv poly generation");
-
-	status = 0;
-
-cleanup:
-	delete_univ_rnx(rd_pol_univ);
-
-	return status;
-}
-
-int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result,
-                            int64_t precision)
-{
-	int status = -1;
-
-	for (uint64_t i = 0; i < precision; i++)
-		for (uint64_t p = 0; p < result->nn; p++)
-			CHECK_CALL(pvda_rand_uniform_pow2(module, result->ptr + i * result->stride + p, params_glwe->kappa),
-			           "rand_uniform failed in uniform_random_biv_poly.");
-
-	status = 0;
-
-cleanup:
-
-	return status;
-}
-
-int add_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a,
-                 const PolyBiv* b)
-{
-	return biv_add(module, res, a, b);
 }
 
 int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
@@ -184,9 +155,9 @@ int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_g
 	biv_add(module, &last_limb_res, &last_limb_a, &err_biv);
 
 	status = 0;
+
 cleanup:
 	delete_univ(err);
-
 	return status;
 }
 
@@ -200,243 +171,58 @@ int add_biv_noise(const PvdaBackend* module, const GLWEParams* params_glwe, Poly
 			RAISE_ERROR("Noise type not implemented");
 	}
 	return 0;
+
 cleanup:
 	return -1;
 }
 
-//! BIV POLY IN DFT PART (begin)
+// =============================================
+// |                                           |
+// |                  Random                   |
+// |                                           |
+// =============================================
 
-uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe)
-{
-	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
-}
-
-BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe)
-{
-	BE_PolyVecDFT* pol_dft = calloc(poly_biv_coef_number_dft(params_glwe), 2 * sizeof(double));
-	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
-	return pol_dft;
-cleanup:
-	return NULL;
-}
-
-void delete_biv_dft(BE_PolyVecDFT* biv_dft) { free(biv_dft); }
-
-BE_PolyVecDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l)
-{
-	BE_PolyVecDFT* pol_dft = calloc(nn * biv_l, sizeof(double));
-	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
-	return pol_dft;
-
-cleanup:
-	return NULL;
-}
-
-BE_PolyVecVmpPrep* new_biv_prep(const PvdaBackend* module, const GLWEParams* params_glwe)
-{
-	return new_biv_prep_custom_params(module, glwe_params_l_a(params_glwe));
-}
-
-BE_PolyVecVmpPrep* new_biv_prep_custom_params(const PvdaBackend* module, uint64_t biv_l)
-{
-	BE_PolyVecVmpPrep* pol_prep = pvda_new_vmp_pvec(module, biv_l);
-	CHECK_ALLOC(pol_prep, "Prepared bivariate polynomial allocation failed");
-	return pol_prep;
-
-cleanup:
-	return NULL;
-}
-
-
-void delete_biv_prep(const PvdaBackend* module, BE_PolyVecVmpPrep* biv_prep)
-{
-	pvda_delete_vmp_pvec(module, biv_prep);
-}
-
-//! COMMON PART (begin)
-
-uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
-
-void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol_biv, int64_t bit_offset)
-{
-	uint64_t nn      = params_glwe->nn;
-	uint64_t kappa   = params_glwe->kappa;
-	uint64_t l       = glwe_params_l_a(params_glwe);
-	uint64_t start_l = l;
-
-	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
-	double pkappa = exp2(-(double)kappa);
-	memset(res_univ, 0, poly_univ_rnx_bytes(params_glwe));
-	for (uint64_t p = 0; p < nn; p++)
-		for (uint64_t i = start_l; i >= 1; --i)
-		{
-			res_univ[p] += (double)pol_biv->ptr[(i - 1) * pol_biv->stride + p];
-			res_univ[p] *= pkappa;
-		}
-
-	if (bit_offset != 0)
-		for (uint64_t p = 0; p < nn; p++) res_univ[p] = ldexp(res_univ[p], bit_offset);
-}
-
-int univ_rnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ,
-                                  int64_t k_offset)
+int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result)
 {
 	int status = -1;
 
-	// bivGLWE parameters
-	uint64_t nn    = params_glwe->nn;
-	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l_a(params_glwe);
-	uint64_t l_max = INT_ROUND_UP_DIV(53ul, kappa);
+	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
+	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
 
-	// Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa -
-	// 1) - 1]
-	int64_t mask = (1LL << kappa) - 1;
-	double acc   = 0;
-	for (uint64_t i = 1; i <= l && i <= l_max; i++)
-	{
-		acc += ldexp(1.0, (int)kappa - 1 - (int)kappa * (int)i);
-	}
+	CHECK_CALL(normal_random_vec(module, rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
+	           "random normal vec generation failed");
 
-	for (uint64_t p = 0; p < nn; p++)
-	{
-		double tmp = pol_univ[p] + acc;
-
-		if (tmp < 0) tmp -= floor(tmp);
-		for (uint64_t i = 1; i <= k_offset; ++i) res->ptr[(i - 1) * res->stride + p] = 0;
-		for (uint64_t i = 1; i + k_offset <= l && i <= l_max; i++)
-		{
-			res->ptr[(i + k_offset - 1) * res->stride + p] =
-			    (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
-		}
-	}
+	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
+	           "univ to biv conversion failed in normal random biv poly generation");
 
 	status = 0;
 
 cleanup:
-
+	delete_univ_rnx(rd_pol_univ);
 	return status;
 }
 
-int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecDFT* res_dft, const PolyBiv* a)
+int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result,
+                            int64_t precision)
 {
-	uint64_t nn = params_glwe->nn;
-	uint64_t l  = glwe_params_l_a(params_glwe);
-	ZnxVec v    = biv_as_znx_vec(a);
-	pvda_vec_znx_dft(module, res_dft, l, &v);
-	return 0;
-}
-int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecVmpPrep* res_prep, const PolyBiv* a)
-{
-	uint64_t nn = params_glwe->nn;
-	uint64_t l  = glwe_params_l_a(params_glwe);
-	ZnxVec v    = biv_as_znx_vec(a);
-	pvda_vmp_prepare_vec(module, res_prep, l, &v);
-	return 0;
-}
+	int status = -1;
 
-int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyVecDFT* a_dft)
-{
-	uint64_t l = glwe_params_l_a(params_glwe);
-	ZnxVec v   = biv_as_znx_vec(res);
-	return pvda_vec_znx_idft(module, &v, a_dft, l);
+	for (uint64_t i = 0; i < precision; i++)
+		for (uint64_t p = 0; p < result->nn; p++)
+			CHECK_CALL(pvda_rand_uniform_pow2(module, result->ptr + i * result->stride + p, params_glwe->kappa),
+			           "rand_uniform failed in uniform_random_biv_poly.");
+
+	status = 0;
+
+cleanup:
+	return status;
 }
 
-int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol, int64_t bit_offset)
-{
-	uint64_t nn    = params_glwe->nn;
-	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l_a(params_glwe);
-	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
-
-	memset(res_tnx, 0, nn * sizeof(*res_tnx));
-
-	for (uint64_t i = 0; i < l && i < l_max; ++i)
-	{
-		for (uint64_t p = 0; p < nn; p++)
-		{
-			int64_t shft_amt = 64 + bit_offset - (int)kappa - (int)(i * kappa);
-			if (shft_amt >= 64 || shft_amt <= -64) continue;
-
-			// Deal correctly with negative shift amounts, since
-			// left shift by negative number is undefined behaviour in C
-			uint64_t add_amt = shft_amt >= 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
-			                                 : ((pol->ptr[i * pol->stride + p]) >> -shft_amt);
-			res_tnx[p] += add_amt;
-		}
-	}
-	return 0;
-}
-
-int univ_tnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx)
-{
-	uint64_t nn    = params_glwe->nn;
-	uint64_t kappa = params_glwe->kappa;
-	uint64_t l     = glwe_params_l_a(params_glwe);
-	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
-
-	uint64_t acc = 0;
-	int64_t mask = (1LL << kappa) - 1;
-	for (uint64_t i = 1; i <= l && 63 + kappa >= i * kappa; i++)
-	{
-		acc += 1ULL << (63 + kappa - kappa * i);
-	}
-
-	for (uint64_t p = 0; p < nn; p++)
-	{
-		uint64_t tmp = pol_tnx[p] + acc;
-
-		for (uint64_t i = 1; i <= l && i <= l_max; i++)
-		{
-			int shft_amt = 64 - (int)(i * kappa);
-			if (shft_amt > 0)
-				res->ptr[(i - 1) * res->stride + p] = (int64_t)((tmp >> shft_amt) & mask) - (1LL << (kappa - 1));
-			else
-				res->ptr[(i - 1) * res->stride + p] = (int64_t)((tmp << -shft_amt) & mask) - (1LL << (kappa - 1));
-		}
-	}
-
-	return 0;
-}
-
-/**
- * @brief Helper funciton to fetch bits from a value and put then in the LSB of the return
- *
- * @param num Input value from which to fetch bits
- * @param offset Position of the least significant bit to be fetched. E.g., to fetch the MSB
- *               of num we would have offset 63.
- * @param len Number of bits to fetch
- *
- * @return bits [offset:offset+len] of num in positions [0:len] of the return value, 0 elsewhere
- *
- */
-static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
-{
-	assert(offset <= 63);
-
-	return (num >> offset) & ((1ULL << len) - 1);
-}
-
-/**
- * @brief Sign-extend to the full uint64_t from position offset, inverting sign if sgn is 1
- *
- * Intended for "casting" 2-complement values of offset + 1 bits into a full 64-bit word.
- *
- * @param num The input number
- * @param offset The MSB of num from which we want to sign-extend
- * @param sgn Whether to invert the sign of the result (1) or not (0)
- *            Values other than 0 and 1 are undefined
- *
- * @return The result of "casting a offset + 1 bit 2-complement int" to int64_t,
- *         and, if sgn is 1, negating it afterwards
- *
- */
-static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
-{
-	uint64_t shift_amt = 63 - offset;
-	int64_t s          = ((int64_t)(num << shift_amt)) >> shift_amt;
-	return ((s ^ -sgn) + sgn);
-}
+// =============================================
+// |                                           |
+// |                Univ -> Biv                |
+// |                                           |
+// =============================================
 
 /**
  * Converts a sign-and-magintude value tnx value (stnx_num) into a bivariate polynomial,
@@ -524,36 +310,6 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 	}
 }
 
-// IEEE 754 double precision mask for sign (bit 63) and mantissa (bits[51:0])
-#define DOUBLE_SGN_AND_MANTISSA_BMASK ((1UL << 63) + (1UL << 52) - 1)
-
-int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset)
-{
-	uint64_t nn = params_glwe->nn;
-	int kappa   = (int)params_glwe->kappa;
-	for (int p = 0; p < nn; ++p)
-	{
-		double val = pol_univ[p];
-		uint64_t s_val;
-		// Casts the double bitwise to a uint64_t so we can work
-		// directly with the IEEE 754 memory layout
-		memcpy(&s_val, &val, sizeof(double));
-
-		// IEEE 754 exponent (select bits and undo 1023 fixed offset)
-		int exp = (int)select_bits(s_val, 52, 11);
-		exp -= 1023;
-
-		// IEEE 754 significand
-		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
-
-		// Add implicit bit. In the case of denormal numbers, this makes the computation wrong by
-		// the minimum non-denormal distance, which is a somewhat graceful failing
-		s_val |= (1UL << 52);
-		biv_decomp_internal(s_val, 52ll - exp + bit_offset, res->ptr + p, res->stride, params_glwe);
-	}
-	return 0;
-}
-
 /**
  * Converts a vector of signs and another of mangintudes of tnx values into a bivariate polynomial/vector while
  * putting the LSB of the stnx value in the position of exponent 2^-lsb_pos
@@ -564,12 +320,10 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
  * @param mag_vec A contigious vector of the magnitudes of the input values
  * @param sgn_vec A contigious vector of the signs of the input values
  * @param lsb_pos Position where the LSB of the inputs should be placed. One should use 63 if no shift is to be performed,
- * but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
- * @param dst The destination bivariate polynomial, which should be given with all coefficients set to 0
- * @param dst_sl The stride between occurrences of different limbs of the same coefficient in the output.
- * @param params the glwe params (used to get l_a and kappa)
- *
- *
+ * 			      but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
+ * @param dst 	  The destination bivariate polynomial, which should be given with all coefficients set to 0
+ * @param dst_sl  The stride between occurrences of different limbs of the same coefficient in the output.
+ * @param params  The glwe params (used to get l_a and kappa)
  */
 inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, int lsb_pos, int64_t* dst,
                                            int64_t dst_sl, const GLWEParams* params)
@@ -643,6 +397,37 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 	}
 }
 
+int univ_tnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_tnx)
+{
+	uint64_t nn    = params_glwe->nn;
+	uint64_t kappa = params_glwe->kappa;
+	uint64_t l     = glwe_params_l_a(params_glwe);
+	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
+
+	uint64_t acc = 0;
+	int64_t mask = (1LL << kappa) - 1;
+	for (uint64_t i = 1; i <= l && 63 + kappa >= i * kappa; i++)
+	{
+		acc += 1ULL << (63 + kappa - kappa * i);
+	}
+
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		uint64_t tmp = pol_tnx[p] + acc;
+
+		for (uint64_t i = 1; i <= l && i <= l_max; i++)
+		{
+			int shft_amt = 64 - (int)(i * kappa);
+			if (shft_amt > 0)
+				res->ptr[(i - 1) * res->stride + p] = (int64_t)((tmp >> shft_amt) & mask) - (1LL << (kappa - 1));
+			else
+				res->ptr[(i - 1) * res->stride + p] = (int64_t)((tmp << -shft_amt) & mask) - (1LL << (kappa - 1));
+		}
+	}
+
+	return 0;
+}
+
 int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivTnX* pol_univ, int64_t bit_offset)
 {
 	int status  = -1;
@@ -675,6 +460,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 	// and shifted right by 1, thus its implicit denominator is 2^-63
 	biv_decomp_internal_vec(mag_vec, sgn_vec, 63 + bit_offset, res->ptr, res->stride, params_glwe);
 	status = 0;
+
 cleanup:
 	free(mag_vec);
 	free(sgn_vec);
@@ -718,8 +504,268 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 	}
 	biv_decomp_internal_vec(mag_vec, sgn_vec, bit_offset, res->ptr, res->stride, params_glwe);
 	status = 0;
+
 cleanup:
 	free(mag_vec);
 	free(sgn_vec);
 	return status;
+}
+
+int univ_rnx_to_biv_low_precision(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ,
+                                  int64_t k_offset)
+{
+	int status = -1;
+
+	// bivGLWE parameters
+	uint64_t nn    = params_glwe->nn;
+	uint64_t kappa = params_glwe->kappa;
+	uint64_t l     = glwe_params_l_a(params_glwe);
+	uint64_t l_max = INT_ROUND_UP_DIV(53ul, kappa);
+
+	// Fills each pol_biv(X^p, Y^i) with the pol_univ's decomposition coefficients of  in [-2^(kappa* - 1) ; 2^(kappa -
+	// 1) - 1]
+	int64_t mask = (1LL << kappa) - 1;
+	double acc   = 0;
+	for (uint64_t i = 1; i <= l && i <= l_max; i++)
+	{
+		acc += ldexp(1.0, (int)kappa - 1 - (int)kappa * (int)i);
+	}
+
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		double tmp = pol_univ[p] + acc;
+
+		if (tmp < 0) tmp -= floor(tmp);
+		for (uint64_t i = 1; i <= k_offset; ++i) res->ptr[(i - 1) * res->stride + p] = 0;
+		for (uint64_t i = 1; i + k_offset <= l && i <= l_max; i++)
+		{
+			res->ptr[(i + k_offset - 1) * res->stride + p] =
+			    (((int64_t)ldexp(tmp, i * kappa)) & mask) - (1LL << (kappa - 1));
+		}
+	}
+
+	status = 0;
+
+cleanup:
+	return status;
+}
+
+// IEEE 754 double precision mask for sign (bit 63) and mantissa (bits[51:0])
+#define DOUBLE_SGN_AND_MANTISSA_BMASK ((1UL << 63) + (1UL << 52) - 1)
+
+int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivRnX* pol_univ, int64_t bit_offset)
+{
+	uint64_t nn = params_glwe->nn;
+	int kappa   = (int)params_glwe->kappa;
+	for (int p = 0; p < nn; ++p)
+	{
+		double val = pol_univ[p];
+		uint64_t s_val;
+		// Casts the double bitwise to a uint64_t so we can work
+		// directly with the IEEE 754 memory layout
+		memcpy(&s_val, &val, sizeof(double));
+
+		// IEEE 754 exponent (select bits and undo 1023 fixed offset)
+		int exp = (int)select_bits(s_val, 52, 11);
+		exp -= 1023;
+
+		// IEEE 754 significand
+		s_val &= DOUBLE_SGN_AND_MANTISSA_BMASK;
+
+		// Add implicit bit. In the case of denormal numbers, this makes the computation wrong by
+		// the minimum non-denormal distance, which is a somewhat graceful failing
+		s_val |= (1UL << 52);
+		biv_decomp_internal(s_val, 52ll - exp + bit_offset, res->ptr + p, res->stride, params_glwe);
+	}
+	return 0;
+}
+
+// =============================================
+// |                                           |
+// |                Biv -> Univ                |
+// |                                           |
+// =============================================
+
+void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const PolyBiv* pol_biv, int64_t bit_offset)
+{
+	uint64_t nn      = params_glwe->nn;
+	uint64_t kappa   = params_glwe->kappa;
+	uint64_t l       = glwe_params_l_a(params_glwe);
+	uint64_t start_l = l;
+
+	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
+	double pkappa = exp2(-(double)kappa);
+	memset(res_univ, 0, poly_univ_rnx_bytes(params_glwe));
+	for (uint64_t p = 0; p < nn; p++)
+		for (uint64_t i = start_l; i >= 1; --i)
+		{
+			res_univ[p] += (double)pol_biv->ptr[(i - 1) * pol_biv->stride + p];
+			res_univ[p] *= pkappa;
+		}
+
+	if (bit_offset != 0)
+		for (uint64_t p = 0; p < nn; p++) res_univ[p] = ldexp(res_univ[p], bit_offset);
+}
+
+int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const PolyBiv* pol, int64_t bit_offset)
+{
+	uint64_t nn    = params_glwe->nn;
+	uint64_t kappa = params_glwe->kappa;
+	uint64_t l     = glwe_params_l_a(params_glwe);
+	uint64_t l_max = INT_ROUND_UP_DIV(64ul, kappa);
+
+	memset(res_tnx, 0, nn * sizeof(*res_tnx));
+
+	for (uint64_t i = 0; i < l && i < l_max; ++i)
+	{
+		for (uint64_t p = 0; p < nn; p++)
+		{
+			int64_t shft_amt = 64 + bit_offset - (int)kappa - (int)(i * kappa);
+			if (shft_amt >= 64 || shft_amt <= -64) continue;
+
+			// Deal correctly with negative shift amounts, since
+			// left shift by negative number is undefined behaviour in C
+			uint64_t add_amt = shft_amt >= 0 ? ((uint64_t)pol->ptr[i * pol->stride + p]) << shft_amt
+			                                 : ((pol->ptr[i * pol->stride + p]) >> -shft_amt);
+			res_tnx[p] += add_amt;
+		}
+	}
+	return 0;
+}
+
+// =============================================
+// |                                           |
+// |                  Biv DFT                  |
+// |                                           |
+// =============================================
+
+BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe)
+{
+	BE_PolyVecDFT* pol_dft = calloc(poly_biv_dft_coef_number(params_glwe), 2 * sizeof(double));
+	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
+	return pol_dft;
+
+cleanup:
+	return NULL;
+}
+
+BE_PolyVecDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l)
+{
+	BE_PolyVecDFT* pol_dft = calloc(nn * biv_l, sizeof(double));
+	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
+	return pol_dft;
+
+cleanup:
+	return NULL;
+}
+
+void delete_biv_dft(BE_PolyVecDFT* biv_dft) { free(biv_dft); }
+
+// =============================================
+// |                                           |
+// |               Prepared Biv                |
+// |                                           |
+// =============================================
+
+BE_PolyVecVmpPrep* new_biv_prep(const PvdaBackend* module, const GLWEParams* params_glwe)
+{
+	return new_biv_prep_custom_params(module, glwe_params_l_a(params_glwe));
+}
+
+BE_PolyVecVmpPrep* new_biv_prep_custom_params(const PvdaBackend* module, uint64_t biv_l)
+{
+	BE_PolyVecVmpPrep* pol_prep = pvda_new_vmp_pvec(module, biv_l);
+	CHECK_ALLOC(pol_prep, "Prepared bivariate polynomial allocation failed");
+	return pol_prep;
+
+cleanup:
+	return NULL;
+}
+
+
+void delete_biv_prep(const PvdaBackend* module, BE_PolyVecVmpPrep* biv_prep)
+{
+	pvda_delete_vmp_pvec(module, biv_prep);
+}
+
+// =============================================
+// |                                           |
+// |                Transforms                 |
+// |                                           |
+// =============================================
+
+int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecDFT* res_dft, const PolyBiv* a)
+{
+	uint64_t nn = params_glwe->nn;
+	uint64_t l  = glwe_params_l_a(params_glwe);
+	ZnxVec v    = biv_as_znx_vec(a);
+	pvda_vec_znx_dft(module, res_dft, l, &v);
+	return 0;
+}
+int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecVmpPrep* res_prep, const PolyBiv* a)
+{
+	uint64_t nn = params_glwe->nn;
+	uint64_t l  = glwe_params_l_a(params_glwe);
+	ZnxVec v    = biv_as_znx_vec(a);
+	pvda_vmp_prepare_vec(module, res_prep, l, &v);
+	return 0;
+}
+
+int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyVecDFT* a_dft)
+{
+	uint64_t l = glwe_params_l_a(params_glwe);
+	ZnxVec v   = biv_as_znx_vec(res);
+	return pvda_vec_znx_idft(module, &v, a_dft, l);
+}
+
+// =============================================
+// |                                           |
+// |                   Utils                   |
+// |                                           |
+// =============================================
+
+uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_params_l_a(params_glwe) * params_glwe->nn; }
+
+uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
+
+/**
+ * @brief Helper funciton to fetch bits from a value and put then in the LSB of the return
+ *
+ * @param num Input value from which to fetch bits
+ * @param offset Position of the least significant bit to be fetched. E.g., to fetch the MSB
+ *               of num we would have offset 63.
+ * @param len Number of bits to fetch
+ *
+ * @return bits [offset:offset+len] of num in positions [0:len] of the return value, 0 elsewhere
+ *
+ */
+static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
+{
+	assert(offset <= 63);
+	return (num >> offset) & ((1ULL << len) - 1);
+}
+
+uint64_t poly_biv_dft_coef_number(const GLWEParams* params_glwe)
+{
+	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
+}
+
+/**
+ * @brief Sign-extend to the full uint64_t from position offset, inverting sign if sgn is 1
+ *
+ * Intended for "casting" 2-complement values of offset + 1 bits into a full 64-bit word.
+ *
+ * @param num The input number
+ * @param offset The MSB of num from which we want to sign-extend
+ * @param sgn Whether to invert the sign of the result (1) or not (0)
+ *            Values other than 0 and 1 are undefined
+ *
+ * @return The result of "casting a offset + 1 bit 2-complement int" to int64_t,
+ *         and, if sgn is 1, negating it afterwards
+ */
+static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
+{
+	uint64_t shift_amt = 63 - offset;
+	int64_t s          = ((int64_t)(num << shift_amt)) >> shift_amt;
+	return ((s ^ -sgn) + sgn);
 }

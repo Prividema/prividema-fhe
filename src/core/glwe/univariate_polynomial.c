@@ -6,7 +6,35 @@
 
 #include "backend.h"
 #include "backend_arithmetic.h"
-#include "bivariate_polynomial.h"
+
+// =============================================
+// |                                           |
+// |                 PolyUniv                  |
+// |                                           |
+// =============================================
+
+PolyUniv* new_univ(const GLWEParams* params_glwe)
+{
+	return aligned_alloc(64, poly_univ_bytes(params_glwe));
+}
+
+void delete_univ(PolyUniv* pol) { free(pol); }
+
+// =============================================
+// |                                           |
+// |                    DFT                    |
+// |                                           |
+// =============================================
+
+BE_PolyVecDFT* new_univ_dft(const PvdaBackend* module)
+{
+	return pvda_new_vec_znx_dft(module, 1);
+}
+
+void delete_univ_dft(const PvdaBackend* module, BE_PolyVecDFT* pol)
+{
+	pvda_delete_vec_znx_dft(module, pol);
+}
 
 int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const PolyUniv* a)
 {
@@ -23,10 +51,11 @@ int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const BE_PolyVec
 	return pvda_vec_znx_idft(module, &res_vec, a_dft, 1);
 }
 
-int univ_coefs_to_prep(const PvdaBackend* module, BE_PolySvpPrep* res_prep, const PolyUniv *a)
-{
-	return pvda_svp_prepare(module, res_prep, a);
-}
+// =============================================
+// |                                           |
+// |                   Prep                    |
+// |                                           |
+// =============================================
 
 BE_PolySvpPrep* new_univ_prep(const PvdaBackend* module)
 {
@@ -38,31 +67,42 @@ void delete_univ_prep(const PvdaBackend* module, BE_PolySvpPrep* pol)
 	pvda_delete_svp_ppol(module, pol);
 }
 
-uint64_t poly_univ_bytes(const GLWEParams* params_glwe)
+int univ_coefs_to_prep(const PvdaBackend* module, BE_PolySvpPrep* res_prep, const PolyUniv *a)
 {
-	uint64_t nn = params_glwe->nn;
-	return nn * sizeof(PolyUniv);
+	return pvda_svp_prepare(module, res_prep, a);
 }
 
-uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivRnX); }
+// =============================================
+// |                                           |
+// |                   Tnx                     |
+// |                                           |
+// =============================================
 
-uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivTnX); }
+PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe)
+{
+	return malloc(poly_univ_tnx_bytes(params_glwe));
+}
 
-PolyUniv* new_univ(const GLWEParams* params_glwe) { return aligned_alloc(64, poly_univ_bytes(params_glwe)); }
+void delete_univ_tnx(PolyUnivTnX* pol) { free(pol); }
 
-void delete_univ(PolyUniv* pol) { free(pol); }
+// =============================================
+// |                                           |
+// |                   Rnx                     |
+// |                                           |
+// =============================================
 
-PolyUnivRnX* new_univ_rnx(const GLWEParams* params_glwe) { return malloc(poly_univ_rnx_bytes(params_glwe)); }
+PolyUnivRnX* new_univ_rnx(const GLWEParams* params_glwe)
+{
+	return malloc(poly_univ_rnx_bytes(params_glwe));
+}
 
 void delete_univ_rnx(PolyUnivRnX* pol) { free(pol); }
 
-BE_PolyVecDFT* new_univ_dft(const PvdaBackend* module) { return pvda_new_vec_znx_dft(module, 1); }
-
-void delete_univ_dft(const PvdaBackend* module, BE_PolyVecDFT* pol) { pvda_delete_vec_znx_dft(module, pol); /*TODO fix*/ }
-
-PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe) { return malloc(poly_univ_tnx_bytes(params_glwe)); }
-
-void delete_univ_tnx(PolyUnivTnX* pol) { free(pol); }
+// =============================================
+// |                                           |
+// |            Tnx-Rnx Conversions            |
+// |                                           |
+// =============================================
 
 int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX* a)
 {
@@ -81,3 +121,19 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
 	}
 	return 0;
 }
+
+// =============================================
+// |                                           |
+// |                   Utils                   |
+// |                                           |
+// =============================================
+
+uint64_t poly_univ_bytes(const GLWEParams* params_glwe)
+{
+	uint64_t nn = params_glwe->nn;
+	return nn * sizeof(PolyUniv);
+}
+
+uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivRnX); }
+
+uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivTnX); }

@@ -1,15 +1,20 @@
-#ifndef bivGLWE_H
-#define bivGLWE_H
+#ifndef GLWE_ARITHMETIC_H
+#define GLWE_ARITHMETIC_H
 
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 
 /**
- *
  * @file glwe_arithmetic.h
  *
- * @brief This file contains arithmetic operations on GLWE ciphertexts.
+ * @brief This file contains arithmetic operations on bivariate GLWE ciphertexts.
  */
+
+// =============================================
+// |                                           |
+// |             GLWE Ciphertext               |
+// |                                           |
+// =============================================
 
 /**
  * @brief Normalizes a bivariate GLWE ciphertext.
@@ -74,6 +79,12 @@ int glwe_negate(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
  */
 int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolySvpPrep* u, const GLWECiphertext* glwe);
 
+// =============================================
+// |                                           |
+// |           GLWE Ciphertext DFT             |
+// |                                           |
+// =============================================
+
 /**
  * @brief Adds two bivGLWE ciphertexts.
  *
@@ -96,4 +107,4 @@ int glwe_dft_add(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GL
  */
 int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolySvpPrep* u, const GLWECiphertextDFT* glwe_dft);
 
-#endif
+#endif // GLWE_ARITHMETIC_H

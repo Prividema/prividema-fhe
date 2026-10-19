@@ -112,7 +112,7 @@ int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* 
 		memcpy(pol_encrypt + (i - 1) * d, m_univ, d * sizeof(PolyUniv));
 		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_tmp, pol_encrypt, params_glwegad->kappa_tilde * i + divlog),
 		           "univ_to_biv failed in compute_phase_ij");
-		add_biv_poly(module, params_glwe, glwe_biv_msg, glwe_biv_msg, glwe_biv_tmp);
+		biv_add(module, glwe_biv_msg, glwe_biv_msg, glwe_biv_tmp);
 	}
 	CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
 	           "Noise addition failed in GLWEGadget encryption");

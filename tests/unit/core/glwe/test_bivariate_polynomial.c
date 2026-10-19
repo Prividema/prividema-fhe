@@ -386,9 +386,9 @@ PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 }*/
 
 /**
- * @brief Test add_biv_poly correctness with random normal polynomials
+ * @brief Test biv_add correctness with random normal polynomials
  */
-PvdaParamTest(add_biv_poly, basic, default_params_fn)
+PvdaParamTest(biv_add, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -399,7 +399,7 @@ PvdaParamTest(add_biv_poly, basic, default_params_fn)
 	uniform_random_biv_poly(module, params_glwe, pol_lhs, glwe_params_l_a(params_glwe));
 	uniform_random_biv_poly(module, params_glwe, pol_rhs, glwe_params_l_a(params_glwe));
 
-	add_biv_poly(module, params_glwe, sum_observed, pol_lhs, pol_rhs);
+	biv_add(module, sum_observed, pol_lhs, pol_rhs);
 
 	// Asserts sum_computed = pol_lhs + pol_rhs
 	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)

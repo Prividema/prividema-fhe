@@ -1,5 +1,5 @@
-#ifndef bivGLWE_KEY_H
-#define bivGLWE_KEY_H
+#ifndef GLWE_KEY_H
+#define GLWE_KEY_H
 
 #include "backend.h"
 #include "backend_types.h"
