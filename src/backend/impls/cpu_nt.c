@@ -5,7 +5,7 @@
 #include "backend.h"
 #include "backend_private.h"
 #include "backend_rng.h"
-#include "cpu_nt.h"
+#include "impls/cpu_nt.h"
 
 uint64_t pow_exp(uint64_t base, uint64_t exp, uint64_t m)
 {

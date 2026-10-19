@@ -8,8 +8,8 @@ set(GLWE_SRCS
     glwe_params.c
     glwe_ciphertext.c
     glwe_key.c
-    univariate_polynomial.c
-    bivariate_polynomial.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../polynomial/univariate_polynomial.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../polynomial/bivariate_polynomial.c
 )
 
 # Create a shared library named GLWE
@@ -24,5 +24,6 @@ target_link_libraries(PVDA_GLWE PRIVATE PVDA_COMMON PVDA_BACKEND)
 # Include directories
 target_include_directories(PVDA_GLWE
     PUBLIC
-        ${PROJECT_SOURCE_DIR}/include/core/glwe/   # Public headers for consumers
+        ${PROJECT_SOURCE_DIR}/include/core/glwe/        # Public headers for consumers
+        ${PROJECT_SOURCE_DIR}/include/core/polynomial
 )

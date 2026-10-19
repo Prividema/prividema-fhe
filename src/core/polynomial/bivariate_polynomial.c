@@ -225,6 +225,48 @@ cleanup:
 // =============================================
 
 /**
+ * @brief Helper funciton to fetch bits from a value and put then in the LSB of the return
+ *
+ * @param num Input value from which to fetch bits
+ * @param offset Position of the least significant bit to be fetched. E.g., to fetch the MSB
+ *               of num we would have offset 63.
+ * @param len Number of bits to fetch
+ *
+ * @return bits [offset:offset+len] of num in positions [0:len] of the return value, 0 elsewhere
+ *
+ */
+static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
+{
+	assert(offset <= 63);
+	return (num >> offset) & ((1ULL << len) - 1);
+}
+
+uint64_t poly_biv_dft_coef_number(const GLWEParams* params_glwe)
+{
+	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
+}
+
+/**
+ * @brief Sign-extend to the full uint64_t from position offset, inverting sign if sgn is 1
+ *
+ * Intended for "casting" 2-complement values of offset + 1 bits into a full 64-bit word.
+ *
+ * @param num The input number
+ * @param offset The MSB of num from which we want to sign-extend
+ * @param sgn Whether to invert the sign of the result (1) or not (0)
+ *            Values other than 0 and 1 are undefined
+ *
+ * @return The result of "casting a offset + 1 bit 2-complement int" to int64_t,
+ *         and, if sgn is 1, negating it afterwards
+ */
+static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
+{
+	uint64_t shift_amt = 63 - offset;
+	int64_t s          = ((int64_t)(num << shift_amt)) >> shift_amt;
+	return ((s ^ -sgn) + sgn);
+}
+
+/**
  * Converts a sign-and-magintude value tnx value (stnx_num) into a bivariate polynomial,
  * putting the LSB of the stnx value in the position of exponent 2^-lsb_pos
  *
@@ -728,44 +770,4 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_param
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
 
-/**
- * @brief Helper funciton to fetch bits from a value and put then in the LSB of the return
- *
- * @param num Input value from which to fetch bits
- * @param offset Position of the least significant bit to be fetched. E.g., to fetch the MSB
- *               of num we would have offset 63.
- * @param len Number of bits to fetch
- *
- * @return bits [offset:offset+len] of num in positions [0:len] of the return value, 0 elsewhere
- *
- */
-static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
-{
-	assert(offset <= 63);
-	return (num >> offset) & ((1ULL << len) - 1);
-}
 
-uint64_t poly_biv_dft_coef_number(const GLWEParams* params_glwe)
-{
-	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
-}
-
-/**
- * @brief Sign-extend to the full uint64_t from position offset, inverting sign if sgn is 1
- *
- * Intended for "casting" 2-complement values of offset + 1 bits into a full 64-bit word.
- *
- * @param num The input number
- * @param offset The MSB of num from which we want to sign-extend
- * @param sgn Whether to invert the sign of the result (1) or not (0)
- *            Values other than 0 and 1 are undefined
- *
- * @return The result of "casting a offset + 1 bit 2-complement int" to int64_t,
- *         and, if sgn is 1, negating it afterwards
- */
-static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
-{
-	uint64_t shift_amt = 63 - offset;
-	int64_t s          = ((int64_t)(num << shift_amt)) >> shift_amt;
-	return ((s ^ -sgn) + sgn);
-}
