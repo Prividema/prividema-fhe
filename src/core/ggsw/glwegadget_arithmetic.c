@@ -29,7 +29,7 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
 	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(result->params);
 
-	GLWECiphertextDFT* glwe_dft = new_glwe_dft(result->params);
+	GLWECiphertextDFT* glwe_dft = new_glwe_dft(module, result->params);
 	CHECK_ALLOC(glwe_dft, "Allocation failed in half-product");
 
 	ZnxVec v = biv_as_znx_vec(a);
@@ -46,7 +46,7 @@ cleanup:
 }
 
 int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
-                                    const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft)
+                                    const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyVecDFT* a_dft)
 {
 	int status = -1;
 
@@ -54,7 +54,7 @@ int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT
 	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(result_dft->params);
 
-	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols_out, (double*)a_dft, nrows,
+	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols_out, a_dft, nrows,
 	                                     glwegadget_prep_ct->mat, nrows, ncols_in),
 	           "vmp apply falied in half product");
 
@@ -64,7 +64,7 @@ cleanup:
 }
 
 int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
-                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep)
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyVecVmpPrep* a_prep)
 {
 	int status = -1;
 
@@ -72,9 +72,9 @@ int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECipherte
 	size_t ncols_in  = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(result_dft->params);
 
-	CHECK_CALL(pvda_vmp_apply_prepared_to_dft(module, result_dft->vec, ncols_out, (double*)a_prep, nrows,
+	CHECK_CALL(pvda_vmp_apply_prepared_to_dft(module, result_dft->vec, ncols_out, a_prep, nrows,
 	                                          glwegadget_prep_ct->mat, nrows, ncols_in),
-	           "vmp apply falied in half product");
+	           								  "vmp apply falied in half product");
 
 	status = 0;
 cleanup:
@@ -99,7 +99,7 @@ int compute_ksk(const PvdaBackend* module, GLWEKSK* ksk, const GLWESecretKeyPrep
 
 		//GLWEGadget(sigma_p(sk_i))
 		CHECK_CALL(
-		    glwegadget_secret_encrypt(module, glwegad_tmp, new_key, glwe_prepared_sk_extract_poly_coefs(old_key, i)),
+		    glwegadget_secret_encrypt(module, glwegad_tmp, new_key, glwe_sk_prepared_extract_poly_coefs(old_key, i)),
 		    "GLWEGadget encryption failed in autmorphism KSK preparation");
 		CHECK_CALL(glwegadget_prepare(module, gadget_ciph, glwegad_tmp),
 		           "GLWEGadget preparation failed in automorphism KSK preparation");
@@ -137,7 +137,7 @@ int compute_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKey* aut
 		GLWEGadgetCiphertextPrep* gadget_ciph = automorphism_key->glwe_ksk->enc_s[i];
 
 		//sigma_p (sk_i)
-		pvda_znx_automorphism(module, automorphism_p, auto_sk_tmp, glwe_prepared_sk_extract_poly_coefs(glwe_key, i));
+		pvda_znx_automorphism(module, automorphism_p, auto_sk_tmp, glwe_sk_prepared_extract_poly_coefs(glwe_key, i));
 
 		for (int i = 0; i < nn; ++i)
 		{
@@ -224,7 +224,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, auto_key->glwe_ksk->enc_s[i], auto_tmp),
 			                 "half product in automorphism failed", cleanup2);
 
-			add_glwe(module, result, result, glwe_tmp);
+			glwe_add(module, result, result, glwe_tmp);
 		}
 
 		// auto_tmp = auto_p(b)
@@ -258,7 +258,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 		CHECK_CALL(glwegadget_half_prod(module, result, glwe_ksk->enc_s[0], &a), "half product in automorphism failed");
 
 		// result = - (C_k(k_new) \hp a)
-		negate_glwe(module, result, result);
+		glwe_negate(module, result, result);
 
 		PolyBiv b        = glwe_extract_poly_view(glwe_ct, k);
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
@@ -290,11 +290,11 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 			CHECK_CALL_LABEL(glwegadget_half_prod(module, glwe_tmp, glwe_ksk->enc_s[i], &a_i),
 			                 "half product in automorphism failed", cleanup2);
 
-			add_glwe(module, result, result, glwe_tmp);
+			glwe_add(module, result, result, glwe_tmp);
 		}
 
 		//result = -sum_{j=0}^{j=k-1} (C_k(k_new[j]) \hp a_j)
-		negate_glwe(module, result, result);
+		glwe_negate(module, result, result);
 
 		PolyBiv b        = glwe_extract_poly_view(glwe_ct, k);
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
@@ -326,13 +326,13 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 	glwegadget_automorphism(module, tmp_glwe, glwegadget_key_collection_get_key(auto_key_collection, nn + 1),
 	                        results[0]);
 
-	add_glwe(module, tmp_glwe2, results[0], tmp_glwe);
+	glwe_add(module, tmp_glwe2, results[0], tmp_glwe);
 
-	sub_glwe(module, tmp_glwe, results[0], tmp_glwe);
+	glwe_sub(module, tmp_glwe, results[0], tmp_glwe);
 	ZnxVec tmp_flattened = glwe_as_znx_vec(tmp_glwe);
 	pvda_vec_znx_rotate(module, -1, &tmp_flattened, &tmp_flattened);
-	normalize_glwe(module, results[1], tmp_glwe);
-	normalize_glwe(module, results[0], tmp_glwe2);
+	glwe_normalize(module, results[1], tmp_glwe);
+	glwe_normalize(module, results[0], tmp_glwe2);
 
 	// Rest of the steps
 	for (uint64_t p = 2; p < res_size; p *= 2)
@@ -347,12 +347,12 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 			CHECK_ALLOC(auto_key, "KSK retrieval failed in trace expand");
 			glwegadget_automorphism(module, tmp_glwe, auto_key, results[b]);
 
-			add_glwe(module, tmp_glwe2, results[b], tmp_glwe);
+			glwe_add(module, tmp_glwe2, results[b], tmp_glwe);
 
-			sub_glwe(module, tmp_glwe, results[b], tmp_glwe);
+			glwe_sub(module, tmp_glwe, results[b], tmp_glwe);
 			pvda_vec_znx_rotate(module, -p, &tmp_flattened, &tmp_flattened);
-			normalize_glwe(module, results[b + dist], tmp_glwe);
-			normalize_glwe(module, results[b], tmp_glwe2);
+			glwe_normalize(module, results[b + dist], tmp_glwe);
+			glwe_normalize(module, results[b], tmp_glwe2);
 		}
 		for (; b < p; ++b)
 		{
@@ -361,9 +361,9 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 			CHECK_ALLOC(auto_key, "KSK retrieval failed in trace expand");
 			glwegadget_automorphism(module, tmp_glwe, auto_key, results[b]);
 
-			add_glwe(module, tmp_glwe, results[b], tmp_glwe);
+			glwe_add(module, tmp_glwe, results[b], tmp_glwe);
 
-			normalize_glwe(module, results[b], tmp_glwe);
+			glwe_normalize(module, results[b], tmp_glwe);
 		}
 	}
 
@@ -394,14 +394,14 @@ int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* result, int enc_si
 
 	if (pos & 1)
 	{
-		sub_glwe(module, tmp_glwe, result, tmp_glwe);
+		glwe_sub(module, tmp_glwe, result, tmp_glwe);
 		pvda_vec_znx_rotate(module, -1, &tmp_flattened, &tmp_flattened);
 	}
 	else
-		add_glwe(module, tmp_glwe, result, tmp_glwe);
+		glwe_add(module, tmp_glwe, result, tmp_glwe);
 	pos >>= 1;
 
-	normalize_glwe(module, result, tmp_glwe);
+	glwe_normalize(module, result, tmp_glwe);
 
 	// Rest of the steps
 	for (uint64_t p = 2; p < enc_size; p *= 2)
@@ -413,14 +413,14 @@ int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* result, int enc_si
 
 		if (pos & 1)
 		{
-			sub_glwe(module, tmp_glwe, result, tmp_glwe);
+			glwe_sub(module, tmp_glwe, result, tmp_glwe);
 			pvda_vec_znx_rotate(module, -p, &tmp_flattened, &tmp_flattened);
 		}
 		else
-			add_glwe(module, tmp_glwe, result, tmp_glwe);
+			glwe_add(module, tmp_glwe, result, tmp_glwe);
 		pos >>= 1;
 
-		normalize_glwe(module, result, tmp_glwe);
+		glwe_normalize(module, result, tmp_glwe);
 	}
 
 	status = 0;
@@ -526,7 +526,7 @@ int packed_glwegadget_trace_expand_prepared(const PvdaBackend* module, GLWEGadge
 	{
 		if (!results[r])
 		{
-			results[r] = new_glwegadget_prep(params_glwegad);
+			results[r] = new_glwegadget_prep(module, params_glwegad);
 			CHECK_ALLOC(results[r], "Prepared GLWEGadget allocation failed");
 		}
 		CHECK_CALL(glwegadget_prepare(module, results[r], gadgets[r]),

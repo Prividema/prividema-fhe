@@ -7,7 +7,7 @@ extern "C" {
 #include "ggsw_arithmetic.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
+#include "glwe_key.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
 #include "rng.h"
@@ -26,11 +26,11 @@ void bench_glwegad_half_prod(benchmark::State& state)
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
-	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
-	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
+	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
@@ -76,16 +76,16 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
-	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
-	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(params_glwe);
+	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(module, params_glwe);
 	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
-	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
+	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	PolyBivDFT* m_dft                      = new_biv_dft(params_glwe);
+	BE_PolyVecDFT* m_dft                      = new_biv_dft(params_glwe);
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
@@ -131,16 +131,16 @@ void bench_glwegad_half_prod_prep(benchmark::State& state)
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
-	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
-	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(params_glwe);
+	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(module, params_glwe);
 	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
-	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
+	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	PolyBivPrep* m_prep                    = new_biv_dft(params_glwe);
+	BE_PolyVecVmpPrep* m_prep              = new_biv_prep(module, params_glwe);
 
 	uniform_glwe_secret_key(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
@@ -159,7 +159,7 @@ void bench_glwegad_half_prod_prep(benchmark::State& state)
 	}
 
 	delete_biv(m);
-	free(m_prep);
+	delete_biv_prep(module, m_prep);
 	delete_univ(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 

@@ -7,7 +7,6 @@
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_utils.h"
 #include "math_utils.h"
@@ -28,8 +27,8 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	double critical_err_length = biv_epsilon + 5 * sigma + 5 * DBL_EPSILON;
 	cr_log_info("error length = %e", err_length);
 
-	GLWESecretKey* sk                = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep   = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep   = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWEGadgetCiphertext* glwegadget = new_glwegadget(params_glwegadget);
 	PolyUniv* m_univ                 = new_univ(params_glwe);
 
@@ -60,8 +59,8 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	double critical_err_length = biv_epsilon + 5 * sigma + 5 * DBL_EPSILON;
 	cr_log_info("error length = %e", err_length);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUniv* m_univ               = new_univ(params_glwe);
 
 	PolyBiv* phase_computed              = new_biv(params_glwe);

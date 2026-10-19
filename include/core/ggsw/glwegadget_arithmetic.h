@@ -41,7 +41,7 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
  * @retval 0 otherwise
  */
 int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
-                                    const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivDFT* a_dft);
+                                    const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyVecDFT* a_dft);
 
 /**
  * @brief Computes the half-external product between a GLWEGadget and
@@ -56,7 +56,7 @@ int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT
  * @retval 0 otherwise
  */
 int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
-                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBivPrep* a_prep);
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyVecVmpPrep* a_prep);
 /**
  * @brief Computes an automorphism key for an automorphism of degree automorphism_p from
  * the provided secret key

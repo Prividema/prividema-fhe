@@ -33,10 +33,10 @@ int normalize_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSW
 		uint64_t j = (limb_i % (params_ggsw->k_tilde + 1));
 
 		// View on biGLWE(-m * sk_j * Y^i)
-		GLWECiphertext glwe_normalize  = ggsw_glwe_view(result, j, i);
-		GLWECiphertext input_normalize = ggsw_glwe_view(ggsw, j, i);
+		GLWECiphertext glwe_normalized  = ggsw_glwe_view(result, j, i);
+		GLWECiphertext input_normalized = ggsw_glwe_view(ggsw, j, i);
 
-		normalize_glwe(module, &glwe_normalize, &input_normalize);
+		glwe_normalize(module, &glwe_normalized, &input_normalized);
 	}
 
 	status = 0;
@@ -57,36 +57,32 @@ void add_ggsw(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCipherte
 }
 
 int const_mult_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw,
-                    const PolyUnivDFT* u_dft)
+                    const BE_PolySvpPrep* u_prep)
 
 {
 	int status = -1;
 
-	// Variables
-
-	// bivGGSW & bivGLWE set of parameters
 	const GGSWParams* params_ggsw = result->params;
-	const GLWEParams* params_glwe = params_ggsw->params_glwe;
-
-	uint64_t nn                       = params_glwe->nn;
 	int64_t mat_size                  = ggsw_total_n_glwe_limbs(params_ggsw);
-	GGSWCiphertextPrep* ggsw_tmp_prep = new_ggsw_prep(params_ggsw);
 
-	CHECK_ALLOC(ggsw_tmp_prep, "alloc in const_mult_ggsw");
+	// DFT-domain screatch: one entry per polynomial in the GGSW
+	BE_PolyVecDFT* tmp_dft = pvda_new_vec_znx_dft(module, mat_size);
+	CHECK_ALLOC(tmp_dft, "tmp_dft's allocation failed in const_mult_ggsw");
 
+	// Computes DFT(u * ggsw) polynomial by polynomial
 	ZnxVec ggsw_flattened = ggsw_as_znx_vec(ggsw);
-	pvda_svp_apply_dft(module, ggsw_tmp_prep->mat, mat_size, u_dft, &ggsw_flattened);
+	CHECK_CALL(pvda_svp_apply_dft(module, tmp_dft, mat_size, u_prep, &ggsw_flattened),
+			   "svp_apply_dft failed in const_mult_ggsw");
 
 	// Go back to Zn[X,Y]
 	ZnxVec result_flattened = ggsw_as_znx_vec(result);
-	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, ggsw_tmp_prep->mat, mat_size),
+	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, tmp_dft, mat_size),
 	           "vec_znx_idft_p failed in const_mult_ggsw");
 
 	status = 0;
 
 cleanup:
-	delete_ggsw_prep(ggsw_tmp_prep);
-
+	pvda_delete_vec_znx_dft(module, tmp_dft);
 	return status;
 }
 
@@ -104,8 +100,8 @@ int ggsw_unprepared_external_product(const PvdaBackend* module,
 	uint64_t ncols_in  = glwe_params_n_limbs(ggsw->params->params_glwe);
 	uint64_t ncols_out = glwe_params_n_limbs(result->params);
 
-	MatBivDFT* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
-	VecBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
+	BE_PolyMatVmpPrep* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
+	BE_PolyVecDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
 	ggsw_pmat             = malloc(ggsw_bytes(ggsw->params));
 	result_dft            = malloc(glwe_params_bytes(ggsw->params->params_glwe));
 
@@ -156,7 +152,7 @@ int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* result, con
 {
 	int status = -1;
 
-	GLWECiphertextDFT* tmp_dft = new_glwe_dft(result->params);
+	GLWECiphertextDFT* tmp_dft = new_glwe_dft(module, result->params);
 	CHECK_ALLOC(tmp_dft, "Failed allocation in ggsw external product to non-dft");
 
 	CHECK_CALL(ggsw_external_product_to_dft(module, tmp_dft, glwe, ggsw_prepared), "External product failed");
@@ -216,7 +212,7 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 				// GGSW(-sk_i) HALFPROD GLWE(m * 2^-jK) = GLWE(-s_i * m * 2^-jK)
 				CHECK_CALL(ggsw_external_product(module, &res, &in, sk_encryptions[i]),
 				           "Relinearization external product failed in GGSW trace expansion");
-				CHECK_CALL(normalize_glwe(module, &res, &res), "Normalization failed in GGSW trace expansion");
+				CHECK_CALL(glwe_normalize(module, &res, &res), "Normalization failed in GGSW trace expansion");
 			}
 		}
 	}

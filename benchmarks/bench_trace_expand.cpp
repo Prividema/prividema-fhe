@@ -14,7 +14,7 @@ extern "C" {
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
+#include "glwe_key.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
 #include "rng.h"
@@ -34,8 +34,8 @@ void test_expand_trace(benchmark::State& state)
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 	params_glwe->fast_uniform_nb_bits   = 0;
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	PolyUnivRnX* m_univ_rnx = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
@@ -101,8 +101,8 @@ void test_hom_trace(benchmark::State& state)
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 	params_glwe->fast_uniform_nb_bits   = 0;
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	PolyUnivRnX* m_univ_rnx = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
@@ -164,8 +164,8 @@ void test_expand_compressed_trace(benchmark::State& state)
 	uint64_t k  = params_glwe->k;
 	uint64_t nn = params_glwe->nn;
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
 	PolyBiv* biv_tmp        = new_biv(params_glwe);
@@ -192,7 +192,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 		ggsw_ksks[i] = new_ggsw_prep(params_ggsw);
 		for (int p = 0; p < nn; ++p)
 		{
-			neg_sk_i[p] = -glwe_prepared_sk_extract_poly_coefs(sk_prep, i)[p];
+			neg_sk_i[p] = -glwe_sk_prepared_extract_poly_coefs(sk_prep, i)[p];
 		}
 		ggsw_secret_encrypt(module, ggsw_tmp, sk_prep, neg_sk_i);
 		ggsw_prepare(module, ggsw_ksks[i], ggsw_tmp);
@@ -249,8 +249,8 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	uint64_t k  = params_glwe->k;
 	uint64_t nn = params_glwe->nn;
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	PolyUniv* m_univ        = new_univ(params_glwe);
 	PolyBiv* biv_tmp        = new_biv(params_glwe);
@@ -276,7 +276,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 		ggsw_ksks[i] = new_ggsw(params_ggsw);
 		for (int p = 0; p < nn; ++p)
 		{
-			neg_sk_i[p] = -glwe_prepared_sk_extract_poly_coefs(sk_prep, i)[p];
+			neg_sk_i[p] = -glwe_sk_prepared_extract_poly_coefs(sk_prep, i)[p];
 		}
 		ggsw_secret_encrypt(module, ggsw_ksks[i], sk_prep, neg_sk_i);
 	}

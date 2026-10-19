@@ -73,7 +73,7 @@ int hebits_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
+int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, GLWECiphertext** src, int inp_cols,
                      const GGSWCiphertextPrep** selectors, int sel_size, int delete_src);
 
 #endif

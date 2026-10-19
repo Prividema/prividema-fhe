@@ -27,4 +27,11 @@ static inline ZnxVec znx_vec_view(uint64_t nn, uint64_t size, int64_t stride, in
     return v;
 }
 
+// Opaque types
+
+typedef struct pvda_be_poly_vec_dft_t      BE_PolyVecDFT;       ///< Backend vector of polynomials in DFT form
+typedef struct pvda_be_poly_svp_prep_t     BE_PolySvpPrep;      ///< Backend polynomial prepared for scalar-vector product 
+typedef struct pvda_be_poly_vec_vmp_prep_t BE_PolyVecVmpPrep;   ///< Backend vector of polynomials prepared for vector-matrix product
+typedef struct pvda_be_poly_mat_vmp_prep_t BE_PolyMatVmpPrep;   ///< Backend matrix of polynomials prepared for vector-matrix product
+
 #endif // PVDA_BACKEND_TYPES_H

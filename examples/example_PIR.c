@@ -16,7 +16,6 @@
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
@@ -132,11 +131,11 @@ int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, Pol
 // This stores the database columns after being pre-processed ("prepared") for faster operation
 // In a real use case, this would not exist as a variable in memory.
 // Instead, we would use a memory mapping and it would reside in disk
-PolyBivDFT* columns_dft[IN_MEMORY_DFT_COLS + 1] = {0};
+BE_PolyVecDFT* columns_dft[IN_MEMORY_DFT_COLS + 1] = {0};
 
 // Retrieve a prepared column. This would be simple pointer arithmetic
 // to an mmaped file in disk in a real use case
-PolyBivDFT* onionpir_get_prepared_column(int64_t column)
+BE_PolyVecDFT* onionpir_get_prepared_column(int64_t column)
 {
 	if (column >= IN_MEMORY_DFT_COLS) return columns_dft[0];
 	return columns_dft[column + 1];
@@ -179,7 +178,7 @@ int prepare_column(const PvdaBackend* module, int64_t column, const GLWEParams* 
 
 	// Custom-depth bivariate polynomials, since each "bivariate polynomial" actually corresponds
 	// to the concatenation of all the bivariate polynomials in the column
-	PolyBivPrep* pos_biv_dft = new_biv_dft_custom_params(db_params->nn, total_depth);
+	BE_PolyVecVmpPrep* pos_biv_dft = new_biv_dft_custom_params(db_params->nn, total_depth);
 	PolyBiv* pos_biv         = new_biv_custom_params(db_params->nn, total_depth);
 	CHECK_ALLOC(pos_biv_dft, "column 'bivariate' polynomial (in DFT) allocation failed");
 	CHECK_ALLOC(pos_biv, "column 'bivariate' polynomial allocation failed");
@@ -231,10 +230,10 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 	// For example, due to spqlios not having (at present) implementations for addition in the DFT space, we would have had to
 	// convert the results of each half-product (vector-matrix product) into coefficient space for aggregation,
 	// requiring us to do MATRIX_ROWS DFT-to-coefficient domain conversions instead of a single one at the end
-	GLWEGadgetCiphertextPrep* glwegad_trace = new_glwegadget_prep(mega_params);
+	GLWEGadgetCiphertextPrep* glwegad_trace = new_glwegadget_prep(module, mega_params);
 
 	// Temporary DFT glwe for the result for each column
-	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
+	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(module, aggregation_params);
 
 	CHECK_ALLOC_LABEL(mega_params, "Parameter allocation failed in onionpir server", cleanup1);
 	CHECK_ALLOC_LABEL(glwegad_trace, "GLWEGadget trace allocation failed in onionpir server", cleanup1);
@@ -265,7 +264,7 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 		CHECK_CALL_LABEL(st, "Trace by column half-product failed in onionpir server", cleanup2);
 		st = glwe_dft_to_coef(module, glwe_tree_first_level[c], tmp_glwe_dft);
 		CHECK_CALL_LABEL(st, "DFT to coefficient form failed after column half-product in onionpir server", cleanup2);
-		st = normalize_glwe(module, glwe_tree_first_level[c], glwe_tree_first_level[c]);
+		st = glwe_normalize(module, glwe_tree_first_level[c], glwe_tree_first_level[c]);
 		CHECK_CALL_LABEL(st, "normalization failed after column half-product in onionpir server", cleanup2);
 	}
 
@@ -328,8 +327,8 @@ int onionpir_client_phase0(PvdaBackend* module, GLWESecretKeyPrepared** sk_prep_
                            const GGSWParams* auto_ggsw_params)
 {
 	int status                                         = -1;
-	GLWESecretKey* sk                                  = alloc_glwe_secret_key(sk_params);
-	GLWESecretKeyPrepared* sk_prep                     = alloc_glwe_secret_key_prepared(sk_params);
+	GLWESecretKey* sk                                  = new_glwe_secret_key(sk_params);
+	GLWESecretKeyPrepared* sk_prep                     = new_glwe_secret_key_prepared(module, sk_params);
 	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2ul * NBASE);
 	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(KBASE, sizeof(GGSWCiphertextPrep*));
 	CHECK_ALLOC(sk, "Secret key allocation failed in phase 0 of OnionPIR");
@@ -591,10 +590,10 @@ int main(int argc, char* argv[])
 		double ms_elapsed =
 		    (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000;
 
-		//Client phase 2: receive and decrypt result (done as part of print_coefs_glwe)
+		//Client phase 2: receive and decrypt result (done as part of glwe_print_coefs)
 
 		printf("Result     encoded (decoded):\n");
-		print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
+		glwe_print_coefs(module, res, sk_prep, 4, SHFT_AMT);
 
 		// Compute the online throughput, in terms of bits of useful database data (size of the unprepared database)
 		// A througput of 500MB/s would mean that a query to a database that stores 1GB of data, which might be using,

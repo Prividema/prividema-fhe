@@ -31,7 +31,7 @@ int generate_glwegad_to_ggsw_ksk(const PvdaBackend* module, GGSWCiphertextPrep**
 		}
 		for (int p = 0; p < nn; ++p)
 		{
-			neg_sk_i[p] = -glwe_prepared_sk_extract_poly_coefs(sk_prep, i)[p];
+			neg_sk_i[p] = -glwe_sk_prepared_extract_poly_coefs(sk_prep, i)[p];
 		}
 		CHECK_CALL(ggsw_secret_encrypt(module, tmp_ggsw, sk_prep, neg_sk_i),
 		           "GGSW encryption failed in GGSW KSK generation");

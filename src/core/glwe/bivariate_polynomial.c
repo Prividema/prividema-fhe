@@ -211,24 +211,46 @@ uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe)
 	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
 }
 
-PolyBivDFT* new_biv_dft(const GLWEParams* params_glwe)
+BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe)
 {
-	PolyBivDFT* pol_dft = calloc(poly_biv_coef_number_dft(params_glwe), 2 * sizeof(double));
+	BE_PolyVecDFT* pol_dft = calloc(poly_biv_coef_number_dft(params_glwe), 2 * sizeof(double));
 	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
 	return pol_dft;
 cleanup:
 	return NULL;
 }
 
-void delete_biv_dft(PolyBivDFT* biv_dft) { free(biv_dft); }
+void delete_biv_dft(BE_PolyVecDFT* biv_dft) { free(biv_dft); }
 
-PolyBivDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l)
+BE_PolyVecDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l)
 {
-	PolyBivDFT* pol_dft = calloc(nn * biv_l, sizeof(double));
+	BE_PolyVecDFT* pol_dft = calloc(nn * biv_l, sizeof(double));
 	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
 	return pol_dft;
+
 cleanup:
 	return NULL;
+}
+
+BE_PolyVecVmpPrep* new_biv_prep(const PvdaBackend* module, const GLWEParams* params_glwe)
+{
+	return new_biv_prep_custom_params(module, glwe_params_l_a(params_glwe));
+}
+
+BE_PolyVecVmpPrep* new_biv_prep_custom_params(const PvdaBackend* module, uint64_t biv_l)
+{
+	BE_PolyVecVmpPrep* pol_prep = pvda_new_vmp_pvec(module, biv_l);
+	CHECK_ALLOC(pol_prep, "Prepared bivariate polynomial allocation failed");
+	return pol_prep;
+
+cleanup:
+	return NULL;
+}
+
+
+void delete_biv_prep(const PvdaBackend* module, BE_PolyVecVmpPrep* biv_prep)
+{
+	pvda_delete_vmp_pvec(module, biv_prep);
 }
 
 //! COMMON PART (begin)
@@ -296,7 +318,7 @@ cleanup:
 	return status;
 }
 
-int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a)
+int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecDFT* res_dft, const PolyBiv* a)
 {
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
@@ -304,7 +326,7 @@ int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, P
 	pvda_vec_znx_dft(module, res_dft, l, &v);
 	return 0;
 }
-int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep, const PolyBiv* a)
+int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecVmpPrep* res_prep, const PolyBiv* a)
 {
 	uint64_t nn = params_glwe->nn;
 	uint64_t l  = glwe_params_l_a(params_glwe);
@@ -313,7 +335,7 @@ int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, 
 	return 0;
 }
 
-int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft)
+int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyVecDFT* a_dft)
 {
 	uint64_t l = glwe_params_l_a(params_glwe);
 	ZnxVec v   = biv_as_znx_vec(res);

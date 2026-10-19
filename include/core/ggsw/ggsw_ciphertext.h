@@ -128,7 +128,7 @@ typedef struct ggsw_ciphertext_prepared
 	const GGSWParams* params;
 
 	/// Prepared matrix (opaque representation)
-	MatBivDFT* mat;
+	BE_PolyMatVmpPrep* mat;
 
 } GGSWCiphertextPrep;
 

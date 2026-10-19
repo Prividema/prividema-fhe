@@ -6,7 +6,6 @@
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -27,8 +26,8 @@ PvdaParamTest(glwe_secret_masking, small_error, default_params_fn)
 	double critical_err_length = 5 * sigma + 2 * (biv_epsilon + DBL_EPSILON);
 
 	//! Variables
-	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep       = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                    = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep       = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyBiv* m                           = new_biv(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
 	PolyBiv* phase                       = new_biv(params_glwe);
@@ -78,8 +77,8 @@ PvdaParamTest(glwe_secret_masking, uniform_RnX_message, default_params_fn)
 	double critical_err_length = 5 * sigma + 2 * (biv_epsilon + DBL_EPSILON);
 
 	//! Variables
-	GLWESecretKey* sk                    = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep       = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                    = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep       = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyBiv* m                           = new_biv(params_glwe);
 	PolyUnivRnX* m_univ_RnX              = new_univ_rnx(params_glwe);
 	PolyBiv* phase                       = new_biv(params_glwe);

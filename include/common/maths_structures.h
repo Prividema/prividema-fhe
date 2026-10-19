@@ -5,23 +5,6 @@
 
 // =============================================
 // |                                           |
-// |         Variable presentation             |
-// |                                           |
-// =============================================
-
-/*
- * In this library, an attempt is made to name variables as follows :
- *
- * var          : the elements of the variable are in the bivariate space.
- * var_dft      : the elements of the variable are bivariates elements in the DFT domain.
- * var_univ     : the variable is a \ZnX polynomial.
- * var_univ_rnx : the variable is a \RnX polynomial.
- * var_univ_tnx : the variable is a \TnX polynomial using fixed point representation.
- * var_univ_dft : the variable is a \ZnX polynomial in the DFT domain.
- */
-
-// =============================================
-// |                                           |
 // |         Univariate Structures             |
 // |                                           |
 // =============================================
@@ -44,15 +27,7 @@ typedef double PolyUnivRnX;
  */
 typedef int64_t PolyUniv;
 
-/**
- * @brief Represents a univariate polynomial in the DFT domain.
- */
-typedef double PolyUnivDFT;
 
-/**
- * @brief Represents a vector of univariate polynomials in the DFT domain (flattened, each encoded as in PolyUnivDFT)
- */
-typedef double VecUnivDFT;
 
 // =============================================
 // |                                           |
@@ -75,26 +50,6 @@ typedef struct poly_biv_t
 	                 	///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
 	int64_t* ptr;  		///< Pointer to the underlying data
 } PolyBiv;
-
-/**
- * @brief Represents a bivariate polynomial in the DFT domain.
- */
-typedef double PolyBivDFT;
-
-/**
- * @brief Represents a bivariate polynomial in the DFT domain.
- */
-typedef double PolyBivPrep;
-
-/**
- *  @brief Represents a bivariate polynomial vector in the DFT domain.
- */
-typedef double VecBivDFT;
-
-/**
- * @brief Represents a bivariate polynomial matrix in the DFT domain.
- */
-typedef double MatBivDFT;
 
 // =============================================
 // |                                           |

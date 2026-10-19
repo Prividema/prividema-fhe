@@ -4,7 +4,7 @@ extern "C" {
 #include "bivariate_polynomial.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
+#include "glwe_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 }
@@ -18,8 +18,8 @@ void bench_encrypt_rnx(benchmark::State& state)
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUnivRnX* m                 = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
@@ -50,8 +50,8 @@ void bench_encrypt_tnx(benchmark::State& state)
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUnivTnX* m                 = new_univ_tnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 
@@ -81,8 +81,8 @@ void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 	PvdaBackend* module     = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_NORMAL);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUnivTnX* m                 = new_univ_tnx(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 

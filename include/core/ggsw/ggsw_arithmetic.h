@@ -50,7 +50,7 @@ void add_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphe
  * @retval 0 otherwise
  */
 int const_mult_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw,
-                    const PolyUnivDFT* cte);
+                    const BE_PolySvpPrep* cte);
 
 /**
  * @brief Computes the external product between a GLWE and a GGSW.

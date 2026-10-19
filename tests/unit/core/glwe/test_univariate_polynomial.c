@@ -32,9 +32,9 @@ PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	PolyUniv* a          = new_univ(params_glwe);
-	PolyUniv* a_t        = new_univ(params_glwe);
-	PolyUnivDFT* res_dft = new_univ_dft(module);
+	PolyUniv* a            = new_univ(params_glwe);
+	PolyUniv* a_t          = new_univ(params_glwe);
+	BE_PolyVecDFT* res_dft = new_univ_dft(module);
 
 	uniform_pow2_random_vec(module, params_glwe->nn, a, 1, params_glwe->nn, 8);
 

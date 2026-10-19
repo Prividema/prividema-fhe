@@ -8,34 +8,33 @@
  *
  * @file glwe_arithmetic.h
  *
- * @brief This file contains arithmetic operations on GLWE ciphertexts
- *
- *
+ * @brief This file contains arithmetic operations on GLWE ciphertexts.
  */
 
 /**
  * @brief Normalizes a bivariate GLWE ciphertext.
  *
- * @param module Additionnal information for backend.
- * @param res The result normalized bivariate GLWE ciphertext.
- * @param glwe The input bivariate GLWE ciphertext.
+ * @param module The backend instance.
+ * @param res    The result normalized bivariate GLWE ciphertext.
+ * @param glwe   The input bivariate GLWE ciphertext.
  *
- * @retval -1 if an error occurs
+ * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int normalize_glwe(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe);
+int glwe_normalize(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
 /**
  * @brief Adds two bivariate GLWE ciphertexts.
  *
-
- * @param module Additionnal information for backend.
- * @param res The result GLWE ciphertext.
+ * @param module   The backend instance.
+ * @param res      The result GLWE ciphertext.
  * @param glwe_lhs The left-hand side GLWE ciphertext.
  * @param glwe_rhs The right-hand side GLWE ciphertext.
+ * 
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
  */
-void add_glwe(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
-              const GLWECiphertext* glwe_rhs);
+int glwe_add(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECiphertext* glwe_rhs);
 
 /**
  * @brief Subtracts two bivariate GLWE ciphertexts.
@@ -44,9 +43,11 @@ void add_glwe(const PvdaBackend* module, GLWECiphertext* res, const GLWECipherte
  * @param res The result GLWE ciphertext.
  * @param glwe_lhs The left-hand side GLWE ciphertext.
  * @param glwe_rhs The right-hand side GLWE ciphertext.
+ * 
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
  */
-void sub_glwe(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
-              const GLWECiphertext* glwe_rhs);
+int glwe_sub(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs, const GLWECiphertext* glwe_rhs);
 
 /**
  * @brief Negates (inverts the sign of) a GLWE
@@ -54,8 +55,11 @@ void sub_glwe(const PvdaBackend* module, GLWECiphertext* res, const GLWECipherte
  * @param module Additionnal information for backend.
  * @param res The result GLWE ciphertext (can be the same as the input for in-place negation).
  * @param glwe The GLWE ciphertext to invert.
+ * 
+ * @retval -1 if an error occurs.
+ * @retval 0 otherwise.
  */
-void negate_glwe(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe);
+int glwe_negate(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe);
 
 /**
  * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial.
@@ -68,7 +72,7 @@ void negate_glwe(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphe
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int const_mult_glwe(const PvdaBackend* module, GLWECiphertext* res, const PolyUnivDFT* u, const GLWECiphertext* glwe);
+int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolySvpPrep* u, const GLWECiphertext* glwe);
 
 /**
  * @brief Adds two bivGLWE ciphertexts.
@@ -77,8 +81,7 @@ int const_mult_glwe(const PvdaBackend* module, GLWECiphertext* res, const PolyUn
  * @param glwe_lhs_dft The left-hand side bivGLWE ciphertext in the DFT domain.
  * @param glwe_rhs_dft The right-hand side bivGLWE ciphertext in the DFT domain.
  */
-void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_dft,
-                  const GLWECiphertextDFT* glwe_rhs_dft);
+int glwe_dft_add(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_dft, const GLWECiphertextDFT* glwe_rhs_dft);
 
 /**
  * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial in the DFT domain.
@@ -91,7 +94,6 @@ void add_glwe_dft(GLWECiphertextDFT* res_dft, const GLWECiphertextDFT* glwe_lhs_
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int const_mult_glwe_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const PolyUnivDFT* u,
-                        const GLWECiphertextDFT* glwe_dft);
+int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolySvpPrep* u, const GLWECiphertextDFT* glwe_dft);
 
 #endif

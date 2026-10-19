@@ -10,7 +10,6 @@
 #include "ggsw_utils.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
-#include "glwe_transform_key.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -33,8 +32,8 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 	double max_err_length      = 3 * sigma + tst_epsilon + 2 * biv_epsilon;
 	double critical_err_length = 5 * sigma + tst_epsilon + 2 * biv_epsilon;
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	GGSWCiphertext* ggsw           = new_ggsw(params_ggsw);
 	PolyUniv* m_univ               = new_univ(params_glwe);
 	// Variables to compute the phase of each ggsw's row

@@ -12,7 +12,7 @@ static inline int allocate_prepared_gadget_array(GLWEGadgetParams* params, GLWEG
 	int i = 0;
 	for (int i = 0; i < n; ++i)
 	{
-		array[i] = new_glwegadget_prep(params);
+		array[i] = new_glwegadget_prep(array[0]->module, params);
 		CHECK_ALLOC(array[i], "KSK allocation failed");
 	}
 	return 0;

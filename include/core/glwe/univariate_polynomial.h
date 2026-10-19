@@ -2,6 +2,7 @@
 #define UNIVARIATE_POLYNOMIAL_H
 
 #include "backend.h"
+#include "backend_types.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
 
@@ -23,7 +24,7 @@
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int univ_coefs_to_dft(const PvdaBackend* module, PolyUnivDFT* res_dft, const PolyUniv* a);
+int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const PolyUniv* a);
 
 /**
  * @brief Convert a univariate polynomial from DFT domain into coefficient space
@@ -35,7 +36,13 @@ int univ_coefs_to_dft(const PvdaBackend* module, PolyUnivDFT* res_dft, const Pol
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const PolyUnivDFT* a_dft);
+int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const BE_PolyVecDFT* a_dft);
+
+int univ_coefs_to_prep(const PvdaBackend* module, BE_PolySvpPrep* res_prep, const PolyUniv *a);
+
+BE_PolySvpPrep* new_univ_prep(const PvdaBackend* module);
+
+void delete_univ_prep(const PvdaBackend* module, BE_PolySvpPrep* pol);
 
 /**
  * @brief Returns the number of bytes needed to store a univariate \ZnX polynomial.
@@ -88,7 +95,7 @@ PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe);
  *
  * @return NULL in case of a failure, a pointer to the new object otherwise
  */
-PolyUnivDFT* new_univ_dft(const PvdaBackend* module);
+BE_PolyVecDFT* new_univ_dft(const PvdaBackend* module);
 
 /**
  * @brief Allocate a new real univariate polynomial
@@ -125,7 +132,7 @@ void delete_univ_rnx(PolyUnivRnX* pol);
  *
  * @param pol The object to deallocate
  */
-void delete_univ_dft(const PvdaBackend* module, PolyUnivDFT* pol);
+void delete_univ_dft(const PvdaBackend* module, BE_PolyVecDFT* pol);
 
 /**
  * @brief Converts a \RnX polynomial into a \TnX fixed-point one

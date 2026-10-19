@@ -8,7 +8,6 @@
 #include <string.h>
 #include <threads.h>
 
-#include "backend.h"
 #include "backend_arithmetic.h"
 #include "backend_rng.h"
 #include "logger.h"
@@ -80,7 +79,7 @@ cleanup:
 	return -1;
 }
 
-int uniform_random_vec_znx_dft(const PvdaBackend* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
+int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
 {
 	int status = -1;
 

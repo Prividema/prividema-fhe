@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "backend.h"
+#include "backend_arithmetic.h"
 #include "backend_rng.h"
 #include "core/glwe/glwe_params.h"
 #include "rng.h"
@@ -110,7 +111,7 @@ Test(rand_uniform_16, test_rand_uniform)
 PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
-	VecUnivDFT* res_dft = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
+	BE_PolyVecDFT* res_dft = pvda_new_vec_znx_dft(module, params_glwe->nn * params_glwe->k);
 
 	int64_t* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));
 

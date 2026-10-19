@@ -13,7 +13,7 @@ PvdaParamTest(new_glwe_secret_key, values_not_null, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	cr_assert(eq(int, sk != NULL, 1), "new_glwe_secret_key failed.");
 
@@ -30,7 +30,7 @@ PvdaParamTest(uniform_glwe_secret_key, values_not_null, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
 	int status = uniform_glwe_secret_key(module, sk, 2);
@@ -51,7 +51,7 @@ PvdaParamTest(uniform_glwe_secret_key, values_bounds, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	int bitsp[] = {1, 2, 3, 4, 5, 6, 7, 11, 13, 32, 33};
 
@@ -84,7 +84,7 @@ PvdaParamTest(binary_glwe_secret_key, values_not_null, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
 	int status = binary_glwe_secret_key(module, sk);
@@ -104,7 +104,7 @@ PvdaParamTest(binary_glwe_secret_key, values_binary, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	int status = binary_glwe_secret_key(module, sk);
 
@@ -128,7 +128,7 @@ PvdaParamTest(ternary_glwe_secret_key, values_not_null, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
 	int status = ternary_glwe_secret_key(module, sk);
@@ -149,7 +149,7 @@ PvdaParamTest(ternary_glwe_secret_key, values_ternary, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
-	GLWESecretKey* sk = alloc_glwe_secret_key(params_glwe);
+	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	int status = ternary_glwe_secret_key(module, sk);
 

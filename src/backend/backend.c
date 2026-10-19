@@ -36,17 +36,17 @@ void pvda_delete_backend(PvdaBackend* backend)
 	free(backend);
 }
 
-VecUnivDFT* pvda_new_vec_znx_dft(const PvdaBackend* backend, uint64_t size)
+BE_PolyVecDFT* pvda_new_vec_znx_dft(const PvdaBackend* backend, uint64_t size)
 {
 	return backend->vt.pvda_new_vec_znx_dft(backend, size);
 }
 
-int pvda_vec_znx_dft(const PvdaBackend* backend, PolyBivDFT* res, uint64_t res_size, const ZnxVec* a)
+int pvda_vec_znx_dft(const PvdaBackend* backend, BE_PolyVecDFT* res, uint64_t res_size, const ZnxVec* a)
 {
 	return backend->vt.pvda_vec_znx_dft(backend, res, res_size, a);
 }
 
-void pvda_delete_vec_znx_dft(const PvdaBackend* backend, double* res)
+void pvda_delete_vec_znx_dft(const PvdaBackend* backend, BE_PolyVecDFT* res)
 {
 	backend->vt.pvda_delete_vec_znx_dft(backend, res);
 }
@@ -56,7 +56,7 @@ int64_t* pvda_new_vec_znx_big(const PvdaBackend* backend, int64_t size)
 	return backend->vt.pvda_new_vec_znx_big(backend, size);
 }
 
-int pvda_vec_znx_idft(const PvdaBackend* backend, ZnxVec* res, const PolyBivDFT* a_dft, uint64_t a_size)
+int pvda_vec_znx_idft(const PvdaBackend* backend, ZnxVec* res, const BE_PolyVecDFT* a_dft, uint64_t a_size)
 {
 	return backend->vt.pvda_vec_znx_idft(backend, res, a_dft, a_size);
 }
@@ -66,62 +66,72 @@ void pvda_delete_vec_znx_big(const PvdaBackend* backend, int64_t* res)
 	backend->vt.pvda_delete_vec_znx_big(backend, res);
 }
 
-PolyUnivDFT* pvda_new_svp_ppol(const PvdaBackend* backend) { return backend->vt.pvda_new_svp_ppol(backend); }
+BE_PolySvpPrep* pvda_new_svp_ppol(const PvdaBackend* backend) { return backend->vt.pvda_new_svp_ppol(backend); }
 
-int pvda_svp_prepare(const PvdaBackend* backend, PolyUnivDFT* prepared_pol, const int64_t* pol)
+int pvda_svp_prepare(const PvdaBackend* backend, BE_PolySvpPrep* prepared_pol, const int64_t* pol)
 {
 	return backend->vt.pvda_svp_prepare(backend, prepared_pol, pol);
 }
 
-int pvda_svp_apply_dft(const PvdaBackend* backend, const PolyBivDFT* res, uint64_t res_size,
-                       const PolyUnivDFT* prepared_pol, const ZnxVec* a)
+int pvda_svp_apply_dft(const PvdaBackend* backend, const BE_PolyVecDFT* res, uint64_t res_size,
+                       const BE_PolySvpPrep* prepared_pol, const ZnxVec* a)
 {
 	return backend->vt.pvda_svp_apply_dft(backend, res, res_size, prepared_pol, a);
 }
 
-int pvda_svp_apply_dft_to_dft(const PvdaBackend* backend, const PolyBivDFT* res, uint64_t res_size,
-                              const PolyUnivDFT* ppol, const PolyBivDFT* a, uint64_t a_size)
+int pvda_svp_apply_dft_to_dft(const PvdaBackend* backend, const BE_PolyVecDFT* res, uint64_t res_size,
+                              const BE_PolySvpPrep* ppol, const BE_PolyVecDFT* a, uint64_t a_size)
 {
 	return backend->vt.pvda_svp_apply_dft_to_dft(backend, res, res_size, ppol, a, a_size);
 }
 
-void pvda_delete_svp_ppol(const PvdaBackend* backend, PolyUnivDFT* res)
+void pvda_delete_svp_ppol(const PvdaBackend* backend, BE_PolySvpPrep* res)
 {
 	backend->vt.pvda_delete_svp_ppol(backend, res);
 }
 
-MatBivDFT* pvda_new_vmp_pmat(const PvdaBackend* backend, uint64_t nrows, uint64_t ncols)
+BE_PolyVecVmpPrep* pvda_new_vmp_pvec(const PvdaBackend* backend, uint64_t nrows)
+{
+	return backend->vt.pvda_new_vmp_pvec(backend, nrows);
+}
+
+void pvda_delete_vmp_pvec(const PvdaBackend* backend, BE_PolyVecVmpPrep* pvec)
+{
+	backend->vt.pvda_delete_vmp_pvec(backend, pvec);
+}
+
+BE_PolyMatVmpPrep* pvda_new_vmp_pmat(const PvdaBackend* backend, uint64_t nrows, uint64_t ncols)
 {
 	return backend->vt.pvda_new_vmp_pmat(backend, nrows, ncols);
 }
 
-int pvda_vmp_prepare_contiguous(const PvdaBackend* backend, MatBivDFT* pmat, const int64_t* mat, uint64_t nrows,
+int pvda_vmp_prepare_contiguous(const PvdaBackend* backend, BE_PolyMatVmpPrep* pmat, const int64_t* mat, uint64_t nrows,
                                 uint64_t ncols)
 {
 	return backend->vt.pvda_vmp_prepare_contiguous(backend, pmat, mat, nrows, ncols);
 }
 
-int pvda_vmp_apply_dft(const PvdaBackend* backend, PolyBivDFT* res, uint64_t res_size, const ZnxVec* a,
-                       const MatBivDFT* pmat, uint64_t nrows, uint64_t ncols)
+int pvda_vmp_apply_dft(const PvdaBackend* backend, BE_PolyVecDFT* res, uint64_t res_size, const ZnxVec* a,
+                       const BE_PolyMatVmpPrep* pmat, uint64_t nrows, uint64_t ncols)
 {
 	return backend->vt.pvda_vmp_apply_dft(backend, res, res_size, a, pmat, nrows, ncols);
 }
 
-int pvda_vmp_apply_dft_to_dft(const PvdaBackend* backend, VecBivDFT* res, const uint64_t res_size,
-                              const VecBivDFT* a_dft, uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows,
+int pvda_vmp_apply_dft_to_dft(const PvdaBackend* backend, BE_PolyVecDFT* res, const uint64_t res_size,
+                              const BE_PolyVecDFT* a_dft, uint64_t a_size, const BE_PolyMatVmpPrep* pmat, const uint64_t nrows,
                               const uint64_t ncols)
 {
 	return backend->vt.pvda_vmp_apply_dft_to_dft(backend, res, res_size, a_dft, a_size, pmat, nrows, ncols);
 }
 
-int pvda_vmp_apply_prepared_to_dft(const PvdaBackend* backend, VecBivDFT* res, const uint64_t res_size,
-                                   const VecBivDFT* a_dft, uint64_t a_size, const MatBivDFT* pmat, const uint64_t nrows,
+int pvda_vmp_apply_prepared_to_dft(const PvdaBackend* backend, BE_PolyVecDFT* res, const uint64_t res_size,
+                                   const BE_PolyVecVmpPrep* a_dft, uint64_t a_size, const BE_PolyMatVmpPrep* pmat, const uint64_t nrows,
                                    const uint64_t ncols)
 {
 	return backend->vt.pvda_vmp_apply_prepared_to_dft(backend, res, res_size, a_dft, a_size, pmat, nrows, ncols);
 }
 
-void pvda_delete_vmp_pmat(const PvdaBackend* backend, MatBivDFT* pmat)
+void pvda_delete_vmp_pmat(const PvdaBackend* backend, BE_PolyMatVmpPrep* pmat)
 {
 	backend->vt.pvda_delete_vmp_pmat(backend, pmat);
 }
@@ -168,7 +178,7 @@ int pvda_vec_znx_rotate(const PvdaBackend* backend, const int64_t p, ZnxVec* res
 
 uint64_t pvda_module_extract_nn(const PvdaBackend* backend) { return backend->vt.pvda_module_extract_nn(backend); }
 
-int pvda_vmp_prepare_vec(const PvdaBackend* backend, PolyBivPrep* pvec, uint64_t nrows, const ZnxVec* a)
+int pvda_vmp_prepare_vec(const PvdaBackend* backend, BE_PolyVecVmpPrep* pvec, uint64_t nrows, const ZnxVec* a)
 {
 	return backend->vt.pvda_vmp_prepare_vec(backend, pvec, nrows, a);
 }
@@ -196,4 +206,11 @@ int pvda_rand_uniform(const PvdaBackend* backend, int64_t* result, int64_t limit
 uint64_t pvda_ring_2nth_root(const PvdaBackend* backend, uint64_t t)
 {
 	return backend->vt.pvda_ring_2nth_root(backend, t);
+}
+
+int pvda_vec_znx_dft_add(const PvdaBackend* backend, BE_PolyVecDFT* res, uint64_t res_n_limbs,
+                         BE_PolyVecDFT* a, uint64_t a_n_limbs,
+                         BE_PolyVecDFT* b, uint64_t b_n_limbs)
+{
+	return backend->vt.pvda_vec_znx_dft_add(backend, res, res_n_limbs, a, a_n_limbs, b, b_n_limbs);
 }

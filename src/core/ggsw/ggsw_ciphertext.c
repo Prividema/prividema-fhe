@@ -79,9 +79,9 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
-	PolyUnivDFT* m_univ_dft     = new_univ_dft(module);   // DFT(msg)
-	PolyUnivDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
-	PolyUniv* m_skj_univ        = new_univ(params_glwe);  // -msg * sk_j
+	BE_PolyVecDFT* m_univ_dft     = new_univ_dft(module);   // DFT(msg)
+	BE_PolyVecDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
+	PolyUniv* m_skj_univ          = new_univ(params_glwe);  // -msg * sk_j
 	// Temp space for -m * sk * 2^{-kappa_tilde}
 	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 
@@ -103,15 +103,20 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const
 			if (j < params_glwe->k)
 			{
 				// Computes DFT(msg * sk_j)
-				pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, glwe_prepared_sk_extract_poly_dft(sk_prep, j),
-				                          m_univ_dft, 1);
+				CHECK_CALL(pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, 
+						   glwe_prepared_sk_extract_poly_prep(sk_prep, j),
+				           m_univ_dft, 1),
+						   "svp_apply_dft_to_dft failed in ggsw_secret_encrypt");
 
-				// Computes -DFT(msg * sk_j)
-				for (uint64_t p = 0; p < nn; p++) m_skj_univ_dft[p] = -1 * m_skj_univ_dft[p];
 
 				// Invert the DFT to get -msg * sk_j
 				CHECK_CALL(univ_dft_to_coefs(module, m_skj_univ, m_skj_univ_dft),
 				           "vec_znx_idft_p failed in compute_phase_ij");
+
+				// Negate in coefficient space to get -msg * sk_j
+				ZnxVec m_skj_vec = znx_vec_view(nn, 1, nn, m_skj_univ);
+				CHECK_CALL(pvda_vec_znx_negate(module, & m_skj_vec, &m_skj_vec),
+						   "negation failed in ggsw_secret_encrypt");
 			}
 
 			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (k == j) ? m_univ : m_skj_univ,

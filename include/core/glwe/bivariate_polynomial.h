@@ -158,11 +158,14 @@ uint64_t poly_biv_coef_number_dft(const GLWEParams* params_glwe);
  *
  * @param params_glwe The bivGLWE parameters.
  */
-PolyBivDFT* new_biv_dft(const GLWEParams* params_glwe);
+BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe);
+BE_PolyVecDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l);
+void delete_biv_dft(BE_PolyVecDFT* biv_dft);
 
-PolyBivDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l);
+BE_PolyVecVmpPrep* new_biv_prep(const PvdaBackend* module, const GLWEParams* params_glwe);
+BE_PolyVecVmpPrep* new_biv_prep_custom_params(const PvdaBackend* module, uint64_t biv_l);
+void delete_biv_prep(const PvdaBackend* module, BE_PolyVecVmpPrep* biv_prep);
 
-void delete_biv_dft(PolyBivDFT* biv_dft);
 // COMMON PART (begin)
 
 /**
@@ -215,7 +218,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
  * @retval 0  Otwerwise
  *
  */
-int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivDFT* res_dft, const PolyBiv* a);
+int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecDFT* res_dft, const PolyBiv* a);
 
 /**
  * @brief Transforms a bivariate polynomial into "prepared" form for operations like VMP
@@ -230,7 +233,7 @@ int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, P
  * @retval 0  Otwerwise
  *
  */
-int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBivPrep* res_prep,
+int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecVmpPrep* res_prep,
                       const PolyBiv* a);
 
 /**
@@ -246,7 +249,7 @@ int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, 
  * @retval 0  Otwerwise
  *
  */
-int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBivDFT* a_dft);
+int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyVecDFT* a_dft);
 
 /**
  * @brief Computes P(X,2^(-kappa)) for P a bivariate polynomial. The result is in fixed-point representation.

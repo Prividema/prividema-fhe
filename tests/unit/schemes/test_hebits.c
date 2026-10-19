@@ -7,7 +7,7 @@
 #include "core/ggsw/ggsw_arithmetic.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
-#include "core/glwe/glwe_transform_key.h"
+#include "core/glwe/glwe_key.h"
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
@@ -25,8 +25,8 @@ PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 	params_glwe->fast_uniform_nb_bits = 0;
 	sigma                             = 0;
 
-	GLWESecretKey* sk_ggsw              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_glwe_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk_ggsw              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw = new_ggsw(params_ggsw);
 
@@ -105,8 +105,8 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	params_glwe->fast_uniform_nb_bits = 0;
 	sigma                             = 0;
 
-	GLWESecretKey* sk_ggsw              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_glwe_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk_ggsw              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw          = new_ggsw(params_ggsw);
 	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
@@ -199,8 +199,8 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
-	GLWESecretKey* sk_ggsw              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_glwe_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk_ggsw              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw          = new_ggsw(params_ggsw);
 	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
@@ -289,8 +289,8 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
-	GLWESecretKey* sk_ggsw              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_glwe_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk_ggsw              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw           = new_ggsw(params_ggsw);
 	GGSWCiphertextPrep* ggsw_prep0 = new_ggsw_prep(params_ggsw);
@@ -361,9 +361,9 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 		// Do not forget to restore sel to the actual value since we destroyed it while decomposing it
 		sel = selections[i];
 
-		hebits_cmux_tree(module, res, (const GLWECiphertext**)glwes, num_msgs, (const GGSWCiphertextPrep**)selector,
+		hebits_cmux_tree(module, res, (GLWECiphertext**)glwes, num_msgs, (const GGSWCiphertextPrep**)selector,
 		                 msgs_log2, 0);
-		normalize_glwe(module, res, res);
+		glwe_normalize(module, res, res);
 
 		glwe_secret_decrypt(module, res_biv, sk_glwe_prep, res);
 		biv_to_univ_tnx(params_glwe, res_tnx, res_biv, 0);

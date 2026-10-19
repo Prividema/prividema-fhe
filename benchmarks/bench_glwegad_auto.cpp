@@ -9,7 +9,7 @@ extern "C" {
 #include "ggsw_params.h"
 #include "glwe_arithmetic.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
+#include "glwe_key.h"
 #include "glwegadget_arithmetic.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -25,8 +25,8 @@ void bench_glwegad_auto(benchmark::State& state)
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
@@ -82,8 +82,8 @@ void bench_glwegad_auto_norm(benchmark::State& state)
 	GGSWParams* params_ggsw             = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
@@ -107,7 +107,7 @@ void bench_glwegad_auto_norm(benchmark::State& state)
 	for (auto _ : state)
 	{
 		glwegadget_automorphism(module, glwe_res, auto_key, glwe_ct);
-		normalize_glwe(module, glwe_ct, glwe_ct);
+		glwe_normalize(module, glwe_ct, glwe_ct);
 		benchmark::DoNotOptimize(glwe_res);
 	}
 

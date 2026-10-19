@@ -6,7 +6,6 @@ extern "C" {
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 }
@@ -22,8 +21,8 @@ void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUniv* m                    = new_univ(params_glwe);
 	GLWECiphertext* glwe_input     = new_glwe(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
@@ -71,8 +70,8 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
-	GLWESecretKey* sk                 = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep    = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                 = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep    = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUniv* m                       = new_univ(params_glwe);
 	GLWECiphertext* glwe_input        = new_glwe(params_glwe);
 	GLWECiphertext* glwe_computed     = new_glwe(params_glwe);
@@ -123,8 +122,8 @@ void bench_ggsw_prepare(benchmark::State& state)
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GGSWParams* params_ggsw = new_ggsw_params(params_glwe, KBASE, KAPPABASE, NLIMBSBASE);
 
-	GLWESecretKey* sk                 = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep    = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                 = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep    = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUniv* m                       = new_univ(params_glwe);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
 	GGSWCiphertextPrep* ggsw_prepared = new_ggsw_prep(params_ggsw);

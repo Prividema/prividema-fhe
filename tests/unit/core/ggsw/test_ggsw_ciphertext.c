@@ -169,7 +169,7 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 
 	// Variables
 	PolyUniv* u                      = new_univ(params_glwe);
-	PolyUnivDFT* u_dft               = new_univ_dft(module);
+	BE_PolySvpPrep* u_prep           = new_univ_prep(module);
 	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
 	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
 	PolyUniv* prod_expected          = new_univ(params_glwe);
@@ -182,10 +182,10 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	                        params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
-	univ_coefs_to_dft(module, u_dft, u);
+	pvda_svp_prepare(module, u_prep, u);
 
 	// Computes u * ggsw
-	const_mult_ggsw(module, product_computed, ggsw, u_dft);
+	const_mult_ggsw(module, product_computed, ggsw, u_prep);
 
 	// Asserts product_computed = u * ggsw
 	for (uint64_t iijj = 0; iijj < ggsw_num_rows(params_ggsw); ++iijj)
@@ -212,7 +212,7 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	// Clean up
 	delete_univ(u);
 	delete_univ(prod_expected);
-	delete_univ_dft(module, u_dft);
+	delete_univ_prep(module, u_prep);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 

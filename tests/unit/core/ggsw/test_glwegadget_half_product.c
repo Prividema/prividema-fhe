@@ -6,7 +6,6 @@
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
-#include "core/glwe/glwe_transform_key.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
@@ -28,11 +27,11 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	double critical_err_length =
 	    params_glwe->nn * (3 * DBL_EPSILON + biv_epsilon) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
 
-	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
-	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
+	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
@@ -74,7 +73,7 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 
 	//Half product of GLWEGadget(u) with m
 	glwegadget_half_prod(module, glwe, glwegad_prep, m);
-	normalize_glwe(module, glwe, glwe);
+	glwe_normalize(module, glwe, glwe);
 
 	// Decrypt the result into um_observed, which should be u*m
 	glwe_secret_decrypt(module, um_observed, sk_prep, glwe);
@@ -112,12 +111,12 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	double critical_err_length =
 	    params_glwe->nn * (3 * DBL_EPSILON + biv_epsilon) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
 
-	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(params_glwe);
+	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(module, params_glwe);
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
-	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
+	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
@@ -126,7 +125,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	PolyBiv* um_observed                   = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	PolyBivDFT* m_dft                      = new_biv_dft(params_glwe);
+	BE_PolyVecDFT* m_dft                      = new_biv_dft(params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;
@@ -164,7 +163,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	//Half product of GLWEGadget(u) with m with prepared and dft inputs
 	glwegadget_half_prod_dft_to_dft(module, glwe_dft, glwegad_prep, m_dft);
 	glwe_dft_to_coef(module, glwe, glwe_dft);  //Return the result GLWE in DFT domain to coefficient domain
-	normalize_glwe(module, glwe, glwe);        // And normalize it
+	glwe_normalize(module, glwe, glwe);        // And normalize it
 
 	// Decrypt the result into um_observed, which should be u*m
 	glwe_secret_decrypt(module, um_observed, sk_prep, glwe);
@@ -204,12 +203,12 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	double critical_err_length =
 	    params_glwe->nn * (3 * DBL_EPSILON + biv_epsilon) + 2 * glwe_params_l_a(params_glwe) * biv_epsilon;
 
-	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(params_glwe);
+	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWECiphertextDFT* glwe_dft            = new_glwe_dft(module, params_glwe);
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegad          = new_glwegadget(params_glwegadget);
-	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(params_glwegadget);
+	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
@@ -218,7 +217,7 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	PolyBiv* um_observed                   = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	PolyBivDFT* m_prep                     = new_biv_dft(params_glwe);
+	BE_PolyVecVmpPrep* m_prep              = new_biv_prep(module, params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;
@@ -256,7 +255,7 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	//Half product of GLWEGadget(u) with m, with prepared gadget and prepared public vector, which is different than DFT
 	glwegadget_half_prod_prepared_to_dft(module, glwe_dft, glwegad_prep, m_prep);
 	glwe_dft_to_coef(module, glwe, glwe_dft);
-	normalize_glwe(module, glwe, glwe);
+	glwe_normalize(module, glwe, glwe);
 
 	// Decrypt the result into um_observed, which should be u*m
 	glwe_secret_decrypt(module, um_observed, sk_prep, glwe);
