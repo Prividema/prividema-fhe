@@ -7,6 +7,7 @@
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
+#include "bivariate_polynomial.h"
 
 /**
  * @file glwe_ciphertext.h

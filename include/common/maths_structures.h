@@ -27,51 +27,11 @@ typedef double PolyUnivRnX;
  */
 typedef int64_t PolyUniv;
 
-
-
-// =============================================
-// |                                           |
-// |          Bivariate Structures             |
-// |                                           |
-// =============================================
-
-/**
- * @brief Structure for bivariate polynomials.
- * 
- * Owners are created with new_biv/new_biv_custom_params and freed with delete_biv.
- * 
- * Views are created with biv_view ot the *_extract_poly_view functions and must not be deleted.
- */
-typedef struct poly_biv_t
-{
-	uint64_t nn;       	///< Ring dimension (also number of coefficient in one polynomial)
-	uint64_t nb_limbs; 	///< The number of limbs (base-2^K digits) of the polynomial
-	int64_t stride;  	///< Stride (distance) between consecutive limbs of the bivariate polynomial, in elements.
-	                 	///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
-	int64_t* ptr;  		///< Pointer to the underlying data
-} PolyBiv;
-
 // =============================================
 // |                                           |
 // |              Print Functions              |
 // |                                           |
 // =============================================
-
-/**
- * @brief Prints a Bivariate Polynomial.
- *
- * @param pol     A Pointer to the Bivariate Polynomial.
- */
-void printf_poly_biv(PolyBiv* pol);
-
-/**
- * @brief Prints a Bivariate Polynomial, with limits on the coefifcients and limbs that will be printed
- *
- * @param pol     A Pointer to the Bivariate Polynomial.
- * @param max_n   The number of coefficients to print per limb
- * @param max_l   The number of limbs to print
- */
-void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l);
 
 /**
  * @brief Prints a Univariate Polynomial in \f$\mathbb{Z}_n[X]\f$.

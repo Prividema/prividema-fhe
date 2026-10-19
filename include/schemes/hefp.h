@@ -9,6 +9,7 @@
 
 #include "backend.h"
 #include "glwe_params.h"
+#include "bivariate_polynomial.h"
 
 /**
  * @brief Encodes "n_slots" complex numbers from using scale 2^-scale_bits from its slots representation to a

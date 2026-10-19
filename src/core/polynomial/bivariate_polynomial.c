@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/select.h>
@@ -770,4 +771,32 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_param
 
 uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
 
+// =============================================
+// |                                           |
+// |                  Prints                   |
+// |                                           |
+// =============================================
 
+void printf_poly_biv(PolyBiv* pol)
+{
+	printf("\n");
+	for (uint64_t i = 0; i < pol->nb_limbs; i++)
+	{
+		printf("\nY^%ld : ", i);
+		for (uint64_t p = 0; p < pol->nn; p++) printf("%ld X^%ld ", pol->ptr[(i - 1) * pol->stride + p], p);
+	}
+}
+
+void print_coefs_biv(const PolyBiv* biv, int max_n, int max_l)
+{
+	for (int l = 0; l < max_l && l < biv->nb_limbs; ++l)
+	{
+		printf("Biv lvl %03d: ", l);
+
+		for (int p = 0; p < max_n && p < biv->nn; ++p)
+		{
+			printf("%03ld ", biv->ptr[l * biv->stride + p]);
+		}
+		printf("\n");
+	}
+}

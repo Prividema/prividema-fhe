@@ -6,6 +6,7 @@
 #include "backend.h"
 #include "glwe_params.h"
 #include "maths_structures.h"
+#include "bivariate_polynomial.h"
 
 /**
  * @brief Encodes "n_slots" integer slots in Z_t into the coefficient bivariate representation needed
