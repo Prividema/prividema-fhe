@@ -2,6 +2,8 @@
 #define CPU_NT_H
 #include <stdint.h>
 
+struct pvda_virtual_table;
+
 /**
  * @file cpu_nt.h
  *
