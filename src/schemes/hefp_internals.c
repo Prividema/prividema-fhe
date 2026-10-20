@@ -14,13 +14,13 @@
 /**
  * @brief Slow hefp encoding function
  *
- * Encoding funtion for HEFixedPoint that does not use the fast-fourier transform algorithm
- * (complexity n log n) nor precomputed roots of unity, but rather used the
+ * Encoding function for HEFixedPoint that does not use the fast-fourier transform algorithm
+ * (complexity n log n) nor precomputed roots of unity, but rather uses the
  * textbook definition of HEFP encoding.
  * Only supports number of slots = degree of polynomial / 2
  * Intended for testing that the FFT-based functions give the same results
  *
- * @param out An output n-lenght double vector
+ * @param out An output n-length double vector
  * @param n The degree of the resulting polynomial or equivalently twice the number
  *          of complex input slots
  * @param in vector of n/2 complex values

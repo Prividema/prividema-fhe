@@ -105,5 +105,5 @@ void bench_encrypt_tnx_normalnoise(benchmark::State& state)
 	delete_glwe_secret_key_prepared(sk_prep);
 }
 
-// Benchmark ommited until normal noise implementation
+// Benchmark omitted until normal noise implementation
 //BENCHMARK(bench_encrypt_tnx_normalnoise);

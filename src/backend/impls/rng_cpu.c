@@ -23,7 +23,8 @@
     - On MACOS/FreeBSD : Call to arc4random_buf.
                         According to arc4random's doc, the whole program crashes
                         if an error occurs during the generation.
-    - On other Linux distributions : read /dev/urandom.
+    - On Linux : Call to getrandom().
+    - On other systems : read /dev/urandom (slow fallback).
 */
 static inline int cpu_read_rand(uint64_t* result, size_t bytes)
 {
@@ -76,10 +77,10 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
  */
 int ref_rand_uniform_pow2(const PvdaBackend* module, int64_t* result, uint64_t nb_bits)
 {
-	// As result points to an uint64_t  nb_bits shall not exceed its size
+	// As result points to an int64_t, nb_bits shall not exceed its size
 	assert(nb_bits <= 8 * sizeof(int64_t));
 
-	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
+	// If nb_bits equals the max. size, we just have to read the random bits into result.
 	if (nb_bits == 8 * sizeof(int64_t))
 		return cpu_read_rand((uint64_t*)result, 8);
 
@@ -88,8 +89,6 @@ int ref_rand_uniform_pow2(const PvdaBackend* module, int64_t* result, uint64_t n
 		if (cpu_read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
 		reduce_uniform_n(result, (int)nb_bits);
-
-		return 1;
 	}
 
 	return 0;
@@ -135,7 +134,7 @@ int ref_rand_uniform(const PvdaBackend* module, int64_t* result, int64_t limit_d
  *
  * @param module  The backend object
  * @param res     The result uniformly drawn vector of numbers
- * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param nn      Number of coefficients in the polynomial (eq. degree of the cyclotomic poly)
  * @param nb_bits Number of randomness bits per coefficient.
  *
  * @retval -1 if an error occurs
@@ -160,7 +159,7 @@ cleanup:
  *
  * @param module  The backend object
  * @param res     The result uniformly drawn \ZnX polynomial.
- * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param nn      Number of coefficients in the polynomial (eq. degree of the cyclotomic poly)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.

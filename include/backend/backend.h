@@ -11,7 +11,7 @@ typedef struct pvda_module_t PvdaBackend;
 /**
  * @brief Configuration struct for a Prividema-FHE backend
  *
- * Still very much a workd in progress
+ * Still very much a work in progress
  */
 typedef struct pvda_module_config_t
 {

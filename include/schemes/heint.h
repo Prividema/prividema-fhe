@@ -13,14 +13,16 @@
  *        for HEInt arithmetic
  *
  * @param backend The computation backend
- * @param params The GLWEParams, used for knowlege of N the polynomial number of coefficients and the depth of
+ * @param params The GLWEParams, used for knowledge of N the polynomial number of coefficients and the depth of
  *               the bivariate output
  * @param out    The output bivariate polynomial
  * @param n_slots The number of elements to encode. For now only n_slots = N is supported
- * @param t      The size/moduli of the input ring Z_t
+ * @param t      The size/modulus of the input ring Z_t
  * @param in     A vector of n_slots integers in Z_t
  *
  * @note For now only n_slots = N is supported
+ * @note t must be a prime with t = 1 mod 2N and t <= 2^31, and generate_ntt_table(backend, t) must have been
+ *       called beforehand, otherwise the function fails with "root table not found"
  *
  * @retval 0 if it succeeds
  * @retval -1 in case of error/failure
@@ -33,14 +35,16 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
  * @brief Decodes integers from a bivariate polynomial into the "n_slots" slots in Z_t it represents
  *
  * @param backend The computation backend
- * @param params The GLWEParams, used for knowlege of N the polynomial number of coefficients and the depth of
+ * @param params The GLWEParams, used for knowledge of N the polynomial number of coefficients and the depth of
  *               the bivariate output
- * @param out    The output n_slots-lenght vector of elements of Z_t
- * @param n_slots The number of that were encoded. For now only n_slots = N is supported
- * @param t      The size/moduli of the input ring Z_t
+ * @param out    The output n_slots-length vector of elements of Z_t
+ * @param n_slots The number of slots that were encoded. For now only n_slots = N is supported
+ * @param t      The size/modulus of the input ring Z_t
  * @param in     A bivariate polynomial encoding some HEInt numbers
  *
  * @note For now only n_slots = N is supported
+ * @note t must be a prime with t = 1 mod 2N and t <= 2^31, and generate_ntt_table(backend, t) must have been
+ *       called beforehand, otherwise the function fails with "root table not found"
  *
  * @retval 0 if it succeeds
  * @retval -1 in case of error/failure

@@ -12,7 +12,7 @@
 #include "bivariate_polynomial.h"
 
 /**
- * @brief Encodes "n_slots" complex numbers from using scale 2^-scale_bits from its slots representation to a
+ * @brief Encodes "n_slots" complex numbers using scale 2^-scale_bits from its slots representation to a
  * coefficient representation.
  *
  * @param backend The computation backend
@@ -23,7 +23,7 @@
  * @param in A vector of n_slots complex values
  *
  * @retval 0 if it succeeds
- * @retval -1 in case of error/failure
+ * @retval -1 if a memory allocation fails
  *
  */
 int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t n_slots,
@@ -40,7 +40,7 @@ int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* o
  * @param in A bivariate polynomial encoding some HEFixedPoint numbers
  *
  * @retval 0 if it succeeds
- * @retval -1 in case of error/failure
+ * @retval -1 if a memory allocation fails
  *
  */
 int hefp_decode(const PvdaBackend* backend, const GLWEParams* params, double _Complex* out, uint64_t n_slots,

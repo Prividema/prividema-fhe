@@ -57,9 +57,12 @@ typedef struct glwe_ct_params
  * @param k The number of \ZnX polynomials in a secret key.
  * @param kappa The exponent for the base-2^kappa representation.
  * @param n_limbs \f$ \ell_a \cdot k + \ell_b \f$
- * @param sigma The standard deviation of the error distribution.
+ * @param sigma The standard deviation of the error distribution, on the torus scale (e.g. 2^-142).
+ *              It is internally rescaled by \f$ 2^{K \cdot \ell_a} \f$ and must then fit in [1, 2^63].
+ *              A value of 0 disables the noise.
  * @param noise_type The type of noise that will be used for encryption
- * @return The newly allocated parameters object, or NULL if it failed the allocation
+ * @return The newly allocated parameters object, or NULL if the allocation failed, if the rescaled sigma
+ *         does not fit (too big or too small), or if the noise type is not supported yet
  *
  */
 GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma,
@@ -98,6 +101,9 @@ uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
  * @brief Returns the standard deviation of the noise that is added for encryption
  *
  * @param params_glwe The GLWE parameters.
+ *
+ * @return NAN for the uniform noise types (NOISE_UNIFORM and NOISE_UNIFORM_POWER_OF_TWO).
+ *         For NOISE_NORMAL and NOISE_BINOMIAL, the stored noise parameter scaled by \f$ 2^{-K \cdot \ell_a} \f$.
  */
 double glwe_params_stdev(const GLWEParams* params_glwe);
 

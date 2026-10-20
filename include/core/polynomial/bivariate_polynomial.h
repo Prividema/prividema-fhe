@@ -22,11 +22,11 @@
  * 
  * Owners are created with new_biv/new_biv_custom_params and freed with delete_biv.
  * 
- * Views are created with biv_view ot the *_extract_poly_view functions and must not be deleted.
+ * Views are created with biv_view or the *_extract_poly_view functions and must not be deleted.
  */
 typedef struct poly_biv_t
 {
-	uint64_t nn;       	///< Ring dimension (also number of coefficient in one polynomial)
+	uint64_t nn;       	///< Ring dimension (also number of coefficients in one polynomial)
 	uint64_t nb_limbs; 	///< The number of limbs (base-2^K digits) of the polynomial
 	int64_t stride;  	///< Stride (distance) between consecutive limbs of the bivariate polynomial, in elements.
 	                 	///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
@@ -107,6 +107,11 @@ int biv_normalize(const PvdaBackend* module, uint64_t log2_base, PolyBiv* res, c
  * @param res         The result bivariate polynomial, can be the same as the input.
  * @param a           The input bivariate polynomial.
  *
+ * @note The noise is added to the last limb (limb l_a) only.
+ * @note At present only NOISE_UNIFORM_POWER_OF_TWO is supported; other noise types return -1.
+ * @note If res != a, both must be contiguous (stride == nn): out-of-place addition on strided
+ *       polynomials is not implemented and returns -1.
+ *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
@@ -144,7 +149,7 @@ int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_g
  * @param module      The underlying compute module.
  * @param params_glwe The bivGLWE parameters.
  * @param result      The output bivariate polynomial.
- * @param precision   The maximum degree in Y of the polynomial.
+ * @param precision   The number of limbs to fill (limbs 0 to precision-1), each sampled uniformly on K bits.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
@@ -159,7 +164,7 @@ int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_
 // =============================================
 
 /**
- * @brief Computes the bivariate decompositionof a polynomial in RnX.
+ * @brief Computes the bivariate decomposition of a polynomial in RnX.
  *
  * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
  * the normalized [-2^(K-1), 2^(K-1)).
@@ -180,7 +185,7 @@ int univ_rnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivR
  * The output is quasi-normalized: the coefficients lie all in [-2^(K-1), 2^(K-1)] instead of
  * the normalized [-2^(K-1), 2^(K-1)).
  *
- * Note that the the transformation internally works with 63 (instead of 64) bits of precision
+ * Note that the transformation internally works with 63 (instead of 64) bits of precision
  * for performance reasons.
  * The LSB of the provided TnX value is dropped (rounded down, which is not round-towards 0!).
  *
@@ -284,7 +289,7 @@ void delete_biv_prep(const PvdaBackend* module, BE_PolyVecVmpPrep* biv_prep);
  * @param a           The input coefficient-space bivariate polynomial.
  *
  * @retval -1 If an error occurs.
- * @retval 0  Otwerwise.
+ * @retval 0  Otherwise.
  *
  */
 int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecDFT* res_dft, const PolyBiv* a);
@@ -299,7 +304,7 @@ int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, B
  * @param a_dft       The input DFT domain bivariate polynomial.
  *
  * @retval -1 If an error occurs.
- * @retval 0  Otwerwise.
+ * @retval 0  Otherwise.
  *
  */
 int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyVecDFT* a_dft);
@@ -313,7 +318,7 @@ int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, P
  * @param a           The input coefficient-space bivariate polynomial.
  *
  * @retval -1 If an error occurs.
- * @retval 0  Otwerwise.
+ * @retval 0  Otherwise.
  */
 int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecVmpPrep* res_prep,
                       const PolyBiv* a);
@@ -338,7 +343,7 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
  * @brief The number of coefficients in bivariate polynomial.
  *
  * @param params_glwe The bivariate GLWE parameters.
- * @return The nubmer of coefficients in a bivariate polynomial.
+ * @return The number of coefficients in a bivariate polynomial.
  *
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * \ZnX, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
@@ -369,7 +374,7 @@ uint64_t poly_biv_bytes(const GLWEParams* params_glwe);
 void printf_poly_biv(PolyBiv* pol);
 
 /**
- * @brief Prints a Bivariate Polynomial, with limits on the coefifcients and limbs that will be printed
+ * @brief Prints a Bivariate Polynomial, with limits on the coefficients and limbs that will be printed
  *
  * @param pol     A Pointer to the Bivariate Polynomial.
  * @param max_n   The number of coefficients to print per limb

@@ -12,7 +12,7 @@
  *
  * @brief Definition of a GLWEGadget ciphertext, creation, destruction, encryption and transformations thereof
  *
- * Decrytion is not implemented nor is it planned:
+ * Decryption is not implemented nor is it planned:
  * GLWEGadgets are used as an input format for half-external products, not as the main format for encrypted data.
  * They contain multiple encryptions of the same message multiplied by different constants.
  * Thus, decrypting them does not seem to be a useful operation, nor a clearly-defined one:
@@ -22,7 +22,7 @@
  * Given all of that, we decided not to provide a decryption function.
  * If needed (as in the tests, which one can take as an example) the GLWE decryption function(s) can be used
  * together with the glwegadget_glwe_view function, but, again, outside of debugging it is
- * higly unlikely one might need to to that.
+ * highly unlikely one might need to do that.
  */
 
 // =============================================
@@ -42,19 +42,19 @@ typedef struct glwegadget_ciphertext
 	/// GLWEGadget data stored as a flattened row-major
 	/// matrix of size l_tilde * n_limbs, each row the contents of a GLWECiphertext
 	///
-	/// See \ref glwegadget_encoding "GLWEGadget's memory layout expanation" for more details
+	/// See \ref glwegadget_encoding "GLWEGadget's memory layout explanation" for more details
 	int64_t* mat;
 } GLWEGadgetCiphertext;
 
 /**
- * @brief Creates a new GLWEGadgetCiphertext. This methods allocates the memory.
+ * @brief Creates a new GLWEGadgetCiphertext. This function allocates the memory.
  *
  * @param params The parameters.
  */
 GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
 
 /**
- * @brief Deletes a GLWEGadget ciphertext. This functions frees the memory.
+ * @brief Deletes a GLWEGadget ciphertext. This function frees the memory.
  *
  * @param glwegadget_ct The ciphertext to delete.
  */
@@ -106,10 +106,10 @@ int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* 
                                      const PolyUniv* m_univ, uint64_t d);
 
 /**
- * @brief Retreive a bivglwe from a GLWEGadget (halfGGSW for k = 1).
+ * @brief Retrieve a GLWE from a GLWEGadget (halfGGSW for k = 1).
  *
  * @param glwegadget_ct     The GLWEGadget ciphertext.
- * @param i                 The index of the GLWE to retrievie, from 1 to l_tilde included.
+ * @param i                 The index of the GLWE to retrieve, from 1 to l_tilde included.
  *
  * @return a GLWECiphertext view (does NOT own memory) of the i-th GLWE.
  */

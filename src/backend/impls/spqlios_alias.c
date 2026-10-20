@@ -166,7 +166,7 @@ cleanup:
 }
 
 int spqlios_vmp_apply_prepared_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res, const uint64_t res_size,
-                                      const BE_PolyVecVmpPrep* a_dft, uint64_t a_size, const BE_PolyMatVmpPrep* pmat,
+                                      const BE_PolyVecVmpPrep* a_prep, uint64_t a_size, const BE_PolyMatVmpPrep* pmat,
                                       const uint64_t nrows, const uint64_t ncols)
 {
 	int status = -1;
@@ -174,7 +174,7 @@ int spqlios_vmp_apply_prepared_to_dft(const PvdaBackend* module, BE_PolyVecDFT* 
 	    malloc(vmp_apply_pvec_to_dft_tmp_bytes(module->spqlios_module, res_size, a_size, nrows, ncols));
 	CHECK_ALLOC(tmp_space, "tmp_space's malloc failed in vmp_apply_dft_to_dft_p");
 
-	vmp_apply_pvec_to_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, (VMP_PVEC*)a_dft, a_size,
+	vmp_apply_pvec_to_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, (VMP_PVEC*)a_prep, a_size,
 	                      (VMP_PMAT*)pmat, nrows, ncols, tmp_space);
 
 	status = 0;

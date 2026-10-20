@@ -18,7 +18,7 @@ double generate_sigma(PvdaTstParams* p)
 	if (p->sigma > 0.0) return p->sigma;
 	if (p->sigma < 0.0) return ldexp(1.0, (int)p->sigma);
 
-	// If p == 0 defaut sigma which has arbitrarily chosen to be 4 bits of the last limb: 2^(4-K*l_a)
+	// If p == 0 default sigma which has arbitrarily chosen to be 4 bits of the last limb: 2^(4-K*l_a)
 	int64_t l_a = ((p->ciphertext_nb_limbs + 1) / (p->k + 1));
 	return ldexp(1.0, 4 - l_a * p->kappa);
 }
@@ -108,7 +108,7 @@ int rnx_random_vec(const PvdaBackend* module, PolyUnivRnX* res, GLWEParams* para
 	PolyUnivTnX* tmp_tnx = new_univ_tnx(params_glwe);
 
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
-	// the memory representation is the same for isomprphic values
+	// the memory representation is the same for isomorphic values
 	uniform_pow2_random_pol_znx(module, (PolyUniv*)tmp_tnx, params_glwe->nn, 64);
 
 	univ_tnx_to_rnx(params_glwe, res, tmp_tnx);

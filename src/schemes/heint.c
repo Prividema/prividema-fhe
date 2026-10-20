@@ -198,7 +198,7 @@ int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t*
 
 	biv_to_univ_rnx(params, in_rnx, in, 0);
 
-	// Use the [0,1] torus representation
+	// Use the [0,1) torus representation
 	for (size_t i = 0; i < nn; ++i) in_rnx[i] = in_rnx[i] < 0 ? 1 + in_rnx[i] : in_rnx[i];
 
 	// Scale and round

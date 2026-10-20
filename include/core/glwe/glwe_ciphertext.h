@@ -33,7 +33,7 @@ typedef struct glwe_ciphertext
 	 * @brief Represents a vector of size nb_limbs with coefficients that are in \ZnX
 	 *
 	 * Data layout is limb-major, ie, all the coefficients for a power of \f$ 2^{iK} \f$
-	 *  are strored contiguously after the ones from \f$ 2^{(i-1)K} \f$ and before \f$ 2^{(i+1)K} \f$
+	 *  are stored contiguously after the ones from \f$ 2^{(i-1)K} \f$ and before \f$ 2^{(i+1)K} \f$
 	 * (see dedicated document/page for details)
 	 */
 	int64_t* vec;
@@ -58,11 +58,12 @@ void delete_glwe(GLWECiphertext* glwe);
 /**
  * @brief Copies a GLWE ciphertext.
  * 
- * This copy function truncates if dst is smaller than src. 
- * This behavior is completely intentional as it means that we drop the les significant digits.
+ * This copy function truncates if dst is smaller than src.
+ * This behavior is completely intentional as it means that we drop the less significant digits.
+ * If dst is larger than src, the extra (less significant) limbs of dst are set to 0.
  *
- * @param src The source GLWE ciphertext.
  * @param dst The destination GLWE ciphertext.
+ * @param src The source GLWE ciphertext.
  */
 void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
 
@@ -81,20 +82,20 @@ PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
  *
  * @param glwe_ct Source GLWE
  *
- * @returns A PolyBiv view (does NOT own memory) of the GLWE as if it were a single PolyBiv
+ * @returns A ZnxVec view (does NOT own memory) of all the limbs of the GLWE, as a flat vector of polynomials
  */
 ZnxVec glwe_as_znx_vec(const GLWECiphertext* glwe_ct);
 
 /**
  * @brief Encrypts a phase (message + noise) and puts it in result.
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param result The result bivariate ciphertext.
  * @param sk_prep The prepared secret key
  * @param phase message + noise.
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  0 othwerwise.
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
  */
 int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase);
@@ -102,13 +103,13 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* result,
 /**
  * @brief Encrypts a univariate message in RnX form
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param result The result bivariate ciphertext.
  * @param sk_prep The prepared secret key
  * @param m_univ_rnx  The univariate secret message to encrypt
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  0 othwerwise.
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
  */
 int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx);
@@ -116,13 +117,13 @@ int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* result, c
 /**
  * @brief Encrypts a univariate message in TnX form
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param result The result bivariate ciphertext.
  * @param sk_prep The prepared secret key
  * @param m_univ_tnx  The univariate secret message to encrypt
  *
  * @retval -1 if an error occurs.
- * @retval  -0 othwerwise.
+ * @retval  0 otherwise.
  */
 int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx);
@@ -131,13 +132,13 @@ int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* result, c
  * @brief Decrypts the ciphertext into the
  * bivariate phase (message + noise) and puts it in result.
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param result The bivariate phase.
  * @param sk_prep The prepared secret key
  * @param glwe The bivGLWE ciphertext.
  *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  0 othwerwise.
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
  */
 int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe);

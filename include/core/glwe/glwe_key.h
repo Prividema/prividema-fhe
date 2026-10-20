@@ -25,7 +25,7 @@
  */
 typedef struct glwe_secret_key
 {
-	uint64_t nn;      ///< Ring dimension (also the number of coefficient in one polynomial)
+	uint64_t nn;      ///< Ring dimension (also the number of coefficients in one polynomial)
 	uint64_t k;       ///< Number of polynomials in the key
 	int64_t* values;  ///< Flattened vector containing the data
 } GLWESecretKey;
@@ -52,7 +52,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  * @param module  The backend instance.
  * @param sk 	  The secret key.
  * @param nb_bits Bit-size of coefficients: coefficients are sampled uniformly
- *                in the range [-2^nb_bits, 2^nb_bits).
+ *                in the range [-2^(nb_bits-1), 2^(nb_bits-1)).
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
@@ -102,7 +102,7 @@ PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
  * 
  * We differentiate "prepared" and "in DFT" as in spqlios
  * "DFT" is a general-purpose representation while
- * "prepared" is an an operand reshaped for one operation (SVP or VMP).
+ * "prepared" is an operand reshaped for one operation (SVP or VMP).
  * 
  * Here the key is prepared for SVP.
  */
@@ -149,7 +149,7 @@ BE_PolySvpPrep* glwe_prepared_sk_extract_poly_prep(const GLWESecretKeyPrepared* 
  * @param sk_prep  The prepared secret key.
  * @param pos The position to retrieve (from 0 to k-1).
  *
- * @return A pointer to the beggining of the pos-th polynomial in the key, in coefficient form.
+ * @return A pointer to the beginning of the pos-th polynomial in the key, in coefficient form.
  */
 PolyUniv* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_prep, uint64_t pos);
 

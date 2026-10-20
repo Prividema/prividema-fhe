@@ -65,7 +65,7 @@ int const_mult_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGS
 	const GGSWParams* params_ggsw = result->params;
 	int64_t mat_size                  = ggsw_total_n_glwe_limbs(params_ggsw);
 
-	// DFT-domain screatch: one entry per polynomial in the GGSW
+	// DFT-domain scratch: one entry per polynomial in the GGSW
 	BE_PolyVecDFT* tmp_dft = pvda_new_vec_znx_dft(module, mat_size);
 	CHECK_ALLOC(tmp_dft, "tmp_dft's allocation failed in const_mult_ggsw");
 

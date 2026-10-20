@@ -89,7 +89,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 	uint64_t l_b   = glwe_params_l_b(params);
 
 	// The acc variable is used for the sum
-	// As a reminder, if we deonte acc_j its value at cycle j,
+	// As a reminder, if we denote acc_j its value at cycle j,
 	// at cycle j + 1 we compute
 	// acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
 	// In other words, acc is <A, SK>

@@ -226,7 +226,7 @@ cleanup:
 // =============================================
 
 /**
- * @brief Helper funciton to fetch bits from a value and put then in the LSB of the return
+ * @brief Helper function to fetch bits from a value and put them in the LSB of the return
  *
  * @param num Input value from which to fetch bits
  * @param offset Position of the least significant bit to be fetched. E.g., to fetch the MSB
@@ -268,17 +268,17 @@ static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
 }
 
 /**
- * Converts a sign-and-magintude value tnx value (stnx_num) into a bivariate polynomial,
+ * Converts a sign-and-magnitude value tnx value (stnx_num) into a bivariate polynomial,
  * putting the LSB of the stnx value in the position of exponent 2^-lsb_pos
  *
- * @param stnx_num A sign-and-magniture tnx number (thus, implicit exponent is 2^-63 and first bit is the sign)
+ * @param stnx_num A sign-and-magnitude tnx number (thus, implicit exponent is 2^-63 and first bit is the sign)
  * @param lsb_pos Position where the LSB of stnx_num should be placed. One should use 63 if no shift is to be performed,
  * but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
  * @param dst The destination bivariate polynomial
  * @param dst_sl The stride between occurrences of different limbs of the coefficient being decomposed
  * @param params the glwe params (used to get l_a and kappa)
  *
- * @note Left for debugging purposes, as it is used by the rnx conversion function. See biv_decomp_internal_vec
+ * @note Scalar (one coefficient at a time) variant, used by univ_rnx_to_biv. See biv_decomp_internal_vec
  * for a newer vectorizable (and significantly faster) implementation with better documented internals.
  */
 inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t dst_sl,
@@ -302,7 +302,7 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 		mask += 1ULL << (i * kappa - 1 - k_offset);  //hope that the computer optimises this loop
 	}
 
-	// Add the mask and xor by it to do the conversion from [0, 2^-K) to [-2^(K-1), -2^(K-1))
+	// Add the mask and xor by it to do the conversion from [0, 2^K) to [-2^(K-1), 2^(K-1))
 	// if we interpret each K bit group as a 2-complement K-long value
 	stnx_num += mask;
 	stnx_num ^= mask;
@@ -354,14 +354,14 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 }
 
 /**
- * Converts a vector of signs and another of mangintudes of tnx values into a bivariate polynomial/vector while
+ * Converts a vector of signs and another of magnitudes of tnx values into a bivariate polynomial/vector while
  * putting the LSB of the stnx value in the position of exponent 2^-lsb_pos
  *
  * This function (as opposed to the non-vec variant), expects the output vector to have been
  * zeroed before being called for performance reasons.
  *
- * @param mag_vec A contigious vector of the magnitudes of the input values
- * @param sgn_vec A contigious vector of the signs of the input values
+ * @param mag_vec A contiguous vector of the magnitudes of the input values
+ * @param sgn_vec A contiguous vector of the signs of the input values
  * @param lsb_pos Position where the LSB of the inputs should be placed. One should use 63 if no shift is to be performed,
  * 			      but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
  * @param dst 	  The destination bivariate polynomial, which should be given with all coefficients set to 0
@@ -383,13 +383,13 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 
 	uint64_t mask = 0;
 
-	// Compute the offset-carry mask that converts [0, 2^-K) into [-2^(K-1), -2^(K-1))
+	// Compute the offset-carry mask that converts [0, 2^K) into [-2^(K-1), 2^(K-1))
 	for (uint64_t i = 1; (i * kappa - 1 - k_offset) < 64; ++i)
 	{
 		mask += 1ULL << (i * kappa - 1 - k_offset);
 	}
 
-	// Add the mask and xor by it to do the conversion from [0, 2^-K) to [-2^(K-1), -2^(K-1))
+	// Add the mask and xor by it to do the conversion from [0, 2^K) to [-2^(K-1), 2^(K-1))
 	// if we interpret each K bit group as a 2-complement K-long value
 	//
 	// Later, the sgn_ext function will be used to retrieve each K-bit group into its own
@@ -487,7 +487,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
 		memset(res->ptr + res->stride * l, 0, sizeof(int64_t) * res->nn);
 	}
 
-	// Decompose the tnx values into sign and magintude
+	// Decompose the tnx values into sign and magnitude
 	for (int p = 0; p < nn; ++p)
 	{
 		uint64_t tnx_val = pol_univ[p];
@@ -532,7 +532,7 @@ int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv*
 		memset(res->ptr + res->stride * l, 0, sizeof(int64_t) * res->nn);
 	}
 
-	// Decompose the znx values into sign and magintude
+	// Decompose the znx values into sign and magnitude
 	for (int p = 0; p < nn; ++p)
 	{
 		uint64_t tnx_val = pol_univ[p];

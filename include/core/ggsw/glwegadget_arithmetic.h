@@ -15,7 +15,7 @@
 
 /**
  * @brief Computes the half-external product between a GLWEGadget and
- * a GLWE ciphertext
+ * a bivariate polynomial
  *
  * @param module             The backend module
  * @param result             The resulting GLWE ciphertext
@@ -30,12 +30,12 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
 
 /**
  * @brief Computes the half-external product between a GLWEGadget and
- * a GLWE ciphertext, with inputs and outputs in the DFT domain
+ * a bivariate polynomial, with inputs and outputs in the DFT domain
  *
  * @param module                The backend module
  * @param result_dft            The resulting GLWE ciphertext in DFT domain
  * @param glwegadget_prep_ct    A prepared GLWEGadget to multiply with
- * @param a_dft                 An bivariate polynomial in the DFT domain
+ * @param a_dft                 A bivariate polynomial in the DFT domain
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
@@ -45,12 +45,12 @@ int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT
 
 /**
  * @brief Computes the half-external product between a GLWEGadget and
- * a GLWE ciphertext, with outputs in the DFT domain and inputs in the prepared format (which is not necessarily the same as DFT for a)
+ * a bivariate polynomial, with outputs in the DFT domain and inputs in the prepared format (which is not necessarily the same as DFT for a)
  *
  * @param module                The backend module
  * @param result_dft            The resulting GLWE ciphertext in DFT domain
  * @param glwegadget_prep_ct    A prepared GLWEGadget to multiply with
- * @param a_dft                 An bivariate polynomial in the DFT domain
+ * @param a_prep                A bivariate polynomial in VMP-prepared form (see biv_coefs_to_prep)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
@@ -77,8 +77,8 @@ int compute_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKey* aut
  *
  * @param module        The backend module
  * @param ksk           The output KSK
- * @param old_key       The old key being switched from
  * @param new_key       The new key being switched to
+ * @param old_key       The old key being switched from
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
@@ -90,7 +90,7 @@ int compute_ksk(const PvdaBackend* module, GLWEKSK* ksk, const GLWESecretKeyPrep
  *
  * @param module             The backend module
  * @param result             The resulting GLWE ciphertext
- * @param auto_key           An encryption of the secret key after having applied the automorphism to it.
+ * @param auto_key           The automorphism key: GLWEGadget encryptions of \f$ -\sigma_p(s_i) \f$ (see compute_automorphism_key).
  *                           The function retrieves the p value from it.
  * @param glwe               The input ciphertext
  *
@@ -114,10 +114,10 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
                            const GLWECiphertext* glwe_ct);
 
 /**
- * @brief Expands a GLWE with at most res_size non-zero coefficents into a res_size GLWEs encrypting each coefficient
+ * @brief Expands a GLWE with at most res_size non-zero coefficients into res_size GLWEs encrypting each coefficient
  *
  * More specifically, expands GLWE(a_0 + a_1 * x + ... + a_d * x^d) into GLWE(m * a_0) ... GLWE(m * a_d) with d = res_size - 1
- * and m = ceil(log2(res_size))
+ * and m = 2^ceil(log2(res_size))
  *
  * The algorithm used as well as a better explanation can be found in
  * https://github.com/Prividema/prividema-fhe/pull/64#issuecomment-4648948222
@@ -126,7 +126,7 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
  * @param module The backend module
  * @param results An array with pointers to the res_size output GLWEs.
  * @param res_size The number of (non-zero) coefficients in the GLWE.
- * @param glwe_ct The packed GLWEGadget
+ * @param glwe_ct The packed GLWE
  * @param auto_key_collection The automorphism key collection for trace expansion
  *
  * @retval -1 if an error occurs
@@ -136,10 +136,10 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
                       const GLWEAutomorphismKeyCollection* auto_key_collection);
 
 /**
- * @brief Extracts a position from a GLWE with at most res_size non-zero coefficents
+ * @brief Extracts a position from a GLWE with at most res_size non-zero coefficients
  *
  * More specifically, extracts from GLWE(a_0 + a_1 * x + ... + a_d * x^d) position pos: GLWE(m * a_pos)
- * with d = enc_size - 1 and m = ceil(log2(enc_size))
+ * with d = enc_size - 1 and m = 2^ceil(log2(enc_size))
  *
  * Adapted version of glwe_trace_expand for single-coefficient extraction.
  *
@@ -147,7 +147,7 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
  * @param result The output result
  * @param enc_size The number of (non-zero) coefficients in the GLWE.
  * @param pos The position to extract
- * @param glwe_ct The packed GLWEGadget
+ * @param glwe_ct The packed GLWE
  * @param auto_key_collection The automorphism key collection for trace expansion
  *
  * @retval -1 if an error occurs
@@ -183,17 +183,18 @@ int packed_glwegadget_trace_expand(const PvdaBackend* module, GLWEGadgetCipherte
  * packed GLWEGadgets
  *
  * @param module The backend module
- * @param results An array with pointers to the res_size output prepared GLWEGadgets
- *                If NULL pointers are provided, they will be created and allocated by this function, and responsibility
- *                tranferred to the caller. This is the recommended mode of operation
- * @param l_tilde The l_tilde used during packing and ecnryption of the GLWEGadget
+ * @param results An array with pointers to the res_size output prepared GLWEGadgets.
+ *                results[0] must be allocated, since its parameters are used for all the outputs.
+ *                For results[1..res_size-1], if NULL pointers are provided, they will be created and allocated by this
+ *                function, and responsibility transferred to the caller. This is the recommended mode of operation
  * @param res_size The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GLWEGadgets
+ * @param l_tilde The l_tilde used during packing and encryption of the GLWEGadget
  * @param packed_glwegadget The packed GLWEGadget
  * @param auto_key_collection The key collection for trace expansion automorphisms
  *
  *
- * @note It is recommended to call this function without having pre-allocated the results and therefore letting this function perform
- *       their allocation. Due to the algorithm used for trace expansion, it is required to expand an entire trace at once.
+ * @note It is recommended to call this function without having pre-allocated the results (except results[0]) and therefore
+ *       letting this function perform their allocation. Due to the algorithm used for trace expansion, it is required to expand an entire trace at once.
  *       However, that is done in the unprepared space.
  *       If this function is called with preallocated results, at some point, memory will be allocated for the entire unprepared
  *       trace as well as the entire prepared trace. This results in almost double the peak memory consumption that is really needed.

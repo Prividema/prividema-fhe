@@ -24,7 +24,7 @@ GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw)
 
 	ggsw->params = params_ggsw;
 
-	// Initialize the bivGGSW ciphertext with 0s'
+	// Initialize the bivGGSW ciphertext with 0s
 	ggsw->mat = calloc(ggsw_coef_number(params_ggsw), sizeof(int64_t));
 	CHECK_ALLOC(ggsw->mat, "calloc in new_ggsw");
 
@@ -153,7 +153,7 @@ GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw)
 
 	ggsw_mat_dft->params = params_ggsw;
 
-	// Initializes  the bivGGSW ciphertext with Os'
+	// Initializes  the bivGGSW ciphertext with 0s
 	ggsw_mat_dft->mat = calloc(2 * ggsw_coef_number_dft(params_ggsw), sizeof(double));
 	CHECK_ALLOC(ggsw_mat_dft->mat, "calloc in new_ggsw_dft");
 

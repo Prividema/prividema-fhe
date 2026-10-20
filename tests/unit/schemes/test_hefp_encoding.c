@@ -111,7 +111,7 @@ PvdaParamTest(hefp_encoding, forth_and_back, default_params_fn)
 	uint64_t nn = params_glwe->nn;
 
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
-	// the memory representation is the same for isomprphic values
+	// the memory representation is the same for isomorphic values
 	// We need to limit the bits to less than 64 due to the shift we will do
 	uniform_pow2_random_pol_znx(module, (PolyUniv*)tmp_tnx, params_glwe->nn, 52);
 
@@ -146,7 +146,7 @@ PvdaParamTest(hefp_encoding, forth_and_back_not_all_slots, default_params_fn)
 	uint64_t nn = params_glwe->nn;
 
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
-	// the memory representation is the same for isomprphic values
+	// the memory representation is the same for isomorphic values
 	// We need to limit the bits to less than 64 due to the shift we will do
 	uniform_pow2_random_pol_znx(module, (PolyUniv*)tmp_tnx, params_glwe->nn, 52);
 

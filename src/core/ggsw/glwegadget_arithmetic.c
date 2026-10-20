@@ -34,7 +34,7 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
 
 	ZnxVec v = biv_as_znx_vec(a);
 	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, &v, glwegadget_prep_ct->mat, nrows, ncols_in),
-	           "vmp apply falied in half product");
+	           "vmp apply failed in half product");
 
 	CHECK_CALL(glwe_dft_to_coef(module, result, glwe_dft),
 	           "conversion from GLWE DFT to coefs failed in GLWEGadget half product");
@@ -56,7 +56,7 @@ int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT
 
 	CHECK_CALL(pvda_vmp_apply_dft_to_dft(module, result_dft->vec, ncols_out, a_dft, nrows,
 	                                     glwegadget_prep_ct->mat, nrows, ncols_in),
-	           "vmp apply falied in half product");
+	           "vmp apply failed in half product");
 
 	status = 0;
 cleanup:
@@ -74,7 +74,7 @@ int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECipherte
 
 	CHECK_CALL(pvda_vmp_apply_prepared_to_dft(module, result_dft->vec, ncols_out, a_prep, nrows,
 	                                          glwegadget_prep_ct->mat, nrows, ncols_in),
-	           								  "vmp apply falied in half product");
+	           								  "vmp apply failed in half product");
 
 	status = 0;
 cleanup:
@@ -100,7 +100,7 @@ int compute_ksk(const PvdaBackend* module, GLWEKSK* ksk, const GLWESecretKeyPrep
 		//GLWEGadget(sigma_p(sk_i))
 		CHECK_CALL(
 		    glwegadget_secret_encrypt(module, glwegad_tmp, new_key, glwe_sk_prepared_extract_poly_coefs(old_key, i)),
-		    "GLWEGadget encryption failed in autmorphism KSK preparation");
+		    "GLWEGadget encryption failed in automorphism KSK preparation");
 		CHECK_CALL(glwegadget_prepare(module, gadget_ciph, glwegad_tmp),
 		           "GLWEGadget preparation failed in automorphism KSK preparation");
 	}
@@ -117,8 +117,8 @@ int compute_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKey* aut
 	int status = -1;
 
 	if (!(automorphism_p & 1))
-	{  //If autmorphism_p is even
-		RAISE_ERROR("Cannot prepare autmorphism key for even p, operation is not well-defined");
+	{  //If automorphism_p is even
+		RAISE_ERROR("Cannot prepare automorphism key for even p, operation is not well-defined");
 	}
 
 	uint64_t k  = glwe_key->k;
@@ -146,7 +146,7 @@ int compute_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKey* aut
 
 		//GLWEGadget(sigma_p(sk_i))
 		CHECK_CALL(glwegadget_secret_encrypt(module, glwegad_tmp, glwe_key, auto_sk_tmp),
-		           "GLWEGadget encryption failed in autmorphism key computation");
+		           "GLWEGadget encryption failed in automorphism key computation");
 		CHECK_CALL(glwegadget_prepare(module, gadget_ciph, glwegad_tmp),
 		           "GLWEGadget preparation failed in automorphism key computation");
 	}
@@ -170,7 +170,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 	int64_t automorphism_p = auto_key->automorphism_p;
 
 	// This is the maximum internal precision of the result.
-	// It is the maximum of the input b precision and the number of columns (GLWEGaget l_tilde precision) in the
+	// It is the maximum of the input b precision and the number of columns (GLWEGadget l_tilde precision) in the
 	// key-switching key
 	uint64_t biv_l = l_b_result > nrows ? l_b_result : nrows;
 	if (k == 1)
@@ -190,7 +190,7 @@ int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, c
 		PolyBiv b = glwe_extract_poly_view(glwe, k);
 		biv_automorphism(module, automorphism_p, auto_tmp, &b);
 
-		// result += auto_tmp ==> result = -halfProc(c_auto(s), auto(a)) + (0, auto(b))
+		// result += auto_tmp ==> result = -halfProd(c_auto(s), auto(a)) + (0, auto(b))
 		PolyBiv result_b = glwe_extract_poly_view(result, k);
 		biv_add(module, &result_b, &result_b, auto_tmp);
 
@@ -304,7 +304,6 @@ int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, co
 		delete_glwe(glwe_tmp);
 	}
 
-	status = 0;
 	return status;
 }
 
@@ -495,7 +494,7 @@ int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GL
 	           "GLWEGadget trace expansion failed");
 
 	CHECK_CALL(glwegadget_prepare(module, results, results_unprep),
-	           "GLWEGadget prepareation failed in trace expansion");
+	           "GLWEGadget preparation failed in trace expansion");
 
 	status = 0;
 cleanup:

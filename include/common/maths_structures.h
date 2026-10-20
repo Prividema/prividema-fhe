@@ -12,13 +12,13 @@
 /**
  * @brief Represents a \TnX polynomial, by means of
  * coefficients which are the numerators of a fraction with denominator \f$2^{64}\f$
- * @note The implicit lenght is \N for a polynomial in \TnX
+ * @note The implicit length is \N for a polynomial in \TnX
  */
 typedef uint64_t PolyUnivTnX;
 
 /**
  * @brief Represents a \RnX polynomial.
- * @note The implicit lenght is \N for a polynomial in \RnX
+ * @note The implicit length is \N for a polynomial in \RnX
  */
 typedef double PolyUnivRnX;
 
@@ -34,7 +34,7 @@ typedef int64_t PolyUniv;
 // =============================================
 
 /**
- * @brief Prints a Univariate Polynomial in \f$\mathbb{Z}_n[X]\f$.
+ * @brief Prints a Univariate Polynomial in \ZnX.
  *
  * @param pol A Pointer to the Univariate Polynomial.
  * @param nn   The degree of the chosen cyclotomic polynomial.
@@ -42,7 +42,7 @@ typedef int64_t PolyUniv;
 void printf_poly_univ_ZnX(PolyUniv* pol, int64_t nn);
 
 /**
- * @brief Prints a Univariate Polynomial in \f$\mathbb{R}_n[X]\f$.
+ * @brief Prints a Univariate Polynomial in \RnX.
  *
  * @param pol A Pointer to the Univariate Polynomial.
  * @param nn   The degree of the chosen cyclotomic polynomial.

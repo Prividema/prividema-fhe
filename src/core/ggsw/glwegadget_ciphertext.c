@@ -198,7 +198,7 @@ int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwe_
 	{
 		GLWECiphertext limb = glwegadget_glwe_view(glwe_gad, l + 1);
 		printf("Gadget lvl %03d: ", l);
-		CHECK_CALL(glwe_print_coefs(module, &limb, sk_prep, n, 0), "GLWE printig failed in GLWEGadget printing");
+		CHECK_CALL(glwe_print_coefs(module, &limb, sk_prep, n, 0), "GLWE printing failed in GLWEGadget printing");
 		printf("\n");
 	}
 

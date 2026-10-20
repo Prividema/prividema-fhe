@@ -183,7 +183,7 @@ PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
 	uint64_t t;
-	// Checks that the beggining (up to glwe_src precision) of glwe_dst is equal to glwe_src
+	// Checks that the beginning (up to glwe_src precision) of glwe_dst is equal to glwe_src
 	for (t = 0; t < glwe_coef_number(params_glwe); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
 	// Checks that the remaining elements of glwe_dst are 0
 	for (; t < glwe_coef_number(dst_params); t++) cr_assert(eq(i64, glwe_dst->vec[t], 0));

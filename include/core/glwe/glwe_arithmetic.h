@@ -44,7 +44,7 @@ int glwe_add(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertex
 /**
  * @brief Subtracts two bivariate GLWE ciphertexts.
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param res The result GLWE ciphertext.
  * @param glwe_lhs The left-hand side GLWE ciphertext.
  * @param glwe_rhs The right-hand side GLWE ciphertext.
@@ -57,7 +57,7 @@ int glwe_sub(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertex
 /**
  * @brief Negates (inverts the sign of) a GLWE
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param res The result GLWE ciphertext (can be the same as the input for in-place negation).
  * @param glwe The GLWE ciphertext to invert.
  * 
@@ -69,9 +69,9 @@ int glwe_negate(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
 /**
  * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial.
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param res The result GLWE ciphertext.
- * @param u The \ZnX polynomial.
+ * @param u The \ZnX polynomial, in SVP-prepared form (see univ_coefs_to_prep).
  * @param glwe The GLWE ciphertext.
  *
  * @retval -1 if an error occurs
@@ -97,9 +97,9 @@ int glwe_dft_add(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GL
 /**
  * @brief Multiply a bivGLWE ciphertext by a \ZnX polynomial in the DFT domain.
  *
- * @param module Additionnal information for backend.
+ * @param module Additional information for backend.
  * @param res_dft The result bivGLWE ciphertext in the DFT domain.
- * @param u The \ZnX polynomial.
+ * @param u The \ZnX polynomial, in SVP-prepared form (see univ_coefs_to_prep).
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
  *
  * @retval -1 if an error occurs.

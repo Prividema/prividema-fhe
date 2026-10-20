@@ -43,7 +43,7 @@
  *
  *****************************************************************************/
 
-// Matrix dimenstions (number of columns, rows and logarithm of the columns)
+// Matrix dimensions (number of columns, rows and logarithm of the columns)
 #define MATRIX_COLS 256
 #define LOG2_COLS   8
 #define MATRIX_ROWS 256
@@ -70,23 +70,23 @@
 // be BFV-like, that is, have some margin in the LSBs where the noise will
 // go and which we then can just discard and round to get an exact value
 //
-// SHFT_AMT is this margin, in bits. More succintly, in this OnionPIR proof-of-concept
+// SHFT_AMT is this margin, in bits. More succinctly, in this OnionPIR proof-of-concept
 // we store DB_BITS bits of useful data per coefficient, and everything after that
 // is margin for the noise
 //
-// Even more succintly, the data in the database belongs in ZnX mod 2^(DB_BITS)
+// Even more succinctly, the data in the database belongs in ZnX mod 2^(DB_BITS)
 #define DB_BITS  54ll
 #define SHFT_AMT (64 - DB_BITS)
 
-// Size of the square submatrix for which we print the DB contents at the beggining
-// of the exampole
+// Size of the square submatrix for which we print the DB contents at the beginning
+// of the example
 #define DB_PRINT_SUBMAT 4
 #define DB_PRINT_COEFS  4
 
 // Function that generates the data for a certain matrix position
-// Replace with desired placeholder for the example, or with acual data
+// Replace with desired placeholder for the example, or with actual data
 // when going to production
-// At present, it places a polynomial with alternaticng column number and row number coefficents
+// At present, it places a polynomial with alternating column number and row number coefficients
 int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t row,
                                                  int64_t column)
 {
@@ -96,7 +96,7 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 
 	for (int i = 0; i < NBASE; ++i)
 	{
-		//Sample pattern of alternating column and row number in the polynomial coefficents.
+		//Sample pattern of alternating column and row number in the polynomial coefficients.
 		if (i % 2)
 			test[i] = cn;
 		else
@@ -360,7 +360,7 @@ int onionpir_client_phase0(PvdaBackend* module, GLWESecretKeyPrepared** sk_prep_
 
 	// GGSW(-s) for gadget to GGSW conversion
 	CHECK_CALL(generate_glwegad_to_ggsw_ksk(module, ggsw_ksks, auto_ggsw_params, sk_prep),
-	           "GLWEGadget to GGSW KSK generation failed in oniopir phase 0");
+	           "GLWEGadget to GGSW KSK generation failed in onionpir phase 0");
 
 	status = 0;
 cleanup:
@@ -381,10 +381,10 @@ int onionpir_client_phase1(const PvdaBackend* module, GLWECiphertext** row_query
 	PolyUniv* sel_row = new_univ(params_row_query);
 	PolyUniv* sel_col = new_univ(params_col_query);
 
-	CHECK_ALLOC(row_query, "GLWE allocation failed in oniopir phase 1");
-	CHECK_ALLOC(col_query, "GLWE allocation failed in oniopir phase 1");
-	CHECK_ALLOC(sel_row, "Univariate polynomial allocation failed in oniopir phase 1");
-	CHECK_ALLOC(sel_col, "Univariate polynomial allocation failed in oniopir phase 1");
+	CHECK_ALLOC(row_query, "GLWE allocation failed in onionpir phase 1");
+	CHECK_ALLOC(col_query, "GLWE allocation failed in onionpir phase 1");
+	CHECK_ALLOC(sel_row, "Univariate polynomial allocation failed in onionpir phase 1");
+	CHECK_ALLOC(sel_col, "Univariate polynomial allocation failed in onionpir phase 1");
 
 	memset(sel_row, 0, poly_univ_bytes(params_row_query));
 	memset(sel_col, 0, poly_univ_bytes(params_col_query));
@@ -446,7 +446,7 @@ int main(int argc, char* argv[])
 	double sigma6       = ldexp(1.0, 2 - 6 * KAPPABASE);
 	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 
-	// Automorphims keys
+	// Automorphism keys
 	double auto_key_sigma = sigma8;
 	GLWEParams* params_glwe_autokey =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, 16, auto_key_sigma, NOISE_UNIFORM_POWER_OF_TWO);
@@ -531,7 +531,7 @@ int main(int argc, char* argv[])
 		CHECK_CALL(st, "Preprocessing of a column of the OnionPIR database failed");
 	}
 	printf(
-	    "...\nAll the non-zero columns of the %d x %d matrix has been filled. Only a portion has been printed for "
+	    "...\nAll the non-zero columns of the %d x %d matrix have been filled. Only a portion has been printed for "
 	    "readability\n",
 	    MATRIX_ROWS, MATRIX_COLS);
 
@@ -596,7 +596,7 @@ int main(int argc, char* argv[])
 		glwe_print_coefs(module, res, sk_prep, 4, SHFT_AMT);
 
 		// Compute the online throughput, in terms of bits of useful database data (size of the unprepared database)
-		// A througput of 500MB/s would mean that a query to a database that stores 1GB of data, which might be using,
+		// A throughput of 500MB/s would mean that a query to a database that stores 1GB of data, which might be using,
 		// for example, 4GB due to the format used in OnionPIR, would take 2s to return a result
 		//
 		// Creating the row and column query and decrypting the result is NOT part of this throughput

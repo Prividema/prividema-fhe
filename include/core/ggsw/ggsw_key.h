@@ -30,7 +30,7 @@ typedef struct ggsw_public_key
  * @param ggsw_ksks   The destination set of GGSWs. This should be an array of GGSWCiphertextPrep pointers of size k.
  *                    For values set to NULL, this function will allocate them and transfer responsibility to the caller.
  *                    Otherwise, it will try to use the existing GGSWCiphertextPreps
- * @param ggsw_params GGSW parameters used for the destination and intermetdiate results
+ * @param ggsw_params GGSW parameters used for the destination and intermediate results
  * @param sk_prep     The secret key to use to prepare the KSK
  */
 int generate_glwegad_to_ggsw_ksk(const PvdaBackend* module, GGSWCiphertextPrep** ggsw_ksks,

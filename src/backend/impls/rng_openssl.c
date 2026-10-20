@@ -24,10 +24,10 @@ static inline int openssl_read_rand(uint64_t* result, size_t bytes)
 }
 int openssl_rand_uniform_pow2(const PvdaBackend* module, int64_t* result, uint64_t nb_bits)
 {
-	// As result points to an uint64_t  nb_bits shall not exceed its size
+	// As result points to an int64_t, nb_bits shall not exceed its size
 	assert(nb_bits <= 8 * sizeof(int64_t));
 
-	// If nb_bits equals the max. size, we just have to convert r to an int64_t.
+	// If nb_bits equals the max. size, we just have to read the random bits into result.
 	if (nb_bits == 8 * sizeof(int64_t))
 		return openssl_read_rand((uint64_t*)result, 8);
 
@@ -36,8 +36,6 @@ int openssl_rand_uniform_pow2(const PvdaBackend* module, int64_t* result, uint64
 		if (openssl_read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
 		reduce_uniform_n(result, (int)nb_bits);
-
-		return 1;
 	}
 
 	return 0;

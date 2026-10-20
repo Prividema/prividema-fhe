@@ -100,10 +100,13 @@ int generate_ntt_table(const PvdaBackend* backend, uint64_t t)
 		}
 	}
 
+	if (!table_entry) RAISE_ERROR("No free NTT table slot left in Prividema FFT data");
+
 	const uint64_t n_elems = 2 * data->nn + 1;
 
-	table_entry->t     = t;
-	table_entry->roots = calloc(2 * data->nn + 1, sizeof(NTTRoot));
+	table_entry->roots = calloc(n_elems, sizeof(NTTRoot));
+	CHECK_ALLOC(table_entry->roots, "failed allocation of NTT root table");
+	table_entry->t = t;
 
 	NTTRoot r = pvda_ring_2nth_root(backend, t);
 	NTTRoot v = 1;
@@ -115,5 +118,8 @@ int generate_ntt_table(const PvdaBackend* backend, uint64_t t)
 		v %= t;
 	}
 
+	return 0;
+
+cleanup:
 	return -1;
 }

@@ -22,7 +22,7 @@ void check_glwegadget(const PvdaBackend* module, const GLWEGadgetCiphertext* glw
                       double critical_err);
 
 /**
- * @brief Very rought estimate the number of bits that are not noisy after a half product
+ * @brief Very rough estimate of the number of bits that are not noisy after a half product
  *
  * Only takes into consideration the number of precision bits in both inputs.
  * Thus, it will not give a strictly correct result when there is any kind of noise in the

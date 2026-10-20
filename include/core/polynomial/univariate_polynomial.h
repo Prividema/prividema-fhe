@@ -21,7 +21,7 @@
 // =============================================
 
 /**
- * @brief Allocate an new univariate polynomial (in coefficient space).
+ * @brief Allocate a new univariate polynomial (in coefficient space).
  *
  * @param params_glwe The parameters to use for the polynomial.
  *
@@ -76,7 +76,7 @@ int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const P
  * @brief Convert an univariate polynomial from DFT domain into coefficient space.
  *
  * @param module The backend module.
- * @param res    The resulitng coefficient-space univariate polynomial.
+ * @param res    The resulting coefficient-space univariate polynomial.
  * @param a_dft  The input DFT-domain polynomial.
  *
  * @retval -1 if an error occurs.
@@ -111,7 +111,7 @@ void delete_univ_prep(const PvdaBackend* module, BE_PolySvpPrep* pol);
  * @brief Prepare an univariate polynomial.
  *
  * @param module   The backend module.
- * @param res_prep The resulitng coefficient-space univariate polynomial.
+ * @param res_prep The resulting prepared (SVP) univariate polynomial.
  * @param a        The input univariate polynomial (in coefficient space).
  *
  * @retval -1 if an error occurs.
@@ -186,7 +186,7 @@ void delete_univ_rnx(PolyUnivRnX* pol);
 int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX* a);
 
 /**
- * @brief Converts a TnX polynomial into a RnX fixed-point one.
+ * @brief Converts a TnX fixed-point polynomial into a RnX floating-point one.
  *
  * @param params_glwe The GLWE parameters.
  * @param res         The resulting \RnX polynomial.
@@ -207,7 +207,7 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
  *
  * @param params_glwe The GLWE parameters.
  *
- * @return Number of bytes needed to store a univariate \ZnX polynomial wiht the given parameters.
+ * @return Number of bytes needed to store a univariate \ZnX polynomial with the given parameters.
  */
 uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
 
@@ -216,7 +216,7 @@ uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
  *
  * @param params_glwe The GLWE parameters.
  *
- * @return Number of bytes needed to store a univariate \RnX polynomial wiht the given parameters.
+ * @return Number of bytes needed to store a univariate \RnX polynomial with the given parameters.
  */
 uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe);
 
@@ -225,7 +225,7 @@ uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe);
  *
  * @param params_glwe The GLWE parameters.
  *
- * @return Number of bytes needed to store a univariate \TnX polynomial wiht the given parameters.
+ * @return Number of bytes needed to store a univariate \TnX polynomial with the given parameters.
  */
 uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe);
 

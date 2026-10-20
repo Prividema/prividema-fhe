@@ -8,7 +8,7 @@
 /**
  * @file glwegadget_key.h
  *
- * @brief Contains data structures related GLWEGadget specific keys, mainly key-switching-keys
+ * @brief Contains data structures related to GLWEGadget-specific keys, mainly key-switching-keys
  * (and the automorphism keys).
  *
  */
@@ -16,7 +16,7 @@
 typedef struct glwe_ksk_t
 {
 	GLWEGadgetParams* params;          ///< The GLWEGadgetParams associated with the gadgets used for key switching
-	GLWEGadgetCiphertextPrep** enc_s;  ///< A vector with pointers to the k prepared ciphertetxts of f(sk_i)
+	GLWEGadgetCiphertextPrep** enc_s;  ///< A vector with pointers to the k prepared ciphertexts of f(sk_i)
 } GLWEKSK;
 
 /**

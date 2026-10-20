@@ -125,10 +125,10 @@ int pvda_vmp_apply_dft_to_dft(const PvdaBackend* backend, BE_PolyVecDFT* res, co
 }
 
 int pvda_vmp_apply_prepared_to_dft(const PvdaBackend* backend, BE_PolyVecDFT* res, const uint64_t res_size,
-                                   const BE_PolyVecVmpPrep* a_dft, uint64_t a_size, const BE_PolyMatVmpPrep* pmat, const uint64_t nrows,
+                                   const BE_PolyVecVmpPrep* a_prep, uint64_t a_size, const BE_PolyMatVmpPrep* pmat, const uint64_t nrows,
                                    const uint64_t ncols)
 {
-	return backend->vt.pvda_vmp_apply_prepared_to_dft(backend, res, res_size, a_dft, a_size, pmat, nrows, ncols);
+	return backend->vt.pvda_vmp_apply_prepared_to_dft(backend, res, res_size, a_prep, a_size, pmat, nrows, ncols);
 }
 
 void pvda_delete_vmp_pmat(const PvdaBackend* backend, BE_PolyMatVmpPrep* pmat)

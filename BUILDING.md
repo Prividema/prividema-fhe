@@ -41,7 +41,7 @@ ON/OFF options:
 > [Criterion #588](https://github.com/Snaipe/Criterion/pull/588) is a fix PR
 > that was filed some months before we encountered this issue, but to this day (2026-04-20) it has not been merged.
 > You should either manually apply the patch in the PR to your Criterion installation (recommended if you plan on developing the library),
-> or, failing that, run tests only on builds compiled in CMake Debut release type
+> or, failing that, run tests only on builds compiled in CMake Debug build type
 > (use -DCMAKE_BUILD_TYPE=Debug when invoking CMake for configuration).
 
 #### Criterion installation instructions

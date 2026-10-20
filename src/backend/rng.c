@@ -22,7 +22,7 @@ int rand_normal(double* result, double mu, double sigma)
 {
 	RAISE_ERROR("Normal number generation not implemented");
 	/*
-	// This function used to transforms a uniformly sampled variable into a normally
+	// This function used to transform a uniformly sampled variable into a normally
 	// distributed variable using the inverse Cumulative Distribution Function
 	// (CDF).
 	// Its implementation has been removed since it used an approximation of the iCDF

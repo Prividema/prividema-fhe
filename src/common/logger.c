@@ -9,7 +9,7 @@
 uint8_t LOG_FLAG = LOG_ERROR | LOG_WARN | LOG_INFO | LOG_DEBUG;
 
 // LOG_FLAG Setter
-void set_log_flag(unsigned char flag) { if (flag < 16) LOG_FLAG = flag; }
+void set_log_flag(unsigned char flag) { LOG_FLAG = flag; }
 
 // Get string representation of log level
 const char* log_level_str(LogLevel level)

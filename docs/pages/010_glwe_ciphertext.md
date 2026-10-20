@@ -52,24 +52,25 @@ Prividema-fhe also supports \f$ \ell_a = \ell_b + 1\f$, which is the only other 
 \f]
 
 This representation has the advantage of following a prefix property:
-From a \f$ \ell_a, \ell_b \f$ one can obtain a reduced precision GLWE with \f$ \ell_a' \leq \ell_a , \ell_b' \leq ell_b \f$ by
+From a \f$ \ell_a, \ell_b \f$ one can obtain a reduced precision GLWE with \f$ \ell_a' \leq \ell_a , \ell_b' \leq \ell_b \f$ by
 discarding the rightmost polynomials that the new precision would not require.
 
 ## GLWEGadget memory layout {#glwegadget_encoding}
 
-A GLWEGadget of m is a family of encryptions of m by powers of \f$ 2^{-K}\f$:
+A GLWEGadget of m is a family of encryptions of m by powers of \f$ 2^{-\kappatilde}\f$
+(note that \f$ \kappatilde \f$ is a GLWEGadget parameter, distinct from the GLWE limb size \f$ K \f$):
 \f[
-\glwegad(m) = \left[\glwe(m \cdot 2^{-K}), \glwe(m \cdot 2^{-2K}), \dots , \glwe(m \cdot 2^{-\tilde{l}K})\right]
+\glwegad(m) = \left[\glwe(m \cdot 2^{-\kappatilde}), \glwe(m \cdot 2^{-2\kappatilde}), \dots , \glwe(m \cdot 2^{-\tilde{\ell}\kappatilde})\right]
 \f]
 
 Its memory layout is the concatenation of the GLWEs that compose it, ie (again, as a row-major matrix):
 
 \f[
 \glwegad(m) = \begin{bmatrix}
-\glwe(m \cdot 2^{-K}) = \flatGLWE{1}\\
-\glwe(m \cdot 2^{-2K}) = \flatGLWE{2}\\\
+\glwe(m \cdot 2^{-\kappatilde}) = \flatGLWE{1}\\
+\glwe(m \cdot 2^{-2\kappatilde}) = \flatGLWE{2}\\\
 \vdots \\
-\glwe(m \cdot 2^{-\tilde{l}K}) = \flatGLWE{\tilde{l}}
+\glwe(m \cdot 2^{-\tilde{\ell}\kappatilde}) = \flatGLWE{\tilde{\ell}}
 \end{bmatrix}
 \f]
 
@@ -80,22 +81,22 @@ This representation again follows a prefix property. If interpreted in this matr
 
 ## GGSW memory layout {#ggsw_encoding}
 
-Finally a GGSW ciphertext, given its secret key \f$ s = \left(s_0, ..., s_{k-1} \right) , s \in \znx \f$,
-is a set of GLWEGadgets of \f$\left(-s_0 \cdot m, \dots, -s_{k-1} \cdot m , m\right)\f$, which we lay out strided
-over the GLWEGadget limbs:
+Finally a GGSW ciphertext, given its secret key \f$ s = \left(s_0, ..., s_{k-1} \right) , s_i \in \znx \f$,
+is a set of GLWEGadgets of \f$\left(-s_0 \cdot m, \dots, -s_{\tilde{k}-1} \cdot m , m\right)\f$ (with \f$ \tilde{k} \leq k \f$,
+usually \f$ \tilde{k} = k \f$), which we lay out strided over the GLWEGadget limbs, i.e. with \f$ \tilde{k} + 1 \f$ rows per precision level:
 
 \f[
 
 \ggsw(m) = \begin{bmatrix}
-\glwe(-m \cdot s_0 \cdot 2^{-K}) =& \flatGLWEW{1}{0}\\
-\glwe(-m \cdot s_1 \cdot  2^{-K}) =& \flatGLWEW{1}{1}\\\
+\glwe(-m \cdot s_0 \cdot 2^{-\kappatilde}) =& \flatGLWEW{1}{0}\\
+\glwe(-m \cdot s_1 \cdot  2^{-\kappatilde}) =& \flatGLWEW{1}{1}\\\
 &\vdots \\
-\glwe(m \cdot 2^{-K}) =& \flatGLWEW{0}{k}\\\
-\glwe(-m \cdot s_0 \cdot 2^{-2K}) = &\flatGLWEW{2}{0}\\
-\glwe(-m \cdot s_1 \cdot 2^{-2K}) = &\flatGLWEW{2}{1}\\\
+\glwe(m \cdot 2^{-\kappatilde}) =& \flatGLWEW{1}{\tilde{k}}\\\
+\glwe(-m \cdot s_0 \cdot 2^{-2\kappatilde}) = &\flatGLWEW{2}{0}\\
+\glwe(-m \cdot s_1 \cdot 2^{-2\kappatilde}) = &\flatGLWEW{2}{1}\\\
 &\vdots \\
-\glwe(-m \cdot s_{k-1} \cdot 2^{-\tilde{\ell_A}K}) = &\flatGLWEW{\tilde{\ell_a}}{k-1}\\\
-\glwe(m \cdot 2^{-\tilde{\ell_b}K}) = & \flatGLWEW{\tilde{\ell_b}}{k}\\\
+\glwe(-m \cdot s_{\tilde{k}-1} \cdot 2^{-\tilde{\ell_a}\kappatilde}) = &\flatGLWEW{\tilde{\ell_a}}{\tilde{k}-1}\\\
+\glwe(m \cdot 2^{-\tilde{\ell_b}\kappatilde}) = & \flatGLWEW{\tilde{\ell_b}}{\tilde{k}}\\\
 \end{bmatrix}
 
 \f]
@@ -103,7 +104,7 @@ over the GLWEGadget limbs:
 In this case, we can also have \f$ \tilde{\ell_a} = \tilde{\ell_b} + 1\f$ instead of the above pictured \f$ \tilde{\ell_a} = \tilde{\ell_b} \f$, in which case the last GLWE is missing.
 
 This representation again has a doubly-directed prefix property, thanks to the fact that it
-is not a concatenation of GLWEGadgets but instead it stores the in a strided fashion.
+is not a concatenation of GLWEGadgets but instead it stores them in a strided fashion.
 Then, once again the GLWEs each have a prefix property (see above), which means that one can drop GLWE precision by forgoing the rightmost columns of the matrix.
 Additionally, though the GGSW itself also has a prefix property,
 and to take a \f$ \tilde{\ell_a}', \tilde{\ell_b}' \f$ reduced precision GGSW,

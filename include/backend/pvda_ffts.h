@@ -39,7 +39,7 @@ struct pvda_fft_data_t
  *
  * @param nn The parameter N (number of coefficients per polynomial)
  *
- * @return NULL in case of failure, a newly allocated object('s pointer') otherwise
+ * @return NULL in case of failure, a pointer to the newly allocated object otherwise
  */
 struct pvda_fft_data_t* new_fft_data(uint64_t nn);
 
@@ -55,7 +55,7 @@ void delete_fft_data(struct pvda_fft_data_t* data);
  *
  *
  * @param data The Prividema-FHE FFT data object
- * @param t Modulus for which the table is to be relieved
+ * @param t Modulus for which the table is to be retrieved
  *
  * @return A pointer to the vector of NTTRoots if found, NULL otherwise
  */
