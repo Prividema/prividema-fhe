@@ -22,12 +22,13 @@ typedef struct glwe_ksk_t
 /**
  * Create a GLWE Key-switching key (KSK)
  *
+ * @param module The backend instance used to allocate the prepared GLWEGadgets
  * @param params The GLWEGadgetParams associated with the KSK
  *
  * @return NULL in case of failure, a new KSK otherwise
  *
  */
-GLWEKSK* new_glwe_ksk(GLWEGadgetParams* params);
+GLWEKSK* new_glwe_ksk(const PvdaBackend* module, GLWEGadgetParams* params);
 /**
  * @brief Deletes a GLWE KSK
  *
@@ -44,12 +45,13 @@ typedef struct glwe_automorphism_keyswitching_key_t
 /**
  * @brief Creates a new automorphism key
  *
+ * @param module The backend instance used to allocate the prepared GLWEGadgets
  * @param params The GLWEGadgetParams associated with the automorphism key
  *
  * @return NULL in case of failure, a new automorphism key otherwise
  *
  */
-GLWEAutomorphismKey* new_automorphism_key(GLWEGadgetParams* params);
+GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, GLWEGadgetParams* params);
 
 /**
  * @brief Deletes an automorphism key

@@ -85,7 +85,7 @@ PvdaParamTest(trace_expand, no_noise, trace_params_fn)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
@@ -169,7 +169,7 @@ PvdaParamTest(hom_expand, no_noise, trace_params_fn)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
@@ -289,7 +289,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
@@ -376,7 +376,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}

@@ -47,7 +47,7 @@ void test_expand_trace(benchmark::State& state)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
@@ -114,7 +114,7 @@ void test_hom_trace(benchmark::State& state)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}
@@ -179,7 +179,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(automorphism_keys, auto_key, p);
 	}
@@ -264,7 +264,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(params_glwegadget);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
 		compute_automorphism_key(module, auto_key, sk_prep, p);
 		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
 	}

@@ -348,7 +348,7 @@ int onionpir_client_phase0(PvdaBackend* module, GLWESecretKeyPrepared** sk_prep_
 	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
 	{
 		int64_t p                     = (int64_t)NBASE / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(auto_ksk_params);
+		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, auto_ksk_params);
 		CHECK_ALLOC(auto_key, "Automorphism key allocation failed in onionpir phase 0");
 
 		int st = compute_automorphism_key(module, auto_key, sk_prep, (int)p);

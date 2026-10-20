@@ -76,7 +76,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	delete_biv(phase_observed);
 	delete_biv(um);
 	delete_univ_rnx(um_univ_rnx);
-	free(um_dft);
+	delete_biv_dft(um_dft);
 	delete_univ_rnx(um_observed_univ_rnx);
 
 	delete_glwe(ext_prod_observed);

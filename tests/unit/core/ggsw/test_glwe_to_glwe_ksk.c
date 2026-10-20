@@ -29,7 +29,7 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	GLWESecretKeyPrepared* sk_prep     = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWESecretKey* new_sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* new_sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	GLWEKSK* glwe_ksk                  = new_glwe_ksk(params_glwegadget);
+	GLWEKSK* glwe_ksk                  = new_glwe_ksk(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_observed_tnx = new_univ_tnx(params_glwe);
@@ -84,7 +84,7 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 	GLWESecretKeyPrepared* sk_prep     = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWESecretKey* new_sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* new_sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	GLWEKSK* glwe_ksk                  = new_glwe_ksk(params_glwegadget);
+	GLWEKSK* glwe_ksk                  = new_glwe_ksk(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_observed_tnx = new_univ_tnx(params_glwe);

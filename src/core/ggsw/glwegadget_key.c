@@ -7,12 +7,13 @@
 #include "glwegadget_ciphertext.h"
 #include "utils.h"
 
-static inline int allocate_prepared_gadget_array(GLWEGadgetParams* params, GLWEGadgetCiphertextPrep** array, int n)
+static inline int allocate_prepared_gadget_array(const PvdaBackend* module, GLWEGadgetParams* params,
+                                                 GLWEGadgetCiphertextPrep** array, int n)
 {
 	int i = 0;
 	for (int i = 0; i < n; ++i)
 	{
-		array[i] = new_glwegadget_prep(array[0]->module, params);
+		array[i] = new_glwegadget_prep(module, params);
 		CHECK_ALLOC(array[i], "KSK allocation failed");
 	}
 	return 0;
@@ -24,16 +25,16 @@ cleanup:
 	return -1;
 }
 
-GLWEKSK* new_glwe_ksk(GLWEGadgetParams* params)
+GLWEKSK* new_glwe_ksk(const PvdaBackend* module, GLWEGadgetParams* params)
 {
-	GLWEKSK* ksk = malloc(sizeof(GLWEAutomorphismKey));
-	CHECK_ALLOC(ksk, "Automorphism key allocation failed");
+	GLWEKSK* ksk = malloc(sizeof(GLWEKSK));
+	CHECK_ALLOC(ksk, "KSK allocation failed");
 	ksk->params = params;
 
 	ksk->enc_s = (GLWEGadgetCiphertextPrep**)calloc(params->params_glwe->k, sizeof(GLWEGadgetCiphertextPrep*));
-	CHECK_ALLOC(ksk, "Automorphism key allocation failed");
-	CHECK_CALL(allocate_prepared_gadget_array(params, ksk->enc_s, params->params_glwe->k),
-	           "Failed to allocate automorphism key");
+	CHECK_ALLOC(ksk->enc_s, "KSK gadget array allocation failed");
+	CHECK_CALL(allocate_prepared_gadget_array(module, params, ksk->enc_s, params->params_glwe->k),
+	           "Failed to allocate the KSK prepared gadgets");
 
 	return ksk;
 cleanup:
@@ -53,14 +54,14 @@ void delete_glwe_ksk(GLWEKSK* glwe_ksk)
 	free(glwe_ksk);
 }
 
-GLWEAutomorphismKey* new_automorphism_key(GLWEGadgetParams* params)
+GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, GLWEGadgetParams* params)
 {
 	GLWEAutomorphismKey* auto_key = malloc(sizeof(GLWEAutomorphismKey));
 	CHECK_ALLOC(auto_key, "Automorphism key allocation failed");
 
 	auto_key->automorphism_p = -2;
 
-	auto_key->glwe_ksk = new_glwe_ksk(params);
+	auto_key->glwe_ksk = new_glwe_ksk(module, params);
 	CHECK_ALLOC(auto_key->glwe_ksk, "Automorphism key allocation failed");
 
 	return auto_key;

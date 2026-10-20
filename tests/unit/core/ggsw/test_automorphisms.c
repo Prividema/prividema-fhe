@@ -25,7 +25,7 @@ PvdaParamTest(automorphism, generate_key, default_params_fn)
 
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWEAutomorphismKey* auto_key  = new_automorphism_key(module, params_glwegadget);
 
 	uniform_glwe_secret_key(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
@@ -48,7 +48,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWEAutomorphismKey* auto_key  = new_automorphism_key(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
@@ -108,7 +108,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWEAutomorphismKey* auto_key  = new_automorphism_key(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);

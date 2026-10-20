@@ -27,7 +27,7 @@ void bench_glwegad_auto(benchmark::State& state)
 
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWEAutomorphismKey* auto_key  = new_automorphism_key(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
@@ -84,7 +84,7 @@ void bench_glwegad_auto_norm(benchmark::State& state)
 
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWEAutomorphismKey* auto_key  = new_automorphism_key(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);

@@ -120,7 +120,7 @@ PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 
 	cr_assert(uniform_random_vec_znx_dft(module, res_dft, params_glwe->k, 2) == 0);
 
-	free(res_dft);
+	pvda_delete_vec_znx_dft(module, res_dft);
 	free(res);
 
 	DELETE_PVDA_PARAMS_GLWE;

@@ -186,7 +186,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	delete_biv(um_observed);
 	delete_univ_rnx(um_observed_rnx);
 	delete_biv(m);
-	free(m_dft);
+	delete_biv_dft(m_dft);
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
 
@@ -278,6 +278,6 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	delete_biv(um_observed);
 	delete_univ_rnx(um_observed_rnx);
 	delete_biv(m);
-	free(m_prep);
+	delete_biv_prep(module, m_prep);
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
