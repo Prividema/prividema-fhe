@@ -15,7 +15,7 @@
 
 typedef struct glwe_ksk_t
 {
-	GLWEGadgetParams* params;          ///< The GLWEGadgetParams associated with the gadgets used for key switching
+	const GLWEGadgetParams* params;    ///< The GLWEGadgetParams associated with the gadgets used for key switching
 	GLWEGadgetCiphertextPrep** enc_s;  ///< A vector with pointers to the k prepared ciphertexts of f(sk_i)
 } GLWEKSK;
 
@@ -28,7 +28,7 @@ typedef struct glwe_ksk_t
  * @return NULL in case of failure, a new KSK otherwise
  *
  */
-GLWEKSK* new_glwe_ksk(const PvdaBackend* module, GLWEGadgetParams* params);
+GLWEKSK* new_glwe_ksk(const PvdaBackend* module, const GLWEGadgetParams* params);
 /**
  * @brief Deletes a GLWE KSK
  *
@@ -51,7 +51,7 @@ typedef struct glwe_automorphism_keyswitching_key_t
  * @return NULL in case of failure, a new automorphism key otherwise
  *
  */
-GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, GLWEGadgetParams* params);
+GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, const GLWEGadgetParams* params);
 
 /**
  * @brief Deletes an automorphism key

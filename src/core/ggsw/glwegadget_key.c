@@ -7,7 +7,7 @@
 #include "glwegadget_ciphertext.h"
 #include "utils.h"
 
-static inline int allocate_prepared_gadget_array(const PvdaBackend* module, GLWEGadgetParams* params,
+static inline int allocate_prepared_gadget_array(const PvdaBackend* module, const GLWEGadgetParams* params,
                                                  GLWEGadgetCiphertextPrep** array, int n)
 {
 	int i = 0;
@@ -25,7 +25,7 @@ cleanup:
 	return -1;
 }
 
-GLWEKSK* new_glwe_ksk(const PvdaBackend* module, GLWEGadgetParams* params)
+GLWEKSK* new_glwe_ksk(const PvdaBackend* module, const GLWEGadgetParams* params)
 {
 	GLWEKSK* ksk = malloc(sizeof(GLWEKSK));
 	CHECK_ALLOC(ksk, "KSK allocation failed");
@@ -54,7 +54,7 @@ void delete_glwe_ksk(GLWEKSK* glwe_ksk)
 	free(glwe_ksk);
 }
 
-GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, GLWEGadgetParams* params)
+GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, const GLWEGadgetParams* params)
 {
 	GLWEAutomorphismKey* auto_key = malloc(sizeof(GLWEAutomorphismKey));
 	CHECK_ALLOC(auto_key, "Automorphism key allocation failed");

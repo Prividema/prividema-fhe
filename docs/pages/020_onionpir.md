@@ -1,4 +1,4 @@
-# OnionPIR
+# OnionPIR {#onionPIR}
 
 [OnionPIR](https://eprint.iacr.org/2021/1081) is a private information retrieval (PIR) protocol.
 As such, it allows a server to process encrypted queries for access
