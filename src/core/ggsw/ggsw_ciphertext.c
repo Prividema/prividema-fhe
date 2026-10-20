@@ -58,17 +58,17 @@ GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int
 
 ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct)
 {
-	const GGSWParams* ggsw_params = ggsw_ct->params;
-	const GLWEParams* glwe_params = ggsw_params->params_glwe;
-	return znx_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(ggsw_params), (int64_t)glwe_params->nn, ggsw_ct->mat);
+	const GGSWParams* params_ggsw = ggsw_ct->params;
+	const GLWEParams* glwe_params = params_ggsw->params_glwe;
+	return znx_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)glwe_params->nn, ggsw_ct->mat);
 }
 
-int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ)
 {
 	int status = -1;
 
-	const GGSWParams* params_ggsw = result->params;
+	const GGSWParams* params_ggsw = res->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
 	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
 		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
@@ -123,11 +123,11 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const
 			                           params_ggsw->kappa_tilde * i),
 			           "univ_to_biv failed in compute_phase_ij");
 
-			CHECK_CALL(add_biv_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+			CHECK_CALL(biv_add_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
 			           "Noise addition failed in GGSW encryption");
 		}
 		// View on the result positiopn
-		GLWECiphertext glwe_ct = ggsw_glwe_view(result, j, i);
+		GLWECiphertext glwe_ct = ggsw_glwe_view(res, j, i);
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
 		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
@@ -163,21 +163,21 @@ cleanup:
 	return NULL;
 }
 
-void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft)
+void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_prep)
 {
-	if (!ggsw_dft) return;
-	free(ggsw_dft->mat);
-	free(ggsw_dft);
+	if (!ggsw_prep) return;
+	free(ggsw_prep->mat);
+	free(ggsw_prep);
 }
 
-int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct)
+int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prep, const GGSWCiphertext* ggsw_ct)
 {
 	int status = -1;
 
-	size_t nrows = ggsw_prepared->params->ciphertext_nb_limbs_tilde;
-	size_t ncols = glwe_params_n_limbs(ggsw_prepared->params->params_glwe);
+	size_t nrows = ggsw_prep->params->ciphertext_nb_limbs_tilde;
+	size_t ncols = glwe_params_n_limbs(ggsw_prep->params->params_glwe);
 
-	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_prepared->mat, ggsw_ct->mat, nrows, ncols),
+	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_prep->mat, ggsw_ct->mat, nrows, ncols),
 	           "VMP prepare for GLWEGadget prepare failed");
 
 	status = 0;

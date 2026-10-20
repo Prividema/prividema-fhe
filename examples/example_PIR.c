@@ -342,25 +342,25 @@ int onionpir_client_phase0(PvdaBackend* module, GLWESecretKeyPrepared** sk_prep_
 	*ggsw_ksks_out           = ggsw_ksks;
 
 	// Secret key
-	CHECK_CALL(uniform_glwe_secret_key(module, sk, sk_bits), "GLWE secret key generation failed in onionpir phase 0");
+	CHECK_CALL(glwe_sk_random_uniform(module, sk, sk_bits), "GLWE secret key generation failed in onionpir phase 0");
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	// Automorphism-expand keys
 	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
 	{
 		int64_t p                     = (int64_t)NBASE / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, auto_ksk_params);
-		CHECK_ALLOC(auto_key, "Automorphism key allocation failed in onionpir phase 0");
+		GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, auto_ksk_params);
+		CHECK_ALLOC(automorphism_key, "Automorphism key allocation failed in onionpir phase 0");
 
-		int st = compute_automorphism_key(module, auto_key, sk_prep, (int)p);
+		int st = glwe_automorphism_key_generate(module, automorphism_key, sk_prep, (int)p);
 		glwegadget_key_collection_put_key(
-		    auto_key_collection, auto_key,
+		    auto_key_collection, automorphism_key,
 		    p);  // Put key in collection before error checking to avoid memory leak on fail
 		CHECK_CALL(st, "Automorphism key computation failed in onionpir phase 0");
 	}
 
 	// GGSW(-s) for gadget to GGSW conversion
-	CHECK_CALL(generate_glwegad_to_ggsw_ksk(module, ggsw_ksks, auto_ggsw_params, sk_prep),
+	CHECK_CALL(glwegadget_to_ggsw_ksk_generate(module, ggsw_ksks, auto_ggsw_params, sk_prep),
 	           "GLWEGadget to GGSW KSK generation failed in onionpir phase 0");
 
 	status = 0;
@@ -387,8 +387,8 @@ int onionpir_client_phase1(const PvdaBackend* module, GLWECiphertext** row_query
 	CHECK_ALLOC(sel_row, "Univariate polynomial allocation failed in onionpir phase 1");
 	CHECK_ALLOC(sel_col, "Univariate polynomial allocation failed in onionpir phase 1");
 
-	memset(sel_row, 0, poly_univ_bytes(params_row_query));
-	memset(sel_col, 0, poly_univ_bytes(params_col_query));
+	memset(sel_row, 0, univ_bytes(params_row_query));
+	memset(sel_col, 0, univ_bytes(params_col_query));
 
 	uint64_t col_num = column;
 	uint64_t row_num = row;
@@ -511,7 +511,7 @@ int main(int argc, char* argv[])
 	printf("Element size (cleartext): %.1f KiB\n", (double)(DB_BITS * NBASE) / 1024);
 	printf("Database size (cleartext): %.1f MiB\n", (double)db_size_bits / 8 / 1024 / 1024);
 
-	uint64_t prep_db_size_bytes = MATRIX_COLS * MATRIX_ROWS * poly_biv_bytes(db_params);
+	uint64_t prep_db_size_bytes = MATRIX_COLS * MATRIX_ROWS * biv_bytes(db_params);
 
 	printf("Preprocessed DB size (plaintext in prepared form): %.1f MiB\n", (double)prep_db_size_bytes / 1024 / 1024);
 	printf(

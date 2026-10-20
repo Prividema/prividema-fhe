@@ -42,7 +42,7 @@ PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 
 	PolyUniv* m_sel = new_univ(params_glwe);
 
-	uniform_glwe_secret_key(module, sk_ggsw, 3);
+	glwe_sk_random_uniform(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	uniform_pow2_random_pol_znx(module, m1, params_glwe->nn, 62);
@@ -52,7 +52,7 @@ PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 	glwe_secret_encrypt_tnx(module, glwe2, sk_glwe_prep, m2);
 
 	//Case 0:
-	memset(m_sel, 0, poly_univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_bytes(params_glwe));
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
 	hebits_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
@@ -124,7 +124,7 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	PolyUniv* m_sel = new_univ(params_glwe);
 
 	//Generate a secret key
-	uniform_glwe_secret_key(module, sk_ggsw, 3);
+	glwe_sk_random_uniform(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Generate random inputs for the Mux gate
@@ -136,7 +136,7 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	glwe_secret_encrypt_tnx(module, glwe2, sk_glwe_prep, m2);
 
 	//Case 0:
-	memset(m_sel, 0, poly_univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_bytes(params_glwe));
 	// Encrypt a 0 into ggsw to have a selection signal of 0
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 	// Prepare the ggsw
@@ -218,7 +218,7 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 	PolyUniv* m_sel = new_univ(params_glwe);
 
 	//Generate a secret key
-	uniform_glwe_secret_key(module, sk_ggsw, 3);
+	glwe_sk_random_uniform(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Generate random inputs for the Mux gate
@@ -230,7 +230,7 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 	glwe_secret_encrypt_tnx(module, glwe2, sk_glwe_prep, m2);
 
 	//Case 0:
-	memset(m_sel, 0, poly_univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_bytes(params_glwe));
 	// Encrypt a 0 into ggsw to have a selection signal of 0
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 	// Prepare the ggsw
@@ -313,21 +313,21 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 
 	PolyUniv* m_sel = new_univ(params_glwe);
 
-	uniform_glwe_secret_key(module, sk_ggsw, 2);
+	glwe_sk_random_uniform(module, sk_ggsw, 2);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	//Generate the inputs, in plaintext at ms and encrypted at glwes
 	for (int i = 0; i < num_msgs; ++i)
 	{
 		ms[i] = new_univ_tnx(params_glwe);
-		memset(ms[i], 0, poly_univ_tnx_bytes(params_glwe));
+		memset(ms[i], 0, univ_tnx_bytes(params_glwe));
 		glwes[i] = new_glwe(params_glwe);
 		uniform_pow2_random_pol_znx(module, ms[i], params_glwe->nn, 64);
 		glwe_secret_encrypt_tnx(module, glwes[i], sk_glwe_prep, ms[i]);
 	}
 
 	// Prepare a GGSW for 0 and another for 1
-	memset(m_sel, 0, poly_univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_bytes(params_glwe));
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
 	ggsw_prepare(module, ggsw_prep0, ggsw);

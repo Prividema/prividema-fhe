@@ -87,14 +87,14 @@ ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct);
  * parameters in the result object.
  *
  * @param module      Additional information for backend.
- * @param result      The encrypted message.
+ * @param res      The encrypted message.
  * @param sk_prep      The prepared secret key.
  * @param m_univ      The univariate message (in coefficient space).
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ);
 
 /**
@@ -103,14 +103,14 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const
  * TODO: implement in a future release
  *
  * @param module The backend module
- * @param result The resulting GGSWCiphertext
+ * @param res    The resulting GGSWCiphertext
  * @param pk     The public key used for encryption
  * @param m_univ The univariate message to encrypt (in coefficient space)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  * */
-int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWEPublicKey* pk,
+int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWEPublicKey* pk,
                         const PolyUniv* m_univ);
 
 // =============================================
@@ -147,20 +147,20 @@ GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw);
 /**
  * @brief Deletes a prepared GGSW ciphertext
  *
- * @param ggsw_dft A Pointer to the prepared GGSW
+ * @param ggsw_prep A Pointer to the prepared GGSW
  */
-void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft);
+void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_prep);
 
 /**
  * @brief Prepares a GGSW ciphertext for an efficient external product
  *
  * @param module The backend module
- * @param ggsw_prepared The output prepared GGSW ciphertext
+ * @param ggsw_prep The output prepared GGSW ciphertext
  * @param ggsw_ct The input unprepared GGSW ciphertext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
+int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prep, const GGSWCiphertext* ggsw_ct);
 
 #endif  // bivGGSW_CIPHERTEXT_H

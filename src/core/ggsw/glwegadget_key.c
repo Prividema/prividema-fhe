@@ -7,13 +7,13 @@
 #include "glwegadget_ciphertext.h"
 #include "utils.h"
 
-static inline int allocate_prepared_gadget_array(const PvdaBackend* module, const GLWEGadgetParams* params,
+static inline int allocate_prepared_gadget_array(const PvdaBackend* module, const GLWEGadgetParams* params_glwegadget,
                                                  GLWEGadgetCiphertextPrep** array, int n)
 {
 	int i = 0;
 	for (int i = 0; i < n; ++i)
 	{
-		array[i] = new_glwegadget_prep(module, params);
+		array[i] = new_glwegadget_prep(module, params_glwegadget);
 		CHECK_ALLOC(array[i], "KSK allocation failed");
 	}
 	return 0;
@@ -25,21 +25,23 @@ cleanup:
 	return -1;
 }
 
-GLWEKSK* new_glwe_ksk(const PvdaBackend* module, const GLWEGadgetParams* params)
+GLWEKSK* new_glwe_ksk(const PvdaBackend* module, const GLWEGadgetParams* params_glwegadget)
 {
-	GLWEKSK* ksk = malloc(sizeof(GLWEKSK));
-	CHECK_ALLOC(ksk, "KSK allocation failed");
-	ksk->params = params;
+	GLWEKSK* glwe_ksk = malloc(sizeof(GLWEKSK));
+	CHECK_ALLOC(glwe_ksk, "KSK allocation failed");
+	glwe_ksk->params = params_glwegadget;
 
-	ksk->enc_s = (GLWEGadgetCiphertextPrep**)calloc(params->params_glwe->k, sizeof(GLWEGadgetCiphertextPrep*));
-	CHECK_ALLOC(ksk->enc_s, "KSK gadget array allocation failed");
-	CHECK_CALL(allocate_prepared_gadget_array(module, params, ksk->enc_s, params->params_glwe->k),
-	           "Failed to allocate the KSK prepared gadgets");
+	glwe_ksk->enc_s =
+	    (GLWEGadgetCiphertextPrep**)calloc(params_glwegadget->params_glwe->k, sizeof(GLWEGadgetCiphertextPrep*));
+	CHECK_ALLOC(glwe_ksk->enc_s, "KSK gadget array allocation failed");
+	CHECK_CALL(
+	    allocate_prepared_gadget_array(module, params_glwegadget, glwe_ksk->enc_s, params_glwegadget->params_glwe->k),
+	    "Failed to allocate the KSK prepared gadgets");
 
-	return ksk;
+	return glwe_ksk;
 cleanup:
-	if (ksk) free((void*)ksk->enc_s);
-	free(ksk);
+	if (glwe_ksk) free((void*)glwe_ksk->enc_s);
+	free(glwe_ksk);
 	return NULL;
 }
 
@@ -54,20 +56,20 @@ void delete_glwe_ksk(GLWEKSK* glwe_ksk)
 	free(glwe_ksk);
 }
 
-GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, const GLWEGadgetParams* params)
+GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, const GLWEGadgetParams* params_glwegadget)
 {
-	GLWEAutomorphismKey* auto_key = malloc(sizeof(GLWEAutomorphismKey));
-	CHECK_ALLOC(auto_key, "Automorphism key allocation failed");
+	GLWEAutomorphismKey* automorphism_key = malloc(sizeof(GLWEAutomorphismKey));
+	CHECK_ALLOC(automorphism_key, "Automorphism key allocation failed");
 
-	auto_key->automorphism_p = -2;
+	automorphism_key->automorphism_p = -2;
 
-	auto_key->glwe_ksk = new_glwe_ksk(module, params);
-	CHECK_ALLOC(auto_key->glwe_ksk, "Automorphism key allocation failed");
+	automorphism_key->glwe_ksk = new_glwe_ksk(module, params_glwegadget);
+	CHECK_ALLOC(automorphism_key->glwe_ksk, "Automorphism key allocation failed");
 
-	return auto_key;
+	return automorphism_key;
 cleanup:
-	if (auto_key) delete_glwe_ksk(auto_key->glwe_ksk);
-	free(auto_key);
+	if (automorphism_key) delete_glwe_ksk(automorphism_key->glwe_ksk);
+	free(automorphism_key);
 	return NULL;
 }
 
@@ -95,14 +97,14 @@ cleanup:
 }
 
 GLWEAutomorphismKey* glwegadget_key_collection_put_key(GLWEAutomorphismKeyCollection* collection,
-                                                       GLWEAutomorphismKey* key, uint64_t pos)
+                                                       GLWEAutomorphismKey* automorphism_key, uint64_t pos)
 {
 	if (pos >= collection->size)
 	{
 		return (void*)-1;
 	}
 	GLWEAutomorphismKey* tmp = collection->keys[pos];
-	collection->keys[pos]    = key;
+	collection->keys[pos]    = automorphism_key;
 	return tmp;
 }
 

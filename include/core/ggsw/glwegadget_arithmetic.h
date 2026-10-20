@@ -18,14 +18,14 @@
  * a bivariate polynomial
  *
  * @param module             The backend module
- * @param result             The resulting GLWE ciphertext
+ * @param res                The resulting GLWE ciphertext
  * @param glwegadget_prep_ct A prepared GLWEGadget to multiply with
  * @param a                  An integer bivariate polynomial
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
+int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* res,
                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const PolyBiv* a);
 
 /**
@@ -33,14 +33,14 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* result,
  * a bivariate polynomial, with inputs and outputs in the DFT domain
  *
  * @param module                The backend module
- * @param result_dft            The resulting GLWE ciphertext in DFT domain
+ * @param res_dft               The resulting GLWE ciphertext in DFT domain
  * @param glwegadget_prep_ct    A prepared GLWEGadget to multiply with
  * @param a_dft                 A bivariate polynomial in the DFT domain
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
+int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft,
                                     const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyVecDFT* a_dft);
 
 /**
@@ -48,69 +48,70 @@ int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT
  * a bivariate polynomial, with outputs in the DFT domain and inputs in the prepared format (which is not necessarily the same as DFT for a)
  *
  * @param module                The backend module
- * @param result_dft            The resulting GLWE ciphertext in DFT domain
+ * @param res_dft               The resulting GLWE ciphertext in DFT domain
  * @param glwegadget_prep_ct    A prepared GLWEGadget to multiply with
  * @param a_prep                A bivariate polynomial in VMP-prepared form (see biv_coefs_to_prep)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result_dft,
-                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyVecVmpPrep* a_prep);
+int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft,
+                                         const GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
+                                         const BE_PolyVecVmpPrep* a_prep);
 /**
  * @brief Computes an automorphism key for an automorphism of degree automorphism_p from
  * the provided secret key
  *
  * @param module              The backend module
  * @param automorphism_key    The output generated key-switching-key
- * @param glwe_key            The input prepared secret key
+ * @param sk_prep             The input prepared secret key
  * @param automorphism_p      The degree of the automorphism. Can be positive or negative,
  *                            the automorphism is only well-defined if p is odd
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int compute_automorphism_key(const PvdaBackend* module, GLWEAutomorphismKey* automorphism_key,
-                             const GLWESecretKeyPrepared* glwe_key, int automorphism_p);
+int glwe_automorphism_key_generate(const PvdaBackend* module, GLWEAutomorphismKey* automorphism_key,
+                                   const GLWESecretKeyPrepared* sk_prep, int automorphism_p);
 /**
  * @brief Computes a KSK (Key-Switching Key) for GLWE keyswitching from old_key to new_key
  *
  * @param module        The backend module
- * @param ksk           The output KSK
+ * @param glwe_ksk      The output KSK
  * @param new_key       The new key being switched to
  * @param old_key       The old key being switched from
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int compute_ksk(const PvdaBackend* module, GLWEKSK* ksk, const GLWESecretKeyPrepared* new_key,
-                const GLWESecretKeyPrepared* old_key);
+int glwe_ksk_generate(const PvdaBackend* module, GLWEKSK* glwe_ksk, const GLWESecretKeyPrepared* new_key,
+                      const GLWESecretKeyPrepared* old_key);
 /**
  * @brief Performs the automorphism of a GLWE ciphertext, i.e. sets its polynomials a(X, Y) to a(X^p, Y)
  *
  * @param module             The backend module
- * @param result             The resulting GLWE ciphertext
- * @param auto_key           The automorphism key: GLWEGadget encryptions of \f$ -\sigma_p(s_i) \f$ (see compute_automorphism_key).
+ * @param res                The resulting GLWE ciphertext
+ * @param automorphism_key   The automorphism key: GLWEGadget encryptions of \f$ -\sigma_p(s_i) \f$ (see glwe_automorphism_key_generate).
  *                           The function retrieves the p value from it.
  * @param glwe               The input ciphertext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* result, const GLWEAutomorphismKey* auto_key,
+int glwegadget_automorphism(const PvdaBackend* module, GLWECiphertext* res, const GLWEAutomorphismKey* automorphism_key,
                             const GLWECiphertext* glwe);
 /**
  * @brief Performs a key-switch on a GLWE using an already prepared KSK
  *
  * @param module             The backend module
- * @param result             The resulting GLWE keyed with the new key
+ * @param res                The resulting GLWE keyed with the new key
  * @param glwe_ksk           A prepared KSK from the old key to the new key
  * @param glwe_ct            The input GLWE keyed with the old key
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* result, const GLWEKSK* glwe_ksk,
+int glwe_to_glwe_keyswitch(const PvdaBackend* module, GLWECiphertext* res, const GLWEKSK* glwe_ksk,
                            const GLWECiphertext* glwe_ct);
 
 /**
@@ -144,7 +145,7 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
  * Adapted version of glwe_trace_expand for single-coefficient extraction.
  *
  * @param module The backend module
- * @param result The output result
+ * @param res The output result
  * @param enc_size The number of (non-zero) coefficients in the GLWE.
  * @param pos The position to extract
  * @param glwe_ct The packed GLWE
@@ -153,7 +154,7 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* result, int enc_size, uint64_t pos,
+int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* res, int enc_size, uint64_t pos,
                    const GLWECiphertext* glwe_ct, const GLWEAutomorphismKeyCollection* auto_key_collection);
 
 /**
@@ -231,7 +232,7 @@ int packed_glwegadget_trace_expand_prepared(const PvdaBackend* module, GLWEGadge
  * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GLWEGadgetCiphertextPrep* results,
-                                                   const GLWEGadgetParams* params_glwegad, int res_size, int l_tilde,
+                                                   const GLWEGadgetParams* params_glwegadget, int res_size, int l_tilde,
                                                    const GLWECiphertext* packed_glwegadget,
                                                    const GLWEAutomorphismKeyCollection* auto_key_collection);
 #endif  // !DEBUG

@@ -16,32 +16,32 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
 	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
 }
 
-static inline int openssl_read_rand(uint64_t* result, size_t bytes)
+static inline int openssl_read_rand(uint64_t* res, size_t bytes)
 {
-	size_t rand_bytes = RAND_bytes((uint8_t*)result, (int)bytes);
+	size_t rand_bytes = RAND_bytes((uint8_t*)res, (int)bytes);
 	if (rand_bytes != 1) return -1;
 	return 0;
 }
-int openssl_rand_uniform_pow2(const PvdaBackend* module, int64_t* result, uint64_t nb_bits)
+int openssl_rand_uniform_pow2(const PvdaBackend* module, int64_t* res, uint64_t nb_bits)
 {
 	// As result points to an int64_t, nb_bits shall not exceed its size
 	assert(nb_bits <= 8 * sizeof(int64_t));
 
 	// If nb_bits equals the max. size, we just have to read the random bits into result.
 	if (nb_bits == 8 * sizeof(int64_t))
-		return openssl_read_rand((uint64_t*)result, 8);
+		return openssl_read_rand((uint64_t*)res, 8);
 
 	else
 	{
-		if (openssl_read_rand((uint64_t*)result, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
+		if (openssl_read_rand((uint64_t*)res, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
 
-		reduce_uniform_n(result, (int)nb_bits);
+		reduce_uniform_n(res, (int)nb_bits);
 	}
 
 	return 0;
 }
 
-int openssl_rand_uniform(const PvdaBackend* module, int64_t* result, int64_t limit_down, int64_t limit_up)
+int openssl_rand_uniform(const PvdaBackend* module, int64_t* res, int64_t limit_down, int64_t limit_up)
 {
 	uint64_t max_delta = (uint64_t)limit_up - (uint64_t)limit_down;
 	if (max_delta == UINT64_MAX) return -1;
@@ -57,7 +57,7 @@ int openssl_rand_uniform(const PvdaBackend* module, int64_t* result, int64_t lim
 		if (st < 0) return -1;
 		tmp &= mask;
 	} while (tmp > max_delta);
-	*result = (int64_t)((uint64_t)limit_down + tmp);
+	*res = (int64_t)((uint64_t)limit_down + tmp);
 	return 0;
 }
 

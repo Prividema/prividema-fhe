@@ -15,7 +15,7 @@
 
 PolyUniv* new_univ(const GLWEParams* params_glwe)
 {
-	return aligned_alloc(64, poly_univ_bytes(params_glwe));
+	return aligned_alloc(64, univ_bytes(params_glwe));
 }
 
 void delete_univ(PolyUniv* pol) { free(pol); }
@@ -80,7 +80,7 @@ int univ_coefs_to_prep(const PvdaBackend* module, BE_PolySvpPrep* res_prep, cons
 
 PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe)
 {
-	return malloc(poly_univ_tnx_bytes(params_glwe));
+	return malloc(univ_tnx_bytes(params_glwe));
 }
 
 void delete_univ_tnx(PolyUnivTnX* pol) { free(pol); }
@@ -93,7 +93,7 @@ void delete_univ_tnx(PolyUnivTnX* pol) { free(pol); }
 
 PolyUnivRnX* new_univ_rnx(const GLWEParams* params_glwe)
 {
-	return malloc(poly_univ_rnx_bytes(params_glwe));
+	return malloc(univ_rnx_bytes(params_glwe));
 }
 
 void delete_univ_rnx(PolyUnivRnX* pol) { free(pol); }
@@ -128,12 +128,12 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
 // |                                           |
 // =============================================
 
-uint64_t poly_univ_bytes(const GLWEParams* params_glwe)
+uint64_t univ_bytes(const GLWEParams* params_glwe)
 {
 	uint64_t nn = params_glwe->nn;
 	return nn * sizeof(PolyUniv);
 }
 
-uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivRnX); }
+uint64_t univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivRnX); }
 
-uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivTnX); }
+uint64_t univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivTnX); }

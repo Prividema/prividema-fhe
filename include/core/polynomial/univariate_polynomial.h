@@ -209,7 +209,7 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
  *
  * @return Number of bytes needed to store a univariate \ZnX polynomial with the given parameters.
  */
-uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
+uint64_t univ_bytes(const GLWEParams* params_glwe);
 
 /**
  * @brief Returns the number of bytes needed to store a univariate real polynomial.
@@ -218,7 +218,7 @@ uint64_t poly_univ_bytes(const GLWEParams* params_glwe);
  *
  * @return Number of bytes needed to store a univariate \RnX polynomial with the given parameters.
  */
-uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe);
+uint64_t univ_rnx_bytes(const GLWEParams* params_glwe);
 
 /**
  * @brief Returns the number of bytes needed to store a univariate Tnx polynomial
@@ -227,6 +227,6 @@ uint64_t poly_univ_rnx_bytes(const GLWEParams* params_glwe);
  *
  * @return Number of bytes needed to store a univariate \TnX polynomial with the given parameters.
  */
-uint64_t poly_univ_tnx_bytes(const GLWEParams* params_glwe);
+uint64_t univ_tnx_bytes(const GLWEParams* params_glwe);
 
 #endif

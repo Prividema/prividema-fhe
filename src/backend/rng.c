@@ -18,7 +18,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-int rand_normal(double* result, double mu, double sigma)
+int rand_normal(double* res, double mu, double sigma)
 {
 	RAISE_ERROR("Normal number generation not implemented");
 	/*
@@ -79,7 +79,7 @@ cleanup:
 	return -1;
 }
 
-int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
+int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, uint64_t vec_size, uint64_t nb_bits)
 {
 	int status = -1;
 
@@ -101,7 +101,7 @@ int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* result_
 
 	// Computes the vector in the DFT domain
 	ZnxVec tmp_biv = znx_vec_view(nn, vec_size, nn, tmp_space);
-	pvda_vec_znx_dft(module, result_dft, vec_size, &tmp_biv);
+	pvda_vec_znx_dft(module, res_dft, vec_size, &tmp_biv);
 
 	status = 0;
 

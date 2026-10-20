@@ -85,14 +85,14 @@ typedef struct pvda_virtual_table
 	PVDA_VEC_ZNX_DFT_ADD_F *pvda_vec_znx_dft_add;
 	PVDA_NEW_VMP_PVEC_F *pvda_new_vmp_pvec;
 	PVDA_DELETE_VMP_PVEC_F *pvda_delete_vmp_pvec;
-} PvdaVirutalTable;
+} PvdaVirtualTable;
 
 struct pvda_module_t
 {
 	SPQLIOS_MODULE* spqlios_module;
 	struct pvda_fft_data_t* pvda_fft_data;
 
-	PvdaVirutalTable vt;
+	PvdaVirtualTable vt;
 };
 
 typedef struct pvda_module_t PvdaBackend;

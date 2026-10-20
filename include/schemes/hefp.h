@@ -15,8 +15,8 @@
  * @brief Encodes "n_slots" complex numbers using scale 2^-scale_bits from its slots representation to a
  * coefficient representation.
  *
- * @param backend The computation backend
- * @param params The GLWEParams
+ * @param module The computation backend
+ * @param params_glwe The GLWEParams
  * @param out    The output bivariate polynomial
  * @param n_slots The number of elements to encode. Should be a power of 2 and at most N/2.
  * @param scale_bits The scale factor \Delta is 2^-scale_bits
@@ -26,14 +26,14 @@
  * @retval -1 if a memory allocation fails
  *
  */
-int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t n_slots,
+int hefp_encode(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* out, uint64_t n_slots,
                 int64_t scale_bits, double _Complex* in);
 
 /**
  * @brief Decodes a bivariate polynomial encoding HEFixedPoint n_slots slots back into the n_slots complex values
  *
- * @param backend The computation backend
- * @param params The GLWEParams
+ * @param module The computation backend
+ * @param params_glwe The GLWEParams
  * @param out    The output n_slots-length vector of complex values
  * @param n_slots The number of elements encoded. Should be a power of 2 and at most N/2.
  * @param scale_bits The scale factor \Delta is 2^-scale_bits
@@ -43,6 +43,6 @@ int hefp_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* o
  * @retval -1 if a memory allocation fails
  *
  */
-int hefp_decode(const PvdaBackend* backend, const GLWEParams* params, double _Complex* out, uint64_t n_slots,
+int hefp_decode(const PvdaBackend* module, const GLWEParams* params_glwe, double _Complex* out, uint64_t n_slots,
                 int64_t scale_bits, PolyBiv* in);
 #endif

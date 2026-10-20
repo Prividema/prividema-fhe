@@ -22,13 +22,13 @@ typedef struct glwe_ksk_t
 /**
  * Create a GLWE Key-switching key (KSK)
  *
- * @param module The backend instance used to allocate the prepared GLWEGadgets
- * @param params The GLWEGadgetParams associated with the KSK
+ * @param module            The backend instance used to allocate the prepared GLWEGadgets
+ * @param params_glwegadget The GLWEGadgetParams associated with the KSK
  *
  * @return NULL in case of failure, a new KSK otherwise
  *
  */
-GLWEKSK* new_glwe_ksk(const PvdaBackend* module, const GLWEGadgetParams* params);
+GLWEKSK* new_glwe_ksk(const PvdaBackend* module, const GLWEGadgetParams* params_glwegadget);
 /**
  * @brief Deletes a GLWE KSK
  *
@@ -45,13 +45,13 @@ typedef struct glwe_automorphism_keyswitching_key_t
 /**
  * @brief Creates a new automorphism key
  *
- * @param module The backend instance used to allocate the prepared GLWEGadgets
- * @param params The GLWEGadgetParams associated with the automorphism key
+ * @param module            The backend instance used to allocate the prepared GLWEGadgets
+ * @param params_glwegadget The GLWEGadgetParams associated with the automorphism key
  *
  * @return NULL in case of failure, a new automorphism key otherwise
  *
  */
-GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, const GLWEGadgetParams* params);
+GLWEAutomorphismKey* new_automorphism_key(const PvdaBackend* module, const GLWEGadgetParams* params_glwegadget);
 
 /**
  * @brief Deletes an automorphism key
@@ -83,13 +83,13 @@ GLWEAutomorphismKeyCollection* new_automorphism_key_collection(uint64_t size);
  * @brief Puts an automorphism key into the specified position in the collection. Returns previous occupant.
  *
  * @param collection The automorphism key collection to put the automorphism key in
- * @param key The automorphism key to put (a pointer of) in the collection
+ * @param automorphism_key The automorphism key to put (a pointer of) in the collection
  * @param pos The position in the collection where the automorphism key will be
  *
  * @return (a pointer to) The automorphism key that previously occupied position pos, NULL if unoccupied
  */
 GLWEAutomorphismKey* glwegadget_key_collection_put_key(GLWEAutomorphismKeyCollection* collection,
-                                                       GLWEAutomorphismKey* key, uint64_t pos);
+                                                       GLWEAutomorphismKey* automorphism_key, uint64_t pos);
 
 /**
  * @brief Retrieves the automorphism key in position pos from a collection

@@ -30,11 +30,11 @@ void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLW
 	{
 		uint64_t sk_idx   = (ij % (params_ggsw->k_tilde + 1));
 		uint64_t prec_lvl = ij / (params_ggsw->k_tilde + 1) + 1;
-		memset(phase_computed->ptr, 0, poly_biv_bytes(params_glwe));
-		memset(phase_observed_univ_rnx, 0, poly_univ_bytes(params_glwe));
-		memset(m_skj_univ_dft, 0, poly_univ_bytes(params_glwe));
-		memset(m_skj_univ, 0, poly_univ_bytes(params_glwe));
-		memset(phase_expected_univ_rnx, 0, poly_univ_bytes(params_glwe));
+		memset(phase_computed->ptr, 0, biv_bytes(params_glwe));
+		memset(phase_observed_univ_rnx, 0, univ_bytes(params_glwe));
+		memset(m_skj_univ_dft, 0, univ_bytes(params_glwe));
+		memset(m_skj_univ, 0, univ_bytes(params_glwe));
+		memset(phase_expected_univ_rnx, 0, univ_bytes(params_glwe));
 
 		// Retrieves the phase, which should equal -m * sk_j / 2^{kappa_tilde * i}) + err
 		GLWECiphertext glwe_ct = ggsw_glwe_view(ggsw, sk_idx, prec_lvl);

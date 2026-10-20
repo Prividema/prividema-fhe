@@ -23,9 +23,9 @@ PvdaParamTest(new_glwe_secret_key, values_not_null, default_params_fn)
 }
 
 /**
- * @brief Ensures uniform_glwe_secret_key returns a non-NULL pointer when values != NULL.
+ * @brief Ensures glwe_sk_random_uniform returns a non-NULL pointer when values != NULL.
  */
-PvdaParamTest(uniform_glwe_secret_key, values_not_null, default_params_fn)
+PvdaParamTest(glwe_sk_random_uniform, values_not_null, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -33,10 +33,10 @@ PvdaParamTest(uniform_glwe_secret_key, values_not_null, default_params_fn)
 	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
-	int status = uniform_glwe_secret_key(module, sk, 2);
+	int status = glwe_sk_random_uniform(module, sk, 2);
 
-	// Asserts uniform_glwe_secret_key worked
-	cr_assert(eq(int, status, 0), "uniform_glwe_secret_key failed.");
+	// Asserts glwe_sk_random_uniform worked
+	cr_assert(eq(int, status, 0), "glwe_sk_random_uniform failed.");
 
 	delete_glwe_secret_key(sk);
 
@@ -44,9 +44,9 @@ PvdaParamTest(uniform_glwe_secret_key, values_not_null, default_params_fn)
 }
 
 /**
- * @brief Ensures uniform_glwe_secret_key's coefficients are in the provided bounds
+ * @brief Ensures glwe_sk_random_uniform's coefficients are in the provided bounds
  */
-PvdaParamTest(uniform_glwe_secret_key, values_bounds, default_params_fn)
+PvdaParamTest(glwe_sk_random_uniform, values_bounds, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -58,12 +58,12 @@ PvdaParamTest(uniform_glwe_secret_key, values_bounds, default_params_fn)
 	for (int i = 0; i < sizeof(bitsp) / sizeof(bitsp[0]); ++i)
 	{
 		int nb_bits = bitsp[i];
-		int status  = uniform_glwe_secret_key(module, sk, nb_bits);
+		int status  = glwe_sk_random_uniform(module, sk, nb_bits);
 
 		int64_t lb = -(1 << (nb_bits - 1));
 		int64_t ub = -lb - 1;
 
-		cr_assert(eq(int, status, 0), "uniform_glwe_secret_key failed.");
+		cr_assert(eq(int, status, 0), "glwe_sk_random_uniform failed.");
 
 		for (int i = 0; i < params_glwe->nn * params_glwe->k; ++i)
 		{
@@ -77,9 +77,9 @@ PvdaParamTest(uniform_glwe_secret_key, values_bounds, default_params_fn)
 }
 
 /**
- * @brief Ensures binary_glwe_secret_key returns a non-NULL pointer when values != NULL.
+ * @brief Ensures glwe_sk_random_binary returns a non-NULL pointer when values != NULL.
  */
-PvdaParamTest(binary_glwe_secret_key, values_not_null, default_params_fn)
+PvdaParamTest(glwe_sk_random_binary, values_not_null, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -87,9 +87,9 @@ PvdaParamTest(binary_glwe_secret_key, values_not_null, default_params_fn)
 	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
-	int status = binary_glwe_secret_key(module, sk);
+	int status = glwe_sk_random_binary(module, sk);
 
-	cr_assert(eq(int, status, 0), "binary_glwe_secret_key failed.");
+	cr_assert(eq(int, status, 0), "glwe_sk_random_binary failed.");
 
 	delete_glwe_secret_key(sk);
 
@@ -97,18 +97,18 @@ PvdaParamTest(binary_glwe_secret_key, values_not_null, default_params_fn)
 }
 
 /**
- * @brief Ensures binary_glwe_secret_key's generated key is actually binary
+ * @brief Ensures glwe_sk_random_binary's generated key is actually binary
  */
-PvdaParamTest(binary_glwe_secret_key, values_binary, default_params_fn)
+PvdaParamTest(glwe_sk_random_binary, values_binary, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
 	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
-	int status = binary_glwe_secret_key(module, sk);
+	int status = glwe_sk_random_binary(module, sk);
 
-	cr_assert(eq(int, status, 0), "binary_glwe_secret_key failed.");
+	cr_assert(eq(int, status, 0), "glwe_sk_random_binary failed.");
 
 	for (int i = 0; i < params_glwe->nn * params_glwe->k; ++i)
 	{
@@ -121,9 +121,9 @@ PvdaParamTest(binary_glwe_secret_key, values_binary, default_params_fn)
 }
 
 /**
- * @brief Ensures binary_glwe_secret_key returns a non-NULL pointer when values != NULL.
+ * @brief Ensures glwe_sk_random_binary returns a non-NULL pointer when values != NULL.
  */
-PvdaParamTest(ternary_glwe_secret_key, values_not_null, default_params_fn)
+PvdaParamTest(glwe_sk_random_ternary, values_not_null, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -131,10 +131,10 @@ PvdaParamTest(ternary_glwe_secret_key, values_not_null, default_params_fn)
 	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
 	// Draw uniformly in Zn[X] the bivGLWE secret key's values
-	int status = ternary_glwe_secret_key(module, sk);
+	int status = glwe_sk_random_ternary(module, sk);
 
-	// Asserts uniform_glwe_secret_key worked
-	cr_assert(eq(int, status, 0), "ternary_glwe_secret_key failed.");
+	// Asserts glwe_sk_random_uniform worked
+	cr_assert(eq(int, status, 0), "glwe_sk_random_ternary failed.");
 
 	delete_glwe_secret_key(sk);
 
@@ -142,18 +142,18 @@ PvdaParamTest(ternary_glwe_secret_key, values_not_null, default_params_fn)
 }
 
 /**
- * @brief Ensures binary_glwe_secret_key's generated key is actually binary
+ * @brief Ensures glwe_sk_random_binary's generated key is actually binary
  */
-PvdaParamTest(ternary_glwe_secret_key, values_ternary, default_params_fn)
+PvdaParamTest(glwe_sk_random_ternary, values_ternary, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	// Create a bivGLWE secret key
 	GLWESecretKey* sk = new_glwe_secret_key(params_glwe);
 
-	int status = ternary_glwe_secret_key(module, sk);
+	int status = glwe_sk_random_ternary(module, sk);
 
-	cr_assert(eq(int, status, 0), "ternary_glwe_secret_key failed.");
+	cr_assert(eq(int, status, 0), "glwe_sk_random_ternary failed.");
 
 	for (int i = 0; i < params_glwe->nn * params_glwe->k; ++i)
 	{

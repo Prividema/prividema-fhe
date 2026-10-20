@@ -40,12 +40,12 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	PolyBiv* um                       = new_biv(params_glwe);
 	PolyUnivRnX* um_univ_rnx          = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk_ggsw, 3);
+	glwe_sk_random_uniform(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Draws uniformly both messages
 	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, params_glwe->kappa);
-	uniform_random_biv_poly(module, params_glwe, m, 1);
+	biv_random_uniform(module, params_glwe, m, 1);
 
 	// Computation with function
 	glwe_secret_encrypt_phase(module, glwe_tilde, sk_glwe_prep, m);
@@ -53,7 +53,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_unprepared_external_product(module, ext_prod_observed, glwe_tilde, ggsw);
+	ggsw_external_product_unprepared(module, ext_prod_observed, glwe_tilde, ggsw);
 	glwe_normalize(module, ext_prod_observed, ext_prod_observed);
 	glwe_secret_decrypt(module, phase_observed, sk_glwe_prep, ext_prod_observed);
 	biv_to_univ_rnx(params_glwe, um_observed_univ_rnx, phase_observed, 0);

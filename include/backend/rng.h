@@ -19,14 +19,14 @@
 /**
  * @brief Generates a normally (Gaussian) sampled random number with the given parameters.
  *
- * @param result The resulting normally (Gaussian) sampled number
+ * @param res    The resulting normally (Gaussian) sampled number
  * @param mu     The mean parameter for the distribution.
  * @param sigma  The standard deviation of the distribution.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int rand_normal(double* result, double mu, double sigma);
+int rand_normal(double* res, double mu, double sigma);
 
 // =============================================
 // |                                           |
@@ -107,7 +107,7 @@ int uniform_pow2_random_vec(const PvdaBackend* module, uint64_t limb_len, int64_
  * @brief Generates a random vector following a uniform distribution and return it in the DFT domain.
  *
  * @param module   Additional information for backend.
- * @param result_dft  The result in the DFT domain.
+ * @param res_dft  The result in the DFT domain.
  * @param vec_size The number of limbs.
  * @param nb_bits  The exponent of the range = [-2^(nb_bits-1), 2^(nb_bits-1)).
  *
@@ -115,7 +115,7 @@ int uniform_pow2_random_vec(const PvdaBackend* module, uint64_t limb_len, int64_
  * @retval 0 otherwise.
  *
  */
-int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);
+int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, uint64_t vec_size, uint64_t nb_bits);
 
 /**
  * @brief Generates a Random Vector following a normal distribution.

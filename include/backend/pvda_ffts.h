@@ -59,7 +59,7 @@ void delete_fft_data(struct pvda_fft_data_t* data);
  *
  * @return A pointer to the vector of NTTRoots if found, NULL otherwise
  */
-NTTRoot* get_ntt_table(struct pvda_fft_data_t* data, uint64_t t);
+NTTRoot* fft_data_get_ntt_table(struct pvda_fft_data_t* data, uint64_t t);
 
 /**
  * @brief Generates and inserts the NTT root table for the specified modulus t
@@ -69,6 +69,6 @@ NTTRoot* get_ntt_table(struct pvda_fft_data_t* data, uint64_t t);
  * @retval 1 if t is already present
  *
  */
-int generate_ntt_table(const PvdaBackend* backend, uint64_t t);
+int ntt_table_generate(const PvdaBackend* module, uint64_t t);
 
 #endif

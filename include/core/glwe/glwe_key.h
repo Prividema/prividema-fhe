@@ -57,7 +57,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int uniform_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits);
+int glwe_sk_random_uniform(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits);
 
 /**
  * @brief Draws a binary secret key.
@@ -68,7 +68,7 @@ int uniform_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk, uint64
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int binary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk);
+int glwe_sk_random_binary(const PvdaBackend* module, GLWESecretKey* sk);
 
 /**
  * @brief Draws a ternary secret key.
@@ -79,7 +79,7 @@ int binary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ternary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk);
+int glwe_sk_random_ternary(const PvdaBackend* module, GLWESecretKey* sk);
 
 /**
  * @brief Returns a view of the pos'th polynomial in the secret key.
@@ -164,15 +164,15 @@ PolyUniv* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_pr
  * @brief Prepares a secret key: copies its coefficients and prepares each component
  * as the scalar operand of scalar-vector products
  *
- * @param module      The backend instance (must be the one result_prep was allocated with)
- * @param result_prep The resulting prepared GLWE secret key
+ * @param module      The backend instance (must be the one sk_prep was allocated with)
+ * @param sk_prep     The resulting prepared GLWE secret key
  * @param sk          The secret key in coefficient space
  *
  * @retval -1 if an error occurs
- * 
+ *
  * @retval 0 otherwise
  */
-int glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* result_prep, const GLWESecretKey* sk);
+int glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* sk_prep, const GLWESecretKey* sk);
 
 // =============================================
 // |                                           |

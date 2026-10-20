@@ -73,12 +73,12 @@ int rand_uniform_aux(const PvdaBackend* module, uint64_t nb_bits, int nb_boxes)
 
 Test(rand_uniform_64, test_rand_uniform)
 {
-	PvdaBackend* backend = pvda_new_spqlios_backend(4);
+	PvdaBackend* module  = pvda_new_spqlios_backend(4);
 	int count            = 0;
 	for (int i = 0; i < 100; i++)
 	{
 		int c;
-		if ((c = rand_uniform_aux(backend, 64, 100)) < 0) cr_fatal("Error occured during generation");
+		if ((c = rand_uniform_aux(module, 64, 100)) < 0) cr_fatal("Error occured during generation");
 		count += c;
 	}
 
@@ -89,15 +89,15 @@ Test(rand_uniform_64, test_rand_uniform)
 	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
 	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
 
-	pvda_delete_backend(backend);
+	pvda_delete_backend(module);
 }
 
 // Test rand_uniform on the interval [-32768,32767]
 Test(rand_uniform_16, test_rand_uniform)
 {
-	PvdaBackend* backend = pvda_new_spqlios_backend(4);
+	PvdaBackend* module  = pvda_new_spqlios_backend(4);
 	int count            = 0;
-	for (int i = 0; i < 100; i++) count += rand_uniform_aux(backend, 16, 100);
+	for (int i = 0; i < 100; i++) count += rand_uniform_aux(module, 16, 100);
 
 	// As Chi-squared has 5% chance of failing, we count the number of times it fails.
 	// On 100 iterations it fails 5 times in average.
@@ -105,7 +105,7 @@ Test(rand_uniform_16, test_rand_uniform)
 	// So the number of failures should be in range 5 +- 4.
 	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
 	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
-	pvda_delete_backend(backend);
+	pvda_delete_backend(module);
 }
 
 PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)

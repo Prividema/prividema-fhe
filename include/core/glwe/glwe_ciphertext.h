@@ -90,42 +90,42 @@ ZnxVec glwe_as_znx_vec(const GLWECiphertext* glwe_ct);
  * @brief Encrypts a phase (message + noise) and puts it in result.
  *
  * @param module Additional information for backend.
- * @param result The result bivariate ciphertext.
+ * @param res The result bivariate ciphertext.
  * @param sk_prep The prepared secret key
  * @param phase message + noise.
  *
  * @retval -1 if an error occurs.
  * @retval  0 otherwise.
  */
-int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* res, const GLWESecretKeyPrepared* sk_prep,
                               const PolyBiv* phase);
 
 /**
  * @brief Encrypts a univariate message in RnX form
  *
  * @param module Additional information for backend.
- * @param result The result bivariate ciphertext.
+ * @param res The result bivariate ciphertext.
  * @param sk_prep The prepared secret key
  * @param m_univ_rnx  The univariate secret message to encrypt
  *
  * @retval -1 if an error occurs.
  * @retval  0 otherwise.
  */
-int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* res, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivRnX* m_univ_rnx);
 
 /**
  * @brief Encrypts a univariate message in TnX form
  *
  * @param module Additional information for backend.
- * @param result The result bivariate ciphertext.
+ * @param res The result bivariate ciphertext.
  * @param sk_prep The prepared secret key
  * @param m_univ_tnx  The univariate secret message to encrypt
  *
  * @retval -1 if an error occurs.
  * @retval  0 otherwise.
  */
-int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* res, const GLWESecretKeyPrepared* sk_prep,
                             const PolyUnivTnX* m_univ_tnx);
 
 /**
@@ -133,16 +133,15 @@ int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* result, c
  * bivariate phase (message + noise) and puts it in result.
  *
  * @param module Additional information for backend.
- * @param result The bivariate phase.
+ * @param res The bivariate phase.
  * @param sk_prep The prepared secret key
  * @param glwe The bivGLWE ciphertext.
  *
  * @retval -1 if an error occurs.
  * @retval  0 otherwise.
  */
-int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
+int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* res, const GLWESecretKeyPrepared* sk_prep,
                         const GLWECiphertext* glwe);
-
 
 // =============================================
 // |                                           |

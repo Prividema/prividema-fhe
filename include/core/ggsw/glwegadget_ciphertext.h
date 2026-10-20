@@ -49,9 +49,9 @@ typedef struct glwegadget_ciphertext
 /**
  * @brief Creates a new GLWEGadgetCiphertext. This function allocates the memory.
  *
- * @param params The parameters.
+ * @param params_glwegadget The parameters.
  */
-GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params);
+GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params_glwegadget);
 
 /**
  * @brief Deletes a GLWEGadget ciphertext. This function frees the memory.
@@ -65,14 +65,14 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
  * (also known as halfGGSW in the k=1 case)
  *
  * @param module The underlying compute module
- * @param result The resulting GLWEGadget ciphertext
+ * @param res The resulting GLWEGadget ciphertext
  * @param sk_prep A prepared secret key
  * @param m_univ The univariate plaintext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result,
+int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* res,
                               const GLWESecretKeyPrepared* sk_prep, const PolyUniv* m_univ);
 
 /**
@@ -82,12 +82,12 @@ int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* r
  *  TODO: not yet implemented
  *
  * @param module The underlying compute module
- * @param result The resulting GLWEGadget ciphertext
+ * @param res    The resulting GLWEGadget ciphertext
  * @param pk     A public key
  * @param m_univ The univariate plaintext
  *
  */
-void glwegadget_public_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* result, const GLWEPublicKey* pk,
+void glwegadget_public_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* res, const GLWEPublicKey* pk,
                                const PolyUniv* m_univ);
 /**
  *
@@ -101,8 +101,8 @@ void glwegadget_public_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* 
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* result,
-                                     const GLWEGadgetParams* params_glwegad, const GLWESecretKeyPrepared* sk_prep,
+int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* res,
+                                     const GLWEGadgetParams* params_glwegadget, const GLWESecretKeyPrepared* sk_prep,
                                      const PolyUniv* m_univ, uint64_t d);
 
 /**
@@ -135,10 +135,10 @@ typedef struct glwegadget_ciphertext_prepared
 /**
  * @brief Creates a new prepared GLWEGadget. This function allocates the memory.
  *
- * @param params The parameters.
+ * @param params_glwegadget The parameters.
  *
  */
-GLWEGadgetCiphertextPrep* new_glwegadget_prep(const PvdaBackend * module, const GLWEGadgetParams* params);
+GLWEGadgetCiphertextPrep* new_glwegadget_prep(const PvdaBackend* module, const GLWEGadgetParams* params_glwegadget);
 
 /**
  * @brief Deletes a prepared GLWEGadget. This function frees the memory.
@@ -158,13 +158,13 @@ void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct);
  *
  * @param module The underlying backend module
  * @param glwegadget_prep_ct The resulting prepared GLWEGadget
- * @param glwegad_ct The input GLWEGadget
+ * @param glwegadget_ct The input GLWEGadget
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
 int glwegadget_prepare(const PvdaBackend* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
-                       const GLWEGadgetCiphertext* glwegad_ct);
+                       const GLWEGadgetCiphertext* glwegadget_ct);
 
 // =============================================
 // |                                           |
@@ -183,11 +183,11 @@ int glwegadget_prepare(const PvdaBackend* module, GLWEGadgetCiphertextPrep* glwe
  * Only able to output the 64 MSBs of the encrypted message/phase
  *
  * @param module The backend module
- * @param glwe_gad The GLWEGadget to print
+ * @param glwegadget_ct The GLWEGadget to print
  * @param sk_prep The prepared secret key for the GLWEGadget
  * @param n How many coefficients to print
  */
-int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwe_gad,
+int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwegadget_ct,
                     const GLWESecretKeyPrepared* sk_prep, int n);
 
 #endif  // PARTIALGGSW_CIPHERTEXT_H

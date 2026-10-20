@@ -13,20 +13,20 @@ PvdaTstParams params = {1024, 1, 4, 4, 0, -7};
 //! COMMON PART (begin)
 
 /**
- * @brief Test poly_biv_bytes
+ * @brief Test biv_bytes
  */
-PvdaParamTest(poly_univ_bytes, basic, default_params_fn)
+PvdaParamTest(univ_bytes, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	// Asserts poly_univ_bytes returns params_glwe->nn * sizeof(int64_t)
-	cr_assert(eq(i64, poly_univ_bytes(params_glwe), params_glwe->nn * sizeof(int64_t)));
+	// Asserts univ_bytes returns params_glwe->nn * sizeof(int64_t)
+	cr_assert(eq(i64, univ_bytes(params_glwe), params_glwe->nn * sizeof(int64_t)));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
 /**
- * @brief Test poly_biv_bytes
+ * @brief Test biv_bytes
  */
 PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 {

@@ -40,20 +40,20 @@ void test_expand_trace(benchmark::State& state)
 	PolyUnivRnX* m_univ_rnx = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
-		compute_automorphism_key(module, auto_key, sk_prep, p);
-		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
+		GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, params_glwegadget);
+		glwe_automorphism_key_generate(module, automorphism_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, automorphism_key, p);
 	}
 	int bund = D;
 
-	memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
+	memset(m_univ_rnx, 0, univ_bytes(params_glwe));
 
 	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
@@ -107,20 +107,20 @@ void test_hom_trace(benchmark::State& state)
 	PolyUnivRnX* m_univ_rnx = new_univ_rnx(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
-		compute_automorphism_key(module, auto_key, sk_prep, p);
-		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
+		GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, params_glwegadget);
+		glwe_automorphism_key_generate(module, automorphism_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, automorphism_key, p);
 	}
 	int bund = D;
 
-	memset(m_univ_rnx, 0, poly_univ_bytes(params_glwe));
+	memset(m_univ_rnx, 0, univ_bytes(params_glwe));
 
 	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
@@ -171,7 +171,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	PolyBiv* biv_tmp        = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	GLWEAutomorphismKeyCollection* automorphism_keys = new_automorphism_key_collection(2 * params_glwe->nn);
@@ -179,9 +179,9 @@ void test_expand_compressed_trace(benchmark::State& state)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
-		compute_automorphism_key(module, auto_key, sk_prep, p);
-		glwegadget_key_collection_put_key(automorphism_keys, auto_key, p);
+		GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, params_glwegadget);
+		glwe_automorphism_key_generate(module, automorphism_key, sk_prep, p);
+		glwegadget_key_collection_put_key(automorphism_keys, automorphism_key, p);
 	}
 
 	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(k, sizeof(GGSWCiphertextPrep*));
@@ -201,7 +201,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	delete_ggsw(ggsw_tmp);
 
 	int bund = D;
-	memset(m_univ, 0, poly_univ_bytes(params_glwe));
+	memset(m_univ, 0, univ_bytes(params_glwe));
 
 	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
@@ -256,7 +256,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	PolyBiv* biv_tmp        = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2 * params_glwe->nn);
@@ -264,9 +264,9 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	for (uint64_t i = 1; (1ULL << i) <= params_glwe->nn; ++i)
 	{
 		int64_t p                     = (int64_t)params_glwe->nn / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(module, params_glwegadget);
-		compute_automorphism_key(module, auto_key, sk_prep, p);
-		glwegadget_key_collection_put_key(auto_key_collection, auto_key, p);
+		GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, params_glwegadget);
+		glwe_automorphism_key_generate(module, automorphism_key, sk_prep, p);
+		glwegadget_key_collection_put_key(auto_key_collection, automorphism_key, p);
 	}
 
 	GGSWCiphertext** ggsw_ksks = (GGSWCiphertext**)calloc(k, sizeof(GGSWCiphertext*));
@@ -284,7 +284,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 
 	int bund = D;
 
-	memset(m_univ, 0, poly_univ_bytes(params_glwe));
+	memset(m_univ, 0, univ_bytes(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
 	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);

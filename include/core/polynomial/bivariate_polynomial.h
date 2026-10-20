@@ -115,7 +115,7 @@ int biv_normalize(const PvdaBackend* module, uint64_t log2_base, PolyBiv* res, c
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int add_biv_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a);
+int biv_add_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a);
 
 // =============================================
 // |                                           |
@@ -132,12 +132,12 @@ int add_biv_noise(const PvdaBackend* module, const GLWEParams* params_glwe, Poly
  *
  * @param module The underlying compute module.
  * @param params_glwe The GLWE parameters.
- * @param result The result bivariate polynomial.
+ * @param res The result bivariate polynomial.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result);
+int biv_random_normal(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res);
 
 /**
  * @brief Computes a random uniform bivariate polynomial.
@@ -148,14 +148,13 @@ int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_g
  *
  * @param module      The underlying compute module.
  * @param params_glwe The bivGLWE parameters.
- * @param result      The output bivariate polynomial.
+ * @param res         The output bivariate polynomial.
  * @param precision   The number of limbs to fill (limbs 0 to precision-1), each sampled uniformly on K bits.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result,
-                            int64_t precision);
+int biv_random_uniform(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, int64_t precision);
 
 // =============================================
 // |                                           |
@@ -337,7 +336,7 @@ int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, 
  *
  * @note The number of coefficients is the same in and out of the DFT domain.
  */
-uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
+uint64_t biv_coef_number(const GLWEParams* params_glwe);
 
 /**
  * @brief The number of coefficients in bivariate polynomial.
@@ -348,7 +347,7 @@ uint64_t poly_biv_coef_number(const GLWEParams* params_glwe);
  * @note The number of independent coefficients of a polynomial in the DFT domain is half the number of coefficients in
  * \ZnX, due to conjugate symmetry when the polynomial has real (or integer) coefficients.
  */
-uint64_t poly_biv_dft_coef_number(const GLWEParams* params_glwe);
+uint64_t biv_dft_coef_number(const GLWEParams* params_glwe);
 
 /**
  * @brief Returns the number of bytes needed to store a bivariate polynomial.
@@ -358,7 +357,7 @@ uint64_t poly_biv_dft_coef_number(const GLWEParams* params_glwe);
  *
  * @note The number of bytes needed to store a bivariate polynomial is the same in and out of the DFT domain.
  */
-uint64_t poly_biv_bytes(const GLWEParams* params_glwe);
+uint64_t biv_bytes(const GLWEParams* params_glwe);
 
 // =============================================
 // |                                           |

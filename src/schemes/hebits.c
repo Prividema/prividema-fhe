@@ -19,7 +19,7 @@ int hebits_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const
 
 	glwe_sub(module, tmp_glwe, c1, c0);
 	if (normalize_sub) CHECK_CALL(glwe_normalize(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
-	CHECK_CALL(ggsw_unprepared_external_product(module, res, tmp_glwe, sel), "GGSW external product failed in CMux");
+	CHECK_CALL(ggsw_external_product_unprepared(module, res, tmp_glwe, sel), "GGSW external product failed in CMux");
 	glwe_add(module, res, res, c0);
 
 	status = 0;

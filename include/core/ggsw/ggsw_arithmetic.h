@@ -19,80 +19,80 @@
  * @brief Normalizes a GGSW ciphertext.
  *
  * @param module Additional information for backend.
- * @param result The output GGSWCiphertext. It can be the same as the input for in-place normalization
+ * @param res    The output GGSWCiphertext. It can be the same as the input for in-place normalization
  * @param ggsw   The input GGSWCiphertext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int normalize_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
+int ggsw_normalize(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw);
 
 /**
  * @brief Adds two GGSW ciphertexts that have the same parameters.
  *
  * @param module    Additional information for backend.
- * @param result    The resulting GGSWCiphertext
+ * @param res       The resulting GGSWCiphertext
  * @param ggsw_lhs  One of the input GGSWCiphertext
  * @param ggsw_rhs  The other input GGSWCiphertext
  */
-void add_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs,
+void ggsw_add(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs,
               const GGSWCiphertext* ggsw_rhs);
 
 /**
  * @brief Multiplies a GGSW ciphertext by a constant in \ZnX
  *
  * @param module    Additional information for backend.
- * @param result    The resulting GGSWCiphertext
+ * @param res       The resulting GGSWCiphertext
  * @param ggsw      The input GGSWCiphertext.
  * @param cte       The constant in \ZnX, in SVP-prepared form (see univ_coefs_to_prep)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int const_mult_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw,
+int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw,
                     const BE_PolySvpPrep* cte);
 
 /**
  * @brief Computes the external product between a GLWE and a GGSW.
  *
  * @param module Additional information for backend.
- * @param result The GLWE result ciphertext. Can be the same as the input
+ * @param res    The GLWE result ciphertext. Can be the same as the input
  * @param glwe   The GLWE input ciphertext.
  * @param ggsw   The GGSW input ciphertext.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_unprepared_external_product(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+int ggsw_external_product_unprepared(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe,
                                      const GGSWCiphertext* ggsw);
 
 /**
  * @brief Computes the external product between a GLWE and a prepared GGSW, with the output in the DFT domain.
  *
  * @param module Additional information for backend.
- * @param result The GLWE result ciphertext, in the DFT domain.
+ * @param res The GLWE result ciphertext, in the DFT domain.
  * @param glwe   The GLWE input ciphertext.
- * @param ggsw_prepared   The GGSW input ciphertext, in prepared format.
+ * @param ggsw_prep   The GGSW input ciphertext, in prepared format.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
-                                 const GGSWCiphertextPrep* ggsw_prepared);
+int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res, const GLWECiphertext* glwe,
+                                 const GGSWCiphertextPrep* ggsw_prep);
 
 /**
  * @brief Computes the external product between a GLWE and a GGSW.
  *
  * @param module Additional information for backend.
- * @param result The GLWE result ciphertext. Can be the same as the input
+ * @param res The GLWE result ciphertext. Can be the same as the input
  * @param glwe   The GLWE input ciphertext.
- * @param ggsw_prepared   The GGSW input ciphertext, in prepared format.
+ * @param ggsw_prep   The GGSW input ciphertext, in prepared format.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe,
-                          const GGSWCiphertextPrep* ggsw_prepared);
+int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe,
+                          const GGSWCiphertextPrep* ggsw_prep);
 
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding GGSWs

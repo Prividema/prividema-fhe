@@ -50,50 +50,51 @@ typedef struct ggsw_ct_params
 /**
  * @brief Creates a set of GGSW Parameters.
  *
- * @param params         The GLWE parameters.
+ * @param params_glwe    The GLWE parameters.
  * @param k_tilde        \f$ \tilde{k} \f$ the number of secret key components the GGSW is built over (\f$ \tilde{k} \leq k \f$).
  * @param kappa_tilde    \kappa_tilde
  * @param nb_limbs_tilde \f$ \tilde{\ell}_a \cdot \tilde{k} + \tilde{\ell}_b \f$
  *
  * @return A Pointer to the set of GGSW Parameters, or NULL in case of failure
  */
-GGSWParams* new_ggsw_params(const GLWEParams* params, uint64_t k_tilde, uint64_t kappa_tilde, uint64_t nb_limbs_tilde);
+GGSWParams* new_ggsw_params(const GLWEParams* params_glwe, uint64_t k_tilde, uint64_t kappa_tilde,
+                            uint64_t nb_limbs_tilde);
 
 /**
  * @brief Deletes a set of GGSW parameters.
  *
- * @param params A Pointer to the GGSW parameters to delete.
+ * @param params_ggsw A Pointer to the GGSW parameters to delete.
  */
-void delete_ggsw_params(GGSWParams* params);
+void delete_ggsw_params(GGSWParams* params_ggsw);
 
 /**
  * @brief Gets the number of rows in a GGSW.
  *  In other words, the number of GLWEs that form a GGSW,
  *  \f$ \tilde{\ell}_a \cdot \tilde{k} + \tilde{\ell}_b \f$
  *
- * @param params The GGSW parameters.
+ * @param params_ggsw The GGSW parameters.
  *
  * @return The number of rows in a GGSW.
  */
-uint64_t ggsw_num_rows(const GGSWParams* params);
+uint64_t ggsw_num_rows(const GGSWParams* params_ggsw);
 
 /**
  * @brief Gets the parameter \f$ \tilde{\ell}_a \f$
  *
- * @param params The GGSW parameters
+ * @param params_ggsw The GGSW parameters
  *
  * @return \f$ \tilde{\ell}_a \f$
  */
-uint64_t ggsw_params_l_tilde_a(const GGSWParams* params);
+uint64_t ggsw_params_l_tilde_a(const GGSWParams* params_ggsw);
 
 /**
  * @brief Gets the parameter \f$ \tilde{\ell}_b \f$
  *
- * @param params The GGSW parameters
+ * @param params_ggsw The GGSW parameters
  *
  * @return \f$ \tilde{\ell}_b \f$
  */
-uint64_t ggsw_params_l_tilde_b(const GGSWParams* params);
+uint64_t ggsw_params_l_tilde_b(const GGSWParams* params_ggsw);
 
 /**
  * @brief Computes the number of coefficients in a bivariate GGSW ciphertext.
@@ -155,20 +156,20 @@ typedef struct glwegadget_params
 /**
  * @brief Creates a set of GLWEGadget Parameters.
  *
- * @param params        The GLWE parameters.
+ * @param params_glwe   The GLWE parameters.
  * @param kappa_tilde   The 2-exponent of the base (\f$ 2^{-\kappatilde} \f$)
  * @param l_tilde       \f$ \tilde{\ell} \f$
  *
  * @return A Pointer to the set of GLWEGadget Parameters, or NULL if it failed to create it.
  */
-GLWEGadgetParams* new_glwegadget_params(const GLWEParams* params, uint64_t kappa_tilde, uint64_t l_tilde);
+GLWEGadgetParams* new_glwegadget_params(const GLWEParams* params_glwe, uint64_t kappa_tilde, uint64_t l_tilde);
 
 /**
  * @brief Deletes a glwegadget's parameters
  *
- * @param params The GLWEGadgetParams to delete/deallocate
+ * @param params_glwegadget The GLWEGadgetParams to delete/deallocate
  */
-void* delete_glwegadget_params(GLWEGadgetParams* params);
+void delete_glwegadget_params(GLWEGadgetParams* params_glwegadget);
 
 /**
  * @brief Returns the number of coefficients in a GLWEGadgetCiphertext

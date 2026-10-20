@@ -25,7 +25,7 @@ void bench_enc_dec_rnx(benchmark::State& state)
 	PolyBiv* result_biv            = new_biv(params_glwe);
 	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, SKBITS);
+	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	rnx_random_vec(module, m, params_glwe);

@@ -28,7 +28,7 @@ void bench_ggsw_encrypt(benchmark::State& state)
 	PolyBiv* result_biv            = new_biv(params_glwe);
 	PolyUnivRnX* result_univ       = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, SKBITS);
+	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_pow2_random_vec(module, NBASE, m, 1, NBASE, MSGBITS);

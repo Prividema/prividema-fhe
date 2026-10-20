@@ -105,8 +105,8 @@ PvdaParamTest(ggsw_Sj_Yti, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-// Test normalize_ggsw
-PvdaParamTest(normalize_ggsw, basic, default_params_fn)
+// Test ggsw_normalize
+PvdaParamTest(ggsw_normalize, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -114,10 +114,10 @@ PvdaParamTest(normalize_ggsw, basic, default_params_fn)
 	GGSWCiphertext* res  = new_ggsw(params_ggsw);
 
 	// Normalize the ggsw ciphertext
-	int status = normalize_ggsw(module, res, ggsw);
+	int status = ggsw_normalize(module, res, ggsw);
 
-	// Asserts normalize_ggsw succeed
-	cr_assert(eq(int, status, 0), "normalize_ggsw failed");
+	// Asserts ggsw_normalize succeed
+	cr_assert(eq(int, status, 0), "ggsw_normalize failed");
 
 	// Clean up
 	delete_ggsw(ggsw);
@@ -126,7 +126,7 @@ PvdaParamTest(normalize_ggsw, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(add_ggsw, basic, default_params_fn)
+PvdaParamTest(ggsw_add, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -142,7 +142,7 @@ PvdaParamTest(add_ggsw, basic, default_params_fn)
 	                        params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes ggsw_lhs + ggsw_rhs
-	add_ggsw(module, sum_computed, ggsw_lhs, ggsw_rhs);
+	ggsw_add(module, sum_computed, ggsw_lhs, ggsw_rhs);
 
 	uint64_t nb_rows = ggsw_num_rows(sum_computed->params);
 	uint64_t nb_cols = glwe_params_n_limbs(sum_computed->params->params_glwe);
@@ -163,7 +163,7 @@ PvdaParamTest(add_ggsw, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
+PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -185,7 +185,7 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	pvda_svp_prepare(module, u_prep, u);
 
 	// Computes u * ggsw
-	const_mult_ggsw(module, product_computed, ggsw, u_prep);
+	ggsw_mult_const(module, product_computed, ggsw, u_prep);
 
 	// Asserts product_computed = u * ggsw
 	for (uint64_t iijj = 0; iijj < ggsw_num_rows(params_ggsw); ++iijj)
@@ -238,14 +238,14 @@ PvdaParamTest(new_ggsw_dft, basic, default_params_fn)
 	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
-	GGSWCiphertextPrep* ggsw_dft = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
 
 	// Asserts new_ggsw_dft worked
-	cr_assert(eq(int, ggsw_dft->mat != NULL, 1));
-	cr_assert(eq(int, ggsw_dft->params != NULL, 1));
+	cr_assert(eq(int, ggsw_prep->mat != NULL, 1));
+	cr_assert(eq(int, ggsw_prep->params != NULL, 1));
 
 	// Clean up
-	delete_ggsw_prep(ggsw_dft);
+	delete_ggsw_prep(ggsw_prep);
 
 	DELETE_PVDA_PARAMS_GGSW;
 }

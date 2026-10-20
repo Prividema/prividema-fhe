@@ -147,7 +147,7 @@ int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_g
 	if (res != a)
 	{
 		if (res->stride == a->stride && a->stride == a->nn)
-			memcpy(res->ptr, a->ptr, poly_biv_bytes(params_glwe));
+			memcpy(res->ptr, a->ptr, biv_bytes(params_glwe));
 		else
 		{
 			RAISE_ERROR("Strided fast uniform noise addition not implemented");
@@ -162,7 +162,7 @@ cleanup:
 	return status;
 }
 
-int add_biv_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
+int biv_add_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
 {
 	switch (params_glwe->noise_type)
 	{
@@ -183,7 +183,7 @@ cleanup:
 // |                                           |
 // =============================================
 
-int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result)
+int biv_random_normal(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res)
 {
 	int status = -1;
 
@@ -193,7 +193,7 @@ int normal_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_g
 	CHECK_CALL(normal_random_vec(module, rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
 	           "random normal vec generation failed");
 
-	CHECK_CALL(univ_rnx_to_biv(params_glwe, result, rd_pol_univ, 0),
+	CHECK_CALL(univ_rnx_to_biv(params_glwe, res, rd_pol_univ, 0),
 	           "univ to biv conversion failed in normal random biv poly generation");
 
 	status = 0;
@@ -203,15 +203,14 @@ cleanup:
 	return status;
 }
 
-int uniform_random_biv_poly(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* result,
-                            int64_t precision)
+int biv_random_uniform(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, int64_t precision)
 {
 	int status = -1;
 
 	for (uint64_t i = 0; i < precision; i++)
-		for (uint64_t p = 0; p < result->nn; p++)
-			CHECK_CALL(pvda_rand_uniform_pow2(module, result->ptr + i * result->stride + p, params_glwe->kappa),
-			           "rand_uniform failed in uniform_random_biv_poly.");
+		for (uint64_t p = 0; p < res->nn; p++)
+			CHECK_CALL(pvda_rand_uniform_pow2(module, res->ptr + i * res->stride + p, params_glwe->kappa),
+			           "rand_uniform failed in biv_random_uniform.");
 
 	status = 0;
 
@@ -242,7 +241,7 @@ static inline uint64_t select_bits(uint64_t num, uint64_t offset, uint64_t len)
 	return (num >> offset) & ((1ULL << len) - 1);
 }
 
-uint64_t poly_biv_dft_coef_number(const GLWEParams* params_glwe)
+uint64_t biv_dft_coef_number(const GLWEParams* params_glwe)
 {
 	return (glwe_params_l_a(params_glwe) * params_glwe->nn) / 2;
 }
@@ -276,19 +275,19 @@ static inline int64_t sgn_ext(uint64_t num, uint64_t offset, int sgn)
  * but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
  * @param dst The destination bivariate polynomial
  * @param dst_sl The stride between occurrences of different limbs of the coefficient being decomposed
- * @param params the glwe params (used to get l_a and kappa)
+ * @param params_glwe the glwe params (used to get l_a and kappa)
  *
  * @note Scalar (one coefficient at a time) variant, used by univ_rnx_to_biv. See biv_decomp_internal_vec
  * for a newer vectorizable (and significantly faster) implementation with better documented internals.
  */
 inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* dst, int64_t dst_sl,
-                                       const GLWEParams* params)
+                                       const GLWEParams* params_glwe)
 {
 	int sgn = (stnx_num & (1UL << 63)) != 0;  //retrieve sign
 	stnx_num &= ((1UL << 63) - 1);            //strip sign
 	assert(!(stnx_num & (1L << 63)));
 
-	int kappa = (int)params->kappa;
+	int kappa = (int)params_glwe->kappa;
 	assert(kappa <= 63);
 	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);
 	int n_l      = INT_ROUND_UP_DIV(63, kappa);
@@ -307,7 +306,7 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 	stnx_num += mask;
 	stnx_num ^= mask;
 
-	int l_a = glwe_params_l_a(params);
+	int l_a = glwe_params_l_a(params_glwe);
 
 	// zero the limbs that are too insignificant with the lsb_pos provided
 	for (int i = l_a - 1; i >= last_l; --i)
@@ -360,20 +359,20 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
  * This function (as opposed to the non-vec variant), expects the output vector to have been
  * zeroed before being called for performance reasons.
  *
- * @param mag_vec A contiguous vector of the magnitudes of the input values
- * @param sgn_vec A contiguous vector of the signs of the input values
- * @param lsb_pos Position where the LSB of the inputs should be placed. One should use 63 if no shift is to be performed,
+ * @param mag_vec     A contiguous vector of the magnitudes of the input values
+ * @param sgn_vec     A contiguous vector of the signs of the input values
+ * @param lsb_pos     Position where the LSB of the inputs should be placed. One should use 63 if no shift is to be performed,
  * 			      but both positive and negative values can be used to multiply/divide by powers of 2 while decomposing
  * @param dst 	  The destination bivariate polynomial, which should be given with all coefficients set to 0
- * @param dst_sl  The stride between occurrences of different limbs of the same coefficient in the output.
- * @param params  The glwe params (used to get l_a and kappa)
+ * @param dst_sl      The stride between occurrences of different limbs of the same coefficient in the output.
+ * @param params_glwe The glwe params (used to get l_a and kappa)
  */
 inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, int lsb_pos, int64_t* dst,
-                                           int64_t dst_sl, const GLWEParams* params)
+                                           int64_t dst_sl, const GLWEParams* params_glwe)
 {
-	uint64_t nn = params->nn;
+	uint64_t nn = params_glwe->nn;
 
-	int kappa = (int)params->kappa;
+	int kappa = (int)params_glwe->kappa;
 	assert(kappa <= 63);
 
 	int last_l   = INT_ROUND_UP_DIV(lsb_pos, kappa);  // limb number where lsb_pos falls
@@ -400,7 +399,7 @@ inline static void biv_decomp_internal_vec(uint64_t* mag_vec, uint8_t* sgn_vec, 
 		mag_vec[p] ^= mask;
 	}
 
-	int l_a = glwe_params_l_a(params);
+	int l_a = glwe_params_l_a(params_glwe);
 
 	// We should start at either limb last_l (last_l-1 position)
 	// or l_a if l_a is smaller
@@ -638,7 +637,7 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 
 	// res_univ(X^p) = Sum_i{1,l}[poly(X^p, Y^i) * 2^(-kappa*i)]
 	double pkappa = exp2(-(double)kappa);
-	memset(res_univ, 0, poly_univ_rnx_bytes(params_glwe));
+	memset(res_univ, 0, univ_rnx_bytes(params_glwe));
 	for (uint64_t p = 0; p < nn; p++)
 		for (uint64_t i = start_l; i >= 1; --i)
 		{
@@ -684,7 +683,7 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 
 BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe)
 {
-	BE_PolyVecDFT* pol_dft = calloc(poly_biv_dft_coef_number(params_glwe), 2 * sizeof(double));
+	BE_PolyVecDFT* pol_dft = calloc(biv_dft_coef_number(params_glwe), 2 * sizeof(double));
 	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
 	return pol_dft;
 
@@ -767,9 +766,9 @@ int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, P
 // |                                           |
 // =============================================
 
-uint64_t poly_biv_coef_number(const GLWEParams* params_glwe) { return glwe_params_l_a(params_glwe) * params_glwe->nn; }
+uint64_t biv_coef_number(const GLWEParams* params_glwe) { return glwe_params_l_a(params_glwe) * params_glwe->nn; }
 
-uint64_t poly_biv_bytes(const GLWEParams* params_glwe) { return poly_biv_coef_number(params_glwe) * sizeof(int64_t); }
+uint64_t biv_bytes(const GLWEParams* params_glwe) { return biv_coef_number(params_glwe) * sizeof(int64_t); }
 
 // =============================================
 // |                                           |

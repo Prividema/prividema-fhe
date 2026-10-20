@@ -39,7 +39,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 	// Variables to compute the phase of each ggsw's row
 
 	// Draws uniformly in (Zn[X])^k the secret key
-	uniform_glwe_secret_key(module, sk, 3);
+	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 	uniform_pow2_random_pol_znx(module, m_univ, params_glwe->nn, params_glwe->kappa);
 

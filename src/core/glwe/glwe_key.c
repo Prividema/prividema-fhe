@@ -45,7 +45,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 }
 
 
-int uniform_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits)
+int glwe_sk_random_uniform(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits)
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
@@ -59,7 +59,7 @@ cleanup:
 	return -1;
 }
 
-int binary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk)
+int glwe_sk_random_binary(const PvdaBackend* module, GLWESecretKey* sk)
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
@@ -73,7 +73,7 @@ cleanup:
 	return -1;
 }
 
-int ternary_glwe_secret_key(const PvdaBackend* module, GLWESecretKey* sk)
+int glwe_sk_random_ternary(const PvdaBackend* module, GLWESecretKey* sk)
 {
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
@@ -161,21 +161,21 @@ PolyUniv* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_pr
 // |                                           |
 // =============================================
 
-int glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* result_prep, const GLWESecretKey* sk)
+int glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* sk_prep, const GLWESecretKey* sk)
 {
 	int status  = -1;
 	uint64_t nn = sk->nn;
 
 	// The prepared key must have been allocated for the same key shape and with the same backend
-	assert(result_prep->nn == sk->nn && result_prep->k == sk->k);
-	assert(result_prep->module == module);
+	assert(sk_prep->nn == sk->nn && sk_prep->k == sk->k);
+	assert(sk_prep->module == module);
 
 	// Coefficient-space copy
-	memcpy(result_prep->values_coef, sk->values, nn * sk->k * sizeof(PolyUniv));
+	memcpy(sk_prep->values_coef, sk->values, nn * sk->k * sizeof(PolyUniv));
 
 	// Each component is prepared as the scalar operand of scalar-vector products
 	for (uint64_t j = 0; j < sk->k; ++j)
-		CHECK_CALL(pvda_svp_prepare(module, result_prep->values_prep[j], sk->values + j * nn),
+		CHECK_CALL(pvda_svp_prepare(module, sk_prep->values_prep[j], sk->values + j * nn),
 		           "SVP preparation of a secret key component failed in glwe_sk_prepare");
 
 	status = 0;

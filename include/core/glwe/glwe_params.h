@@ -71,9 +71,9 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_
 /**
  * @brief Deletes the set of bivGLWE parameters.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  */
-void delete_glwe_params(GLWEParams* params);
+void delete_glwe_params(GLWEParams* params_glwe);
 
 /**
  * @brief Returns the parameter \l_a (\l for the As in the GLWE)
@@ -139,8 +139,8 @@ uint64_t glwe_coef_number_dft(const GLWEParams* params_glwe);
  * @brief Returns the smallest difference representable in the bivariate
  * decomposition described by the provided params
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  */
-double glwe_bivariate_epsilon(const GLWEParams* params);
+double glwe_bivariate_epsilon(const GLWEParams* params_glwe);
 
 #endif  // bivGLWE_CT_PARAMS_H
