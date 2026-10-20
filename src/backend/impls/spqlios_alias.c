@@ -92,6 +92,40 @@ int spqlios_svp_apply_dft_to_dft(const PvdaBackend* module, const BE_PolyVecDFT*
 	return 0;
 }
 
+// spqlios declares vec_dft_add but does not implement it, so it is implemented here.
+// In the FFT64 layout, each DFT polynomial is nn doubles and the DFT is linear,
+// so the addition is coefficient-wise.
+// Same size convention as vec_znx_add: add up to the smallest size, copy up to the largest, then zero-extend.
+int spqlios_vec_znx_dft_add(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_n_limbs, BE_PolyVecDFT* a,
+                            uint64_t a_n_limbs, BE_PolyVecDFT* b, uint64_t b_n_limbs)
+{
+	uint64_t nn = module_get_n(module->spqlios_module);
+
+	double* r       = (double*)res;
+	const double* x = (const double*)a;
+	const double* y = (const double*)b;
+
+	// Make x the shortest input
+	if (a_n_limbs > b_n_limbs)
+	{
+		const double* tmp = x;
+		x                 = y;
+		y                 = tmp;
+		uint64_t tmp_n    = a_n_limbs;
+		a_n_limbs         = b_n_limbs;
+		b_n_limbs         = tmp_n;
+	}
+
+	uint64_t sum_n  = res_n_limbs < a_n_limbs ? res_n_limbs : a_n_limbs;
+	uint64_t copy_n = res_n_limbs < b_n_limbs ? res_n_limbs : b_n_limbs;
+
+	for (uint64_t i = 0; i < sum_n * nn; ++i) r[i] = x[i] + y[i];
+	if (copy_n > sum_n) memmove(r + sum_n * nn, y + sum_n * nn, (copy_n - sum_n) * nn * sizeof(double));
+	if (res_n_limbs > copy_n) memset(r + copy_n * nn, 0, (res_n_limbs - copy_n) * nn * sizeof(double));
+
+	return 0;
+}
+
 BE_PolyVecVmpPrep* spqlios_new_vmp_pvec(const PvdaBackend* module, uint64_t nrows)
 {
 	uint64_t bytes = module_get_n(module->spqlios_module) * nrows * sizeof(double);
@@ -293,4 +327,7 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 	vt->pvda_vec_znx_rotate            = spqlios_vec_znx_rotate;
 	vt->pvda_module_extract_nn         = spqlios_module_extract_nn;
 	vt->pvda_vmp_prepare_vec           = spqlios_vmp_prepare_vec;
+	vt->pvda_new_vmp_pvec              = spqlios_new_vmp_pvec;
+	vt->pvda_delete_vmp_pvec           = spqlios_delete_vmp_pvec;
+	vt->pvda_vec_znx_dft_add           = spqlios_vec_znx_dft_add;
 }
