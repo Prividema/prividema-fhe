@@ -15,7 +15,7 @@
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
-#include "maths_structures.h"
+#include "univariate_polynomial.h"
 
 /**
  * @brief GGSW Ciphertext in the coefficient space.

@@ -1,7 +1,7 @@
 #ifndef HEFP_H
 #define HEFP_H
 
-#include "maths_structures.h"
+#include "univariate_polynomial.h"
 #ifndef _cplusplus
 #include <complex.h>
 #endif

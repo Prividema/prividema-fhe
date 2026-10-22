@@ -2,6 +2,7 @@
 
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 
 #include "backend.h"
@@ -137,3 +138,32 @@ uint64_t univ_bytes(const GLWEParams* params_glwe)
 uint64_t univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivRnX); }
 
 uint64_t univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivTnX); }
+
+// =============================================
+// |                                           |
+// |              Print Functions              |
+// |                                           |
+// =============================================
+
+void printf_poly_univ_ZnX(PolyUniv* pol, int64_t nn)
+{
+	printf((pol[0] < 0) ? "%ld " : " %ld ", pol[0]);
+	for (uint64_t p = 1; p < nn; p++)
+		printf((pol[p] < 0) ? "- %ld X^%ld " : "+ %ld X^%ld ", (pol[p] < 0) ? -pol[p] : pol[p], p);
+}
+
+void printf_poly_univ_RnX(double* pol, int64_t nn)
+{
+	for (uint64_t p = 0; p < nn; p++) printf(" %lf X^%ld ", pol[p], p);
+}
+
+void printf_vec_poly_univ(int64_t* pols, int64_t pols_size, int64_t nn)
+{
+	printf("\n");
+	for (uint64_t j = 0; j < pols_size; j++)
+	{
+		printf("\n%ld-th component : ", j);
+		printf_poly_univ_ZnX(pols + j * nn, nn);
+		printf("\n");
+	}
+}

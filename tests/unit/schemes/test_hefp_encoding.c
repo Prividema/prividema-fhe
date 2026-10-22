@@ -7,7 +7,6 @@
 #include "glwe_params.h"
 #include "hefp.h"
 #include "hefp_private.h"
-#include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -113,7 +112,7 @@ PvdaParamTest(hefp_encoding, forth_and_back, default_params_fn)
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
 	// the memory representation is the same for isomorphic values
 	// We need to limit the bits to less than 64 due to the shift we will do
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)tmp_tnx, params_glwe->nn, 52);
+	uniform_pow2_random_pol_znx(module, (int64_t*)tmp_tnx, params_glwe->nn, 52);
 
 	// Test for different scaling values
 	for (int i = -9; i <= 0; ++i)
@@ -148,7 +147,7 @@ PvdaParamTest(hefp_encoding, forth_and_back_not_all_slots, default_params_fn)
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
 	// the memory representation is the same for isomorphic values
 	// We need to limit the bits to less than 64 due to the shift we will do
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)tmp_tnx, params_glwe->nn, 52);
+	uniform_pow2_random_pol_znx(module, (int64_t*)tmp_tnx, params_glwe->nn, 52);
 
 	// Test for different number of slots, from 2 to nn/2
 	for (int i = 2; i < nn; i *= 2)

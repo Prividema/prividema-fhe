@@ -15,7 +15,6 @@
 #include "glwe_params.h"
 #include "logger.h"
 #include "math_utils.h"
-#include "maths_structures.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"

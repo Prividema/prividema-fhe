@@ -8,7 +8,7 @@
 #include "backend.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
+#include "univariate_polynomial.h"
 
 /*
  * Asserts (and fails a test if not met) the following condition:

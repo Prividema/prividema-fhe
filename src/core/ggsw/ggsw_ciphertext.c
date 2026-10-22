@@ -9,7 +9,6 @@
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"

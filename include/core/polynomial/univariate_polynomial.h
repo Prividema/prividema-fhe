@@ -1,10 +1,11 @@
 #ifndef UNIVARIATE_POLYNOMIAL_H
 #define UNIVARIATE_POLYNOMIAL_H
 
+#include <stdint.h>
+
 #include "backend.h"
 #include "backend_types.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
 
 /**
  *
@@ -13,6 +14,30 @@
  * @brief Operations on univariate polynomials.
  *
  */
+
+// =============================================
+// |                                           |
+// |                  Types                    |
+// |                                           |
+// =============================================
+
+/**
+ * @brief Represents a \TnX polynomial, by means of
+ * coefficients which are the numerators of a fraction with denominator \f$2^{64}\f$
+ * @note The implicit length is \N for a polynomial in \TnX
+ */
+typedef uint64_t PolyUnivTnX;
+
+/**
+ * @brief Represents a \RnX polynomial.
+ * @note The implicit length is \N for a polynomial in \RnX
+ */
+typedef double PolyUnivRnX;
+
+/**
+ * @brief Represents a \ZnX polynomial
+ */
+typedef int64_t PolyUniv;
 
 // =============================================
 // |                                           |
@@ -228,5 +253,36 @@ uint64_t univ_rnx_bytes(const GLWEParams* params_glwe);
  * @return Number of bytes needed to store a univariate \TnX polynomial with the given parameters.
  */
 uint64_t univ_tnx_bytes(const GLWEParams* params_glwe);
+
+// =============================================
+// |                                           |
+// |              Print Functions              |
+// |                                           |
+// =============================================
+
+/**
+ * @brief Prints a Univariate Polynomial in \ZnX.
+ *
+ * @param pol A Pointer to the Univariate Polynomial.
+ * @param nn   The degree of the chosen cyclotomic polynomial.
+ */
+void printf_poly_univ_ZnX(PolyUniv* pol, int64_t nn);
+
+/**
+ * @brief Prints a Univariate Polynomial in \RnX.
+ *
+ * @param pol A Pointer to the Univariate Polynomial.
+ * @param nn   The degree of the chosen cyclotomic polynomial.
+ */
+void printf_poly_univ_RnX(double* pol, int64_t nn);
+
+/**
+ * @brief Prints a Vector of Univariate Polynomials.
+ *
+ * @param pols        A Pointer to the vector.
+ * @param pols_size   The size of the vector.
+ * @param nn           The degree of the chosen cyclotomic polynomial.
+ */
+void printf_vec_poly_univ(int64_t* pols, int64_t pols_size, int64_t nn);
 
 #endif

@@ -19,7 +19,6 @@
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
-#include "maths_structures.h"
 #include "schemes/hebits.h"
 #include "univariate_polynomial.h"
 #include "utils.h"

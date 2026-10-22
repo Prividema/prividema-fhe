@@ -6,7 +6,7 @@
 #include "backend_types.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
+#include "univariate_polynomial.h"
 #include "bivariate_polynomial.h"
 
 /**

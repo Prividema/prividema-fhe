@@ -9,7 +9,6 @@
 #include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"

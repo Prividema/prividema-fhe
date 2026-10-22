@@ -6,7 +6,6 @@
 
 #include "backend.h"
 #include "backend_types.h"
-#include "maths_structures.h"
 
 /**
  *
@@ -47,7 +46,7 @@ int rand_normal(double* res, double mu, double sigma);
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, uint64_t nb_bits);
+int uniform_pow2_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, uint64_t nb_bits);
 
 /**
  * @brief Generates a uniformly random binary \ZnX polynomial
@@ -61,7 +60,7 @@ int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn);
+int binary_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn);
 
 /**
  * @brief Generates a uniformly random \ZnX polynomial
@@ -77,8 +76,8 @@ int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn)
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, int64_t low_bound,
-                           int64_t high_bound);
+int uniform_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, int64_t low_bound,
+                          int64_t high_bound);
 
 /**
  * @brief Generates a random vector following a uniform distribution in res.

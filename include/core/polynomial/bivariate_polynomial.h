@@ -4,7 +4,7 @@
 #include "backend.h"
 #include "backend_types.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
+#include "univariate_polynomial.h"
 
 /**
  * @file bivariate_polynomial.h

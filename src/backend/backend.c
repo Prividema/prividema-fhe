@@ -6,7 +6,6 @@
 #include "impls/cpu_nt.h"
 #include "impls/rng_cpu.h"
 #include "impls/spqlios_alias.h"
-#include "maths_structures.h"
 #include "pvda_ffts.h"
 #include "rng.h"
 
@@ -141,7 +140,7 @@ int pvda_vec_znx_normalize_base2k(const PvdaBackend* module, uint64_t log2_base2
 	return module->vt.pvda_vec_znx_normalize_base2k(module, log2_base2k, res, a);
 }
 
-int pvda_znx_small_product(const PvdaBackend* module, PolyUniv* res, const PolyUniv* a, const PolyUniv* b)
+int pvda_znx_small_product(const PvdaBackend* module, int64_t* res, const int64_t* a, const int64_t* b)
 {
 	return module->vt.pvda_znx_small_product(module, res, a, b);
 }
@@ -161,7 +160,7 @@ int pvda_vec_znx_sub(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a, co
 	return module->vt.pvda_vec_znx_sub(module, res, a, b);
 }
 
-int pvda_znx_automorphism(const PvdaBackend* module, const int64_t p, PolyUniv* res, const PolyUniv* a)
+int pvda_znx_automorphism(const PvdaBackend* module, const int64_t p, int64_t* res, const int64_t* a)
 {
 	return module->vt.pvda_znx_automorphism(module, p, res, a);
 }

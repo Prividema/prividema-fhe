@@ -15,7 +15,7 @@
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
-#include "maths_structures.h"
+#include "univariate_polynomial.h"
 #include "rng.h"
 #include "utils.h"
 

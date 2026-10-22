@@ -232,7 +232,7 @@ cleanup:
 	return status;
 }
 
-int spqlios_znx_small_product(const PvdaBackend* module, PolyUniv* res, const PolyUniv* a, const PolyUniv* b)
+int spqlios_znx_small_product(const PvdaBackend* module, int64_t* res, const int64_t* a, const int64_t* b)
 {
 	int status         = -1;
 	size_t tmp_size    = znx_small_single_product_tmp_bytes(module->spqlios_module);
@@ -267,7 +267,7 @@ int spqlios_vec_znx_sub(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a,
 	return 0;
 }
 
-int spqlios_znx_automorphism(const PvdaBackend* module, const int64_t p, PolyUniv* res, const PolyUniv* a)
+int spqlios_znx_automorphism(const PvdaBackend* module, const int64_t p, int64_t* res, const int64_t* a)
 {
 	vec_znx_automorphism(module->spqlios_module, p, res, 1, 0, a, 1, 0);
 	return 0;

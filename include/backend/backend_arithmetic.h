@@ -3,7 +3,6 @@
 
 #include "backend.h"
 #include "backend_types.h"
-#include "maths_structures.h"
 
 /**
  * @file backend_arithmetic.h
@@ -60,7 +59,7 @@ void pvda_delete_vmp_pmat(const PvdaBackend* module, BE_PolyMatVmpPrep* pmat);
 
 int pvda_vec_znx_normalize_base2k(const PvdaBackend* module, uint64_t log2_base2k, ZnxVec* res, const ZnxVec* a);
 
-int pvda_znx_small_product(const PvdaBackend* module, PolyUniv* res, const PolyUniv* a, const PolyUniv* b);
+int pvda_znx_small_product(const PvdaBackend* module, int64_t* res, const int64_t* a, const int64_t* b);
 
 int pvda_vec_znx_negate(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a);
 
@@ -68,7 +67,7 @@ int pvda_vec_znx_add(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a, co
 
 int pvda_vec_znx_sub(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a, const ZnxVec* b);
 
-int pvda_znx_automorphism(const PvdaBackend* module, const int64_t p, PolyUniv* res, const PolyUniv* a);
+int pvda_znx_automorphism(const PvdaBackend* module, const int64_t p, int64_t* res, const int64_t* a);
 int pvda_vec_znx_automorphism(const PvdaBackend* module, const int64_t p, ZnxVec* res, const ZnxVec* a);
 
 int pvda_vec_znx_rotate(const PvdaBackend* module, const int64_t p, ZnxVec* res, const ZnxVec* a);

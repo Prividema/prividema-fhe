@@ -47,17 +47,17 @@ cleanup:
 	return -1;
 }
 
-int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, uint64_t nb_bits)
+int uniform_pow2_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, uint64_t nb_bits)
 {
-	return pvda_rand_uniform_pow2_vec(module, (int64_t*)res, nn, nb_bits);
+	return pvda_rand_uniform_pow2_vec(module, res, nn, nb_bits);
 }
 
-int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn)
+int binary_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn)
 {
 	return pvda_rand_uniform_binary_vec(module, (uint64_t*)res, nn);
 }
 
-int uniform_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
+int uniform_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
 {
 	for (uint64_t p = 0; p < nn; p++)
 	{

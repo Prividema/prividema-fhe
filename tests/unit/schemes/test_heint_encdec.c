@@ -8,7 +8,6 @@
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
 #include "heint.h"
-#include "maths_structures.h"
 #include "pvda_ffts.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
