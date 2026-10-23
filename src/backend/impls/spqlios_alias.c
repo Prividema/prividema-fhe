@@ -41,6 +41,8 @@ int64_t* spqlios_new_vec_znx_big(const PvdaBackend* module, int64_t size)
 
 int spqlios_vec_znx_idft(const PvdaBackend* module, ZnxVec* res, const BE_PolyVecDFT* a_dft, uint64_t a_size)
 {
+	int status = -1;
+
 	size_t tmp_bytes = vec_znx_idft_tmp_bytes(module->spqlios_module);
 	uint8_t* tmp     = malloc(tmp_bytes);
 	if (tmp_bytes) CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
@@ -48,10 +50,11 @@ int spqlios_vec_znx_idft(const PvdaBackend* module, ZnxVec* res, const BE_PolyVe
 	assert(res->stride == res->nn);
 	vec_znx_idft(module->spqlios_module, (VEC_ZNX_BIG*)res->ptr, res->size, (VEC_ZNX_DFT*)a_dft, a_size, tmp);
 
+	status = 0;
+
 cleanup:
 	free(tmp);
-
-	return 0;
+	return status;
 }
 
 void spqlios_delete_vec_znx_big(const PvdaBackend* module, int64_t* res)

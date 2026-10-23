@@ -2,7 +2,7 @@
 #define HEFP_H
 
 #include "univariate_polynomial.h"
-#ifndef _cplusplus
+#ifndef __cplusplus
 #include <complex.h>
 #endif
 #include <stdint.h>

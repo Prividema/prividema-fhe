@@ -147,18 +147,14 @@ int heint_encode(const PvdaBackend* module, const GLWEParams* params_glwe, PolyB
 	CHECK_ALLOC(out_rnx, "failed malloc in heint encoding");
 
 	if (slots != nn)
-	{
 		RAISE_ERROR("Unsupported (for now) number of slots != N");
-	}
 
 	// Prepare roots in montgomery form
 	for (size_t i = 0; i < 2 * nn + 1; ++i)
-	{
 		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
-	}
 
 	// Perform iNTT
-	internal_slow_intt_heint(module, out_int, in, t);
+	CHECK_CALL(internal_slow_intt_heint(module, out_int, in, t), "internal_slow_intt_heint failed in heint_encode");
 
 	// Scale output
 	double scale_fact = 1.0 / t;
@@ -167,10 +163,11 @@ int heint_encode(const PvdaBackend* module, const GLWEParams* params_glwe, PolyB
 	// Since all positions can share the same scale factor,
 	// go rnx -> tnx -> biv since it is faster than the
 	// direct rnx -> biv conversion (which supports different scales)
-	univ_rnx_to_tnx(params_glwe, out_tnx, out_rnx);
-	univ_tnx_to_biv(params_glwe, out, out_tnx, 0);
+	CHECK_CALL(univ_rnx_to_tnx(params_glwe, out_tnx, out_rnx), "univ_rnx_to_tnx failed in heint_encode");
+	CHECK_CALL(univ_tnx_to_biv(params_glwe, out, out_tnx, 0), "tnx_to_biv failed in heint_encode");
 
 	status = 0;
+
 cleanup:
 	free(root_table_m);
 	free(out_int);
@@ -204,8 +201,10 @@ int heint_decode(const PvdaBackend* module, const GLWEParams* params_glwe, uint6
 	// Scale and round
 	for (size_t i = 0; i < nn; ++i) tmp_tnx[i] = llround(t * in_rnx[i]);
 
-	internal_slow_ntt_heint(module, out, tmp_tnx, t);
+	CHECK_CALL(internal_slow_ntt_heint(module, out, tmp_tnx, t), "internal_slow_intt_heint failed in heint_decode");
+
 	status = 0;
+
 cleanup:
 	free(tmp_tnx);
 	free(in_rnx);

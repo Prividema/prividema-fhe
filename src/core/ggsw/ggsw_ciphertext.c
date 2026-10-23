@@ -69,8 +69,8 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 	const GGSWParams* params_ggsw = res->params;
 	const GLWEParams* params_glwe = params_ggsw->params_glwe;
-	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k)
-		return log_perror("k_tilde should not be greater than k in ggsw_secret_encrypt");
+	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k) 
+		return log_message(LOG_ERROR, "k_tilde should not be greater than k in ggsw_secret_encrypt");
 
 	// bivGLWE parameters
 	uint64_t nn      = params_glwe->nn;

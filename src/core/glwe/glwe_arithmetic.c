@@ -75,12 +75,10 @@ int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_Pol
 	pvda_svp_apply_dft(module, u_glwe_dft->vec, glwe_params_n_limbs(res->params), u_dft, &glwe_flattened);
 
 	// Computes it out of the DFT domain
-	glwe_dft_to_coef(module, res, u_glwe_dft);
+	status = glwe_dft_to_coef(module, res, u_glwe_dft);
 
-	status = 0;
 cleanup:
 	delete_glwe_dft(u_glwe_dft);
-
 	return status;
 }
 
@@ -97,9 +95,7 @@ int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, c
                         const GLWECiphertextDFT* glwe_dft)
 {
 	// Computes DFT(u * glwe)
-	//
-	pvda_svp_apply_dft_to_dft(module, res_dft->vec, glwe_params_n_limbs(res_dft->params), u_dft, glwe_dft->vec,
+	return pvda_svp_apply_dft_to_dft(module, res_dft->vec, glwe_params_n_limbs(res_dft->params), u_dft, glwe_dft->vec,
 	                          glwe_params_n_limbs(glwe_dft->params));
-	return 0;
 }
 

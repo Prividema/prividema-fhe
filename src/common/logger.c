@@ -39,7 +39,7 @@ const char* log_level_str(LogLevel level)
 int log_message(LogLevel level, const char* fmt, ...)
 {
 	// Skip the function if the level is not in LOG_FLAG
-	if ((LOG_FLAG & level) == 0) return 0;
+	if ((LOG_FLAG & level) == 0) return (level == LOG_ERROR) ? -1 : 0;
 
 	// Get current time
 	time_t t = time(NULL);
