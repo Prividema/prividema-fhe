@@ -91,7 +91,7 @@ int glwe_ksk_generate(const PvdaBackend* module, GLWEKSK* glwe_ksk, const GLWESe
 
 	GLWEGadgetCiphertext* glwegad_tmp = new_glwegadget(glwe_ksk->params);
 
-	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in automorphism KSK preparation");
+	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in KSK preparation");
 
 	for (int i = 0; i < k; ++i)
 	{
@@ -100,9 +100,9 @@ int glwe_ksk_generate(const PvdaBackend* module, GLWEKSK* glwe_ksk, const GLWESe
 		//GLWEGadget(sigma_p(sk_i))
 		CHECK_CALL(
 		    glwegadget_secret_encrypt(module, glwegad_tmp, new_key, glwe_sk_prepared_extract_poly_coefs(old_key, i)),
-		    "GLWEGadget encryption failed in automorphism KSK preparation");
+		    "GLWEGadget encryption failed in KSK preparation");
 		CHECK_CALL(glwegadget_prepare(module, gadget_ciph, glwegad_tmp),
-		           "GLWEGadget preparation failed in automorphism KSK preparation");
+		           "GLWEGadget preparation failed in KSK preparation");
 	}
 
 	status = 0;

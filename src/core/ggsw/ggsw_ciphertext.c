@@ -177,7 +177,7 @@ int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prep, const
 	size_t ncols = glwe_params_n_limbs(ggsw_prep->params->params_glwe);
 
 	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_prep->mat, ggsw_ct->mat, nrows, ncols),
-	           "VMP prepare for GLWEGadget prepare failed");
+	           "ggsw_prepare(): VMP prepare failed");
 
 	status = 0;
 cleanup:

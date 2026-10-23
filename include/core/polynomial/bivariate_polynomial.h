@@ -64,7 +64,7 @@ void delete_biv(PolyBiv* biv);
  * @brief Creates a new bivariate polynomial view, that is, 
  *        a PolyBiv that does NOT own the memory it refers to.
  *
- * @param nn     The parameter N for the .
+ * @param nn     The ring dimension.
  * @param l      The depth (parameter l) of the polynomial.
  * @param stride The distance in elements between limbs. For a contiguous layout,
  *               this is nn. In a GLWE, for example, it will usually be (k+1)*nn.

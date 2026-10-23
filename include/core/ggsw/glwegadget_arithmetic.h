@@ -235,4 +235,4 @@ int packed_glwegadget_trace_expand_prepared_single(const PvdaBackend* module, GL
                                                    const GLWEGadgetParams* params_glwegadget, int res_size, int l_tilde,
                                                    const GLWECiphertext* packed_glwegadget,
                                                    const GLWEAutomorphismKeyCollection* auto_key_collection);
-#endif  // !DEBUG
+#endif

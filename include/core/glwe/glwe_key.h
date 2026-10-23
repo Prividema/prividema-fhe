@@ -169,7 +169,6 @@ PolyUniv* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_pr
  * @param sk          The secret key in coefficient space
  *
  * @retval -1 if an error occurs
- *
  * @retval 0 otherwise
  */
 int glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* sk_prep, const GLWESecretKey* sk);
@@ -187,7 +186,7 @@ typedef struct glwe_ciphertext GLWECiphertext;
 /**
  * @brief Public bivariate GLWE key
  *
- * Composed of yy bivariate GLWE encryptions of 0
+ * Composed of size_pk bivariate GLWE encryptions of 0
  *
  */
 typedef struct glwe_public_key

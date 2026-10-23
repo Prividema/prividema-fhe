@@ -34,7 +34,7 @@ int hebits_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
 	int status = -1;
 
 	GLWECiphertext* tmp_glwe = new_glwe(c1->params);
-	CHECK_ALLOC(tmp_glwe, "Allocation failed in unprepared CMux");
+	CHECK_ALLOC(tmp_glwe, "Allocation failed in prepared CMux");
 
 	glwe_sub(module, tmp_glwe, c1, c0);
 	if (normalize_sub) CHECK_CALL(glwe_normalize(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
