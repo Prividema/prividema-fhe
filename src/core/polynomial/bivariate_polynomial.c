@@ -28,13 +28,13 @@
 PolyBiv* new_biv(const GLWEParams* params_glwe)
 {
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
-	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol, "pol's malloc failed in new_biv");
 
 	pol->nn     	= params_glwe->nn;
 	pol->nb_limbs	= glwe_params_l_a(params_glwe);
 	pol->stride 	= (int64_t)pol->nn;
 	pol->ptr    	= calloc(pol->nb_limbs * pol->nn, sizeof(int64_t));
-	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv");
 	return pol;
 
 cleanup:
@@ -57,13 +57,13 @@ PolyBiv biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr)
 PolyBiv* new_biv_custom_params(uint64_t nn, uint64_t biv_l)
 {
 	PolyBiv* pol = malloc(sizeof(PolyBiv));
-	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol, "pol's malloc failed in new_biv_custom_params");
 
 	pol->nn     	= nn;
 	pol->nb_limbs	= biv_l;
 	pol->stride 	= (int64_t)nn;
 	pol->ptr    	= calloc(biv_l * nn, sizeof(int64_t));
-	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol->ptr, "ptr's malloc failed in new_biv_custom_params");
 	return pol;
 
 cleanup:
@@ -683,7 +683,7 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe)
 {
 	BE_PolyVecDFT* pol_dft = calloc(biv_dft_coef_number(params_glwe), 2 * sizeof(double));
-	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_dft");
 	return pol_dft;
 
 cleanup:
@@ -693,7 +693,7 @@ cleanup:
 BE_PolyVecDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l)
 {
 	BE_PolyVecDFT* pol_dft = calloc(nn * biv_l, sizeof(double));
-	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_poly");
+	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_dft");
 	return pol_dft;
 
 cleanup:

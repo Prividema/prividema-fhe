@@ -130,7 +130,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
 		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
-		           "glwe_secret_masking_ggsw_lib failed in ggsw_secret_encrypt");
+		           "glwe_secret_encrypt_phase failed in ggsw_secret_encrypt");
 	}
 
 	status = 0;

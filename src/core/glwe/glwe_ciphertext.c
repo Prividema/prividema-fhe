@@ -121,7 +121,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 
 			// Undo DFT to retrieve sk_j * a_j
 			CHECK_CALL(biv_dft_to_coefs(module, params_glwe, as_j, as_j_dft),
-			           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
+			           "vec_znx_idft_p failed in glwe_secret_encrypt_phase");
 
 			biv_add(module, acc, acc, as_j);
 		}
@@ -135,7 +135,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 		pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_0_vec);
 
 		CHECK_CALL(biv_dft_to_coefs(module, params_glwe, acc, as_j_dft),
-		           "vec_znx_idft_p failed in glwe_secret_masking_ggsw_lib");
+		           "vec_znx_idft_p failed in glwe_secret_encrypt_phase");
 	}
 
 	biv_add(module, acc, acc, phase);
@@ -145,7 +145,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 
 	// Normalize acc (B) and put it in the result variable
 	CHECK_CALL(biv_normalize(module, kappa, &b, acc),
-	           "vec_znx_normalize_base2k_p failed in glwe_secret_masking_ggsw_lib");
+	           "vec_znx_normalize_base2k_p failed in glwe_secret_encrypt_phase");
 
 	status = 0;
 

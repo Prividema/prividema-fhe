@@ -69,7 +69,7 @@ static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
  * @brief Generates a uniformly sampled random number in [-2^(nb_bits-1), 2^(nb_bits-1))
  *
  * @param module  The backend object
- * @param res     The resing uniformly sampled integer
+ * @param res     The resulting uniformly sampled integer
  * @param nb_bits The number of bits of the res
  *
  * @retval -1 if an error occurs.
@@ -99,7 +99,7 @@ int ref_rand_uniform_pow2(const PvdaBackend* module, int64_t* res, uint64_t nb_b
  * power-of-2 sampling and resampling if out-of-bounds
  *
  * @param module      The backend object
- * @param res         The resing uniformly sampled integer
+ * @param res         The resulting uniformly sampled integer
  * @param limit_down  The lower bound of the uniform sample
  * @param limit_up    The upper bound of the uniform sample
  *

@@ -350,7 +350,7 @@ PvdaParamTest(biv_random_normal, does_not_crash, default_params_fn)
 {
     INIT_PVDA_PARAMS_GLWE(param);
 
-    PolyBiv* pol = new_biv_poly(params_glwe);
+    PolyBiv* pol = new_biv(params_glwe);
 
     int status = biv_random_normal(params_glwe, pol);
 
@@ -367,7 +367,7 @@ PvdaParamTest(biv_random_normal, output_is_normalized, default_params_fn)
 {
     INIT_PVDA_PARAMS_GLWE(param);
 
-    PolyBiv* pol = new_biv_poly(params_glwe);
+    PolyBiv* pol = new_biv(params_glwe);
 
     // Draw normaly pol in Zn[X,Y]
     biv_random_normal(params_glwe, pol);
