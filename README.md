@@ -71,9 +71,9 @@ The library is to be divided in the following layers:
 - Backend : will contain an abstraction layer over the underlying library or hardware that is used for heavy optimisation.
   At present only spqlios is supported
 - Common: Utility code, functions that belong to no particular scheme/problem/FHE concept.
--Core: Where the code for basic mathematical constructs will go
+- Core: Where the code for basic mathematical constructs will go
   - GLWE: functions and code for GLWE operations
-  - GGSW: functions and code for GGSW and (related) GLWEGadget opeartions
+  - GGSW: functions and code for GGSW and (related) GLWEGadget operations
 - Schemes: The different FHE schemes that can be implemented using the above problems
   
 Its implementation in C allows for close-to-the metal optimisations

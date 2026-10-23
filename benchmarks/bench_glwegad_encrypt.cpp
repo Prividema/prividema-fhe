@@ -6,7 +6,7 @@ extern "C" {
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
+#include "glwe_key.h"
 #include "glwegadget_ciphertext.h"
 #include "rng.h"
 #include "univariate_polynomial.h"
@@ -20,16 +20,16 @@ void bench_glwegad_encrypt(benchmark::State& state)
 	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 	GLWEParams* params_glwe =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, SIGMABASE, NOISE_UNIFORM_POWER_OF_TWO);
-	GLWEGadgetParams* params_glwegad = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
+	GLWEGadgetParams* params_glwegadget = new_glwegadget_params(params_glwe, KAPPABASE, LBASE);
 
-	GLWESecretKey* sk                      = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep         = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUniv* m                            = new_univ(params_glwe);
-	GLWEGadgetCiphertext* glwegad_computed = new_glwegadget(params_glwegad);
+	GLWEGadgetCiphertext* glwegad_computed = new_glwegadget(params_glwegadget);
 	PolyBiv* result_biv                    = new_biv(params_glwe);
 	PolyUnivRnX* result_univ               = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, SKBITS);
+	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	uniform_pow2_random_pol_znx(module, m, NBASE, MSGBITS);
@@ -43,7 +43,7 @@ void bench_glwegad_encrypt(benchmark::State& state)
 	delete_univ(m);
 	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
-	delete_glwegadget_params(params_glwegad);
+	delete_glwegadget_params(params_glwegadget);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
 	delete_biv(result_biv);

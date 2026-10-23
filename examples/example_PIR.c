@@ -16,11 +16,9 @@
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_key.h"
-#include "maths_structures.h"
 #include "schemes/hebits.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -44,7 +42,7 @@
  *
  *****************************************************************************/
 
-// Matrix dimenstions (number of columns, rows and logarithm of the columns)
+// Matrix dimensions (number of columns, rows and logarithm of the columns)
 #define MATRIX_COLS 256
 #define LOG2_COLS   8
 #define MATRIX_ROWS 256
@@ -71,23 +69,23 @@
 // be BFV-like, that is, have some margin in the LSBs where the noise will
 // go and which we then can just discard and round to get an exact value
 //
-// SHFT_AMT is this margin, in bits. More succintly, in this OnionPIR proof-of-concept
+// SHFT_AMT is this margin, in bits. More succinctly, in this OnionPIR proof-of-concept
 // we store DB_BITS bits of useful data per coefficient, and everything after that
 // is margin for the noise
 //
-// Even more succintly, the data in the database belongs in ZnX mod 2^(DB_BITS)
+// Even more succinctly, the data in the database belongs in ZnX mod 2^(DB_BITS)
 #define DB_BITS  54ll
 #define SHFT_AMT (64 - DB_BITS)
 
-// Size of the square submatrix for which we print the DB contents at the beggining
-// of the exampole
+// Size of the square submatrix for which we print the DB contents at the beginning
+// of the example
 #define DB_PRINT_SUBMAT 4
 #define DB_PRINT_COEFS  4
 
 // Function that generates the data for a certain matrix position
-// Replace with desired placeholder for the example, or with acual data
+// Replace with desired placeholder for the example, or with actual data
 // when going to production
-// At present, it places a polynomial with alternaticng column number and row number coefficents
+// At present, it places a polynomial with alternating column number and row number coefficients
 int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t row,
                                                  int64_t column)
 {
@@ -97,7 +95,7 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 
 	for (int i = 0; i < NBASE; ++i)
 	{
-		//Sample pattern of alternating column and row number in the polynomial coefficents.
+		//Sample pattern of alternating column and row number in the polynomial coefficients.
 		if (i % 2)
 			test[i] = cn;
 		else
@@ -120,36 +118,37 @@ int onionpir_fill_bivariate_with_matrix_position(const GLWEParams* params_glwe, 
 int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, PolyBiv* biv, int64_t column,
                                               int64_t biv_depth, int64_t rows)
 {
-	assert(biv->l == biv_depth * rows);
+	assert(biv->nb_limbs == biv_depth * rows);
 
 	for (int i = 0; i < rows; ++i)
 	{
 		PolyBiv rowbiv = {biv->nn, biv_depth, biv->nn, biv->ptr + (biv_depth * biv->nn) * i};
 		onionpir_fill_bivariate_with_matrix_position(params_glwe, &rowbiv, i, column);
 	}
+	return 0;
 }
 
 // This stores the database columns after being pre-processed ("prepared") for faster operation
 // In a real use case, this would not exist as a variable in memory.
 // Instead, we would use a memory mapping and it would reside in disk
-PolyBivDFT* columns_dft[IN_MEMORY_DFT_COLS + 1] = {0};
+BE_PolyVecVmpPrep* columns_prep[IN_MEMORY_DFT_COLS + 1] = {0};
 
 // Retrieve a prepared column. This would be simple pointer arithmetic
 // to an mmaped file in disk in a real use case
-PolyBivDFT* onionpir_get_prepared_column(int64_t column)
+BE_PolyVecVmpPrep* onionpir_get_prepared_column(int64_t column)
 {
-	if (column >= IN_MEMORY_DFT_COLS) return columns_dft[0];
-	return columns_dft[column + 1];
+	if (column >= IN_MEMORY_DFT_COLS) return columns_prep[0];
+	return columns_prep[column + 1];
 }
 
 // Function to pre-process some of the columns of the database
 //
-// The database is stored in a "prepared" DFT format that improves the performance of queries
+// The database is stored in a "prepared" (VMP) format that improves the performance of queries
 //
 // For the example, only the first IN_MEMORY_DFT_COLS are pre-processed for memory limitation reasons
-// Column 0 is stored in columns_dft[1], and so on until columns_dft[IN_MEMORY_DFT_COLS]
-// columns_dft[0] is used to store a 0-valued column placeholder used for columns that are
-// greater than IN_MEMORY_DFT_COLS
+// Column 0 is stored in columns_prep[1], and so on until columns_prep[IN_MEMORY_DFT_COLS]
+// columns_prep[0] is used to store a 0-valued column placeholder used for columns that are
+// greater than or equal to IN_MEMORY_DFT_COLS
 int prepare_column(const PvdaBackend* module, int64_t column, const GLWEParams* db_params,
                    const GLWEGadgetParams* query1_params)
 {
@@ -160,15 +159,15 @@ int prepare_column(const PvdaBackend* module, int64_t column, const GLWEParams* 
 	{
 		// If greater than the prepared columns, it should use a 0-valued column
 		// If it has not yet been set, do it, otherwise just return
-		if (columns_dft[0] == NULL)
+		if (columns_prep[0] == NULL)
 		{
-			columns_dft[0] = new_biv_dft_custom_params(db_params->nn, total_depth);
-			// We do not need to do memset to 0 at this point since new_biv_dft_custom_params already
+			columns_prep[0] = new_biv_prep_custom_params(module, total_depth);
+			// We do not need to do memset to 0 at this point since new_biv_prep_custom_params already
 			// sets the data to 0
 			// Unsure if this will change in the future for performance reasons
-			// In any case, writing to a DFT polynomial directly might not be supported in platforms
-			// where DFT elements, for example, reside in a GPU, etc.
-			if (columns_dft[0] == 0)
+			// In any case, writing to a prepared polynomial directly might not be supported in platforms
+			// where prepared elements, for example, reside in a GPU, etc.
+			if (columns_prep[0] == 0)
 			{
 				log_message(LOG_ERROR, "prepare column 0-column allocation failed");
 				return -1;
@@ -179,26 +178,26 @@ int prepare_column(const PvdaBackend* module, int64_t column, const GLWEParams* 
 
 	// Custom-depth bivariate polynomials, since each "bivariate polynomial" actually corresponds
 	// to the concatenation of all the bivariate polynomials in the column
-	PolyBivPrep* pos_biv_dft = new_biv_dft_custom_params(db_params->nn, total_depth);
+	BE_PolyVecVmpPrep* pos_biv_prep = new_biv_prep_custom_params(module, total_depth);
 	PolyBiv* pos_biv         = new_biv_custom_params(db_params->nn, total_depth);
-	CHECK_ALLOC(pos_biv_dft, "column 'bivariate' polynomial (in DFT) allocation failed");
+	CHECK_ALLOC(pos_biv_prep, "column 'bivariate' polynomial (prepared) allocation failed");
 	CHECK_ALLOC(pos_biv, "column 'bivariate' polynomial allocation failed");
 
-	columns_dft[column + 1] = pos_biv_dft;
+	columns_prep[column + 1] = pos_biv_prep;
 
 	// Fill a whole column with the data generated or retrieved by the generator functions
 	CHECK_CALL(
 	    onionpir_fill_column_with_matrix_position(db_params, pos_biv, column, query1_params->l_tilde, MATRIX_ROWS),
 	    "Filling the onionPIR column failed");
 
-	// This GLWEParams object is a dummy parameter set that is used  only for biv_coefs_to_prep to be able to work on a
-	// "bivariate_polynomial" of depth total_dept of depth total_depth.
+	// This GLWEParams object is a dummy parameter set that is used only for biv_coefs_to_prep to be able to work on a
+	// "bivariate_polynomial" of depth total_depth (= l_tilde * MATRIX_ROWS).
 	//
 	GLWEParams total_params = {db_params->nn, db_params->k, db_params->kappa,
 	                           MATRIX_ROWS * db_params->ciphertext_nb_limbs};
 
 	//Prepare the column
-	CHECK_CALL(biv_coefs_to_prep(module, &total_params, pos_biv_dft, pos_biv),
+	CHECK_CALL(biv_coefs_to_prep(module, &total_params, pos_biv_prep, pos_biv),
 	           "Column preparation (preprocessing) failed");
 	status = 0;
 cleanup:
@@ -231,10 +230,10 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 	// For example, due to spqlios not having (at present) implementations for addition in the DFT space, we would have had to
 	// convert the results of each half-product (vector-matrix product) into coefficient space for aggregation,
 	// requiring us to do MATRIX_ROWS DFT-to-coefficient domain conversions instead of a single one at the end
-	GLWEGadgetCiphertextPrep* glwegad_trace = new_glwegadget_prep(mega_params);
+	GLWEGadgetCiphertextPrep* glwegad_trace = new_glwegadget_prep(module, mega_params);
 
 	// Temporary DFT glwe for the result for each column
-	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(aggregation_params);
+	GLWECiphertextDFT* tmp_glwe_dft = new_glwe_dft(module, aggregation_params);
 
 	CHECK_ALLOC_LABEL(mega_params, "Parameter allocation failed in onionpir server", cleanup1);
 	CHECK_ALLOC_LABEL(glwegad_trace, "GLWEGadget trace allocation failed in onionpir server", cleanup1);
@@ -265,7 +264,7 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 		CHECK_CALL_LABEL(st, "Trace by column half-product failed in onionpir server", cleanup2);
 		st = glwe_dft_to_coef(module, glwe_tree_first_level[c], tmp_glwe_dft);
 		CHECK_CALL_LABEL(st, "DFT to coefficient form failed after column half-product in onionpir server", cleanup2);
-		st = normalize_glwe(module, glwe_tree_first_level[c], glwe_tree_first_level[c]);
+		st = glwe_normalize(module, glwe_tree_first_level[c], glwe_tree_first_level[c]);
 		CHECK_CALL_LABEL(st, "normalization failed after column half-product in onionpir server", cleanup2);
 	}
 
@@ -290,7 +289,7 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 	//
 	// Notable observations:
 	// - auto_key_collection are the keys used for automorphisms
-	// - ggsw_ksks are encryptions of the coefficients of -sk, used to (internally) convert the GLWEGadgets that result of the query
+	// - ggsw_ksks are GGSW encryptions of the polynomials -sk_i, used to (internally) convert the GLWEGadgets that result of the query
 	//   expansion into GGSWs
 	st = packed_glwegadget_trace_expand_ggsw_prepared(module, ggsw_trace, ggsw_ksk_params, LOG2_COLS,
 	                                                  ggsw_params_l_tilde_a(ggsw_ksk_params), col_query,
@@ -299,7 +298,7 @@ int onionpir_server(const PvdaBackend* module, const GGSWParams* ggsw_ksk_params
 
 	// CMux selection tree (that is, arbitrary-size CMux)
 	// This function can deallocate its input, which we do for memory efficiency reasons
-	st = hebits_cmux_tree(module, res, (const GLWECiphertext**)&glwe_tree_first_level, MATRIX_COLS,
+	st = hebits_cmux_tree(module, res, glwe_tree_first_level, MATRIX_COLS,
 	                      (const GGSWCiphertextPrep**)ggsw_trace, LOG2_COLS, 1);
 	CHECK_CALL_LABEL(st, "CMux tree failed in onionpir server", cleanup3);
 
@@ -328,8 +327,8 @@ int onionpir_client_phase0(PvdaBackend* module, GLWESecretKeyPrepared** sk_prep_
                            const GGSWParams* auto_ggsw_params)
 {
 	int status                                         = -1;
-	GLWESecretKey* sk                                  = alloc_glwe_secret_key(sk_params);
-	GLWESecretKeyPrepared* sk_prep                     = alloc_glwe_secret_key_prepared(sk_params);
+	GLWESecretKey* sk                                  = new_glwe_secret_key(sk_params);
+	GLWESecretKeyPrepared* sk_prep                     = new_glwe_secret_key_prepared(module, sk_params);
 	GLWEAutomorphismKeyCollection* auto_key_collection = new_automorphism_key_collection(2ul * NBASE);
 	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(KBASE, sizeof(GGSWCiphertextPrep*));
 	CHECK_ALLOC(sk, "Secret key allocation failed in phase 0 of OnionPIR");
@@ -342,26 +341,26 @@ int onionpir_client_phase0(PvdaBackend* module, GLWESecretKeyPrepared** sk_prep_
 	*ggsw_ksks_out           = ggsw_ksks;
 
 	// Secret key
-	CHECK_CALL(uniform_glwe_secret_key(module, sk, sk_bits), "GLWE secret key generation failed in onionpir phase 0");
+	CHECK_CALL(glwe_sk_random_uniform(module, sk, sk_bits), "GLWE secret key generation failed in onionpir phase 0");
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	// Automorphism-expand keys
 	for (uint64_t i = 1; (1ULL << i) <= NBASE; ++i)
 	{
 		int64_t p                     = (int64_t)NBASE / (1LL << (i - 1)) + 1;
-		GLWEAutomorphismKey* auto_key = new_automorphism_key(auto_ksk_params);
-		CHECK_ALLOC(auto_key, "Automorphism key allocation failed in onionpir phase 0");
+		GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, auto_ksk_params);
+		CHECK_ALLOC(automorphism_key, "Automorphism key allocation failed in onionpir phase 0");
 
-		int st = compute_automorphism_key(module, auto_key, sk_prep, (int)p);
+		int st = glwe_automorphism_key_generate(module, automorphism_key, sk_prep, (int)p);
 		glwegadget_key_collection_put_key(
-		    auto_key_collection, auto_key,
+		    auto_key_collection, automorphism_key,
 		    p);  // Put key in collection before error checking to avoid memory leak on fail
 		CHECK_CALL(st, "Automorphism key computation failed in onionpir phase 0");
 	}
 
 	// GGSW(-s) for gadget to GGSW conversion
-	CHECK_CALL(generate_glwegad_to_ggsw_ksk(module, ggsw_ksks, auto_ggsw_params, sk_prep),
-	           "GLWEGadget to GGSW KSK generation failed in oniopir phase 0");
+	CHECK_CALL(glwegadget_to_ggsw_ksk_generate(module, ggsw_ksks, auto_ggsw_params, sk_prep),
+	           "GLWEGadget to GGSW KSK generation failed in onionpir phase 0");
 
 	status = 0;
 cleanup:
@@ -382,13 +381,13 @@ int onionpir_client_phase1(const PvdaBackend* module, GLWECiphertext** row_query
 	PolyUniv* sel_row = new_univ(params_row_query);
 	PolyUniv* sel_col = new_univ(params_col_query);
 
-	CHECK_ALLOC(row_query, "GLWE allocation failed in oniopir phase 1");
-	CHECK_ALLOC(col_query, "GLWE allocation failed in oniopir phase 1");
-	CHECK_ALLOC(sel_row, "Univariate polynomial allocation failed in oniopir phase 1");
-	CHECK_ALLOC(sel_col, "Univariate polynomial allocation failed in oniopir phase 1");
+	CHECK_ALLOC(row_query, "GLWE allocation failed in onionpir phase 1");
+	CHECK_ALLOC(col_query, "GLWE allocation failed in onionpir phase 1");
+	CHECK_ALLOC(sel_row, "Univariate polynomial allocation failed in onionpir phase 1");
+	CHECK_ALLOC(sel_col, "Univariate polynomial allocation failed in onionpir phase 1");
 
-	memset(sel_row, 0, poly_univ_bytes(params_row_query));
-	memset(sel_col, 0, poly_univ_bytes(params_col_query));
+	memset(sel_row, 0, univ_bytes(params_row_query));
+	memset(sel_col, 0, univ_bytes(params_col_query));
 
 	uint64_t col_num = column;
 	uint64_t row_num = row;
@@ -429,9 +428,9 @@ int main(int argc, char* argv[])
 	printf("General parameters: N = %d, k = %d, K = %d\n", NBASE, KBASE, KAPPABASE);
 	printf("\n");
 
-	// We set a minimum of 2 bits of noise standard deviation
-	// This sets the stdev to be at least 4 if, compared to
-	// the standard 3.2.
+	// We set a minimum of 2 bits of noise standard deviation,
+	// that is, a stdev of at least 4 (in units of the last limb),
+	// compared to the standard 3.2.
 	// (when we interpret the torus discretized in 2^-L = 2 ^ -(l*K) to the isomorphic Z_q[x] / (x^N + 1) with q = 2^L
 	// to be able to use standard security estimations)
 	// Due to using the NOISE_UNIFORM_POWER_OF_TWO
@@ -447,13 +446,15 @@ int main(int argc, char* argv[])
 	double sigma6       = ldexp(1.0, 2 - 6 * KAPPABASE);
 	PvdaBackend* module = pvda_new_spqlios_backend(NBASE);
 
-	// Automorphims keys
+	// Automorphism keys
 	double auto_key_sigma = sigma8;
 	GLWEParams* params_glwe_autokey =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, 16, auto_key_sigma, NOISE_UNIFORM_POWER_OF_TWO);
 	GLWEGadgetParams* auto_key_params = new_glwegadget_params(params_glwe_autokey, KAPPABASE, 8);
 
 	//GGSW keys
+	// Note: params_ggsw_change_key is currently unused. The GGSW KSKs (and thus the column expansion)
+	// use auto_ggsw_params, built on params_glwe_autokey.
 	double ggsw_ksk_sigma = sigma8;
 	GLWEParams* params_ggsw_change_key =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, 16, ggsw_ksk_sigma, NOISE_UNIFORM_POWER_OF_TWO);
@@ -478,6 +479,8 @@ int main(int argc, char* argv[])
 	GLWEGadgetParams* row_exp_gad_params = new_glwegadget_params(row_exp_params, KAPPABASE, L_TILDE_Q1);
 
 	// col expansion
+	// Note: col_exp_params and col_exp_ggsw_params are currently unused. The server expands the
+	// column query with auto_ggsw_params (see the "GGSW keys" parameters above).
 	double col_exp_sigma = sigma6;
 	GLWEParams* col_exp_params =
 	    new_glwe_params(NBASE, KBASE, KAPPABASE, 12, col_exp_sigma, NOISE_UNIFORM_POWER_OF_TWO);
@@ -507,7 +510,7 @@ int main(int argc, char* argv[])
 	printf("Element size (cleartext): %.1f KiB\n", (double)(DB_BITS * NBASE) / 1024);
 	printf("Database size (cleartext): %.1f MiB\n", (double)db_size_bits / 8 / 1024 / 1024);
 
-	uint64_t prep_db_size_bytes = MATRIX_COLS * MATRIX_ROWS * poly_biv_bytes(db_params);
+	uint64_t prep_db_size_bytes = MATRIX_COLS * MATRIX_ROWS * biv_bytes(db_params);
 
 	printf("Preprocessed DB size (plaintext in prepared form): %.1f MiB\n", (double)prep_db_size_bytes / 1024 / 1024);
 	printf(
@@ -532,7 +535,7 @@ int main(int argc, char* argv[])
 		CHECK_CALL(st, "Preprocessing of a column of the OnionPIR database failed");
 	}
 	printf(
-	    "...\nAll the non-zero columns of the %d x %d matrix has been filled. Only a portion has been printed for "
+	    "...\nAll the non-zero columns of the %d x %d matrix have been filled. Only a portion has been printed for "
 	    "readability\n",
 	    MATRIX_ROWS, MATRIX_COLS);
 
@@ -591,13 +594,13 @@ int main(int argc, char* argv[])
 		double ms_elapsed =
 		    (server_end.tv_sec - server_start.tv_sec) * 1000 + (server_end.tv_nsec - server_start.tv_nsec) / 1000000;
 
-		//Client phase 2: receive and decrypt result (done as part of print_coefs_glwe)
+		//Client phase 2: receive and decrypt result (done as part of glwe_print_coefs)
 
 		printf("Result     encoded (decoded):\n");
-		print_coefs_glwe(module, res, sk_prep, 4, SHFT_AMT);
+		glwe_print_coefs(module, res, sk_prep, 4, SHFT_AMT);
 
 		// Compute the online throughput, in terms of bits of useful database data (size of the unprepared database)
-		// A througput of 500MB/s would mean that a query to a database that stores 1GB of data, which might be using,
+		// A throughput of 500MB/s would mean that a query to a database that stores 1GB of data, which might be using,
 		// for example, 4GB due to the format used in OnionPIR, would take 2s to return a result
 		//
 		// Creating the row and column query and decrypting the result is NOT part of this throughput
@@ -616,6 +619,10 @@ int main(int argc, char* argv[])
 	}
 
 	delete_glwe(res);
+	for (int c = 0; c <= IN_MEMORY_DFT_COLS; ++c)
+	{
+		delete_biv_prep(module, columns_prep[c]);
+	}
 	delete_automorphism_key_collection(auto_key_collection, 1);
 	for (int i = 0; i < KBASE; ++i)
 	{

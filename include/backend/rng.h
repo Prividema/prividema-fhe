@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include "backend.h"
-#include "maths_structures.h"
+#include "backend_types.h"
 
 /**
  *
@@ -16,16 +16,16 @@
  */
 
 /**
- * @brief Generates a gaussianly sampled random number with the given parameters.
+ * @brief Generates a normally (Gaussian) sampled random number with the given parameters.
  *
- * @param result The resulting normally (Gaussian) sampled number
+ * @param res    The resulting normally (Gaussian) sampled number
  * @param mu     The mean parameter for the distribution.
  * @param sigma  The standard deviation of the distribution.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int rand_normal(double* result, double mu, double sigma);
+int rand_normal(double* res, double mu, double sigma);
 
 // =============================================
 // |                                           |
@@ -40,13 +40,13 @@ int rand_normal(double* result, double mu, double sigma);
  *
  * @param module  The backend object
  * @param res     The result uniformly drawn \ZnX polynomial.
- * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param nn      Number of coefficients in the polynomial (eq. degree of the cyclotomic poly)
  * @param nb_bits Number of randomness bits per coefficient.
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, uint64_t nb_bits);
+int uniform_pow2_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, uint64_t nb_bits);
 
 /**
  * @brief Generates a uniformly random binary \ZnX polynomial
@@ -55,12 +55,12 @@ int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64
  *
  * @param module  The backend object
  * @param res     The result uniformly drawn \ZnX polynomial.
- * @param nn      Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param nn      Number of coefficients in the polynomial (eq. degree of the cyclotomic poly)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn);
+int binary_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn);
 
 /**
  * @brief Generates a uniformly random \ZnX polynomial
@@ -69,15 +69,15 @@ int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn)
  *
  * @param module      The backend object
  * @param res         The result uniformly drawn \ZnX polynomial.
- * @param nn          Number of coeffients in the polynomial (eq. degree of the cyclotomial poly)
+ * @param nn          Number of coefficients in the polynomial (eq. degree of the cyclotomic poly)
  * @param low_bound   Lower bound of the generated numbers
- * @param high_bound  Upperbound of the generated numbers
+ * @param high_bound  Upper bound of the generated numbers
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int uniform_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, int64_t low_bound,
-                           int64_t high_bound);
+int uniform_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, int64_t low_bound,
+                          int64_t high_bound);
 
 /**
  * @brief Generates a random vector following a uniform distribution in res.
@@ -105,16 +105,16 @@ int uniform_pow2_random_vec(const PvdaBackend* module, uint64_t limb_len, int64_
 /**
  * @brief Generates a random vector following a uniform distribution and return it in the DFT domain.
  *
- * @param module   Additionnal information for backend.
- * @param result_dft  The result in the DFT domain.
+ * @param module   Additional information for backend.
+ * @param res_dft  The result in the DFT domain.
  * @param vec_size The number of limbs.
- * @param nb_bits  The exponent of the range = [-2^nb_bits, 2^nb_bits).
+ * @param nb_bits  The exponent of the range = [-2^(nb_bits-1), 2^(nb_bits-1)).
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  *
  */
-int uniform_random_vec_znx_dft(const PvdaBackend* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits);
+int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, uint64_t vec_size, uint64_t nb_bits);
 
 /**
  * @brief Generates a Random Vector following a normal distribution.

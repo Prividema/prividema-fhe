@@ -21,7 +21,7 @@
  * @param c1 Input for the multiplexer selected with signal 1
  * @param sel The selector GGSW ciphertext
  * @param normalize_sub Boolean, if true we normalize after subtracting c0 and c1.
- *                      Othwerise it is assumed that c0 and c1 are close enough to normal form that the external
+ *                      Otherwise it is assumed that c0 and c1 are close enough to normal form that the external
  *                      product will behave correctly.
  *
  * @retval -1 if an error occurs
@@ -40,7 +40,7 @@ int hebits_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const
  * @param c1 Input for the multiplexer selected with signal 1
  * @param sel The selector prepared GGSW ciphertext
  * @param normalize_sub Boolean, if true we normalize after subtracting c0 and c1.
- *                      Othwerise it is assumed that c0 and c1 are close enough to normal form that the external
+ *                      Otherwise it is assumed that c0 and c1 are close enough to normal form that the external
  *                      product will behave correctly.
  *
  * @retval -1 if an error occurs
@@ -64,7 +64,7 @@ int hebits_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
  * @param module The backend module
  * @param res The GLWE result
  * @param src A vector of GLWECiphertexts to be selected from
- * @param inp_cols The size of the vector, what is, how many GLWEs to select from
+ * @param inp_cols The size of the vector, that is, how many GLWEs to select from
  * @param selectors The selection signals
  * @param sel_size The number of provided selection signals
  * @param delete_src Whether to delete the input GLWEs, 1 to enable it and 0 to preserve the input
@@ -73,7 +73,7 @@ int hebits_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
+int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, GLWECiphertext** src, int inp_cols,
                      const GGSWCiphertextPrep** selectors, int sel_size, int delete_src);
 
 #endif

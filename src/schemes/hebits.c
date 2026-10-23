@@ -17,10 +17,10 @@ int hebits_cmux_unprepared(const PvdaBackend* module, GLWECiphertext* res, const
 	GLWECiphertext* tmp_glwe = new_glwe(c1->params);
 	CHECK_ALLOC(tmp_glwe, "Allocation failed in unprepared CMux");
 
-	sub_glwe(module, tmp_glwe, c1, c0);
-	if (normalize_sub) CHECK_CALL(normalize_glwe(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
-	CHECK_CALL(ggsw_unprepared_external_product(module, res, tmp_glwe, sel), "GGSW external product failed in CMux");
-	add_glwe(module, res, res, c0);
+	glwe_sub(module, tmp_glwe, c1, c0);
+	if (normalize_sub) CHECK_CALL(glwe_normalize(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
+	CHECK_CALL(ggsw_external_product_unprepared(module, res, tmp_glwe, sel), "GGSW external product failed in CMux");
+	glwe_add(module, res, res, c0);
 
 	status = 0;
 cleanup:
@@ -34,12 +34,12 @@ int hebits_cmux(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
 	int status = -1;
 
 	GLWECiphertext* tmp_glwe = new_glwe(c1->params);
-	CHECK_ALLOC(tmp_glwe, "Allocation failed in unprepared CMux");
+	CHECK_ALLOC(tmp_glwe, "Allocation failed in prepared CMux");
 
-	sub_glwe(module, tmp_glwe, c1, c0);
-	if (normalize_sub) CHECK_CALL(normalize_glwe(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
+	glwe_sub(module, tmp_glwe, c1, c0);
+	if (normalize_sub) CHECK_CALL(glwe_normalize(module, tmp_glwe, tmp_glwe), "normalization failed in CMux");
 	CHECK_CALL(ggsw_external_product(module, res, tmp_glwe, sel), "GGSW external product failed in CMux");
-	add_glwe(module, res, res, c0);
+	glwe_add(module, res, res, c0);
 
 	status = 0;
 cleanup:
@@ -47,10 +47,10 @@ cleanup:
 	return status;
 }
 
-int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext** src, int inp_cols,
+int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, GLWECiphertext** src, int inp_cols,
                      const GGSWCiphertextPrep** selectors, int sel_size, int delete_src)
 {
-	GLWEParams* aggregation_params = res->params;
+	const GLWEParams* aggregation_params = res->params;
 	int64_t log_inp_cols           = next_pow2_log(inp_cols);
 
 	GLWECiphertext* glwe_tree[(log_inp_cols + 1)][inp_cols];  //Inefficient, suffices for now
@@ -90,7 +90,7 @@ int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, const GLWEC
 				CHECK_CALL(
 				    hebits_cmux(module, glwe_tree[l + 1][c / 2], glwe_tree[l][c], glwe_tree[l][c + 1], selectors[l], 0),
 				    "CMux failed in a CMux tree");
-				CHECK_CALL(normalize_glwe(module, glwe_tree[l + 1][c / 2], glwe_tree[l + 1][c / 2]),
+				CHECK_CALL(glwe_normalize(module, glwe_tree[l + 1][c / 2], glwe_tree[l + 1][c / 2]),
 				           "normalization failed in CMux tree");
 			}
 			else

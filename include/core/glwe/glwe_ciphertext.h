@@ -1,11 +1,13 @@
-#ifndef bivGLWE_CIPHERTEXT_H
-#define bivGLWE_CIPHERTEXT_H
+#ifndef GLWE_CIPHERTEXT_H
+#define GLWE_CIPHERTEXT_H
 
 #include <stdint.h>
 
+#include "backend_types.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
+#include "univariate_polynomial.h"
+#include "bivariate_polynomial.h"
 
 /**
  * @file glwe_ciphertext.h
@@ -14,10 +16,14 @@
  * encryption operations to them, decryption, allocation and deallocation and accessors to their components.
  */
 
-// bivGLWE PART (begin)
+// =============================================
+// |                                           |
+// |             GLWE Ciphertext               |
+// |                                           |
+// =============================================
 
 /**
- * @brief A GLWE ciphertext, using bivariate base-2K form
+ * @brief A GLWE ciphertext, encoded in bivariate base-2K form
  */
 typedef struct glwe_ciphertext
 {
@@ -27,30 +33,184 @@ typedef struct glwe_ciphertext
 	 * @brief Represents a vector of size nb_limbs with coefficients that are in \ZnX
 	 *
 	 * Data layout is limb-major, ie, all the coefficients for a power of \f$ 2^{iK} \f$
-	 *  are strored contiguously after the ones from \f$ 2^{(i-1)K} \f$ and before \f$ 2^{(i+1)K} \f$
+	 *  are stored contiguously after the ones from \f$ 2^{(i-1)K} \f$ and before \f$ 2^{(i+1)K} \f$
 	 * (see dedicated document/page for details)
-	 *
 	 */
-	VecBiv* vec;
+	int64_t* vec;
 } GLWECiphertext;
 
 /**
- * @brief Creates a bivGLWE, filled with 0.
- *
- * @param params_glwe The bivGLWE parameters.
+ * @brief Creates a GLWE ciphertext, filled with 0. This function allocates the memory.
+ * 
+ * @param params_glwe The GLWE parameters.
+ * 
  * @return The newly allocated object
  */
 GLWECiphertext* new_glwe(const GLWEParams* params_glwe);
 
 /**
- * @brief Deletes a bivariate GLWE ciphertext.
- *
- * @param glwe The bivariate GLWE ciphertext.
+ * @brief Deletes a GLWE ciphertext. This function frees the memory.
+ * 
+ * @param glwe The GLWE ciphertext to delete. 
  */
 void delete_glwe(GLWECiphertext* glwe);
 
 /**
- * @brief Debugging function to inspect GLWEs
+ * @brief Copies a GLWE ciphertext.
+ * 
+ * This copy function truncates if dst is smaller than src.
+ * This behavior is completely intentional as it means that we drop the less significant digits.
+ * If dst is larger than src, the extra (less significant) limbs of dst are set to 0.
+ *
+ * @param dst The destination GLWE ciphertext.
+ * @param src The source GLWE ciphertext.
+ */
+void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
+
+/**
+ * @brief Returns a PolyBiv view of the pos'th element (in a_0, ..., a_k = b) in a GLWE
+ *
+ * @param glwe_ct Source GLWE
+ * @param pos Position to create a view of
+ *
+ * @returns A PolyBiv view (does NOT own memory) of the pos'th element in the GLWE
+ */
+PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
+
+/**
+ * @brief Flat Znx view of the whole ciphertext (all limbs of all elements, in memory order), for element-wise operations.
+ *
+ * @param glwe_ct Source GLWE
+ *
+ * @returns A ZnxVec view (does NOT own memory) of all the limbs of the GLWE, as a flat vector of polynomials
+ */
+ZnxVec glwe_as_znx_vec(const GLWECiphertext* glwe_ct);
+
+/**
+ * @brief Encrypts a phase (message + noise) and puts it in result.
+ *
+ * @param module Additional information for backend.
+ * @param res The result bivariate ciphertext.
+ * @param sk_prep The prepared secret key
+ * @param phase message + noise.
+ *
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
+ */
+int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* res, const GLWESecretKeyPrepared* sk_prep,
+                              const PolyBiv* phase);
+
+/**
+ * @brief Encrypts a univariate message in RnX form
+ *
+ * @param module Additional information for backend.
+ * @param res The result bivariate ciphertext.
+ * @param sk_prep The prepared secret key
+ * @param m_univ_rnx  The univariate secret message to encrypt
+ *
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
+ */
+int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* res, const GLWESecretKeyPrepared* sk_prep,
+                            const PolyUnivRnX* m_univ_rnx);
+
+/**
+ * @brief Encrypts a univariate message in TnX form
+ *
+ * @param module Additional information for backend.
+ * @param res The result bivariate ciphertext.
+ * @param sk_prep The prepared secret key
+ * @param m_univ_tnx  The univariate secret message to encrypt
+ *
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
+ */
+int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* res, const GLWESecretKeyPrepared* sk_prep,
+                            const PolyUnivTnX* m_univ_tnx);
+
+/**
+ * @brief Decrypts the ciphertext into the
+ * bivariate phase (message + noise) and puts it in result.
+ *
+ * @param module Additional information for backend.
+ * @param res The bivariate phase.
+ * @param sk_prep The prepared secret key
+ * @param glwe The bivGLWE ciphertext.
+ *
+ * @retval -1 if an error occurs.
+ * @retval  0 otherwise.
+ */
+int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* res, const GLWESecretKeyPrepared* sk_prep,
+                        const GLWECiphertext* glwe);
+
+// =============================================
+// |                                           |
+// |           GLWE Ciphertext DFT             |
+// |                                           |
+// =============================================
+
+/**
+ * @brief A GLWE ciphertext in the DFT domain, encoded in bivariate base-2K form.
+ */
+typedef struct glwe_ciphertext_dft
+{
+	const PvdaBackend* module;	///< Backend that owns vec
+	const GLWEParams* params;	///< GLWE parameters
+	BE_PolyVecDFT* vec;  		///< Opaque DFT-domain vector, one entry per limb of the GLWE.
+} GLWECiphertextDFT;
+
+/**
+ * @brief Creates a new empty GLWE ciphertext in DFT domain. This function allocates the memory.
+ * @param params_glwe The GLWE parameters.
+ * @return A pointer to the new object or NULL in case of a failure.
+ */
+GLWECiphertextDFT* new_glwe_dft(const PvdaBackend* module, const GLWEParams* params_glwe);
+
+/**
+ * @brief Deletes a GLWE ciphertext, but not its parameters. This function frees the memory.
+ * @param glwe The GLWE ciphertext to delete.
+ */
+void delete_glwe_dft(GLWECiphertextDFT* glwe);
+
+// =============================================
+// |                                           |
+// |        GLWE Ciphertext Transforms         |
+// |                                           |
+// =============================================
+
+/**
+ * @brief Convert a GLWECiphertext into its DFT representation.
+ *
+ * @param module  The backend module.
+ * @param res_dft The resulting GLWE ciphertext in the DFT domain.
+ * @param glwe_ct The input GLWE ciphertext in coeff space.
+ *
+ * @retval -1 If an error occurs.
+ * @retval 0 otherwise.
+ */
+int glwe_coef_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct);
+
+/**
+ *
+ * @brief Convert a GLWECiphertextDFT into its coefficient (non-DFT) representation.
+ *
+ * @param module   The backend module.
+ * @param res_ct   The resulting GLWE ciphertext in coeff space.
+ * @param glwe_dft The input GLWE ciphertext in the DFT domain.
+ *
+ * @retval -1 If an error occurs.
+ * @retval 0 otherwise.
+ */
+int glwe_dft_to_coef(const PvdaBackend* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
+
+// =============================================
+// |                                           |
+// |        	  Debug Functions              |
+// |                                           |
+// =============================================
+
+/**
+ * @brief Print function for debugging.
  *
  * Intended to inspect GLWE content for debugging.
  * It takes as input a secret key to decrypt. For debugging, a global variable could
@@ -71,152 +231,6 @@ void delete_glwe(GLWECiphertext* glwe);
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int print_coefs_glwe(const PvdaBackend* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n,
-                     int shft);
+int glwe_print_coefs(const PvdaBackend* module, const GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep, int n, int shft);
 
-/**
- * @brief Copies a GLWE ciphertext
- *
- * @param src The source GLWE ciphertext
- * @param dst The destination GLWE ciphertext
- */
-void glwe_copy(GLWECiphertext* dst, const GLWECiphertext* src);
-
-/**
- * @brief Returns a PolyBiv view of the pos'th element (in a_0, ..., a_k = b) in a GLWE
- *
- * @param glwe_ct Source GLWE
- * @param pos Position to create a view of
- *
- * @returns A PolyBiv view (does NOT own memory) of the pos'th element in the GLWE
- */
-PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
-
-/**
- * @brief Returns a flattened PolyBiv view of the GLWE
- *
- * @param glwe_ct Source GLWE
- *
- * @returns A PolyBiv view (does NOT own memory) of the GLWE as if it were a single PolyBiv
- */
-PolyBiv glwe_flattened_biv(const GLWECiphertext* glwe_ct);
-
-/**
- * @brief Encrypts a phase (message + noise) and puts it in result.
- *
- * @param module Additionnal information for backend.
- * @param result The result bivariate ciphertext.
- * @param sk_prep The prepared secret key
- * @param phase message + noise.
- *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  0 othwerwise.
- */
-int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
-                              const PolyBiv* phase);
-
-/**
- * @brief Encrypts a univariate message in RnX form
- *
- * @param module Additionnal information for backend.
- * @param result The result bivariate ciphertext.
- * @param sk_prep The prepared secret key
- * @param m_univ_rnx  The univariate secret message to encrypt
- *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  0 othwerwise.
- */
-int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
-                            const PolyUnivRnX* m_univ_rnx);
-
-/**
- * @brief Encrypts a univariate message in TnX form
- *
- * @param module Additionnal information for backend.
- * @param result The result bivariate ciphertext.
- * @param sk_prep The prepared secret key
- * @param m_univ_tnx  The univariate secret message to encrypt
- *
- * @retval -1 if an error occurs.
- * @retval  -0 othwerwise.
- */
-int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* result, const GLWESecretKeyPrepared* sk_prep,
-                            const PolyUnivTnX* m_univ_tnx);
-
-/**
- * @brief Decrypts the ciphertext into the
- * bivariate phase (message + noise) and puts it in result.
- *
- * @param module Additionnal information for backend.
- * @param result The bivariate phase.
- * @param sk_prep The prepared secret key
- * @param glwe The bivGLWE ciphertext.
- *
- * @retval -1 if an error occurs. In this case the error is from a syscall and perror is called.
- * @retval  0 othwerwise.
- */
-int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* result, const GLWESecretKeyPrepared* sk_prep,
-                        const GLWECiphertext* glwe);
-
-// bivGLWE IN DFT PART (begin)
-
-/**
- * @brief A GLWE ciphertext in the DFT domain, encoded using bivariate base-2K form
- */
-typedef struct glwe_ciphertext_dft
-{
-	const GLWEParams* params;  ///< GLWE parameters
-	VecBivDFT* vec;  ///< Vector in the DFT domain. See GLWECiphertext for layout details, DFT is performed per-limb
-} GLWECiphertextDFT;
-
-/**
- * @brief Creates a new empty bivGLWE ciphertext.
- *
- * @param params_glwe The GLWE parameters.
- * @return A pointer to the new object or NULL in case of a failure
- */
-GLWECiphertextDFT* new_glwe_dft(const GLWEParams* params_glwe);
-
-/**
- * @brief Deletes a GLWE ciphertext, but not its parameters.
- *
- * @param glwe The GLWE ciphertext.
- */
-void delete_glwe_dft(GLWECiphertextDFT* glwe);
-
-/**
- * @brief Gives a pointer to the start of a STRIDED polynomial in a GLWECiphertextDFT
- * Critically, it is not a pointer to a contiguous PolyBivDFT! Due to the memory
- * layout of GLWECiphertextDFT, it is strided, that is, there are other data
- * between the different limbs of the polynomial
- *
- * @param glwe_dft The GLWECiphertext from which to retrieve the start of a bivariate polynomial
- * @param pos The index of the polynomial whose starts is to be retrieved
- *
- * @return PolyBivDFT* The start of a strided bivariate polynomial
- *
- */
-PolyBivDFT* glwe_extract_start_poly_dft(const GLWECiphertextDFT* glwe_dft, uint64_t pos);
-
-/**
- * @brief convert a GLWECiphertext into its DFT representation
- *
- * @param module The backend module
- * @param res_dft The resulting glwe ciphertext (in DFT)
- * @param glwe_ct The input coefficient domain GLWE
- *
- */
-int glwe_coef_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GLWECiphertext* glwe_ct);
-
-/**
- *
- * @brief Convert a GLWECiphertextDFT into its coefficient (non-DFT) representation
- *
- * @param module The backend module
- * @param res_ct The resulting glwe ciphertext (in coef space)
- * @param glwe_dft The input glwe in the DFT domain
- *
- */
-int glwe_dft_to_coef(const PvdaBackend* module, GLWECiphertext* res_ct, const GLWECiphertextDFT* glwe_dft);
-
-#endif  // bivGLWE_CIPHERTEXT_H
+#endif  // GLWE_CIPHERTEXT_H

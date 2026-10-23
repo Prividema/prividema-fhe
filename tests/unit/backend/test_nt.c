@@ -39,17 +39,17 @@ static inline uint64_t pow_exp_mod(uint64_t base, uint64_t exp, uint64_t m)
 Test(twoth_root, works_16)
 {
 	uint64_t nn          = 16;
-	PvdaBackend* backend = pvda_new_spqlios_backend(nn);
+	PvdaBackend* module  = pvda_new_spqlios_backend(nn);
 
 	uint64_t ps[] = {3329, 12289, 8380417};
 
 	for (int i = 0; i < sizeof(ps) / sizeof(ps[0]); ++i)
 	{
-		uint64_t root = pvda_ring_2nth_root(backend, ps[i]);
+		uint64_t root = pvda_ring_2nth_root(module, ps[i]);
 		uint64_t res  = pow_exp_mod(root, nn, ps[i]);
 		cr_assert(eq(i64, res, ps[i] - 1ll), "Error with root %d", root);
 	}
 	// cr_assert()
 	//
-	pvda_delete_backend(backend);
+	pvda_delete_backend(module);
 }

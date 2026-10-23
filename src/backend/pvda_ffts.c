@@ -75,7 +75,7 @@ void delete_fft_data(struct pvda_fft_data_t* data)
 	free(data);
 }
 
-NTTRoot* get_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
+NTTRoot* fft_data_get_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
 {
 	for (uint64_t i = 0; i < data->num_ntt_tables; ++i)
 	{
@@ -84,10 +84,10 @@ NTTRoot* get_ntt_table(struct pvda_fft_data_t* data, uint64_t t)
 	return NULL;
 }
 
-int generate_ntt_table(const PvdaBackend* backend, uint64_t t)
+int ntt_table_generate(const PvdaBackend* module, uint64_t t)
 {
 	struct ntt_root_table_t* table_entry = NULL;
-	struct pvda_fft_data_t* data         = backend->pvda_fft_data;
+	struct pvda_fft_data_t* data         = module->pvda_fft_data;
 	for (uint64_t i = 0; i < data->num_ntt_tables; ++i)
 	{
 		if (data->ntt_tables[i].t == t)
@@ -100,12 +100,15 @@ int generate_ntt_table(const PvdaBackend* backend, uint64_t t)
 		}
 	}
 
+	if (!table_entry) RAISE_ERROR("No free NTT table slot left in Prividema FFT data");
+
 	const uint64_t n_elems = 2 * data->nn + 1;
 
-	table_entry->t     = t;
-	table_entry->roots = calloc(2 * data->nn + 1, sizeof(NTTRoot));
+	table_entry->roots = calloc(n_elems, sizeof(NTTRoot));
+	CHECK_ALLOC(table_entry->roots, "failed allocation of NTT root table");
+	table_entry->t = t;
 
-	NTTRoot r = pvda_ring_2nth_root(backend, t);
+	NTTRoot r = pvda_ring_2nth_root(module, t);
 	NTTRoot v = 1;
 
 	for (uint64_t i = 0; i < n_elems; ++i)
@@ -115,5 +118,8 @@ int generate_ntt_table(const PvdaBackend* backend, uint64_t t)
 		v %= t;
 	}
 
+	return 0;
+
+cleanup:
 	return -1;
 }

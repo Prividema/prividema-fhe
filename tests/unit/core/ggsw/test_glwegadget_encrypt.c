@@ -7,7 +7,6 @@
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
-#include "glwe_transform_key.h"
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_utils.h"
 #include "math_utils.h"
@@ -28,13 +27,13 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	double critical_err_length = biv_epsilon + 5 * sigma + 5 * DBL_EPSILON;
 	cr_log_info("error length = %e", err_length);
 
-	GLWESecretKey* sk                = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep   = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk                = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep   = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWEGadgetCiphertext* glwegadget = new_glwegadget(params_glwegadget);
 	PolyUniv* m_univ                 = new_univ(params_glwe);
 
 	// Draws the message
-	uniform_glwe_secret_key(module, sk, 3);
+	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 	uniform_pow2_random_pol_znx(module, m_univ, params_glwe->nn, params_glwe->kappa);
 
@@ -60,8 +59,8 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	double critical_err_length = biv_epsilon + 5 * sigma + 5 * DBL_EPSILON;
 	cr_log_info("error length = %e", err_length);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUniv* m_univ               = new_univ(params_glwe);
 
 	PolyBiv* phase_computed              = new_biv(params_glwe);
@@ -72,9 +71,9 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 
 	const int D = 16;
 	// Draws the message
-	uniform_glwe_secret_key(module, sk, 3);
+	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
-	memset(m_univ, 0, poly_univ_bytes(params_glwe));
+	memset(m_univ, 0, univ_bytes(params_glwe));
 	uniform_pow2_random_pol_znx(module, m_univ, D, params_glwe->kappa);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, D);
@@ -83,7 +82,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	biv_to_univ_rnx(params_glwe, phase_observed_univ_rnx, phase_computed, 0);
 
 	// Computes the expected result  m / 2^{kappa_tilde * i}
-	memset(phase_expected_univ_rnx, 0, poly_univ_rnx_bytes(params_glwe));
+	memset(phase_expected_univ_rnx, 0, univ_rnx_bytes(params_glwe));
 	int64_t divlog = next_pow2_log(D * params_glwegadget->l_tilde);
 	for (int i = 1; i <= params_glwegadget->l_tilde; ++i)
 		for (uint64_t p = 0; p < D; p++)

@@ -15,10 +15,10 @@
 #include "univariate_polynomial.h"
 #include "utils.h"
 
-int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t* out_int, uint64_t* in, uint64_t t)
+int internal_slow_intt_heint(const PvdaBackend* module, uint64_t* out_int, uint64_t* in, uint64_t t)
 {
 	int status  = -1;
-	uint64_t nn = pvda_module_extract_nn(backend);
+	uint64_t nn = pvda_module_extract_nn(module);
 
 	uint64_t t_tild        = montgomery_tild_32bit(t);
 	uint64_t r2modt        = montgomery_r2modq_32bit(t);
@@ -28,7 +28,7 @@ int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t* out_int, uint
 
 	uint64_t n_inv_m = montgomery_encode_32bit(n_inv, t, t_tild, r2modt);
 
-	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	NTTRoot* root_table    = fft_data_get_ntt_table(module->pvda_fft_data, t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
 	uint64_t* in_m         = malloc(nn * sizeof(uint64_t));
 	CHECK_ALLOC(root_table, "root table not found");
@@ -50,7 +50,7 @@ int internal_slow_intt_heint(const PvdaBackend* backend, uint64_t* out_int, uint
 
 		for (size_t j = 0; j < nn / 2; ++j)
 		{
-			uint64_t root_num = backend->pvda_fft_data->rotation_group[j] * i;
+			uint64_t root_num = module->pvda_fft_data->rotation_group[j] * i;
 			uint32_t p1_red   = montgomery_mult_32bit(in_m[j], root_table_m[(-root_num) & twice_nn_mask], t, t_tild);
 
 			uint32_t p2_red =
@@ -72,17 +72,17 @@ cleanup:
 	return status;
 }
 
-int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t* out_int, uint64_t* in, uint64_t t)
+int internal_slow_ntt_heint(const PvdaBackend* module, uint64_t* out_int, uint64_t* in, uint64_t t)
 {
 	int status = -1;
 
-	uint64_t nn            = pvda_module_extract_nn(backend);
+	uint64_t nn            = pvda_module_extract_nn(module);
 	uint64_t t_tild        = montgomery_tild_32bit(t);
 	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	uint64_t log2n         = next_pow2_log(nn + 1);
 	uint64_t twice_nn_mask = (1ull << log2n) - 1;
 
-	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	NTTRoot* root_table    = fft_data_get_ntt_table(module->pvda_fft_data, t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
 	uint64_t* in_m         = malloc(nn * sizeof(uint64_t));
 	CHECK_ALLOC(root_table, "root table not found");
@@ -105,7 +105,7 @@ int internal_slow_ntt_heint(const PvdaBackend* backend, uint64_t* out_int, uint6
 
 		for (size_t j = 0; j < nn; ++j)
 		{
-			uint64_t root_num = backend->pvda_fft_data->rotation_group[i] * j;
+			uint64_t root_num = module->pvda_fft_data->rotation_group[i] * j;
 			uint64_t air1     = montgomery_mult_32bit(in_m[j], root_table_m[(root_num)&twice_nn_mask], t, t_tild);
 			uint64_t air2     = montgomery_mult_32bit(in_m[j], root_table_m[(-root_num) & twice_nn_mask], t, t_tild);
 
@@ -124,15 +124,15 @@ cleanup:
 	return status;
 }
 
-int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* out, uint64_t slots, int64_t t,
+int heint_encode(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* out, uint64_t slots, int64_t t,
                  uint64_t* in)
 {
 	int status  = -1;
-	uint64_t nn = pvda_module_extract_nn(backend);
+	uint64_t nn = pvda_module_extract_nn(module);
 
 	assert(t <= (1ll << 31));
 
-	NTTRoot* root_table    = get_ntt_table(backend->pvda_fft_data, t);
+	NTTRoot* root_table    = fft_data_get_ntt_table(module->pvda_fft_data, t);
 	uint64_t t_tild        = montgomery_tild_32bit(t);
 	uint64_t r2modt        = montgomery_r2modq_32bit(t);
 	uint64_t* root_table_m = malloc((2 * nn + 1) * sizeof(uint64_t));
@@ -147,18 +147,14 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	CHECK_ALLOC(out_rnx, "failed malloc in heint encoding");
 
 	if (slots != nn)
-	{
 		RAISE_ERROR("Unsupported (for now) number of slots != N");
-	}
 
 	// Prepare roots in montgomery form
 	for (size_t i = 0; i < 2 * nn + 1; ++i)
-	{
 		root_table_m[i] = montgomery_encode_32bit(root_table[i], t, t_tild, r2modt);
-	}
 
 	// Perform iNTT
-	internal_slow_intt_heint(backend, out_int, in, t);
+	CHECK_CALL(internal_slow_intt_heint(module, out_int, in, t), "internal_slow_intt_heint failed in heint_encode");
 
 	// Scale output
 	double scale_fact = 1.0 / t;
@@ -167,10 +163,11 @@ int heint_encode(const PvdaBackend* backend, const GLWEParams* params, PolyBiv* 
 	// Since all positions can share the same scale factor,
 	// go rnx -> tnx -> biv since it is faster than the
 	// direct rnx -> biv conversion (which supports different scales)
-	univ_rnx_to_tnx(params, out_tnx, out_rnx);
-	univ_tnx_to_biv(params, out, out_tnx, 0);
+	CHECK_CALL(univ_rnx_to_tnx(params_glwe, out_tnx, out_rnx), "univ_rnx_to_tnx failed in heint_encode");
+	CHECK_CALL(univ_tnx_to_biv(params_glwe, out, out_tnx, 0), "tnx_to_biv failed in heint_encode");
 
 	status = 0;
+
 cleanup:
 	free(root_table_m);
 	free(out_int);
@@ -180,11 +177,11 @@ cleanup:
 	return status;
 }
 
-int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t* out, uint64_t slots, int64_t t,
+int heint_decode(const PvdaBackend* module, const GLWEParams* params_glwe, uint64_t* out, uint64_t slots, int64_t t,
                  PolyBiv* in)
 {
 	int status  = -1;
-	uint64_t nn = pvda_module_extract_nn(backend);
+	uint64_t nn = pvda_module_extract_nn(module);
 
 	assert(t <= (1ll << 31));
 
@@ -196,16 +193,18 @@ int heint_decode(const PvdaBackend* backend, const GLWEParams* params, uint64_t*
 
 	if (slots != nn) RAISE_ERROR("Unsupported (for now) number of slots != N");
 
-	biv_to_univ_rnx(params, in_rnx, in, 0);
+	biv_to_univ_rnx(params_glwe, in_rnx, in, 0);
 
-	// Use the [0,1] torus representation
+	// Use the [0,1) torus representation
 	for (size_t i = 0; i < nn; ++i) in_rnx[i] = in_rnx[i] < 0 ? 1 + in_rnx[i] : in_rnx[i];
 
 	// Scale and round
 	for (size_t i = 0; i < nn; ++i) tmp_tnx[i] = llround(t * in_rnx[i]);
 
-	internal_slow_ntt_heint(backend, out, tmp_tnx, t);
+	CHECK_CALL(internal_slow_ntt_heint(module, out, tmp_tnx, t), "internal_slow_intt_heint failed in heint_decode");
+
 	status = 0;
+
 cleanup:
 	free(tmp_tnx);
 	free(in_rnx);

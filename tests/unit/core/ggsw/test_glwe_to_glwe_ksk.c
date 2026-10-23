@@ -7,13 +7,12 @@
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
-#include "core/glwe/glwe_transform_key.h"
+#include "core/glwe/glwe_key.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
 #include "glwegadget_utils.h"
-#include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -25,11 +24,11 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	params_glwe->fast_uniform_nb_bits = 0;
 	sigma                             = 0;
 
-	GLWESecretKey* sk                  = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep     = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWESecretKey* new_sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* new_sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWEKSK* glwe_ksk                  = new_glwe_ksk(params_glwegadget);
+	GLWESecretKey* sk                  = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep     = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWESecretKey* new_sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* new_sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWEKSK* glwe_ksk                  = new_glwe_ksk(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_observed_tnx = new_univ_tnx(params_glwe);
@@ -38,19 +37,19 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	GLWECiphertext* glwe_res    = new_glwe(params_glwe);
 	GLWECiphertext* glwe_norm   = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_glwe_secret_key(module, new_sk, 1);
+	glwe_sk_random_uniform(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
-	compute_ksk(module, glwe_ksk, new_sk_prep, sk_prep);
+	glwe_ksk_generate(module, glwe_ksk, new_sk_prep, sk_prep);
 
 	glwe_to_glwe_keyswitch(module, glwe_res, glwe_ksk, glwe_ct);
-	normalize_glwe(module, glwe_norm, glwe_res);
+	glwe_normalize(module, glwe_norm, glwe_res);
 
 	glwe_secret_decrypt(module, m_auto, new_sk_prep, glwe_norm);
 	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
@@ -80,11 +79,11 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	GLWESecretKey* sk                  = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep     = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWESecretKey* new_sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* new_sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWEKSK* glwe_ksk                  = new_glwe_ksk(params_glwegadget);
+	GLWESecretKey* sk                  = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep     = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWESecretKey* new_sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* new_sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWEKSK* glwe_ksk                  = new_glwe_ksk(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_observed_tnx = new_univ_tnx(params_glwe);
@@ -93,19 +92,19 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 	GLWECiphertext* glwe_res    = new_glwe(params_glwe);
 	GLWECiphertext* glwe_norm   = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_glwe_secret_key(module, new_sk, 1);
+	glwe_sk_random_uniform(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
-	compute_ksk(module, glwe_ksk, new_sk_prep, sk_prep);
+	glwe_ksk_generate(module, glwe_ksk, new_sk_prep, sk_prep);
 
 	glwe_to_glwe_keyswitch(module, glwe_res, glwe_ksk, glwe_ct);
-	normalize_glwe(module, glwe_norm, glwe_res);
+	glwe_normalize(module, glwe_norm, glwe_res);
 
 	glwe_secret_decrypt(module, m_auto, new_sk_prep, glwe_norm);
 	biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);

@@ -8,13 +8,12 @@
 #include "bivariate_polynomial.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
-#include "core/glwe/glwe_transform_key.h"
+#include "core/glwe/glwe_key.h"
 #include "glwe_key.h"
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
 #include "glwegadget_utils.h"
-#include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -23,19 +22,19 @@ PvdaParamTest(automorphism, generate_key, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, params_glwegadget);
 
-	uniform_glwe_secret_key(module, sk, 3);
+	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	int c = compute_automorphism_key(module, auto_key, sk_prep, 7);
+	int c = glwe_automorphism_key_generate(module, automorphism_key, sk_prep, 7);
 
 	cr_assert(c == 0);
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	delete_automorphism_key(auto_key);
+	delete_automorphism_key(automorphism_key);
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
 
@@ -46,9 +45,9 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	params_glwe->fast_uniform_nb_bits = 0;
 	sigma                             = 0;
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
@@ -58,10 +57,10 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	GLWECiphertext* glwe_res    = new_glwe(params_glwe);
 	GLWECiphertext* glwe_norm   = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	int auto_ps[] = {1, 3, 5, 7, 9, 13, 21, 29, 45, 91, -1, -3};
@@ -69,10 +68,10 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 	for (int i = 0; i < sizeof(auto_ps) / sizeof(auto_ps[0]); ++i)
 	{
 		int auto_p = auto_ps[i];
-		compute_automorphism_key(module, auto_key, sk_prep, auto_p);
+		glwe_automorphism_key_generate(module, automorphism_key, sk_prep, auto_p);
 
-		glwegadget_automorphism(module, glwe_res, auto_key, glwe_ct);
-		normalize_glwe(module, glwe_norm, glwe_res);
+		glwegadget_automorphism(module, glwe_res, automorphism_key, glwe_ct);
+		glwe_normalize(module, glwe_norm, glwe_res);
 
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
 		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
@@ -88,7 +87,7 @@ PvdaParamTest(automorphism, no_noise, default_params_fn)
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	delete_automorphism_key(auto_key);
+	delete_automorphism_key(automorphism_key);
 
 	delete_univ_tnx(m_univ_tnx);
 	delete_univ_tnx(m_observed_tnx);
@@ -106,9 +105,9 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSWGAD(param);
 
-	GLWESecretKey* sk              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_prep = alloc_glwe_secret_key_prepared(params_glwe);
-	GLWEAutomorphismKey* auto_key  = new_automorphism_key(params_glwegadget);
+	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
+	GLWEAutomorphismKey* automorphism_key = new_automorphism_key(module, params_glwegadget);
 
 	PolyUnivTnX* m_univ_tnx     = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m_expected_tnx = new_univ_tnx(params_glwe);
@@ -118,10 +117,10 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 	GLWECiphertext* glwe_res    = new_glwe(params_glwe);
 	GLWECiphertext* glwe_norm   = new_glwe(params_glwe);
 
-	uniform_glwe_secret_key(module, sk, 1);
+	glwe_sk_random_uniform(module, sk, 1);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)m_univ_tnx, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	int auto_ps[] = {1, 3, 5, 7, 9, 13, 21, 29, 45, 91, -1, -3};
@@ -129,10 +128,10 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 	for (int i = 0; i < sizeof(auto_ps) / sizeof(auto_ps[0]); ++i)
 	{
 		int auto_p = auto_ps[i];
-		compute_automorphism_key(module, auto_key, sk_prep, auto_p);
+		glwe_automorphism_key_generate(module, automorphism_key, sk_prep, auto_p);
 
-		glwegadget_automorphism(module, glwe_res, auto_key, glwe_ct);
-		normalize_glwe(module, glwe_norm, glwe_res);
+		glwegadget_automorphism(module, glwe_res, automorphism_key, glwe_ct);
+		glwe_normalize(module, glwe_norm, glwe_res);
 
 		glwe_secret_decrypt(module, m_auto, sk_prep, glwe_norm);
 		biv_to_univ_tnx(params_glwe, m_observed_tnx, m_auto, 0);
@@ -149,7 +148,7 @@ PvdaParamTest(automorphism, noise, default_params_fn)
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	delete_automorphism_key(auto_key);
+	delete_automorphism_key(automorphism_key);
 
 	delete_univ_tnx(m_univ_tnx);
 	delete_univ_tnx(m_observed_tnx);

@@ -5,6 +5,7 @@
 #include "backend.h"
 #include "backend_private.h"
 #include "backend_rng.h"
+#include "impls/cpu_nt.h"
 
 uint64_t pow_exp(uint64_t base, uint64_t exp, uint64_t m)
 {
@@ -25,9 +26,9 @@ uint64_t pow_exp(uint64_t base, uint64_t exp, uint64_t m)
 	return ans;
 }
 
-uint64_t ref_ring_2nth_root(const PvdaBackend* backend, uint64_t t)
+uint64_t ref_ring_2nth_root(const PvdaBackend* module, uint64_t t)
 {
-	uint64_t nn = pvda_module_extract_nn(backend);
+	uint64_t nn = pvda_module_extract_nn(module);
 
 	assert(t <= INT32_MAX);
 	assert((t - 1) % (2 * nn) == 0);  // 2n must divide t-1
@@ -35,7 +36,7 @@ uint64_t ref_ring_2nth_root(const PvdaBackend* backend, uint64_t t)
 	while (1)
 	{
 		uint64_t candidate;
-		pvda_rand_uniform(backend, &candidate, 0, t - 1);  //TODO: check_call
+		pvda_rand_uniform(module, &candidate, 0, t - 1);  //TODO: check_call
 
 		uint64_t g = pow_exp(candidate, (t - 1) / (2 * nn), t);
 		if (pow_exp(g, nn, t) == t - 1)

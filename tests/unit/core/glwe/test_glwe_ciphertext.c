@@ -5,7 +5,6 @@
 #include "core/glwe/glwe_ciphertext.h"
 #include "glwe_arithmetic.h"
 #include "glwe_params.h"
-#include "maths_structures.h"
 #include "rng.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
@@ -72,10 +71,10 @@ PvdaParamTest(new_glwe, basic, default_params_fn)
 }
 
 /**
- * @brief Tests whether add_glwe adds two bivGLWE ciphertexts.
+ * @brief Tests whether glwe_add adds two bivGLWE ciphertexts.
  *
  */
-PvdaParamTest(add_glwe, basic, default_params_fn)
+PvdaParamTest(glwe_add, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -91,7 +90,7 @@ PvdaParamTest(add_glwe, basic, default_params_fn)
 	                        params_glwe->kappa - 1);
 
 	// Computes glwe_lhs + glwe_rhs
-	add_glwe(module, sum_computed, glwe_lhs, glwe_rhs);
+	glwe_add(module, sum_computed, glwe_lhs, glwe_rhs);
 
 	// Asserts sum_computed = glwe_lhs + glwe_rhs
 	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++)
@@ -183,7 +182,7 @@ PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
 	uint64_t t;
-	// Checks that the beggining (up to glwe_src precision) of glwe_dst is equal to glwe_src
+	// Checks that the beginning (up to glwe_src precision) of glwe_dst is equal to glwe_src
 	for (t = 0; t < glwe_coef_number(params_glwe); t++) cr_assert(eq(i64, glwe_dst->vec[t], glwe_src->vec[t]));
 	// Checks that the remaining elements of glwe_dst are 0
 	for (; t < glwe_coef_number(dst_params); t++) cr_assert(eq(i64, glwe_dst->vec[t], 0));
@@ -197,10 +196,10 @@ PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
 }
 
 /**
- * @brief Tests whether sub_glwe subtracts two bivGLWE ciphertexts.
+ * @brief Tests whether glwe_sub subtracts two bivGLWE ciphertexts.
  *
  */
-PvdaParamTest(sub_glwe, basic, default_params_fn)
+PvdaParamTest(glwe_sub, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -216,7 +215,7 @@ PvdaParamTest(sub_glwe, basic, default_params_fn)
 	                        params_glwe->kappa - 1);
 
 	// Computes glwe_lhs - glwe_rhs
-	sub_glwe(module, sub_observed, glwe_lhs, glwe_rhs);
+	glwe_sub(module, sub_observed, glwe_lhs, glwe_rhs);
 
 	// Asserts sum_computed = glwe_lhs - glwe_rhs
 	for (uint64_t t = 0; t < glwe_coef_number(params_glwe); t++)
@@ -231,9 +230,9 @@ PvdaParamTest(sub_glwe, basic, default_params_fn)
 }
 
 /**
- * @brief Tests whether const_mult_glwe multiply a bivGLWE ciphertext by a ZnX polynomial.
+ * @brief Tests whether glwe_mult_const multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
-PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
+PvdaParamTest(glwe_mult_const, without_normalization, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -241,7 +240,7 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 	GLWECiphertext* prod_computed = new_glwe(params_glwe);
 	GLWECiphertext* glwe          = new_glwe(params_glwe);
 	PolyUniv* u                   = new_univ(params_glwe);
-	PolyUnivDFT* u_dft            = new_univ_dft(module);
+	BE_PolySvpPrep* u_prep        = new_univ_prep(module);
 	PolyUniv* prod_expected       = new_univ(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
@@ -252,10 +251,10 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 	uniform_pow2_random_pol_znx(module, u, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
-	univ_coefs_to_dft(module, u_dft, u);
+	univ_coefs_to_prep(module, u_prep, u);
 
 	// Computes u * glwe
-	const_mult_glwe(module, prod_computed, u_dft, glwe);
+	glwe_mult_const(module, prod_computed, u_prep, glwe);
 
 	// Asserts prod_computed = u * glwe
 	for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
@@ -274,7 +273,7 @@ PvdaParamTest(const_mult_glwe, without_normalization, default_params_fn)
 
 	// Clean up
 	delete_univ(u);
-	delete_univ_dft(module, u_dft);
+	delete_univ_prep(module, u_prep);
 	delete_glwe(glwe);
 	delete_glwe(prod_computed);
 	delete_univ(prod_expected);
@@ -304,7 +303,7 @@ PvdaParamTest(new_glwe_dft, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	GLWECiphertextDFT* glwe = new_glwe_dft(params_glwe);
+	GLWECiphertextDFT* glwe = new_glwe_dft(module, params_glwe);
 	// Asserts that the glwe is not null and its internal vector is also not null
 	cr_assert(eq(int, (glwe != NULL) && (glwe->vec != NULL), 1));
 
@@ -313,25 +312,39 @@ PvdaParamTest(new_glwe_dft, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-PvdaParamTest(add_glwe_dft, basic, default_params_fn)
+PvdaParamTest(glwe_dft_add, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	GLWECiphertextDFT* glwe_lhs_dft     = new_glwe_dft(params_glwe);
-	GLWECiphertextDFT* glwe_rhs_dft     = new_glwe_dft(params_glwe);
-	GLWECiphertextDFT* sum_computed_dft = new_glwe_dft(params_glwe);
+	uint64_t n_limbs = glwe_params_n_limbs(params_glwe);
+
+	GLWECiphertextDFT* glwe_lhs_dft     = new_glwe_dft(module, params_glwe);
+	GLWECiphertextDFT* glwe_rhs_dft     = new_glwe_dft(module, params_glwe);
+	GLWECiphertextDFT* sum_computed_dft = new_glwe_dft(module, params_glwe);
+
+	GLWECiphertext* glwe_lhs 	  = new_glwe(params_glwe);
+	GLWECiphertext* glwe_rhs 	  = new_glwe(params_glwe);
+	GLWECiphertext* sum_computed = new_glwe(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertexts glwe_lhs_dft and glwe_rhs_dft in the DFT domain
-	uniform_random_vec_znx_dft(module, glwe_lhs_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
-	uniform_random_vec_znx_dft(module, glwe_rhs_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
+	cr_assert(uniform_random_vec_znx_dft(module, glwe_lhs_dft->vec, n_limbs, params_glwe->kappa - 1) == 0);
+	cr_assert(uniform_random_vec_znx_dft(module, glwe_rhs_dft->vec, n_limbs, params_glwe->kappa - 1) == 0);
 
 	// Computes glwe_lhs_dft + glwe_rhs_dft
-	add_glwe_dft(sum_computed_dft, glwe_lhs_dft, glwe_rhs_dft);
+	cr_assert(glwe_dft_add(module, sum_computed_dft, glwe_lhs_dft, glwe_rhs_dft) == 0);
+
+	// Bring everything back to coeffs
+	cr_assert(glwe_dft_to_coef(module, glwe_lhs, glwe_lhs_dft) == 0);
+	cr_assert(glwe_dft_to_coef(module, glwe_rhs, glwe_rhs_dft) == 0);
+	cr_assert(glwe_dft_to_coef(module, sum_computed, sum_computed_dft) == 0);
 
 	// Asserts sum_computed_dft = glwe_lhs_dft + glwe_rhs_dft
-	for (uint64_t p = 0; p < glwe_params_n_limbs(params_glwe) * params_glwe->nn; p++)
-		cr_assert(eq(sum_computed_dft->vec[p], glwe_lhs_dft->vec[p] + glwe_rhs_dft->vec[p]));
+	for (uint64_t p = 0; p < glwe_coef_number(params_glwe); p++)
+		cr_assert(eq(i64, sum_computed->vec[p], glwe_lhs->vec[p] + glwe_rhs->vec[p]));
 
+	delete_glwe(glwe_lhs);
+	delete_glwe(glwe_rhs);
+	delete_glwe(sum_computed);
 	delete_glwe_dft(glwe_lhs_dft);
 	delete_glwe_dft(glwe_rhs_dft);
 	delete_glwe_dft(sum_computed_dft);
@@ -340,18 +353,18 @@ PvdaParamTest(add_glwe_dft, basic, default_params_fn)
 }
 
 /**
- * @brief Tests whether const_mult_glwe_dft multiply a bivGLWE ciphertext by a ZnX polynomial.
+ * @brief Tests whether glwe_dft_mult_const multiply a bivGLWE ciphertext by a ZnX polynomial.
  */
-PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
+PvdaParamTest(glwe_dft_mult_const, without_normalization, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(params_glwe);
+	GLWECiphertextDFT* prod_computed_dft = new_glwe_dft(module, params_glwe);
 	GLWECiphertext* prod                 = new_glwe(params_glwe);
-	GLWECiphertextDFT* glwe_dft          = new_glwe_dft(params_glwe);
+	GLWECiphertextDFT* glwe_dft          = new_glwe_dft(module, params_glwe);
 	GLWECiphertext* glwe_ct              = new_glwe(params_glwe);
 	PolyUniv* u                          = new_univ(params_glwe);
-	PolyUnivDFT* u_dft                   = new_univ_dft(module);
+	BE_PolySvpPrep* u_prep               = new_univ_prep(module);
 	PolyUniv* prod_expected              = new_univ(params_glwe);
 
 	uint64_t nn = params_glwe->nn;
@@ -365,17 +378,17 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	PolyBiv glwe_flattened = glwe_flattened_biv(glwe_ct);
+	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe_ct);
 	pvda_vec_znx_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Computes u in the DFT domain
-	univ_coefs_to_dft(module, u_dft, u);
+	univ_coefs_to_prep(module, u_prep, u);
 
 	// Computes DFT(u * glwe)
-	const_mult_glwe_dft(module, prod_computed_dft, u_dft, glwe_dft);
+	glwe_dft_mult_const(module, prod_computed_dft, u_prep, glwe_dft);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	PolyBiv prod_flattened = glwe_flattened_biv(prod);
+	ZnxVec prod_flattened = glwe_as_znx_vec(prod);
 	pvda_vec_znx_idft(module, &prod_flattened, prod_computed_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
@@ -394,7 +407,7 @@ PvdaParamTest(const_mult_glwe_dft, without_normalization, default_params_fn)
 
 	// Clean up
 	delete_univ(u);
-	delete_univ_dft(module, u_dft);
+	delete_univ_prep(module, u_prep);
 	delete_glwe(glwe_ct);
 	delete_glwe(prod);
 	delete_univ(prod_expected);

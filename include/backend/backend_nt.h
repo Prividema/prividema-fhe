@@ -18,8 +18,8 @@
  *
  * @note t should be a prime that is 1 modulo 2*N
  *
- * @param backend The prividema backend
+ * @param module The prividema backend
  */
-uint64_t pvda_ring_2nth_root(const PvdaBackend* backend, uint64_t t);
+uint64_t pvda_ring_2nth_root(const PvdaBackend* module, uint64_t t);
 
 #endif

@@ -11,7 +11,7 @@ typedef struct pvda_module_t PvdaBackend;
 /**
  * @brief Configuration struct for a Prividema-FHE backend
  *
- * Still very much a workd in progress
+ * Still very much a work in progress
  */
 typedef struct pvda_module_config_t
 {
@@ -44,17 +44,17 @@ PvdaBackend* pvda_new_backend(PvdaBackendConfig config);
 /**
  * @brief Delete a Prividema-FHE backend
  *
- * @param backend The backend to delete
+ * @param module The backend to delete
  */
-void pvda_delete_backend(PvdaBackend* backend);
+void pvda_delete_backend(PvdaBackend* module);
 
 /**
  * @brief Retrieves parameter N for a given Prividema-FHE backend
  *
- * @param backend The backend
+ * @param module The backend
  *
  * @return Parameter N
  */
-uint64_t pvda_module_extract_nn(const PvdaBackend* backend);
+uint64_t pvda_module_extract_nn(const PvdaBackend* module);
 
 #endif

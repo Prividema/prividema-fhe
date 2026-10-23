@@ -44,6 +44,9 @@ typedef typeof(pvda_rand_uniform_pow2_vec) PVDA_RAND_UNIFORM_POW2_VEC_F;
 typedef typeof(pvda_rand_uniform_binary_vec) PVDA_RAND_UNIFORM_BINARY_VEC_F;
 typedef typeof(pvda_rand_uniform) PVDA_RAND_UNIFORM_F;
 typedef typeof(pvda_ring_2nth_root) PVDA_RING_2NTH_ROOT_F;
+typedef typeof(pvda_vec_znx_dft_add) PVDA_VEC_ZNX_DFT_ADD_F;
+typedef typeof(pvda_new_vmp_pvec) PVDA_NEW_VMP_PVEC_F;
+typedef typeof(pvda_delete_vmp_pvec) PVDA_DELETE_VMP_PVEC_F;
 
 typedef struct pvda_virtual_table
 {
@@ -79,14 +82,17 @@ typedef struct pvda_virtual_table
 	PVDA_RAND_UNIFORM_BINARY_VEC_F* pvda_rand_uniform_binary_vec;
 	PVDA_RAND_UNIFORM_F* pvda_rand_uniform;
 	PVDA_RING_2NTH_ROOT_F* pvda_ring_2nth_root;
-} PvdaVirutalTable;
+	PVDA_VEC_ZNX_DFT_ADD_F *pvda_vec_znx_dft_add;
+	PVDA_NEW_VMP_PVEC_F *pvda_new_vmp_pvec;
+	PVDA_DELETE_VMP_PVEC_F *pvda_delete_vmp_pvec;
+} PvdaVirtualTable;
 
 struct pvda_module_t
 {
 	SPQLIOS_MODULE* spqlios_module;
 	struct pvda_fft_data_t* pvda_fft_data;
 
-	PvdaVirutalTable vt;
+	PvdaVirtualTable vt;
 };
 
 typedef struct pvda_module_t PvdaBackend;

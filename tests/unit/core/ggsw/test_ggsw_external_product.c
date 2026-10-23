@@ -7,7 +7,7 @@
 #include "core/ggsw/ggsw_arithmetic.h"
 #include "core/glwe/glwe_arithmetic.h"
 #include "core/glwe/glwe_ciphertext.h"
-#include "core/glwe/glwe_transform_key.h"
+#include "core/glwe/glwe_key.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
 #include "rng.h"
@@ -25,8 +25,8 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	double err_length                 = glwe_bivariate_epsilon(params_glwe) + 3 * sigma + 3 * DBL_EPSILON;
 	double critical_err_length        = glwe_bivariate_epsilon(params_glwe) + 5 * sigma + 5 * DBL_EPSILON;
 
-	GLWESecretKey* sk_ggsw              = alloc_glwe_secret_key(params_glwe);
-	GLWESecretKeyPrepared* sk_glwe_prep = alloc_glwe_secret_key_prepared(params_glwe);
+	GLWESecretKey* sk_ggsw              = new_glwe_secret_key(params_glwe);
+	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	GGSWCiphertext* ggsw                = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde          = new_glwe(params_glwe);
 	GLWECiphertext* ext_prod_observed   = new_glwe(params_glwe);
@@ -35,17 +35,17 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	PolyBiv* phase_observed           = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_univ_rnx = new_univ_rnx(params_glwe);
-	PolyUnivDFT* u_univ_dft           = new_univ_dft(module);
-	PolyBivDFT* um_dft                = new_biv_dft(params_glwe);
+	BE_PolySvpPrep* u_univ_prep       = new_univ_prep(module);
+	BE_PolyVecDFT* um_dft             = new_biv_dft(params_glwe);
 	PolyBiv* um                       = new_biv(params_glwe);
 	PolyUnivRnX* um_univ_rnx          = new_univ_rnx(params_glwe);
 
-	uniform_glwe_secret_key(module, sk_ggsw, 3);
+	glwe_sk_random_uniform(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Draws uniformly both messages
 	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, params_glwe->kappa);
-	uniform_random_biv_poly(module, params_glwe, m, 1);
+	biv_random_uniform(module, params_glwe, m, 1);
 
 	// Computation with function
 	glwe_secret_encrypt_phase(module, glwe_tilde, sk_glwe_prep, m);
@@ -53,16 +53,17 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	// Computes the external product of glwe_tilde and ggsw
 	// It should result in a bivGLWE(u*m) using the base-2Kappa decomposition
-	ggsw_unprepared_external_product(module, ext_prod_observed, glwe_tilde, ggsw);
-	normalize_glwe(module, ext_prod_observed, ext_prod_observed);
+	ggsw_external_product_unprepared(module, ext_prod_observed, glwe_tilde, ggsw);
+	glwe_normalize(module, ext_prod_observed, ext_prod_observed);
 	glwe_secret_decrypt(module, phase_observed, sk_glwe_prep, ext_prod_observed);
 	biv_to_univ_rnx(params_glwe, um_observed_univ_rnx, phase_observed, 0);
 
 	//Computes u*m manually
-	univ_coefs_to_dft(module, u_univ_dft, u_univ);
-	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_dft, m);
+	univ_coefs_to_prep(module, u_univ_prep, u_univ);
+	ZnxVec m_vec = biv_as_znx_vec(m);
+	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_prep, &m_vec);
 	biv_dft_to_coefs(module, params_glwe, um, um_dft);
-	pvda_vec_znx_normalize_base2k(module, params_glwe->kappa, um, um);
+	biv_normalize(module, params_glwe->kappa, um, um);
 	biv_to_univ_rnx(params_glwe, um_univ_rnx, um, 0);
 
 	//! Asserts um_computed_univ(X) = u * m_univ
@@ -71,11 +72,11 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	// Clean up
 	delete_biv(m);
 	delete_univ(u_univ);
-	delete_univ_dft(module, u_univ_dft);
+	delete_univ_prep(module, u_univ_prep);
 	delete_biv(phase_observed);
 	delete_biv(um);
 	delete_univ_rnx(um_univ_rnx);
-	free(um_dft);
+	delete_biv_dft(um_dft);
 	delete_univ_rnx(um_observed_univ_rnx);
 
 	delete_glwe(ext_prod_observed);

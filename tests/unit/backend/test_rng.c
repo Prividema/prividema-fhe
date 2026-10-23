@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "backend.h"
+#include "backend_arithmetic.h"
 #include "backend_rng.h"
 #include "core/glwe/glwe_params.h"
 #include "rng.h"
@@ -72,12 +73,12 @@ int rand_uniform_aux(const PvdaBackend* module, uint64_t nb_bits, int nb_boxes)
 
 Test(rand_uniform_64, test_rand_uniform)
 {
-	PvdaBackend* backend = pvda_new_spqlios_backend(4);
+	PvdaBackend* module  = pvda_new_spqlios_backend(4);
 	int count            = 0;
 	for (int i = 0; i < 100; i++)
 	{
 		int c;
-		if ((c = rand_uniform_aux(backend, 64, 100)) < 0) cr_fatal("Error occured during generation");
+		if ((c = rand_uniform_aux(module, 64, 100)) < 0) cr_fatal("Error occured during generation");
 		count += c;
 	}
 
@@ -88,15 +89,15 @@ Test(rand_uniform_64, test_rand_uniform)
 	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
 	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
 
-	pvda_delete_backend(backend);
+	pvda_delete_backend(module);
 }
 
 // Test rand_uniform on the interval [-32768,32767]
 Test(rand_uniform_16, test_rand_uniform)
 {
-	PvdaBackend* backend = pvda_new_spqlios_backend(4);
+	PvdaBackend* module  = pvda_new_spqlios_backend(4);
 	int count            = 0;
-	for (int i = 0; i < 100; i++) count += rand_uniform_aux(backend, 16, 100);
+	for (int i = 0; i < 100; i++) count += rand_uniform_aux(module, 16, 100);
 
 	// As Chi-squared has 5% chance of failing, we count the number of times it fails.
 	// On 100 iterations it fails 5 times in average.
@@ -104,22 +105,22 @@ Test(rand_uniform_16, test_rand_uniform)
 	// So the number of failures should be in range 5 +- 4.
 	cr_assert(ge(int, count, 1), "The number of errors should be between in range 5 +- 4");
 	cr_assert(le(int, count, 9), "The number of errors should be between in range 5 +- 4");
-	pvda_delete_backend(backend);
+	pvda_delete_backend(module);
 }
 
 PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
-	VecUnivDFT* res_dft = malloc(params_glwe->nn * params_glwe->k * sizeof(double));
+	BE_PolyVecDFT* res_dft = pvda_new_vec_znx_dft(module, params_glwe->nn * params_glwe->k);
 
-	VecUniv* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));
+	int64_t* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));
 
 	cr_assert(res != NULL);
 	cr_assert(res_dft != NULL);
 
 	cr_assert(uniform_random_vec_znx_dft(module, res_dft, params_glwe->k, 2) == 0);
 
-	free(res_dft);
+	pvda_delete_vec_znx_dft(module, res_dft);
 	free(res);
 
 	DELETE_PVDA_PARAMS_GLWE;

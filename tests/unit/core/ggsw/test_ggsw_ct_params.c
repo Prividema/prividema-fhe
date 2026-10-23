@@ -20,7 +20,7 @@
 
 //! bivGGSW Part (begin)
 
-// Test normalize_ggsw
+// Test ggsw_normalize
 Test(new_ggsw_params, basic)
 {
 	GLWEParams* params_glwe = new_glwe_params(NBASE, KBASE, KAPPABASE, NLIMBSBASE, ldexp(1.0, 4 - KAPPABASE * LBASE),

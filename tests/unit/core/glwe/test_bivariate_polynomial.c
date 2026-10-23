@@ -23,11 +23,11 @@ PvdaParamTest(poly_biv_size, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
-PvdaParamTest(poly_biv_bytes, basic, default_params_fn)
+PvdaParamTest(biv_bytes, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	cr_assert(eq(i64, poly_biv_bytes(params_glwe), params_glwe->nn * glwe_params_l_a(params_glwe) * sizeof(int64_t)));
+	cr_assert(eq(i64, biv_bytes(params_glwe), params_glwe->nn * glwe_params_l_a(params_glwe) * sizeof(int64_t)));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -64,7 +64,7 @@ PvdaParamTest(univ_rnx_to_biv, one_test, default_params_fn)
 	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
 	PolyBiv* pol_computed = new_biv(params_glwe);
 
-	memset(pol_univ, 0, poly_univ_rnx_bytes(params_glwe));
+	memset(pol_univ, 0, univ_rnx_bytes(params_glwe));
 	// Define pol_univ(X) = 2^{-params->kappa} , i.e. in Zn[X,Y] pol(X,Y) = Y
 	pol_univ[0] = ldexp(1.0, -params_glwe->kappa);
 
@@ -151,7 +151,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)pol_univ, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (int64_t*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -176,7 +176,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)pol_univ, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (int64_t*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -200,7 +200,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_pow2_random_pol_znx(module, (PolyUniv*)pol_univ, params_glwe->nn, 64);
+	uniform_pow2_random_pol_znx(module, (int64_t*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -333,12 +333,12 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_rnx_via_biv, default_params_fn)
  * @brief Tests if it returns the right size for N in [1,100]
  * @note n_limbs = (k + 1) * l
  */
-PvdaParamTest(poly_biv_coef_number, classic_params, default_params_fn)
+PvdaParamTest(biv_coef_number, classic_params, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	// Asserts poly_biv_coef_number returns params_glwe->nn * params_glwe->l
-	cr_assert(eq(i64, poly_biv_coef_number(params_glwe), params_glwe->nn * glwe_params_l_a(params_glwe)));
+	// Asserts biv_coef_number returns params_glwe->nn * params_glwe->l
+	cr_assert(eq(i64, biv_coef_number(params_glwe), params_glwe->nn * glwe_params_l_a(params_glwe)));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -346,13 +346,13 @@ PvdaParamTest(poly_biv_coef_number, classic_params, default_params_fn)
 /*
 // TEST DISABLED UNTIL NORMAL RNG IS REIMPLEMENTED
 
-PvdaParamTest(normal_random_biv_poly, does_not_crash, default_params_fn)
+PvdaParamTest(biv_random_normal, does_not_crash, default_params_fn)
 {
     INIT_PVDA_PARAMS_GLWE(param);
 
-    PolyBiv* pol = new_biv_poly(params_glwe);
+    PolyBiv* pol = new_biv(params_glwe);
 
-    int status = normal_random_biv_poly(params_glwe, pol);
+    int status = biv_random_normal(params_glwe, pol);
 
     cr_assert(eq(int, status, 0, "normal_random_biv failed."));
 
@@ -363,14 +363,14 @@ PvdaParamTest(normal_random_biv_poly, does_not_crash, default_params_fn)
 
 /*
 // TEST DISABLED UNTIL NORMAL RNG IS REIMPLEMENTED
-PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
+PvdaParamTest(biv_random_normal, output_is_normalized, default_params_fn)
 {
     INIT_PVDA_PARAMS_GLWE(param);
 
-    PolyBiv* pol = new_biv_poly(params_glwe);
+    PolyBiv* pol = new_biv(params_glwe);
 
     // Draw normaly pol in Zn[X,Y]
-    normal_random_biv_poly(params_glwe, pol);
+    biv_random_normal(params_glwe, pol);
 
     // Asserts pol is normalized.
     // i.e. that each coefficient is between -2^(params->kappa-1) (inclusive) and 2^(params->kappa-1) (exculsive)
@@ -386,9 +386,9 @@ PvdaParamTest(normal_random_biv_poly, output_is_normalized, default_params_fn)
 }*/
 
 /**
- * @brief Test add_biv_poly correctness with random normal polynomials
+ * @brief Test biv_add correctness with random normal polynomials
  */
-PvdaParamTest(add_biv_poly, basic, default_params_fn)
+PvdaParamTest(biv_add, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
@@ -396,10 +396,10 @@ PvdaParamTest(add_biv_poly, basic, default_params_fn)
 	PolyBiv* pol_rhs      = new_biv(params_glwe);
 	PolyBiv* sum_observed = new_biv(params_glwe);
 
-	uniform_random_biv_poly(module, params_glwe, pol_lhs, glwe_params_l_a(params_glwe));
-	uniform_random_biv_poly(module, params_glwe, pol_rhs, glwe_params_l_a(params_glwe));
+	biv_random_uniform(module, params_glwe, pol_lhs, glwe_params_l_a(params_glwe));
+	biv_random_uniform(module, params_glwe, pol_rhs, glwe_params_l_a(params_glwe));
 
-	add_biv_poly(module, params_glwe, sum_observed, pol_lhs, pol_rhs);
+	biv_add(module, sum_observed, pol_lhs, pol_rhs);
 
 	// Asserts sum_computed = pol_lhs + pol_rhs
 	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe) * params_glwe->nn; i++)

@@ -14,13 +14,13 @@
 /**
  * @brief Slow hefp encoding function
  *
- * Encoding funtion for HEFixedPoint that does not use the fast-fourier transform algorithm
- * (complexity n log n) nor precomputed roots of unity, but rather used the
+ * Encoding function for HEFixedPoint that does not use the fast-fourier transform algorithm
+ * (complexity n log n) nor precomputed roots of unity, but rather uses the
  * textbook definition of HEFP encoding.
  * Only supports number of slots = degree of polynomial / 2
  * Intended for testing that the FFT-based functions give the same results
  *
- * @param out An output n-lenght double vector
+ * @param out An output n-length double vector
  * @param n The degree of the resulting polynomial or equivalently twice the number
  *          of complex input slots
  * @param in vector of n/2 complex values
@@ -74,14 +74,14 @@ void complex_bitrev(double complex* inout, uint64_t n)
 	}
 }
 
-int hefp_encode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t slots)
+int hefp_encode_ifft(const PvdaBackend* module, double complex* inout, uint64_t slots)
 {
 	// Adapted from Lattigo's SpecialFFTDouble
 	assert(slots >= 2);
 	uint64_t k = slots;
 
 	uint64_t log2k = next_pow2_log(k);
-	uint64_t nn    = backend->pvda_fft_data->nn;
+	uint64_t nn    = module->pvda_fft_data->nn;
 	uint64_t log2n = next_pow2_log(2 * nn);
 
 	for (uint64_t lvl = log2k; lvl > 0; --lvl)
@@ -102,9 +102,9 @@ int hefp_encode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t
 
 				v1 = inout[p] + inout[p + half_lvl_len];
 
-				uint64_t root_idx = backend->pvda_fft_data->rotation_group[j] & mask;
+				uint64_t root_idx = module->pvda_fft_data->rotation_group[j] & mask;
 				root_idx          = (quad_lvl_len - root_idx) << log_gap;
-				root              = backend->pvda_fft_data->roots[root_idx];
+				root              = module->pvda_fft_data->roots[root_idx];
 				v2                = (inout[p] - inout[p + half_lvl_len]) * root;
 
 				inout[p]                = v1;
@@ -123,14 +123,14 @@ int hefp_encode_ifft(const PvdaBackend* backend, double complex* inout, uint64_t
 	return 0;
 }
 
-int hefp_decode_fft(const PvdaBackend* backend, double complex* inout, uint64_t slots)
+int hefp_decode_fft(const PvdaBackend* module, double complex* inout, uint64_t slots)
 {
 	// Adapted from Lattigo's SpecialFFTDouble
 	assert(slots >= 2);
 	uint64_t k = slots;
 
 	uint64_t log2k = next_pow2_log(k);
-	uint64_t nn    = backend->pvda_fft_data->nn;
+	uint64_t nn    = module->pvda_fft_data->nn;
 	uint64_t log2n = next_pow2_log(2 * nn);
 
 	complex_bitrev(inout, slots);
@@ -151,9 +151,9 @@ int hefp_decode_fft(const PvdaBackend* backend, double complex* inout, uint64_t 
 				double complex v1, v2;
 				double complex root;
 
-				uint64_t root_idx = backend->pvda_fft_data->rotation_group[j] & mask;
+				uint64_t root_idx = module->pvda_fft_data->rotation_group[j] & mask;
 				root_idx          = root_idx << log_gap;
-				root              = backend->pvda_fft_data->roots[root_idx];
+				root              = module->pvda_fft_data->roots[root_idx];
 
 				v1                      = inout[p];
 				v2                      = inout[p + half_lvl_len] * root;
@@ -166,7 +166,7 @@ int hefp_decode_fft(const PvdaBackend* backend, double complex* inout, uint64_t 
 	return 0;
 }
 
-int hefp_encode_internal(const PvdaBackend* backend, double* out, uint64_t slots, double complex* in, int inplace)
+int hefp_encode_internal(const PvdaBackend* module, double* out, uint64_t slots, double complex* in, int inplace)
 {
 	int status = -1;
 	if (!inplace)
@@ -181,7 +181,7 @@ int hefp_encode_internal(const PvdaBackend* backend, double* out, uint64_t slots
 		in = tmp;
 	}
 
-	hefp_encode_ifft(backend, in, slots);
+	hefp_encode_ifft(module, in, slots);
 
 	for (int i = 0; i < slots; ++i)
 	{
@@ -197,7 +197,7 @@ cleanup:
 	return 0;
 }
 
-int hefp_decode_internal(const PvdaBackend* backend, double complex* out, uint64_t slots, double* in)
+int hefp_decode_internal(const PvdaBackend* module, double complex* out, uint64_t slots, double* in)
 {
 	int status = -1;
 	for (int i = 0; i < slots; ++i)
@@ -205,7 +205,7 @@ int hefp_decode_internal(const PvdaBackend* backend, double complex* out, uint64
 		out[i] = CMPLX(in[i], in[i + slots]);
 	}
 
-	hefp_decode_fft(backend, out, slots);
+	hefp_decode_fft(module, out, slots);
 
 	status = 0;
 cleanup:

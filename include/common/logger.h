@@ -55,7 +55,7 @@ extern uint8_t LOG_FLAG;
  * Updates the global variable `LOG_FLAG`.
  * The value should be an OR between chosen flags in `LogLevel`.
  *
- * @param flag The new value of the logFlag.
+ * @param flag The new value of `LOG_FLAG`.
  */
 void set_log_flag(unsigned char flag);
 
@@ -63,10 +63,10 @@ void set_log_flag(unsigned char flag);
  * @brief Logs a message with string formatting.
  *
  * @param level The log level.
- * @param fmt A va_list with the string to format and its arguments.
+ * @param fmt   The printf-style format string, followed by its arguments.
  *
- * @retval -1 if the level is `LOG_ERROR`.
- * @retval 0 otherwise.
+ * @retval -1 if the level is `LOG_ERROR` and `LOG_ERROR` is enabled in `LOG_FLAG`.
+ * @retval 0 otherwise (including when the level is masked out of `LOG_FLAG`).
  *
  * @note The formatting works like `printf`.
  */
@@ -77,7 +77,7 @@ int log_message(LogLevel level, const char* fmt, ...);
  *
  * @param header The perror message header.
  *
- * @return Always returns -1 as a syscall error is often fatal.
+ * @return -1 (as a syscall error is often fatal), or 0 if `LOG_ERROR` is masked out of `LOG_FLAG`.
  */
 int log_perror(const char* header);
 
@@ -88,7 +88,7 @@ int log_perror(const char* header);
  *
  * @param header The perror message header.
  *
- * @retval -1 if and only if the pointer is NULL..
+ * @retval -1 if the pointer is NULL (and `LOG_ERROR` is enabled in `LOG_FLAG`).
  * @retval 0 otherwise.
  */
 int log_is_null(void* ptr, const char* header);

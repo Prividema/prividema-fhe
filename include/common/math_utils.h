@@ -16,9 +16,9 @@
 uint64_t mod_inv(int64_t x, int64_t mod);
 
 /**
- * @brief Computes the distance between two torus elements
+ * @brief Computes the distance between two torus elements in \RnX representation
  *
- * In other words, abs( (a mod 1) - (b mod 1))
+ * In other words, with d = abs((a mod 1) - (b mod 1)), returns min(d, 1 - d), a value in [0, 0.5]
  * Mostly used in tests
  *
  * @param a An element in the torus
@@ -29,15 +29,15 @@ uint64_t mod_inv(int64_t x, int64_t mod);
 double rnx_torus_distance(double a, double b);
 
 /**
- * @brief Computes the distance between two torus elements
+ * @brief Computes the distance between two torus elements in \TnX fixed-point representation
  *
- * In other words, abs( (a mod 1) - (b mod 1))
+ * In other words, returns min((a - b) mod 2^64, (b - a) mod 2^64)
  * Mostly used in tests
  *
- * @param a An element in the torus
- * @param b Another element in the torus
+ * @param a An element in the torus (numerator of a fraction with denominator 2^64)
+ * @param b Another element in the torus (numerator of a fraction with denominator 2^64)
  *
- * @returns The (shortest) distance between the two elements in the torus
+ * @returns The (shortest) distance between the two elements in the torus, as a numerator over 2^64
  */
 uint64_t tnx_torus_distance(uint64_t a, uint64_t b);
 
@@ -57,7 +57,7 @@ int32_t i32_round_up_div(int32_t num, int32_t step);
  * @brief Generic macro to compute an integer division with rounding up when the remainder is non-zero.
  *
  * @param num The dividend
- * @param step The divisior
+ * @param step The divisor
  *
  */
 #define INT_ROUND_UP_DIV(num, step) _Generic((num), uint64_t: u64_round_up_div, int32_t: i32_round_up_div)(num, step)

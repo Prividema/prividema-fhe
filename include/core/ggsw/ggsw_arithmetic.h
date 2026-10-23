@@ -18,81 +18,81 @@
 /**
  * @brief Normalizes a GGSW ciphertext.
  *
- * @param module Additionnal information for backend.
- * @param result The oupput GGSWCiphertext. It can be the same as the output for in-place normalization
+ * @param module Additional information for backend.
+ * @param res    The output GGSWCiphertext. It can be the same as the input for in-place normalization
  * @param ggsw   The input GGSWCiphertext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int normalize_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw);
+int ggsw_normalize(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw);
 
 /**
  * @brief Adds two GGSW ciphertexts that have the same parameters.
  *
  * @param module    Additional information for backend.
- * @param result    The resulting GGSWCiphertext
+ * @param res       The resulting GGSWCiphertext
  * @param ggsw_lhs  One of the input GGSWCiphertext
  * @param ggsw_rhs  The other input GGSWCiphertext
  */
-void add_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw_lhs,
+void ggsw_add(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw_lhs,
               const GGSWCiphertext* ggsw_rhs);
 
 /**
  * @brief Multiplies a GGSW ciphertext by a constant in \ZnX
  *
  * @param module    Additional information for backend.
- * @param result    The resulting GGSWCiphertext
+ * @param res       The resulting GGSWCiphertext
  * @param ggsw      The input GGSWCiphertext.
- * @param cte       The constant in \ZnX
+ * @param cte       The constant in \ZnX, in SVP-prepared form (see univ_coefs_to_prep)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int const_mult_ggsw(const PvdaBackend* module, GGSWCiphertext* result, const GGSWCiphertext* ggsw,
-                    const PolyUnivDFT* cte);
+int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw,
+                    const BE_PolySvpPrep* cte);
 
 /**
  * @brief Computes the external product between a GLWE and a GGSW.
  *
- * @param module Additionnal information for backend.
- * @param result The GLWE result ciphertext. Can be the same as the input
+ * @param module Additional information for backend.
+ * @param res    The GLWE result ciphertext. Can be the same as the input
  * @param glwe   The GLWE input ciphertext.
  * @param ggsw   The GGSW input ciphertext.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_unprepared_external_product(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe,
+int ggsw_external_product_unprepared(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe,
                                      const GGSWCiphertext* ggsw);
 
 /**
- * @brief Computes the external product between a GLWE and a GGSW.
+ * @brief Computes the external product between a GLWE and a prepared GGSW, with the output in the DFT domain.
  *
- * @param module Additionnal information for backend.
- * @param result The GLWE result ciphertext.
+ * @param module Additional information for backend.
+ * @param res The GLWE result ciphertext, in the DFT domain.
  * @param glwe   The GLWE input ciphertext.
- * @param ggsw_prepared   The GGSW input ciphertext.
+ * @param ggsw_prep   The GGSW input ciphertext, in prepared format.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* result, const GLWECiphertext* glwe,
-                                 const GGSWCiphertextPrep* ggsw_prepared);
+int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res, const GLWECiphertext* glwe,
+                                 const GGSWCiphertextPrep* ggsw_prep);
 
 /**
  * @brief Computes the external product between a GLWE and a GGSW.
  *
- * @param module Additionnal information for backend.
- * @param result The GLWE result ciphertext. Can be the same as the input
+ * @param module Additional information for backend.
+ * @param res The GLWE result ciphertext. Can be the same as the input
  * @param glwe   The GLWE input ciphertext.
- * @param ggsw_prepared   The GGSW input ciphertext, in prepared format.
+ * @param ggsw_prep   The GGSW input ciphertext, in prepared format.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* result, const GLWECiphertext* glwe,
-                          const GGSWCiphertextPrep* ggsw_prepared);
+int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe,
+                          const GGSWCiphertextPrep* ggsw_prep);
 
 /**
  * @brief Expands a packed GLWEGadget into a set of corresponding GGSWs
@@ -104,14 +104,14 @@ int ggsw_external_product(const PvdaBackend* module, GLWECiphertext* result, con
  * @param l_tilde             The l_tilde with which the packed GLWEGadget was packed
  * @param packed_glwegadget   The packed GLWEGadget
  * @param auto_key_collection The key collection for trace expansion automorphisms
- * @param sk_encryptions      An array of pointers to encryptions of GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
+ * @param sk_encryptions      An array of k pointers to prepared GGSW encryptions of -sk_i (for i = 0..k-1), used to convert GLWEGadgets into GGSWs
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
 int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertext** results, int res_size, int l_tilde,
                                         const GLWECiphertext* packed_glwegadget,
-                                        const GLWEAutomorphismKeyCollection* auto_ksks,
+                                        const GLWEAutomorphismKeyCollection* auto_key_collection,
                                         const GGSWCiphertextPrep** sk_encryptions);
 
 /**
@@ -124,12 +124,12 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
  * @param module              The backend module
  * @param results              An array with pointers to the res_size output prepared GGSWs.
  *                             If NULL pointers are provided, they will be created and allocated by this function, and responsibility
- *                             tranferred to the caller. This is the recommended mode of operation
+ *                             transferred to the caller. This is the recommended mode of operation
  * @param res_size             The number of (non-zero) coefficients in the packed GLWEGadget. Equivalently, the number of output GGSWs.
  * @param l_tilde              The l_tilde with which the packed GLWEGadget was packed
  * @param packed_glwegadget    The packed GLWEGadget
  * @param auto_key_collection  The KSK collection for trace expansion automorphisms
- * @param sk_encryptions       An array of pointers to encryptions to GGSW(-sk_i) for i=1..k, used to convert GLWEGadgets into GGSWs
+ * @param sk_encryptions       An array of k pointers to prepared GGSW encryptions of -sk_i (for i = 0..k-1), used to convert GLWEGadgets into GGSWs
  *
  *
  * @note It is recommended to call this function without having pre-allocated the results and therefore letting this function perform

@@ -8,7 +8,6 @@
 #include <string.h>
 #include <threads.h>
 
-#include "backend.h"
 #include "backend_arithmetic.h"
 #include "backend_rng.h"
 #include "logger.h"
@@ -19,11 +18,11 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-int rand_normal(double* result, double mu, double sigma)
+int rand_normal(double* res, double mu, double sigma)
 {
 	RAISE_ERROR("Normal number generation not implemented");
 	/*
-	// This function used to transforms a uniformly sampled variable into a normally
+	// This function used to transform a uniformly sampled variable into a normally
 	// distributed variable using the inverse Cumulative Distribution Function
 	// (CDF).
 	// Its implementation has been removed since it used an approximation of the iCDF
@@ -48,17 +47,17 @@ cleanup:
 	return -1;
 }
 
-int uniform_pow2_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, uint64_t nb_bits)
+int uniform_pow2_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, uint64_t nb_bits)
 {
-	return pvda_rand_uniform_pow2_vec(module, (int64_t*)res, nn, nb_bits);
+	return pvda_rand_uniform_pow2_vec(module, res, nn, nb_bits);
 }
 
-int binary_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn)
+int binary_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn)
 {
 	return pvda_rand_uniform_binary_vec(module, (uint64_t*)res, nn);
 }
 
-int uniform_random_pol_znx(const PvdaBackend* module, PolyUniv* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
+int uniform_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
 {
 	for (uint64_t p = 0; p < nn; p++)
 	{
@@ -80,10 +79,7 @@ cleanup:
 	return -1;
 }
 
-//Forward declaration due to legacy folder structure
-PolyBiv new_biv_view(uint64_t nn, uint64_t l, int64_t stride, PolyBivUnderlying* ptr);
-
-int uniform_random_vec_znx_dft(const PvdaBackend* module, VecUnivDFT* result_dft, uint64_t vec_size, uint64_t nb_bits)
+int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, uint64_t vec_size, uint64_t nb_bits)
 {
 	int status = -1;
 
@@ -104,8 +100,8 @@ int uniform_random_vec_znx_dft(const PvdaBackend* module, VecUnivDFT* result_dft
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	PolyBiv tmp_biv = new_biv_view(nn, vec_size, nn, tmp_space);
-	pvda_vec_znx_dft(module, result_dft, vec_size, &tmp_biv);
+	ZnxVec tmp_biv = znx_vec_view(nn, vec_size, nn, tmp_space);
+	pvda_vec_znx_dft(module, res_dft, vec_size, &tmp_biv);
 
 	status = 0;
 

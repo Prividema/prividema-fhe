@@ -4,18 +4,16 @@
 #include <stdint.h>
 
 /**
- * @brief Parameters object for a GLWE problem/ciphertext
- *
  * @file glwe_params.h
  *
+ * @brief Parameters object for a GLWE problem/ciphertext.
+ *
  * This file contains the definition of GLWE parameters, as well as accessor/helper functions for parameters
- * that can be derived from them
+ * that can be derived from them.
  */
 
 /**
- *
  * @brief enum for the available distributions to sample the error/noise used in FHE encryption operations
- *
  */
 typedef enum noise_type_t {
 	NOISE_UNIFORM_POWER_OF_TWO,  ///< Uniform noise, with the range being restricted to powers of 2. The smallest suitable one is selected from sigma.
@@ -27,7 +25,6 @@ typedef enum noise_type_t {
 
 /**
  * @brief Parameters object for a GLWE problem/ciphertext
- *
  */
 typedef struct glwe_ct_params
 {
@@ -60,9 +57,12 @@ typedef struct glwe_ct_params
  * @param k The number of \ZnX polynomials in a secret key.
  * @param kappa The exponent for the base-2^kappa representation.
  * @param n_limbs \f$ \ell_a \cdot k + \ell_b \f$
- * @param sigma The standard deviation of the error distribution.
+ * @param sigma The standard deviation of the error distribution, on the torus scale (e.g. 2^-142).
+ *              It is internally rescaled by \f$ 2^{K \cdot \ell_a} \f$ and must then fit in [1, 2^63].
+ *              A value of 0 disables the noise.
  * @param noise_type The type of noise that will be used for encryption
- * @return The newly allocated parameters object, or NULL if it failed the allocation
+ * @return The newly allocated parameters object, or NULL if the allocation failed, if the rescaled sigma
+ *         does not fit (too big or too small), or if the noise type is not supported yet
  *
  */
 GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma,
@@ -71,9 +71,9 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_
 /**
  * @brief Deletes the set of bivGLWE parameters.
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  */
-void delete_glwe_params(GLWEParams* params);
+void delete_glwe_params(GLWEParams* params_glwe);
 
 /**
  * @brief Returns the parameter \l_a (\l for the As in the GLWE)
@@ -101,6 +101,9 @@ uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
  * @brief Returns the standard deviation of the noise that is added for encryption
  *
  * @param params_glwe The GLWE parameters.
+ *
+ * @return NAN for the uniform noise types (NOISE_UNIFORM and NOISE_UNIFORM_POWER_OF_TWO).
+ *         For NOISE_NORMAL and NOISE_BINOMIAL, the stored noise parameter scaled by \f$ 2^{-K \cdot \ell_a} \f$.
  */
 double glwe_params_stdev(const GLWEParams* params_glwe);
 
@@ -136,8 +139,8 @@ uint64_t glwe_coef_number_dft(const GLWEParams* params_glwe);
  * @brief Returns the smallest difference representable in the bivariate
  * decomposition described by the provided params
  *
- * @param params The GLWE parameters.
+ * @param params_glwe The GLWE parameters.
  */
-double glwe_bivariate_epsilon(const GLWEParams* params);
+double glwe_bivariate_epsilon(const GLWEParams* params_glwe);
 
 #endif  // bivGLWE_CT_PARAMS_H

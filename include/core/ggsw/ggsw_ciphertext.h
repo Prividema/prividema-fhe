@@ -6,16 +6,16 @@
  *
  * @brief Header containing GGSW ciphertext definition, allocation and deallocation as well as encryption
  *
- * Decryption is not implemented nor is is planned.
+ * Decryption is not implemented nor is it planned.
  * See the comments in glwegadget_ciphertext.h for the reasoning, which is the same for GGSWs.
  *
  *
  */
 
 #include "ggsw_params.h"
-#include "glwe_key.h"
 #include "glwe_ciphertext.h"
-#include "maths_structures.h"
+#include "glwe_key.h"
+#include "univariate_polynomial.h"
 
 /**
  * @brief GGSW Ciphertext in the coefficient space.
@@ -34,7 +34,7 @@ typedef struct ggsw_ciphertext
 	///
 	/// See \ref ggsw_encoding "the section on GGSW ciphertext encoding" for a
 	/// more in-depth explanation.
-	MatBiv* mat;
+	int64_t* mat;
 
 } GGSWCiphertext;
 
@@ -58,43 +58,43 @@ void delete_ggsw(GGSWCiphertext* ggsw);
 /**
  * @brief Get the bivariate GLWE Ciphertext inside the GGSW with the given values.
  *
- * A bivariate GGSW's matrix is :
+ * A bivariate GGSW's matrix is (in coefficient space):
  *
- * - bivGLWE(DFT(-m * sk_j / 2^{\kappa_tilde * i})) for j < k.
- * - bivGLWE(DFT(m / 2^{\kappa_tilde * i}))         for j = k.
+ * - bivGLWE(-m * sk_j / 2^{\kappa_tilde * i}) for j < k_tilde.
+ * - bivGLWE(m / 2^{\kappa_tilde * i})         for j = k_tilde.
  *
  * The function takes j and i and get the associated bivGLWE.
  *
  * @param ggsw_ct     A Pointer to The GGSW ciphertext
- * @param sk_idx      The j-th component of the secret key.
- * @param prec_lvl    The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$
+ * @param sk_idx      The j in the formulas above, from 0 to k_tilde included.
+ * @param prec_lvl    The i in \f$ -m · sk_j · 2^{-i\kappatilde} \f$, 1-based: from 1 to \f$ \tilde{\ell}_a \f$ included.
  *
- * @return A GLWECiphertext view (does NOT own memory) if the associated bivariate GLWE.
+ * @return A GLWECiphertext view (does NOT own memory) of the associated bivariate GLWE.
  */
 GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
 /**
- * @brief Returns a PolyBiv (view) representing a flattened GGSW: a polybiv with all the limbs in layout order
+ * @brief Returns a ZnxVec (view) representing a flattened GGSW: a flat vector with all the limbs in layout order
  *
  * @param ggsw_ct The GGSW from which the view is taken
  *
  * @return A view to the flattened (memory) representation of the GGSW. See @ref ggsw_encoding
  */
-PolyBiv ggsw_flattened_biv(const GGSWCiphertext* ggsw_ct);
+ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct);
 
 /**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the
  * parameters in the result object.
  *
- * @param module      Additionnal information for backend.
- * @param result      The encrypted message.
+ * @param module      Additional information for backend.
+ * @param res      The encrypted message.
  * @param sk_prep      The prepared secret key.
  * @param m_univ      The univariate message (in coefficient space).
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWESecretKeyPrepared* sk_prep,
+int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
                         const PolyUniv* m_univ);
 
 /**
@@ -103,14 +103,14 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const
  * TODO: implement in a future release
  *
  * @param module The backend module
- * @param result The resulting GGSWCiphertext
+ * @param res    The resulting GGSWCiphertext
  * @param pk     The public key used for encryption
  * @param m_univ The univariate message to encrypt (in coefficient space)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  * */
-int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const GLWEPublicKey* pk,
+int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWEPublicKey* pk,
                         const PolyUniv* m_univ);
 
 // =============================================
@@ -120,7 +120,9 @@ int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* result, const
 // =============================================
 
 /**
- * @brief GGSW Ciphertext in the DFT space.
+ * @brief GGSW Ciphertext in prepared (VMP) form, for use in external products.
+ *
+ * Prepared is not the same as DFT: it is an opaque backend representation.
  */
 typedef struct ggsw_ciphertext_prepared
 {
@@ -128,7 +130,7 @@ typedef struct ggsw_ciphertext_prepared
 	const GGSWParams* params;
 
 	/// Prepared matrix (opaque representation)
-	MatBivDFT* mat;
+	BE_PolyMatVmpPrep* mat;
 
 } GGSWCiphertextPrep;
 
@@ -145,20 +147,20 @@ GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw);
 /**
  * @brief Deletes a prepared GGSW ciphertext
  *
- * @param ggsw_dft A Pointer to the prepared GGSW
+ * @param ggsw_prep A Pointer to the prepared GGSW
  */
-void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_dft);
+void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_prep);
 
 /**
  * @brief Prepares a GGSW ciphertext for an efficient external product
  *
  * @param module The backend module
- * @param ggsw_prepared The output prepared GGSW ciphertext
+ * @param ggsw_prep The output prepared GGSW ciphertext
  * @param ggsw_ct The input unprepared GGSW ciphertext
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
-int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prepared, const GGSWCiphertext* ggsw_ct);
+int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prep, const GGSWCiphertext* ggsw_ct);
 
 #endif  // bivGGSW_CIPHERTEXT_H

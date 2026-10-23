@@ -83,7 +83,7 @@ PvdaParamTest(ggsw_Sj_Yti, basic, default_params_fn)
 	{
 		uint64_t j        = (ij % (params_ggsw->k_tilde + 1));
 		uint64_t i        = ij / (params_ggsw->k_tilde + 1) + 1;
-		VecBiv* ct_mat_ij = ggsw_glwe_view(ggsw, j, i).vec;
+		int64_t* ct_mat_ij = ggsw_glwe_view(ggsw, j, i).vec;
 
 		// Modify the two firsts coefficients of biGLWE(-m * sk_j / 2^{kappa_tilde * i}).
 		ct_mat_ij[0] = 1;
@@ -105,8 +105,8 @@ PvdaParamTest(ggsw_Sj_Yti, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-// Test normalize_ggsw
-PvdaParamTest(normalize_ggsw, basic, default_params_fn)
+// Test ggsw_normalize
+PvdaParamTest(ggsw_normalize, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -114,10 +114,10 @@ PvdaParamTest(normalize_ggsw, basic, default_params_fn)
 	GGSWCiphertext* res  = new_ggsw(params_ggsw);
 
 	// Normalize the ggsw ciphertext
-	int status = normalize_ggsw(module, res, ggsw);
+	int status = ggsw_normalize(module, res, ggsw);
 
-	// Asserts normalize_ggsw succeed
-	cr_assert(eq(int, status, 0), "normalize_ggsw failed");
+	// Asserts ggsw_normalize succeed
+	cr_assert(eq(int, status, 0), "ggsw_normalize failed");
 
 	// Clean up
 	delete_ggsw(ggsw);
@@ -126,7 +126,7 @@ PvdaParamTest(normalize_ggsw, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(add_ggsw, basic, default_params_fn)
+PvdaParamTest(ggsw_add, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
@@ -142,7 +142,7 @@ PvdaParamTest(add_ggsw, basic, default_params_fn)
 	                        params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes ggsw_lhs + ggsw_rhs
-	add_ggsw(module, sum_computed, ggsw_lhs, ggsw_rhs);
+	ggsw_add(module, sum_computed, ggsw_lhs, ggsw_rhs);
 
 	uint64_t nb_rows = ggsw_num_rows(sum_computed->params);
 	uint64_t nb_cols = glwe_params_n_limbs(sum_computed->params->params_glwe);
@@ -163,13 +163,13 @@ PvdaParamTest(add_ggsw, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GGSW;
 }
 
-PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
+PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
 	PolyUniv* u                      = new_univ(params_glwe);
-	PolyUnivDFT* u_dft               = new_univ_dft(module);
+	BE_PolySvpPrep* u_prep           = new_univ_prep(module);
 	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
 	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
 	PolyUniv* prod_expected          = new_univ(params_glwe);
@@ -182,18 +182,18 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	                        params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
-	univ_coefs_to_dft(module, u_dft, u);
+	pvda_svp_prepare(module, u_prep, u);
 
 	// Computes u * ggsw
-	const_mult_ggsw(module, product_computed, ggsw, u_dft);
+	ggsw_mult_const(module, product_computed, ggsw, u_prep);
 
 	// Asserts product_computed = u * ggsw
 	for (uint64_t iijj = 0; iijj < ggsw_num_rows(params_ggsw); ++iijj)
 	{
 		uint64_t jj           = (iijj % (params_ggsw->k_tilde + 1));
 		uint64_t ii           = iijj / (params_ggsw->k_tilde + 1) + 1;
-		VecBiv* ct_mat_ii_jj  = ggsw_glwe_view(ggsw, jj, ii).vec;
-		VecBiv* res_mat_ii_jj = ggsw_glwe_view(product_computed, jj, ii).vec;
+		int64_t* ct_mat_ii_jj  = ggsw_glwe_view(ggsw, jj, ii).vec;
+		int64_t* res_mat_ii_jj = ggsw_glwe_view(product_computed, jj, ii).vec;
 		for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 		{
 			uint64_t j      = (ij % (params_glwe->k + 1));
@@ -212,7 +212,7 @@ PvdaParamTest(const_mult_ggsw, without_normalization, default_params_fn)
 	// Clean up
 	delete_univ(u);
 	delete_univ(prod_expected);
-	delete_univ_dft(module, u_dft);
+	delete_univ_prep(module, u_prep);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 
@@ -238,14 +238,14 @@ PvdaParamTest(new_ggsw_dft, basic, default_params_fn)
 	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
-	GGSWCiphertextPrep* ggsw_dft = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
 
 	// Asserts new_ggsw_dft worked
-	cr_assert(eq(int, ggsw_dft->mat != NULL, 1));
-	cr_assert(eq(int, ggsw_dft->params != NULL, 1));
+	cr_assert(eq(int, ggsw_prep->mat != NULL, 1));
+	cr_assert(eq(int, ggsw_prep->params != NULL, 1));
 
 	// Clean up
-	delete_ggsw_prep(ggsw_dft);
+	delete_ggsw_prep(ggsw_prep);
 
 	DELETE_PVDA_PARAMS_GGSW;
 }

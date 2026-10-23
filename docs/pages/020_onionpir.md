@@ -1,4 +1,4 @@
-# OnionPIR
+# OnionPIR {#onionPIR}
 
 [OnionPIR](https://eprint.iacr.org/2021/1081) is a private information retrieval (PIR) protocol.
 As such, it allows a server to process encrypted queries for access
@@ -32,7 +32,7 @@ coefficients to _pack_ all the coefficients that describe all the BFV ciphertext
 need to be used, and encrypt it in a GLWE as usual.
 The server can later on use an operation called "trace expansion"
 to homomorphically expand a single GLWE ciphertext into a collection of GLWE ciphertexts that
-each encrypt a each coefficient individualally.
+each encrypt one coefficient individually.
 
 More formally, one can say that trace expansion is a process where a GLWE ciphertext of \f$ a(x) = a_0 + a_1 \cdot x + ... + a_d \cdot x^d\f$ is converted into a set of GLWE ciphertexts of \f$ a_0, a_1, \dots, a_d\f$ (possibly multiplied by a constant that depends on \f$d\f$).
 
@@ -41,8 +41,11 @@ For that reason, a way to pack GLWEGadgets into GLWE ciphertexts becomes necessa
 Leveraging the fact that GLWEGadgets are nothing more than a collection of GLWEs themselves,
 one can reuse the trace expansion algorithm if the original polynomial to encrypt is as follows:
 
-Let the plaintext be \f$ a(x) = a_0 + ... + a_d \cdot x^d \f$, \f$N\f$ be the polynomial degree and \f$\tilde{\ell}\f$ the GLWEGadget depth parameter.
-The GLWEGadget can be packed in a GLWE if and only if \f$ d \cdot \tilde{\ell} \le N\f$, in which case, its packed version is a(ny) encryption of \f$a_p(x) = A_1(x) + A_2(x) \cdot x^d + ... + A_{\tilde{\ell}}  \cdot  x^{(\tilde{\ell}-1)\cdot d}\f$ where \f$A_i(x) = a(x) \cdot 2^{-iK} \f$, that is, the polynomial corresponding to GLWEGadget limb \f$i\f$.
+Let the plaintext be \f$ a(x) = a_0 + ... + a_{d-1} \cdot x^{d-1} \f$ (\f$d\f$ coefficients), \f$N\f$ be the polynomial degree and \f$\tilde{\ell}\f$ the GLWEGadget depth parameter.
+The GLWEGadget can be packed in a GLWE if and only if \f$ d \cdot \tilde{\ell} \le N\f$, in which case, its packed version is a(ny) encryption of \f$a_p(x) = A_1(x) + A_2(x) \cdot x^d + ... + A_{\tilde{\ell}}(x)  \cdot  x^{(\tilde{\ell}-1)\cdot d}\f$ where \f$A_i(x) = a(x) \cdot 2^{-i\kappatilde} \f$, that is, the polynomial corresponding to GLWEGadget limb \f$i\f$.
+
+In practice, the packed plaintext is additionally divided by \f$ 2^{\delta} \f$ with \f$ \delta = \lceil \log_2(d \cdot \tilde{\ell}) \rceil \f$
+(see glwegadget_packed_secret_encrypt), since trace expanding the \f$ d \cdot \tilde{\ell} \f$ coefficients multiplies each of them by \f$ 2^{\delta} \f$.
 
 With a way to pack the required GLWEGadgets into GLWEs, the full protocol can be described below.
 
@@ -54,7 +57,7 @@ Preparation:
 
 1. The client generates its secret key, and from it computes the "evaluation keys" for the server,
    specifically automorphism keys as will be required for query expansion and also a GGSW encryption
-   of each component \f$s_i\f$ of the secret key \f$s\f$
+   of the opposite \f$-s_i\f$ of each component of the secret key \f$s\f$
 2. The client sends the (public) evaluation keys to the server
 
 Query access (repeat as many times as wanted):
