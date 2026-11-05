@@ -254,6 +254,7 @@ int packed_glwegadget_trace_expand_ggsw_prepared(const PvdaBackend* module, GGSW
 		}
 		CHECK_CALL(ggsw_prepare(module, results[r], ggsws[r]), "GGSW preparation in trace expansion failed");
 		delete_ggsw(ggsws[r]);
+		ggsws[r] = NULL;  // The cleanup block deletes the remaining ones
 	}
 
 	free(ggsws);

@@ -531,6 +531,7 @@ int packed_glwegadget_trace_expand_prepared(const PvdaBackend* module, GLWEGadge
 		CHECK_CALL(glwegadget_prepare(module, results[r], gadgets[r]),
 		           "GLWEGadget preparation failed in trace expansion");
 		delete_glwegadget(gadgets[r]);
+		gadgets[r] = NULL;  // The cleanup block deletes the remaining ones
 	}
 
 	free((void*)gadgets);
