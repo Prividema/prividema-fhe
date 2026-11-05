@@ -62,6 +62,18 @@ int hebits_cmux_tree(const PvdaBackend* module, GLWECiphertext* res, GLWECiphert
 		RAISE_ERROR("CMux tree with less selection signals than the required for the number of inputs");
 	}
 
+	// A single input needs no CMux: the result is the input itself
+	if (inp_cols == 1)
+	{
+		glwe_copy(res, src[0]);
+		if (delete_src)
+		{
+			delete_glwe(src[0]);
+			src[0] = NULL;
+		}
+		return 0;
+	}
+
 	for (int c = 0; c < inp_cols; ++c)
 	{
 		glwe_tree[0][c] = src[c];

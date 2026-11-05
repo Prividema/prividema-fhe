@@ -777,7 +777,7 @@ void printf_poly_biv(PolyBiv* pol)
 	for (uint64_t i = 0; i < pol->nb_limbs; i++)
 	{
 		printf("\nY^%ld : ", i);
-		for (uint64_t p = 0; p < pol->nn; p++) printf("%ld X^%ld ", pol->ptr[(i - 1) * pol->stride + p], p);
+		for (uint64_t p = 0; p < pol->nn; p++) printf("%ld X^%ld ", pol->ptr[i * pol->stride + p], p);
 	}
 }
 

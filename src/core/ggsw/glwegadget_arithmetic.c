@@ -316,6 +316,9 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 
 	glwe_copy(results[0], glwe_ct);
 
+	// m = 2^ceil(log2(1)) = 1: the input already is the (only) output
+	if (res_size == 1) return 0;
+
 	GLWECiphertext* tmp_glwe  = new_glwe(glwe_ct->params);
 	GLWECiphertext* tmp_glwe2 = new_glwe(glwe_ct->params);
 	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");

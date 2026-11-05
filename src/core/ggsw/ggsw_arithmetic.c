@@ -175,10 +175,10 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 	int status = -1;
 	GLWECiphertext* results_glwe[res_size * l_tilde];
 	memset((uint8_t*)results_glwe, 0, sizeof(results_glwe));
-	int64_t k = (int64_t)packed_glwegadget->params->k;
+	int64_t k_tilde = (int64_t)results[0]->params->k_tilde;
 
 	/*
-	 * Create dummy GLWECiphertext views for the k'th GLWE in each GGSW,
+	 * Create dummy GLWECiphertext views for the k_tilde'th GLWE in each GGSW,
 	 * that is, the ones that contain a m * 2^-jK.
 	 * This way, glwe_trace_expand will fill the rows of the GGSWs that need to contain a m * 2^-jK.
 	 */
@@ -189,12 +189,12 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 			GLWECiphertext* tmp = malloc(sizeof(GLWECiphertext));
 			CHECK_ALLOC(tmp, "Malloc failed in GGSW trace expansion");
 			tmp->params                                       = results[res_num]->params->params_glwe;
-			tmp->vec                                          = ggsw_glwe_view(results[res_num], k, prec_lvl).vec;
+			tmp->vec                                          = ggsw_glwe_view(results[res_num], k_tilde, prec_lvl).vec;
 			results_glwe[(prec_lvl - 1) * res_size + res_num] = tmp;
 		}
 	}
 
-	// Fills the k'th rows of GGSWs
+	// Fills the k_tilde'th rows of GGSWs
 	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_key_collection),
 	           "glwegadget_trace_expand failed in a GGSW trace expansion");
 
@@ -204,8 +204,8 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 	{
 		for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
 		{
-			GLWECiphertext in = ggsw_glwe_view(results[res_num], k, prec_lvl);
-			for (int i = 0; i < k; ++i)
+			GLWECiphertext in = ggsw_glwe_view(results[res_num], k_tilde, prec_lvl);
+			for (int i = 0; i < k_tilde; ++i)
 			{
 				GLWECiphertext res = ggsw_glwe_view(results[res_num], i, prec_lvl);
 

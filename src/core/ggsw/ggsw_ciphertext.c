@@ -74,7 +74,6 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 	// bivGLWE parameters
 	uint64_t nn      = params_glwe->nn;
-	uint64_t k       = params_glwe->k;
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
@@ -94,12 +93,12 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		uint64_t j = (ij % (k + 1));
-		uint64_t i = ij / (k + 1) + 1;
+		uint64_t j = (ij % (k_tilde + 1));
+		uint64_t i = ij / (k_tilde + 1) + 1;
 		{
-			// For j < k, m_skj_univ is -m * skj
-			// For j = k  we skip this and we get it from m_univ directly
-			if (j < params_glwe->k)
+			// For j < k_tilde, m_skj_univ is -m * skj
+			// For j = k_tilde we skip this and we get it from m_univ directly
+			if (j < k_tilde)
 			{
 				// Computes DFT(msg * sk_j)
 				CHECK_CALL(pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, 
@@ -118,7 +117,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 						   "negation failed in ggsw_secret_encrypt");
 			}
 
-			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (k == j) ? m_univ : m_skj_univ,
+			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (j == k_tilde) ? m_univ : m_skj_univ,
 			                           params_ggsw->kappa_tilde * i),
 			           "univ_to_biv failed in compute_phase_ij");
 
