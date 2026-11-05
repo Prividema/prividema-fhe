@@ -68,10 +68,10 @@ PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos)
 	return ret;
 }
 
-ZnxVec glwe_as_znx_vec(const GLWECiphertext* glwe_ct)
+FlatPolyVec glwe_as_flat_poly_vec(const GLWECiphertext* glwe_ct)
 {
 	const GLWEParams* params_glwe = glwe_ct->params;
-	return znx_vec_view(params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_ct->vec);
+	return flat_poly_vec_view(params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_ct->vec);
 }
 
 int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, const GLWESecretKeyPrepared* sk_prep,
@@ -116,7 +116,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 
 			// Computes DFT(sk_j) * DFT(a_j)
 			PolyBiv a_j    = glwe_extract_poly_view(glwe, j);
-			ZnxVec a_j_vec = biv_as_znx_vec(&a_j);
+			FlatPolyVec a_j_vec = biv_as_flat_poly_vec(&a_j);
 			pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_j_vec);
 
 			// Undo DFT to retrieve sk_j * a_j
@@ -131,7 +131,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 		BE_PolySvpPrep* sk_j_univ_dft = glwe_prepared_sk_extract_poly_prep(sk_prep, 0);
 
 		PolyBiv a_0    = glwe_extract_poly_view(glwe, 0);
-		ZnxVec a_0_vec = biv_as_znx_vec(&a_0);
+		FlatPolyVec a_0_vec = biv_as_flat_poly_vec(&a_0);
 		pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_0_vec);
 
 		CHECK_CALL(biv_dft_to_coefs(module, params_glwe, acc, as_j_dft),
@@ -226,7 +226,7 @@ int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* res, const GLWESecre
 		//const PolyUniv* a_j        = glwe_extract_start_poly(glwe, j);
 
 		PolyBiv a_j    = glwe_extract_poly_view(glwe, j);
-		ZnxVec a_j_vec = biv_as_znx_vec(&a_j);
+		FlatPolyVec a_j_vec = biv_as_flat_poly_vec(&a_j);
 		pvda_svp_apply_dft(module, as_j_dft, l_a, sk_j_univ_dft, &a_j_vec);
 
 		// Computes sk_j * a_j by inverting the DFT
@@ -299,7 +299,7 @@ int glwe_coef_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft, cons
 {
 	int status = -1;
 
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe_ct);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe_ct);
 	pvda_vec_znx_dft(module, res_dft->vec, glwe_params_n_limbs(glwe_ct->params), &glwe_flattened);
 
 	status = 0;
@@ -312,7 +312,7 @@ int glwe_dft_to_coef(const PvdaBackend* module, GLWECiphertext* res_ct, const GL
 {
 	int status = -1;
 
-	ZnxVec glwe_flattened = glwe_as_znx_vec(res_ct);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(res_ct);
 	CHECK_CALL(pvda_vec_znx_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(glwe_dft->params)),
 	           "iDFT failed for a GLWE");
 

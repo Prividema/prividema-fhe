@@ -74,13 +74,13 @@ void delete_ggsw(GGSWCiphertext* ggsw);
 GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
 /**
- * @brief Returns a ZnxVec (view) representing a flattened GGSW: a flat vector with all the limbs in layout order
+ * @brief Returns a FlatPolyVec (view) representing a flattened GGSW: a flat vector with all the limbs in layout order
  *
  * @param ggsw_ct The GGSW from which the view is taken
  *
  * @return A view to the flattened (memory) representation of the GGSW. See @ref ggsw_encoding
  */
-ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct);
+FlatPolyVec ggsw_as_flat_poly_vec(const GGSWCiphertext* ggsw_ct);
 
 /**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the

@@ -55,11 +55,11 @@ GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int
 	return (GLWECiphertext){params_glwe, ggsw_ct->mat + offset};
 }
 
-ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct)
+FlatPolyVec ggsw_as_flat_poly_vec(const GGSWCiphertext* ggsw_ct)
 {
 	const GGSWParams* params_ggsw = ggsw_ct->params;
 	const GLWEParams* glwe_params = params_ggsw->params_glwe;
-	return znx_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)glwe_params->nn, ggsw_ct->mat);
+	return flat_poly_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)glwe_params->nn, ggsw_ct->mat);
 }
 
 int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
@@ -113,7 +113,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 				           "vec_znx_idft_p failed in compute_phase_ij");
 
 				// Negate in coefficient space to get -msg * sk_j
-				ZnxVec m_skj_vec = znx_vec_view(nn, 1, nn, m_skj_univ);
+				FlatPolyVec m_skj_vec = flat_poly_vec_view(nn, 1, nn, m_skj_univ);
 				CHECK_CALL(pvda_vec_znx_negate(module, & m_skj_vec, &m_skj_vec),
 						   "negation failed in ggsw_secret_encrypt");
 			}

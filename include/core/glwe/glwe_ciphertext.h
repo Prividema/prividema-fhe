@@ -82,9 +82,9 @@ PolyBiv glwe_extract_poly_view(const GLWECiphertext* glwe_ct, uint64_t pos);
  *
  * @param glwe_ct Source GLWE
  *
- * @returns A ZnxVec view (does NOT own memory) of all the limbs of the GLWE, as a flat vector of polynomials
+ * @returns A FlatPolyVec view (does NOT own memory) of all the limbs of the GLWE, as a flat vector of polynomials
  */
-ZnxVec glwe_as_znx_vec(const GLWECiphertext* glwe_ct);
+FlatPolyVec glwe_as_flat_poly_vec(const GLWECiphertext* glwe_ct);
 
 /**
  * @brief Encrypts a phase (message + noise) and puts it in result.

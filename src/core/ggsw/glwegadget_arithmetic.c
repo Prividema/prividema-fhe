@@ -31,7 +31,7 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* res,
 	GLWECiphertextDFT* glwe_dft = new_glwe_dft(module, res->params);
 	CHECK_ALLOC(glwe_dft, "Allocation failed in half-product");
 
-	ZnxVec v = biv_as_znx_vec(a);
+	FlatPolyVec v = biv_as_flat_poly_vec(a);
 	CHECK_CALL(pvda_vmp_apply_dft(module, glwe_dft->vec, ncols_out, &v, glwegadget_prep_ct->mat, nrows, ncols_in),
 	           "vmp apply failed in half product");
 
@@ -328,7 +328,7 @@ int glwe_trace_expand(const PvdaBackend* module, GLWECiphertext** results, int r
 	glwe_add(module, tmp_glwe2, results[0], tmp_glwe);
 
 	glwe_sub(module, tmp_glwe, results[0], tmp_glwe);
-	ZnxVec tmp_flattened = glwe_as_znx_vec(tmp_glwe);
+	FlatPolyVec tmp_flattened = glwe_as_flat_poly_vec(tmp_glwe);
 	pvda_vec_znx_rotate(module, -1, &tmp_flattened, &tmp_flattened);
 	glwe_normalize(module, results[1], tmp_glwe);
 	glwe_normalize(module, results[0], tmp_glwe2);
@@ -386,7 +386,7 @@ int glwe_hom_trace(const PvdaBackend* module, GLWECiphertext* res, int enc_size,
 	GLWECiphertext* tmp_glwe = new_glwe(glwe_ct->params);
 	CHECK_ALLOC(tmp_glwe, "Temp memory alloc in trace expansion failed");
 
-	ZnxVec tmp_flattened = glwe_as_znx_vec(tmp_glwe);
+	FlatPolyVec tmp_flattened = glwe_as_flat_poly_vec(tmp_glwe);
 
 	// Step 0:
 	glwegadget_automorphism(module, tmp_glwe, glwegadget_key_collection_get_key(auto_key_collection, nn + 1), res);

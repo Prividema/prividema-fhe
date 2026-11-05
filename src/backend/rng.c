@@ -100,7 +100,7 @@ int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	ZnxVec tmp_biv = znx_vec_view(nn, vec_size, nn, tmp_space);
+	FlatPolyVec tmp_biv = flat_poly_vec_view(nn, vec_size, nn, tmp_space);
 	pvda_vec_znx_dft(module, res_dft, vec_size, &tmp_biv);
 
 	status = 0;

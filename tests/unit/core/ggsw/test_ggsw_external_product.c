@@ -60,7 +60,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	//Computes u*m manually
 	univ_coefs_to_prep(module, u_univ_prep, u_univ);
-	ZnxVec m_vec = biv_as_znx_vec(m);
+	FlatPolyVec m_vec = biv_as_flat_poly_vec(m);
 	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_prep, &m_vec);
 	biv_dft_to_coefs(module, params_glwe, um, um_dft);
 	biv_normalize(module, params_glwe->kappa, um, um);

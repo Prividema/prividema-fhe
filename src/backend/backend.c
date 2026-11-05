@@ -40,7 +40,7 @@ BE_PolyVecDFT* pvda_new_vec_znx_dft(const PvdaBackend* module, uint64_t size)
 	return module->vt.pvda_new_vec_znx_dft(module, size);
 }
 
-int pvda_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const ZnxVec* a)
+int pvda_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const FlatPolyVec* a)
 {
 	return module->vt.pvda_vec_znx_dft(module, res, res_size, a);
 }
@@ -55,7 +55,7 @@ int64_t* pvda_new_vec_znx_big(const PvdaBackend* module, int64_t size)
 	return module->vt.pvda_new_vec_znx_big(module, size);
 }
 
-int pvda_vec_znx_idft(const PvdaBackend* module, ZnxVec* res, const BE_PolyVecDFT* a_dft, uint64_t a_size)
+int pvda_vec_znx_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyVecDFT* a_dft, uint64_t a_size)
 {
 	return module->vt.pvda_vec_znx_idft(module, res, a_dft, a_size);
 }
@@ -73,7 +73,7 @@ int pvda_svp_prepare(const PvdaBackend* module, BE_PolySvpPrep* prepared_pol, co
 }
 
 int pvda_svp_apply_dft(const PvdaBackend* module, const BE_PolyVecDFT* res, uint64_t res_size,
-                       const BE_PolySvpPrep* prepared_pol, const ZnxVec* a)
+                       const BE_PolySvpPrep* prepared_pol, const FlatPolyVec* a)
 {
 	return module->vt.pvda_svp_apply_dft(module, res, res_size, prepared_pol, a);
 }
@@ -110,7 +110,7 @@ int pvda_vmp_prepare_contiguous(const PvdaBackend* module, BE_PolyMatVmpPrep* pm
 	return module->vt.pvda_vmp_prepare_contiguous(module, pmat, mat, nrows, ncols);
 }
 
-int pvda_vmp_apply_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const ZnxVec* a,
+int pvda_vmp_apply_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const FlatPolyVec* a,
                        const BE_PolyMatVmpPrep* pmat, uint64_t nrows, uint64_t ncols)
 {
 	return module->vt.pvda_vmp_apply_dft(module, res, res_size, a, pmat, nrows, ncols);
@@ -135,7 +135,7 @@ void pvda_delete_vmp_pmat(const PvdaBackend* module, BE_PolyMatVmpPrep* pmat)
 	module->vt.pvda_delete_vmp_pmat(module, pmat);
 }
 
-int pvda_vec_znx_normalize_base2k(const PvdaBackend* module, uint64_t log2_base2k, ZnxVec* res, const ZnxVec* a)
+int pvda_vec_znx_normalize_base2k(const PvdaBackend* module, uint64_t log2_base2k, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	return module->vt.pvda_vec_znx_normalize_base2k(module, log2_base2k, res, a);
 }
@@ -145,17 +145,17 @@ int pvda_znx_small_product(const PvdaBackend* module, int64_t* res, const int64_
 	return module->vt.pvda_znx_small_product(module, res, a, b);
 }
 
-int pvda_vec_znx_negate(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a)
+int pvda_vec_znx_negate(const PvdaBackend* module, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	return module->vt.pvda_vec_znx_negate(module, res, a);
 }
 
-int pvda_vec_znx_add(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a, const ZnxVec* b)
+int pvda_vec_znx_add(const PvdaBackend* module, FlatPolyVec* res, const FlatPolyVec* a, const FlatPolyVec* b)
 {
 	return module->vt.pvda_vec_znx_add(module, res, a, b);
 }
 
-int pvda_vec_znx_sub(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a, const ZnxVec* b)
+int pvda_vec_znx_sub(const PvdaBackend* module, FlatPolyVec* res, const FlatPolyVec* a, const FlatPolyVec* b)
 {
 	return module->vt.pvda_vec_znx_sub(module, res, a, b);
 }
@@ -165,19 +165,19 @@ int pvda_znx_automorphism(const PvdaBackend* module, const int64_t p, int64_t* r
 	return module->vt.pvda_znx_automorphism(module, p, res, a);
 }
 
-int pvda_vec_znx_automorphism(const PvdaBackend* module, const int64_t p, ZnxVec* res, const ZnxVec* a)
+int pvda_vec_znx_automorphism(const PvdaBackend* module, const int64_t p, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	return module->vt.pvda_vec_znx_automorphism(module, p, res, a);
 }
 
-int pvda_vec_znx_rotate(const PvdaBackend* module, const int64_t p, ZnxVec* res, const ZnxVec* a)
+int pvda_vec_znx_rotate(const PvdaBackend* module, const int64_t p, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	return module->vt.pvda_vec_znx_rotate(module, p, res, a);
 }
 
 uint64_t pvda_module_extract_nn(const PvdaBackend* module) { return module->vt.pvda_module_extract_nn(module); }
 
-int pvda_vmp_prepare_vec(const PvdaBackend* module, BE_PolyVecVmpPrep* pvec, uint64_t nrows, const ZnxVec* a)
+int pvda_vmp_prepare_vec(const PvdaBackend* module, BE_PolyVecVmpPrep* pvec, uint64_t nrows, const FlatPolyVec* a)
 {
 	return module->vt.pvda_vmp_prepare_vec(module, pvec, nrows, a);
 }

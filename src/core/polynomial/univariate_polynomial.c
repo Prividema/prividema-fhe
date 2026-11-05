@@ -40,7 +40,7 @@ void delete_univ_dft(const PvdaBackend* module, BE_PolyVecDFT* pol)
 int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const PolyUniv* a)
 {
 	uint64_t nn  = pvda_module_extract_nn(module);
-	ZnxVec a_vec = znx_vec_view(nn, 1, nn, (int64_t*)a);
+	FlatPolyVec a_vec = flat_poly_vec_view(nn, 1, nn, (int64_t*)a);
 	pvda_vec_znx_dft(module, res_dft, 1, &a_vec);
 	return 0;
 }
@@ -48,7 +48,7 @@ int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const P
 int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const BE_PolyVecDFT* a_dft)
 {
 	uint64_t nn    = pvda_module_extract_nn(module);
-	ZnxVec res_vec = znx_vec_view(nn, 1, nn, res);
+	FlatPolyVec res_vec = flat_poly_vec_view(nn, 1, nn, res);
 	return pvda_vec_znx_idft(module, &res_vec, a_dft, 1);
 }
 

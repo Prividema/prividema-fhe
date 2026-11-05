@@ -50,9 +50,9 @@ void ggsw_add(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCipherte
               const GGSWCiphertext* ggsw_rhs)
 {
 	uint64_t nn          = res->params->params_glwe->nn;
-	ZnxVec res_flattened = ggsw_as_znx_vec(res);
-	ZnxVec lhs_flattened = ggsw_as_znx_vec(ggsw_lhs);
-	ZnxVec rhs_flattened = ggsw_as_znx_vec(ggsw_rhs);
+	FlatPolyVec res_flattened = ggsw_as_flat_poly_vec(res);
+	FlatPolyVec lhs_flattened = ggsw_as_flat_poly_vec(ggsw_lhs);
+	FlatPolyVec rhs_flattened = ggsw_as_flat_poly_vec(ggsw_rhs);
 	pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
@@ -70,12 +70,12 @@ int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCi
 	CHECK_ALLOC(tmp_dft, "tmp_dft's allocation failed in ggsw_mult_const");
 
 	// Computes DFT(u * ggsw) polynomial by polynomial
-	ZnxVec ggsw_flattened = ggsw_as_znx_vec(ggsw);
+	FlatPolyVec ggsw_flattened = ggsw_as_flat_poly_vec(ggsw);
 	CHECK_CALL(pvda_svp_apply_dft(module, tmp_dft, mat_size, u_prep, &ggsw_flattened),
 			   "svp_apply_dft failed in ggsw_mult_const");
 
 	// Go back to Zn[X,Y]
-	ZnxVec result_flattened = ggsw_as_znx_vec(res);
+	FlatPolyVec result_flattened = ggsw_as_flat_poly_vec(res);
 	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, tmp_dft, mat_size),
 	           "vec_znx_idft_p failed in ggsw_mult_const");
 
@@ -111,11 +111,11 @@ int ggsw_external_product_unprepared(const PvdaBackend* module,
 	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols_in),
 	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe);
 	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols_out, &glwe_flattened, ggsw_pmat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
-	ZnxVec result_flattened = glwe_as_znx_vec(res);
+	FlatPolyVec result_flattened = glwe_as_flat_poly_vec(res);
 	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, result_dft, ncols_out),
 	           "vec_znx_idft_p failed in ggsw_external_product");
 
@@ -137,7 +137,7 @@ int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* r
 	size_t ncols_in  = glwe_params_n_limbs(ggsw_prep->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(res->params);
 
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe);
 	CHECK_CALL(pvda_vmp_apply_dft(module, res->vec, ncols_out, &glwe_flattened, ggsw_prep->mat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 

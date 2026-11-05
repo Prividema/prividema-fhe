@@ -48,7 +48,7 @@ void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLW
 			cr_assert(pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, 
 					  glwe_prepared_sk_extract_poly_prep(sk_prep, sk_idx), m_univ_dft, 1) == 0);
 
-			ZnxVec m_skj_vec = znx_vec_view(nn, 1, nn, m_skj_univ);
+			FlatPolyVec m_skj_vec = flat_poly_vec_view(nn, 1, nn, m_skj_univ);
 			cr_assert(pvda_vec_znx_idft(module, &m_skj_vec, m_skj_univ_dft, 1) == 0);
 			
 			cr_assert(pvda_vec_znx_negate(module, &m_skj_vec, &m_skj_vec) == 0);

@@ -22,7 +22,7 @@ BE_PolyVecDFT* spqlios_new_vec_znx_dft(const PvdaBackend* module, uint64_t size)
 	return (BE_PolyVecDFT*)new_vec_znx_dft(module->spqlios_module, size);
 }
 
-int spqlios_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const ZnxVec* a)
+int spqlios_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const FlatPolyVec* a)
 {
 	vec_znx_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, a->ptr, a->size, a->stride);
 	return 0;
@@ -39,7 +39,7 @@ int64_t* spqlios_new_vec_znx_big(const PvdaBackend* module, int64_t size)
 	return (int64_t*)new_vec_znx_big(module->spqlios_module, size);
 }
 
-int spqlios_vec_znx_idft(const PvdaBackend* module, ZnxVec* res, const BE_PolyVecDFT* a_dft, uint64_t a_size)
+int spqlios_vec_znx_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyVecDFT* a_dft, uint64_t a_size)
 {
 	int status = -1;
 
@@ -81,7 +81,7 @@ void spqlios_delete_svp_ppol(const PvdaBackend* module, BE_PolySvpPrep* ppol)
 }
 
 int spqlios_svp_apply_dft(const PvdaBackend* module, const BE_PolyVecDFT* res, uint64_t res_size,
-                          const BE_PolySvpPrep* prepared_pol, const ZnxVec* a)
+                          const BE_PolySvpPrep* prepared_pol, const FlatPolyVec* a)
 {
 	svp_apply_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)prepared_pol, a->ptr, a->size,
 	              a->stride);
@@ -169,7 +169,7 @@ void spqlios_delete_vmp_pmat(const PvdaBackend* module, BE_PolyMatVmpPrep* pmat)
 	delete_vmp_pmat(((VMP_PMAT*)pmat));
 }
 
-int spqlios_vmp_apply_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const ZnxVec* a,
+int spqlios_vmp_apply_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const FlatPolyVec* a,
                           const BE_PolyMatVmpPrep* pmat, uint64_t nrows, uint64_t ncols)
 {
 	int status         = -1;
@@ -220,7 +220,7 @@ cleanup:
 	return status;
 }
 
-int spqlios_vec_znx_normalize_base2k(const PvdaBackend* module, uint64_t log2_base2k, ZnxVec* res, const ZnxVec* a)
+int spqlios_vec_znx_normalize_base2k(const PvdaBackend* module, uint64_t log2_base2k, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	int status         = -1;
 	uint8_t* tmp_space = malloc(vec_znx_normalize_base2k_tmp_bytes(module->spqlios_module));
@@ -249,7 +249,7 @@ cleanup:
 	return status;
 }
 
-int spqlios_vec_znx_negate(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a)
+int spqlios_vec_znx_negate(const PvdaBackend* module, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	vec_znx_negate(module->spqlios_module, res->ptr, res->size, res->stride, a->ptr, a->size, a->stride);
 	return 0;
@@ -257,13 +257,13 @@ int spqlios_vec_znx_negate(const PvdaBackend* module, ZnxVec* res, const ZnxVec*
 
 uint64_t spqlios_module_extract_nn(const PvdaBackend* module) { return module_get_n(module->spqlios_module); }
 
-int spqlios_vec_znx_add(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a, const ZnxVec* b)
+int spqlios_vec_znx_add(const PvdaBackend* module, FlatPolyVec* res, const FlatPolyVec* a, const FlatPolyVec* b)
 {
 	vec_znx_add(module->spqlios_module, res->ptr, res->size, res->stride, a->ptr, a->size, a->stride, b->ptr, b->size,
 	            b->stride);
 	return 0;
 }
-int spqlios_vec_znx_sub(const PvdaBackend* module, ZnxVec* res, const ZnxVec* a, const ZnxVec* b)
+int spqlios_vec_znx_sub(const PvdaBackend* module, FlatPolyVec* res, const FlatPolyVec* a, const FlatPolyVec* b)
 {
 	vec_znx_sub(module->spqlios_module, res->ptr, res->size, res->stride, a->ptr, a->size, a->stride, b->ptr, b->size,
 	            b->stride);
@@ -275,19 +275,19 @@ int spqlios_znx_automorphism(const PvdaBackend* module, const int64_t p, int64_t
 	vec_znx_automorphism(module->spqlios_module, p, res, 1, 0, a, 1, 0);
 	return 0;
 }
-int spqlios_vec_znx_automorphism(const PvdaBackend* module, const int64_t p, ZnxVec* res, const ZnxVec* a)
+int spqlios_vec_znx_automorphism(const PvdaBackend* module, const int64_t p, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	vec_znx_automorphism(module->spqlios_module, p, res->ptr, res->size, res->stride, a->ptr, a->size, a->stride);
 	return 0;
 }
 
-int spqlios_vec_znx_rotate(const PvdaBackend* module, const int64_t p, ZnxVec* res, const ZnxVec* a)
+int spqlios_vec_znx_rotate(const PvdaBackend* module, const int64_t p, FlatPolyVec* res, const FlatPolyVec* a)
 {
 	vec_znx_rotate(module->spqlios_module, p, res->ptr, res->size, res->stride, a->ptr, a->size, a->stride);
 	return 0;
 }
 
-int spqlios_vmp_prepare_vec(const PvdaBackend* module, BE_PolyVecVmpPrep* pvec, uint64_t nrows, const ZnxVec* a)
+int spqlios_vmp_prepare_vec(const PvdaBackend* module, BE_PolyVecVmpPrep* pvec, uint64_t nrows, const FlatPolyVec* a)
 {
 	int status = -1;
 

@@ -79,7 +79,7 @@ PolyBiv biv_view(uint64_t nn, uint64_t l, int64_t stride, int64_t* ptr);
 /**
  * @brief View of the limbs of a bivariate polynomial as a flat Znx array, for element-wise backend operations
  */
-static inline ZnxVec biv_as_znx_vec(const PolyBiv* p) { return znx_vec_view(p->nn, p->nb_limbs, p->stride, p->ptr); }
+static inline FlatPolyVec biv_as_flat_poly_vec(const PolyBiv* p) { return flat_poly_vec_view(p->nn, p->nb_limbs, p->stride, p->ptr); }
 
 // =============================================
 // |                                           |
