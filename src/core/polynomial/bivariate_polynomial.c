@@ -344,7 +344,8 @@ inline static void biv_decomp_internal(uint64_t stnx_num, int lsb_pos, int64_t* 
 		int64_t s2                     = sgn_ext(s, kappa - 1, sgn);
 		dst[(last_l - 1 - i) * dst_sl] = s2;
 	}
-	int min_i_2 = min_i > nb_limbs_to_write + 1 ? min_i : nb_limbs_to_write + 1;
+	// The loop above wrote limbs last_l - 1 - min_i down to last_l - nb_limbs_to_write: zero everything below
+	int min_i_2 = min_i > nb_limbs_to_write ? min_i : nb_limbs_to_write;
 	for (int i = last_l - 1 - min_i_2; i >= 0; --i)
 	{
 		dst[i * dst_sl] = 0;
