@@ -93,7 +93,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 	// acc_(j+1) = acc_j + (sk_j * limb_1(a_j) , ... , sk_j * limb_l(a_j))
 	// In other words, acc is <A, SK>
 	PolyBiv* acc            = new_biv(params_glwe);
-	BE_PolyVecDFT* as_j_dft = new_biv_dft(params_glwe);  // DFT(sk_j) * DFT(a_j)
+	BE_PolyVecDFT* as_j_dft = new_biv_dft(module, params_glwe);  // DFT(sk_j) * DFT(a_j)
 	PolyBiv* as_j        = NULL;
 
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_masking");
@@ -151,7 +151,7 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 
 cleanup:
 	delete_biv(as_j);
-	delete_biv_dft(as_j_dft);
+	delete_biv_dft(module, as_j_dft);
 	delete_biv(acc);
 
 	return status;
@@ -211,7 +211,7 @@ int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* res, const GLWESecre
 
 	// Variables
 	PolyBiv* acc            = new_biv(params_glwe);      // -Sum_j{0,k-1}[sk_j * a_j]
-	BE_PolyVecDFT* as_j_dft = new_biv_dft(params_glwe);  // DFT(sk_j * a_j)
+	BE_PolyVecDFT* as_j_dft = new_biv_dft(module, params_glwe);  // DFT(sk_j * a_j)
 	PolyBiv* as_j           = new_biv(params_glwe);      // sk_j * a_j
 
 	CHECK_ALLOC(acc, "acc's calloc failed in glwe_secret_demasking_ggsw_lib");
@@ -250,7 +250,7 @@ int glwe_secret_decrypt(const PvdaBackend* module, PolyBiv* res, const GLWESecre
 
 cleanup:
 	delete_biv(as_j);
-	delete_biv_dft(as_j_dft);
+	delete_biv_dft(module, as_j_dft);
 	delete_biv(acc);
 
 	return status;

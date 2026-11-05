@@ -680,27 +680,22 @@ int biv_to_univ_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res_tnx, const P
 // |                                           |
 // =============================================
 
-BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe)
+BE_PolyVecDFT* new_biv_dft(const PvdaBackend* module, const GLWEParams* params_glwe)
 {
-	BE_PolyVecDFT* pol_dft = calloc(biv_dft_coef_number(params_glwe), 2 * sizeof(double));
-	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_dft");
+	return new_biv_dft_custom_params(module, glwe_params_l_a(params_glwe));
+}
+
+BE_PolyVecDFT* new_biv_dft_custom_params(const PvdaBackend* module, uint64_t biv_l)
+{
+	BE_PolyVecDFT* pol_dft = pvda_new_vec_znx_dft(module, biv_l);
+	CHECK_ALLOC(pol_dft, "pol_dft's allocation failed in new_biv_dft_custom_params");
 	return pol_dft;
 
 cleanup:
 	return NULL;
 }
 
-BE_PolyVecDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l)
-{
-	BE_PolyVecDFT* pol_dft = calloc(nn * biv_l, sizeof(double));
-	CHECK_ALLOC(pol_dft, "pol_dft's malloc failed in new_biv_dft");
-	return pol_dft;
-
-cleanup:
-	return NULL;
-}
-
-void delete_biv_dft(BE_PolyVecDFT* biv_dft) { free(biv_dft); }
+void delete_biv_dft(const PvdaBackend* module, BE_PolyVecDFT* biv_dft) { pvda_delete_vec_znx_dft(module, biv_dft); }
 
 // =============================================
 // |                                           |

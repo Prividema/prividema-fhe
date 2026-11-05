@@ -299,7 +299,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 	PolyUniv* neg_sk_i             = new_univ(params_glwe);
 	for (uint64_t i = 0; i < k; ++i)
 	{
-		ggsw_ksks[i] = new_ggsw_prep(params_ggsw);
+		ggsw_ksks[i] = new_ggsw_prep(module, params_ggsw);
 		for (int p = 0; p < nn; ++p)
 		{
 			neg_sk_i[p] = -glwe_sk_prepared_extract_poly_coefs(sk_prep, i)[p];

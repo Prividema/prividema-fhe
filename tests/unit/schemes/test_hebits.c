@@ -109,7 +109,7 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw          = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(module, params_ggsw);
 
 	PolyUnivTnX* m1 = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m2 = new_univ_tnx(params_glwe);
@@ -203,7 +203,7 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw          = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(module, params_ggsw);
 
 	PolyUnivTnX* m1 = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m2 = new_univ_tnx(params_glwe);
@@ -293,8 +293,8 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw           = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep0 = new_ggsw_prep(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep1 = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep0 = new_ggsw_prep(module, params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep1 = new_ggsw_prep(module, params_ggsw);
 
 	// How many inputs to put in the tree
 	int num_msgs = 64;

@@ -76,7 +76,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 	GLWECiphertext* glwe_input        = new_glwe(params_glwe);
 	GLWECiphertext* glwe_computed     = new_glwe(params_glwe);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep     = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep     = new_ggsw_prep(module, params_ggsw);
 	PolyBiv* result_biv               = new_biv(params_glwe);
 	PolyUnivRnX* result_univ          = new_univ_rnx(params_glwe);
 	PolyUnivRnX* m_glwe               = new_univ_rnx(params_glwe);
@@ -126,7 +126,7 @@ void bench_ggsw_prepare(benchmark::State& state)
 	GLWESecretKeyPrepared* sk_prep    = new_glwe_secret_key_prepared(module, params_glwe);
 	PolyUniv* m                       = new_univ(params_glwe);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep     = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep     = new_ggsw_prep(module, params_ggsw);
 	PolyBiv* result_biv               = new_biv(params_glwe);
 	PolyUnivRnX* result_univ          = new_univ_rnx(params_glwe);
 

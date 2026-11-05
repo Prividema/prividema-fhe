@@ -125,7 +125,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	PolyBiv* um_observed                   = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	BE_PolyVecDFT* m_dft                      = new_biv_dft(params_glwe);
+	BE_PolyVecDFT* m_dft                      = new_biv_dft(module, params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;
@@ -186,7 +186,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	delete_biv(um_observed);
 	delete_univ_rnx(um_observed_rnx);
 	delete_biv(m);
-	delete_biv_dft(m_dft);
+	delete_biv_dft(module, m_dft);
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
 

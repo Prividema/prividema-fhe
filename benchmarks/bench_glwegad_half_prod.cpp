@@ -85,7 +85,7 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 	PolyUniv* u_univ                       = new_univ(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	BE_PolyVecDFT* m_dft                      = new_biv_dft(params_glwe);
+	BE_PolyVecDFT* m_dft                      = new_biv_dft(module, params_glwe);
 
 	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
@@ -104,7 +104,7 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 	}
 
 	delete_biv(m);
-	delete_biv_dft(m_dft);
+	delete_biv_dft(module, m_dft);
 	delete_univ(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 

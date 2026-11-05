@@ -259,9 +259,22 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
 // |                                           |
 // =============================================
 
-BE_PolyVecDFT* new_biv_dft(const GLWEParams* params_glwe);
-BE_PolyVecDFT* new_biv_dft_custom_params(uint64_t nn, uint64_t biv_l);
-void delete_biv_dft(BE_PolyVecDFT* biv_dft);
+/**
+ * @brief Allocates a bivariate polynomial in DFT domain (one DFT entry per limb, l_a limbs) through the backend.
+ * @note The content is uninitialized.
+ */
+BE_PolyVecDFT* new_biv_dft(const PvdaBackend* module, const GLWEParams* params_glwe);
+
+/**
+ * @brief Allocates a bivariate polynomial in DFT domain with biv_l limbs through the backend.
+ * @note The content is uninitialized.
+ */
+BE_PolyVecDFT* new_biv_dft_custom_params(const PvdaBackend* module, uint64_t biv_l);
+
+/**
+ * @brief Deletes a bivariate polynomial in DFT domain allocated by new_biv_dft*.
+ */
+void delete_biv_dft(const PvdaBackend* module, BE_PolyVecDFT* biv_dft);
 
 // =============================================
 // |                                           |

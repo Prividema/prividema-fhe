@@ -238,7 +238,7 @@ PvdaParamTest(new_ggsw_dft, basic, default_params_fn)
 	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
-	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(module, params_ggsw);
 
 	// Asserts new_ggsw_dft worked
 	cr_assert(eq(int, ggsw_prep->mat != NULL, 1));

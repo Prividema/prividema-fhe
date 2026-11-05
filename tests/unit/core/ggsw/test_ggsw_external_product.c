@@ -36,7 +36,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	PolyBiv* phase_observed           = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_univ_rnx = new_univ_rnx(params_glwe);
 	BE_PolySvpPrep* u_univ_prep       = new_univ_prep(module);
-	BE_PolyVecDFT* um_dft             = new_biv_dft(params_glwe);
+	BE_PolyVecDFT* um_dft             = new_biv_dft(module, params_glwe);
 	PolyBiv* um                       = new_biv(params_glwe);
 	PolyUnivRnX* um_univ_rnx          = new_univ_rnx(params_glwe);
 
@@ -76,7 +76,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	delete_biv(phase_observed);
 	delete_biv(um);
 	delete_univ_rnx(um_univ_rnx);
-	delete_biv_dft(um_dft);
+	delete_biv_dft(module, um_dft);
 	delete_univ_rnx(um_observed_univ_rnx);
 
 	delete_glwe(ext_prod_observed);

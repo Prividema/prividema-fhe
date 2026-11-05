@@ -26,7 +26,7 @@ int glwegadget_to_ggsw_ksk_generate(const PvdaBackend* module, GGSWCiphertextPre
 	{
 		if (!ggsw_ksks[i])
 		{
-			ggsw_ksks[i] = new_ggsw_prep(params_ggsw);
+			ggsw_ksks[i] = new_ggsw_prep(module, params_ggsw);
 			CHECK_ALLOC(ggsw_ksks[i], "Destination GGSW allocation failed in GGSW KSK generation");
 		}
 		for (int p = 0; p < nn; ++p)

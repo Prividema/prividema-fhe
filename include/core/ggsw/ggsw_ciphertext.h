@@ -126,6 +126,9 @@ int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
  */
 typedef struct ggsw_ciphertext_prepared
 {
+	/// Backend that owns mat.
+	const PvdaBackend* module;
+
 	/// GGSW parameters.
 	const GGSWParams* params;
 
@@ -135,14 +138,17 @@ typedef struct ggsw_ciphertext_prepared
 } GGSWCiphertextPrep;
 
 /**
- * @brief Creates a zero-initialized GGSWCiphertextPrep
+ * @brief Creates a GGSWCiphertextPrep. The prepared matrix is allocated by the backend.
  *
+ * @param module      The backend instance (owns the prepared matrix).
  * @param params_ggsw The GGSW parameters.
  *
- * @retval NULL if malloc failed inside the function.
- * @retval non-NULL The Allocated GGSW ciphertext filled with 0 otherwise.
+ * @note The content is uninitialized: call ggsw_prepare before using it.
+ *
+ * @retval NULL if an allocation failed inside the function.
+ * @retval non-NULL The allocated prepared GGSW ciphertext otherwise.
  */
-GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw);
+GGSWCiphertextPrep* new_ggsw_prep(const PvdaBackend* module, const GGSWParams* params_ggsw);
 
 /**
  * @brief Deletes a prepared GGSW ciphertext

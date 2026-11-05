@@ -145,27 +145,28 @@ cleanup:
 }
 // bivGGSW DFT PART (begin)
 
-GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw)
+GGSWCiphertextPrep* new_ggsw_prep(const PvdaBackend* module, const GGSWParams* params_ggsw)
 {
-	GGSWCiphertextPrep* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextPrep));
-	CHECK_ALLOC(ggsw_mat_dft, "malloc in new_ggsw_dft");
+	GGSWCiphertextPrep* ggsw_prep = calloc(1, sizeof(GGSWCiphertextPrep));
+	CHECK_ALLOC(ggsw_prep, "calloc failed in new_ggsw_prep");
 
-	ggsw_mat_dft->params = params_ggsw;
+	ggsw_prep->module = module;
+	ggsw_prep->params = params_ggsw;
 
-	// Initializes  the bivGGSW ciphertext with 0s
-	ggsw_mat_dft->mat = calloc(2 * ggsw_coef_number_dft(params_ggsw), sizeof(double));
-	CHECK_ALLOC(ggsw_mat_dft->mat, "calloc in new_ggsw_dft");
+	// Same dimensions as the ones used by ggsw_prepare
+	ggsw_prep->mat = pvda_new_vmp_pmat(module, ggsw_num_rows(params_ggsw), glwe_params_n_limbs(params_ggsw->params_glwe));
+	CHECK_ALLOC(ggsw_prep->mat, "prepared matrix allocation failed in new_ggsw_prep");
 
-	return ggsw_mat_dft;
+	return ggsw_prep;
 cleanup:
-	delete_ggsw_prep(ggsw_mat_dft);
+	free(ggsw_prep);
 	return NULL;
 }
 
 void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_prep)
 {
 	if (!ggsw_prep) return;
-	free(ggsw_prep->mat);
+	pvda_delete_vmp_pmat(ggsw_prep->module, ggsw_prep->mat);
 	free(ggsw_prep);
 }
 
