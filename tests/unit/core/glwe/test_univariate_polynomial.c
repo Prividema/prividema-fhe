@@ -15,12 +15,12 @@ PvdaTstParams params = {1024, 1, 4, 4, 0, -7};
 /**
  * @brief Test biv_bytes
  */
-PvdaParamTest(univ_bytes, basic, default_params_fn)
+PvdaParamTest(univ_znx_bytes, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	// Asserts univ_bytes returns params_glwe->nn * sizeof(int64_t)
-	cr_assert(eq(i64, univ_bytes(params_glwe), params_glwe->nn * sizeof(int64_t)));
+	// Asserts univ_znx_bytes returns params_glwe->nn * sizeof(int64_t)
+	cr_assert(eq(i64, univ_znx_bytes(params_glwe), params_glwe->nn * sizeof(int64_t)));
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -32,22 +32,22 @@ PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
 
-	PolyUniv* a            = new_univ(params_glwe);
-	PolyUniv* a_t          = new_univ(params_glwe);
-	BE_PolyVecDFT* res_dft = new_univ_dft(module);
+	PolyUnivZnx* a            = new_univ_znx(params_glwe);
+	PolyUnivZnx* a_t          = new_univ_znx(params_glwe);
+	BE_PolyVecDFT* res_dft = new_univ_znx_dft(module);
 
 	uniform_pow2_random_vec(module, params_glwe->nn, a, 1, params_glwe->nn, 8);
 
-	univ_coefs_to_dft(module, res_dft, a);
-	univ_dft_to_coefs(module, a_t, res_dft);
+	univ_znx_to_dft(module, res_dft, a);
+	univ_dft_to_znx(module, a_t, res_dft);
 
 	for (int i = 0; i < params_glwe->nn; ++i)
 	{
 		cr_assert(eq(i64, a_t[i], a[i]));
 	}
-	delete_univ(a);
-	delete_univ(a_t);
-	delete_univ_dft(module, res_dft);
+	delete_univ_znx(a);
+	delete_univ_znx(a_t);
+	delete_univ_znx_dft(module, res_dft);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }

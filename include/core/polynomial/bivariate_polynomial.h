@@ -10,6 +10,11 @@
  * @file bivariate_polynomial.h
  *
  * @brief Operations on bivariate polynomials.
+ * 
+ * This file contains everything on library side bivariate polynomials.
+ * 
+ * We have a single type PolyBiv that is always a \Znx bivariate polynomial.
+ * We convert Univariate polynomials over \ZnX, \RnX and \Tnx to PolyBiv with precision bounds.
  */
 
 // =============================================
@@ -18,11 +23,9 @@
 // |                                           |
 // =============================================
 /**
- * @brief Structure for bivariate polynomials.
+ * @brief Structure for \Znx bivariate polynomials.
  * 
- * Owners are created with new_biv/new_biv_custom_params and freed with delete_biv.
- * 
- * Views are created with biv_view or the *_extract_poly_view functions and must not be deleted.
+ * This is the only structure we use for representing a bivariate polnynomial on the library side.
  */
 typedef struct poly_biv_t
 {
@@ -220,7 +223,7 @@ int univ_tnx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivT
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUniv* pol_univ, int64_t bit_offset);
+int univ_znx_to_biv(const GLWEParams* params_glwe, PolyBiv* res, const PolyUnivZnx* pol_univ, int64_t bit_offset);
 
 // =============================================
 // |                                           |
@@ -263,18 +266,18 @@ void biv_to_univ_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res_univ, const
  * @brief Allocates a bivariate polynomial in DFT domain (one DFT entry per limb, l_a limbs) through the backend.
  * @note The content is uninitialized.
  */
-BE_PolyVecDFT* new_biv_dft(const PvdaBackend* module, const GLWEParams* params_glwe);
+BE_PolyBivDFT* new_biv_dft(const PvdaBackend* module, const GLWEParams* params_glwe);
 
 /**
  * @brief Allocates a bivariate polynomial in DFT domain with biv_l limbs through the backend.
  * @note The content is uninitialized.
  */
-BE_PolyVecDFT* new_biv_dft_custom_params(const PvdaBackend* module, uint64_t biv_l);
+BE_PolyBivDFT* new_biv_dft_custom_params(const PvdaBackend* module, uint64_t biv_l);
 
 /**
  * @brief Deletes a bivariate polynomial in DFT domain allocated by new_biv_dft*.
  */
-void delete_biv_dft(const PvdaBackend* module, BE_PolyVecDFT* biv_dft);
+void delete_biv_dft(const PvdaBackend* module, BE_PolyBivDFT* biv_dft);
 
 // =============================================
 // |                                           |
@@ -282,9 +285,9 @@ void delete_biv_dft(const PvdaBackend* module, BE_PolyVecDFT* biv_dft);
 // |                                           |
 // =============================================
 
-BE_PolyVecVmpPrep* new_biv_prep(const PvdaBackend* module, const GLWEParams* params_glwe);
-BE_PolyVecVmpPrep* new_biv_prep_custom_params(const PvdaBackend* module, uint64_t biv_l);
-void delete_biv_prep(const PvdaBackend* module, BE_PolyVecVmpPrep* biv_prep);
+BE_PolyBivVmpPrep* new_biv_prep(const PvdaBackend* module, const GLWEParams* params_glwe);
+BE_PolyBivVmpPrep* new_biv_prep_custom_params(const PvdaBackend* module, uint64_t biv_l);
+void delete_biv_prep(const PvdaBackend* module, BE_PolyBivVmpPrep* biv_prep);
 
 // =============================================
 // |                                           |
@@ -304,7 +307,7 @@ void delete_biv_prep(const PvdaBackend* module, BE_PolyVecVmpPrep* biv_prep);
  * @retval 0  Otherwise.
  *
  */
-int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecDFT* res_dft, const PolyBiv* a);
+int biv_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyBivDFT* res_dft, const PolyBiv* a);
 
 /**
  * @brief Performs the iDFT of a bivariate polynomial.
@@ -319,7 +322,7 @@ int biv_coefs_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, B
  * @retval 0  Otherwise.
  *
  */
-int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyVecDFT* a_dft);
+int biv_from_dft(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyBivDFT* a_dft);
 
 /**
  * @brief Transforms a bivariate polynomial into prepared form for operations like VMP.
@@ -332,7 +335,7 @@ int biv_dft_to_coefs(const PvdaBackend* module, const GLWEParams* params_glwe, P
  * @retval -1 If an error occurs.
  * @retval 0  Otherwise.
  */
-int biv_coefs_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyVecVmpPrep* res_prep,
+int biv_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyBivVmpPrep* res_prep,
                       const PolyBiv* a);
 
 // =============================================

@@ -15,9 +15,9 @@ int glwegadget_to_ggsw_ksk_generate(const PvdaBackend* module, GGSWCiphertextPre
 	uint64_t nn = params_ggsw->params_glwe->nn;
 	uint64_t k  = params_ggsw->params_glwe->k;
 
-	PolyUniv* neg_sk_i       = NULL;
+	PolyUnivZnx* neg_sk_i       = NULL;
 	GGSWCiphertext* tmp_ggsw = NULL;
-	neg_sk_i                 = new_univ(params_ggsw->params_glwe);
+	neg_sk_i                 = new_univ_znx(params_ggsw->params_glwe);
 	CHECK_ALLOC(neg_sk_i, "allocation failed in ggsw ksk generation");
 
 	tmp_ggsw = new_ggsw(params_ggsw);
@@ -41,7 +41,7 @@ int glwegadget_to_ggsw_ksk_generate(const PvdaBackend* module, GGSWCiphertextPre
 	status = 0;
 cleanup:
 	delete_ggsw(tmp_ggsw);
-	delete_univ(neg_sk_i);
+	delete_univ_znx(neg_sk_i);
 	return status;
 }
 

@@ -30,7 +30,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	GLWESecretKey* sk                = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep   = new_glwe_secret_key_prepared(module, params_glwe);
 	GLWEGadgetCiphertext* glwegadget = new_glwegadget(params_glwegadget);
-	PolyUniv* m_univ                 = new_univ(params_glwe);
+	PolyUnivZnx* m_univ                 = new_univ_znx(params_glwe);
 
 	// Draws the message
 	glwe_sk_random_uniform(module, sk, 3);
@@ -43,7 +43,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 
 	// Clean up
 	delete_glwe_secret_key(sk);
-	delete_univ(m_univ);
+	delete_univ_znx(m_univ);
 	delete_glwegadget(glwegadget);
 	delete_glwe_secret_key_prepared(sk_prep);
 
@@ -61,7 +61,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	PolyUniv* m_univ               = new_univ(params_glwe);
+	PolyUnivZnx* m_univ               = new_univ_znx(params_glwe);
 
 	PolyBiv* phase_computed              = new_biv(params_glwe);
 	PolyUnivRnX* phase_observed_univ_rnx = new_univ_rnx(params_glwe);
@@ -73,7 +73,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	// Draws the message
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
-	memset(m_univ, 0, univ_bytes(params_glwe));
+	memset(m_univ, 0, univ_znx_bytes(params_glwe));
 	uniform_pow2_random_pol_znx(module, m_univ, D, params_glwe->kappa);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, D);
@@ -95,7 +95,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	delete_univ_rnx(phase_observed_univ_rnx);
 	delete_biv(phase_computed);
 	delete_univ_rnx(phase_expected_univ_rnx);
-	delete_univ(m_univ);
+	delete_univ_znx(m_univ);
 	delete_glwe_secret_key_prepared(sk_prep);
 	delete_glwe_secret_key(sk);
 

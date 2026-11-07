@@ -8,11 +8,22 @@
 #include "glwe_params.h"
 
 /**
- *
  * @file univariate_polynomial.h
  *
  * @brief Operations on univariate polynomials.
- *
+ * 
+ * This file contains everything on library side univariate polynomials.
+ * We have three types  of univariate polynomial depending on the plaintext space:
+ * - PolyUnivZnx for coefficients in Z. We use signed 64-bits integers for the data.
+ * - PolyUnivRnX for coefficients in R. We use double to approximate them;
+ * - PolyUnivTnX for coefficients in T we scale from real in [0,1) to integers in [0, 2^64).
+ * 
+ * Only functions that prepares PolyUnivZnx are implemented, as both 
+ * RnX and TnX univariate polynomial are converted to bivariate ZnX polynomial
+ * before any operation.
+ * 
+ * For SVP-prepared univariate polynomials, it is used for the secret key which is
+ * either a binary or a ternary key (-1,0,1), so we consider it to be a ZnX polynomial.
  */
 
 // =============================================
@@ -37,11 +48,11 @@ typedef double PolyUnivRnX;
 /**
  * @brief Represents a \ZnX polynomial
  */
-typedef int64_t PolyUniv;
+typedef int64_t PolyUnivZnx;
 
 // =============================================
 // |                                           |
-// |                 PolyUniv                  |
+// |                PolyUnivZnx                |
 // |                                           |
 // =============================================
 
@@ -53,14 +64,14 @@ typedef int64_t PolyUniv;
  * @retval NULL in case of a failure.
  * @retval A pointer to the new object otherwise.
  */
-PolyUniv* new_univ(const GLWEParams* params_glwe);
+PolyUnivZnx* new_univ_znx(const GLWEParams* params_glwe);
 
 /**
  * @brief Deallocates an univariate polynomial
  *
  * @param pol The object to deallocate
  */
-void delete_univ(PolyUniv* pol);
+void delete_univ_znx(PolyUnivZnx* pol);
 
 // =============================================
 // |                                           |
@@ -69,21 +80,21 @@ void delete_univ(PolyUniv* pol);
 // =============================================
 
 /**
- * @brief Allocate a new univariate polynomial in DFT domain.
+ * @brief Allocate a new \ZnX univariate polynomial in DFT domain.
  *
  * @param module The backend instance.
  *
  * @retval NULL in case of a failure.
  * @retval An opaque type pointer to the new object otherwise.
  */
-BE_PolyVecDFT* new_univ_dft(const PvdaBackend* module);
+BE_PolyUnivZnxDFT* new_univ_znx_dft(const PvdaBackend* module);
 
 /**
- * @brief Deallocates an univariate polynomial in the DFT domain.
+ * @brief Deallocates an \ZnX univariate polynomial in the DFT domain.
  *
  * @param pol The object to deallocate.
  */
-void delete_univ_dft(const PvdaBackend* module, BE_PolyVecDFT* pol);
+void delete_univ_znx_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* pol);
 
 /**
  * @brief Convert an univariate polynomial from coefficient space to DFT.
@@ -95,7 +106,7 @@ void delete_univ_dft(const PvdaBackend* module, BE_PolyVecDFT* pol);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const PolyUniv* a);
+int univ_znx_to_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* res_dft, const PolyUnivZnx* a);
 
 /**
  * @brief Convert an univariate polynomial from DFT domain into coefficient space.
@@ -107,7 +118,7 @@ int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const P
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const BE_PolyVecDFT* a_dft);
+int univ_dft_to_znx(const PvdaBackend* module, PolyUnivZnx* res, const BE_PolyUnivZnxDFT* a_dft);
 
 // =============================================
 // |                                           |
@@ -116,21 +127,21 @@ int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const BE_PolyVec
 // =============================================
 
 /**
- * @brief Allocate a new prepared univariate polynomial.
+ * @brief Allocate a new SVP-prepared univariate polynomial.
  *
  * @param module The backend instance.
  *
  * @retval NULL in case of a failure.
  * @retval An opaque type pointer to the new object otherwise.
  */
-BE_PolySvpPrep* new_univ_prep(const PvdaBackend* module);
+BE_PolyUnivSvpPrep* new_univ_svp_prep(const PvdaBackend* module);
 
 /**
- * @brief Delete a prepared univariate polynomial.
+ * @brief Delete a SVP-prepared univariate polynomial.
  *
  * @param pol The object to deallocate.
  */
-void delete_univ_prep(const PvdaBackend* module, BE_PolySvpPrep* pol);
+void delete_univ_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep* pol);
 
 /**
  * @brief Prepare an univariate polynomial.
@@ -142,9 +153,9 @@ void delete_univ_prep(const PvdaBackend* module, BE_PolySvpPrep* pol);
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int univ_coefs_to_prep(const PvdaBackend* module, BE_PolySvpPrep* res_prep, const PolyUniv *a);
+int univ_znx_to_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep* res_prep, const PolyUnivZnx *a);
 
-//* NOTE : We could have had a univ_prep_to_coeff() function, but it is not mandatory.
+//* NOTE : We could have had a univ_prep_to_znx() function, but it is not mandatory.
 
 // =============================================
 // |                                           |
@@ -234,7 +245,7 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
  *
  * @return Number of bytes needed to store a univariate \ZnX polynomial with the given parameters.
  */
-uint64_t univ_bytes(const GLWEParams* params_glwe);
+uint64_t univ_znx_bytes(const GLWEParams* params_glwe);
 
 /**
  * @brief Returns the number of bytes needed to store a univariate real polynomial.
@@ -264,25 +275,24 @@ uint64_t univ_tnx_bytes(const GLWEParams* params_glwe);
  * @brief Prints a Univariate Polynomial in \ZnX.
  *
  * @param pol A Pointer to the Univariate Polynomial.
- * @param nn   The degree of the chosen cyclotomic polynomial.
+ * @param nn  The size of the polynomial.
  */
-void printf_poly_univ_ZnX(PolyUniv* pol, int64_t nn);
+void print_poly_univ_ZnX(PolyUnivZnx* pol, int64_t nn);
 
 /**
  * @brief Prints a Univariate Polynomial in \RnX.
  *
  * @param pol A Pointer to the Univariate Polynomial.
- * @param nn   The degree of the chosen cyclotomic polynomial.
+ * @param nn  The size of the polynomial.
  */
-void printf_poly_univ_RnX(double* pol, int64_t nn);
+void print_poly_univ_RnX(PolyUnivRnX* pol, int64_t nn);
 
 /**
- * @brief Prints a Vector of Univariate Polynomials.
+ * @brief Prints a Univariate Polynomial in \TnX.
  *
- * @param pols        A Pointer to the vector.
- * @param pols_size   The size of the vector.
- * @param nn           The degree of the chosen cyclotomic polynomial.
+ * @param pol A Pointer to the Univariate Polynomial.
+ * @param nn  The size of the polynomial.
  */
-void printf_vec_poly_univ(int64_t* pols, int64_t pols_size, int64_t nn);
+void print_poly_univ_TnX(PolyUnivTnX* pol, int64_t nn);
 
 #endif

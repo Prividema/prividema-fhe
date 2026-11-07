@@ -156,7 +156,7 @@ typedef struct glwe_ciphertext_dft
 {
 	const PvdaBackend* module;	///< Backend that owns vec
 	const GLWEParams* params;	///< GLWE parameters
-	BE_PolyVecDFT* vec;  		///< Opaque DFT-domain vector, one entry per limb of the GLWE.
+	BE_PolyBivDFT* vec;  		///< Opaque DFT-domain vector, one entry per limb of the GLWE.
 } GLWECiphertextDFT;
 
 /**

@@ -23,7 +23,7 @@ void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
-	PolyUniv* m                    = new_univ(params_glwe);
+	PolyUnivZnx* m                    = new_univ_znx(params_glwe);
 	GLWECiphertext* glwe_input     = new_glwe(params_glwe);
 	GLWECiphertext* glwe_computed  = new_glwe(params_glwe);
 	GGSWCiphertext* ggsw           = new_ggsw(params_ggsw);
@@ -47,7 +47,7 @@ void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	delete_univ(m);
+	delete_univ_znx(m);
 	delete_glwe(glwe_input);
 	delete_glwe(glwe_computed);
 	delete_ggsw(ggsw);
@@ -72,7 +72,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 
 	GLWESecretKey* sk                 = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep    = new_glwe_secret_key_prepared(module, params_glwe);
-	PolyUniv* m                       = new_univ(params_glwe);
+	PolyUnivZnx* m                       = new_univ_znx(params_glwe);
 	GLWECiphertext* glwe_input        = new_glwe(params_glwe);
 	GLWECiphertext* glwe_computed     = new_glwe(params_glwe);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
@@ -98,7 +98,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	delete_univ(m);
+	delete_univ_znx(m);
 	delete_glwe(glwe_input);
 	delete_glwe(glwe_computed);
 	delete_ggsw(ggsw);
@@ -124,7 +124,7 @@ void bench_ggsw_prepare(benchmark::State& state)
 
 	GLWESecretKey* sk                 = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep    = new_glwe_secret_key_prepared(module, params_glwe);
-	PolyUniv* m                       = new_univ(params_glwe);
+	PolyUnivZnx* m                       = new_univ_znx(params_glwe);
 	GGSWCiphertext* ggsw              = new_ggsw(params_ggsw);
 	GGSWCiphertextPrep* ggsw_prep     = new_ggsw_prep(module, params_ggsw);
 	PolyBiv* result_biv               = new_biv(params_glwe);
@@ -144,7 +144,7 @@ void bench_ggsw_prepare(benchmark::State& state)
 
 	delete_glwe_secret_key(sk);
 	delete_glwe_secret_key_prepared(sk_prep);
-	delete_univ(m);
+	delete_univ_znx(m);
 	delete_ggsw(ggsw);
 	delete_ggsw_prep(ggsw_prep);
 	delete_biv(result_biv);

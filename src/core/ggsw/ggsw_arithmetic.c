@@ -57,7 +57,7 @@ void ggsw_add(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCipherte
 }
 
 int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw,
-                    const BE_PolySvpPrep* u_prep)
+                    const BE_PolyUnivSvpPrep* u_prep)
 
 {
 	int status = -1;

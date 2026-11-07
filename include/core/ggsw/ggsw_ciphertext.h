@@ -95,7 +95,7 @@ FlatPolyVec ggsw_as_flat_poly_vec(const GGSWCiphertext* ggsw_ct);
  * @retval 0 otherwise.
  */
 int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
-                        const PolyUniv* m_univ);
+                        const PolyUnivZnx* m_univ);
 
 /**
  * @brief Encrypts univariate \ZnX message m_univ into GGSW ciphertext res with parameters params
@@ -111,7 +111,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
  * @retval 0 otherwise
  * */
 int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWEPublicKey* pk,
-                        const PolyUniv* m_univ);
+                        const PolyUnivZnx* m_univ);
 
 // =============================================
 // |                                           |

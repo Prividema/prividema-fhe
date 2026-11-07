@@ -64,7 +64,7 @@ cleanup:
 
 int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
-                                         const BE_PolyVecVmpPrep* a_prep)
+                                         const BE_PolyBivVmpPrep* a_prep)
 {
 	int status = -1;
 
@@ -125,7 +125,7 @@ int glwe_automorphism_key_generate(const PvdaBackend* module, GLWEAutomorphismKe
 	uint64_t nn = sk_prep->nn;
 
 	GLWEGadgetCiphertext* glwegad_tmp = new_glwegadget(automorphism_key->glwe_ksk->params);
-	PolyUniv* auto_sk_tmp             = new_univ(automorphism_key->glwe_ksk->params->params_glwe);
+	PolyUnivZnx* auto_sk_tmp             = new_univ_znx(automorphism_key->glwe_ksk->params->params_glwe);
 
 	CHECK_ALLOC(glwegad_tmp, "GLWEGadget allocation failed in automorphism key computation");
 	CHECK_ALLOC(auto_sk_tmp, "Allocation failed in automorphism key computation");
@@ -154,7 +154,7 @@ int glwe_automorphism_key_generate(const PvdaBackend* module, GLWEAutomorphismKe
 	status = 0;
 cleanup:
 	delete_glwegadget(glwegad_tmp);
-	delete_univ(auto_sk_tmp);
+	delete_univ_znx(auto_sk_tmp);
 	return status;
 }
 

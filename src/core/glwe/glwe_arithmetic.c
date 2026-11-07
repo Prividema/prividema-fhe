@@ -60,7 +60,7 @@ int glwe_negate(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
 	return pvda_vec_znx_negate(module, &res_flattened, &glwe_flattened);
 }
 
-int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolySvpPrep* u_dft,
+int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolyUnivSvpPrep* u_dft,
                     const GLWECiphertext* glwe)
 {
 	int status = -1;
@@ -91,7 +91,7 @@ int glwe_dft_add(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GL
 	                            glwe_params_n_limbs(glwe_rhs_dft->params));
 }
 
-int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolySvpPrep* u_dft,
+int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolyUnivSvpPrep* u_dft,
                         const GLWECiphertextDFT* glwe_dft)
 {
 	// Computes DFT(u * glwe)

@@ -30,13 +30,13 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	GGSWCiphertext* ggsw                = new_ggsw(params_ggsw);
 	GLWECiphertext* glwe_tilde          = new_glwe(params_glwe);
 	GLWECiphertext* ext_prod_observed   = new_glwe(params_glwe);
-	PolyUniv* u_univ                    = new_univ(params_glwe);
+	PolyUnivZnx* u_univ                    = new_univ_znx(params_glwe);
 	PolyBiv* m                          = new_biv(params_glwe);
 
 	PolyBiv* phase_observed           = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_univ_rnx = new_univ_rnx(params_glwe);
-	BE_PolySvpPrep* u_univ_prep       = new_univ_prep(module);
-	BE_PolyVecDFT* um_dft             = new_biv_dft(module, params_glwe);
+	BE_PolyUnivSvpPrep* u_univ_prep       = new_univ_svp_prep(module);
+	BE_PolyBivDFT* um_dft             = new_biv_dft(module, params_glwe);
 	PolyBiv* um                       = new_biv(params_glwe);
 	PolyUnivRnX* um_univ_rnx          = new_univ_rnx(params_glwe);
 
@@ -59,10 +59,10 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	biv_to_univ_rnx(params_glwe, um_observed_univ_rnx, phase_observed, 0);
 
 	//Computes u*m manually
-	univ_coefs_to_prep(module, u_univ_prep, u_univ);
+	univ_znx_to_svp_prep(module, u_univ_prep, u_univ);
 	FlatPolyVec m_vec = biv_as_flat_poly_vec(m);
 	pvda_svp_apply_dft(module, um_dft, ggsw_params_l_tilde_a(params_ggsw), u_univ_prep, &m_vec);
-	biv_dft_to_coefs(module, params_glwe, um, um_dft);
+	biv_from_dft(module, params_glwe, um, um_dft);
 	biv_normalize(module, params_glwe->kappa, um, um);
 	biv_to_univ_rnx(params_glwe, um_univ_rnx, um, 0);
 
@@ -71,8 +71,8 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 
 	// Clean up
 	delete_biv(m);
-	delete_univ(u_univ);
-	delete_univ_prep(module, u_univ_prep);
+	delete_univ_znx(u_univ);
+	delete_univ_svp_prep(module, u_univ_prep);
 	delete_biv(phase_observed);
 	delete_biv(um);
 	delete_univ_rnx(um_univ_rnx);

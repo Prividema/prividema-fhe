@@ -89,7 +89,7 @@ int glwe_sk_random_ternary(const PvdaBackend* module, GLWESecretKey* sk);
  *
  * @return A pointer to the N coefficients of the pos'th polynomial, inside sk.
  */
-PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
+PolyUnivZnx* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos);
 
 // =============================================
 // |                                           |
@@ -111,8 +111,8 @@ typedef struct glwe_secret_key_prepared
 	const PvdaBackend* module; 		///< The backend instance
 	uint64_t nn;           	   		///< Ring dimension
 	uint64_t k;            	   		///< Number of polynomials in the key
-	PolyUniv* values_coef;         	///< The k key polynomials in coefficient space, contiguous (k * nn coefficients)
-	BE_PolySvpPrep** values_prep;  	///< The k key polynomials as SVP operands (k separate backend objects)
+	PolyUnivZnx* values_coef;         	///< The k key polynomials in coefficient space, contiguous (k * nn coefficients)
+	BE_PolyUnivSvpPrep** values_prep;  	///< The k key polynomials as SVP operands (k separate backend objects)
 } GLWESecretKeyPrepared;
 
 /**
@@ -140,7 +140,7 @@ void delete_glwe_secret_key_prepared(GLWESecretKeyPrepared* sk_prep);
  * @return The pos'th key polynomial, prepared as the scalar operand of scalar-vector products.
  *         It is owned by sk_prep: do not delete it.
  */
-BE_PolySvpPrep* glwe_prepared_sk_extract_poly_prep(const GLWESecretKeyPrepared* sk_prep, uint64_t pos);
+BE_PolyUnivSvpPrep* glwe_prepared_sk_extract_poly_prep(const GLWESecretKeyPrepared* sk_prep, uint64_t pos);
 
 /**
  * @brief Returns a view of the pos'th polynomial in the prepared secret key.
@@ -151,7 +151,7 @@ BE_PolySvpPrep* glwe_prepared_sk_extract_poly_prep(const GLWESecretKeyPrepared* 
  *
  * @return A pointer to the beginning of the pos-th polynomial in the key, in coefficient form.
  */
-PolyUniv* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_prep, uint64_t pos);
+PolyUnivZnx* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_prep, uint64_t pos);
 
 
 // =============================================

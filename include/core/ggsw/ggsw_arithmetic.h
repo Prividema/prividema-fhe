@@ -44,13 +44,13 @@ void ggsw_add(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCipherte
  * @param module    Additional information for backend.
  * @param res       The resulting GGSWCiphertext
  * @param ggsw      The input GGSWCiphertext.
- * @param cte       The constant in \ZnX, in SVP-prepared form (see univ_coefs_to_prep)
+ * @param cte       The constant in \ZnX, in SVP-prepared form (see univ_znx_to_svp_prep)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
 int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw,
-                    const BE_PolySvpPrep* cte);
+                    const BE_PolyUnivSvpPrep* cte);
 
 /**
  * @brief Computes the external product between a GLWE and a GGSW.

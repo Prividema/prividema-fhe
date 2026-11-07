@@ -50,14 +50,14 @@ int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT
  * @param module                The backend module
  * @param res_dft               The resulting GLWE ciphertext in DFT domain
  * @param glwegadget_prep_ct    A prepared GLWEGadget to multiply with
- * @param a_prep                A bivariate polynomial in VMP-prepared form (see biv_coefs_to_prep)
+ * @param a_prep                A bivariate polynomial in VMP-prepared form (see biv_to_prep)
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise
  */
 int glwegadget_half_prod_prepared_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft,
                                          const GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
-                                         const BE_PolyVecVmpPrep* a_prep);
+                                         const BE_PolyBivVmpPrep* a_prep);
 /**
  * @brief Computes an automorphism key for an automorphism of degree automorphism_p from
  * the provided secret key

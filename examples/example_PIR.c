@@ -131,11 +131,11 @@ int onionpir_fill_column_with_matrix_position(const GLWEParams* params_glwe, Pol
 // This stores the database columns after being pre-processed ("prepared") for faster operation
 // In a real use case, this would not exist as a variable in memory.
 // Instead, we would use a memory mapping and it would reside in disk
-BE_PolyVecVmpPrep* columns_prep[IN_MEMORY_DFT_COLS + 1] = {0};
+BE_PolyBivVmpPrep* columns_prep[IN_MEMORY_DFT_COLS + 1] = {0};
 
 // Retrieve a prepared column. This would be simple pointer arithmetic
 // to an mmaped file in disk in a real use case
-BE_PolyVecVmpPrep* onionpir_get_prepared_column(int64_t column)
+BE_PolyBivVmpPrep* onionpir_get_prepared_column(int64_t column)
 {
 	if (column >= IN_MEMORY_DFT_COLS) return columns_prep[0];
 	return columns_prep[column + 1];
@@ -178,7 +178,7 @@ int prepare_column(const PvdaBackend* module, int64_t column, const GLWEParams* 
 
 	// Custom-depth bivariate polynomials, since each "bivariate polynomial" actually corresponds
 	// to the concatenation of all the bivariate polynomials in the column
-	BE_PolyVecVmpPrep* pos_biv_prep = new_biv_prep_custom_params(module, total_depth);
+	BE_PolyBivVmpPrep* pos_biv_prep = new_biv_prep_custom_params(module, total_depth);
 	PolyBiv* pos_biv         = new_biv_custom_params(db_params->nn, total_depth);
 	CHECK_ALLOC(pos_biv_prep, "column 'bivariate' polynomial (prepared) allocation failed");
 	CHECK_ALLOC(pos_biv, "column 'bivariate' polynomial allocation failed");
@@ -190,14 +190,14 @@ int prepare_column(const PvdaBackend* module, int64_t column, const GLWEParams* 
 	    onionpir_fill_column_with_matrix_position(db_params, pos_biv, column, query1_params->l_tilde, MATRIX_ROWS),
 	    "Filling the onionPIR column failed");
 
-	// This GLWEParams object is a dummy parameter set that is used only for biv_coefs_to_prep to be able to work on a
+	// This GLWEParams object is a dummy parameter set that is used only for biv_to_prep to be able to work on a
 	// "bivariate_polynomial" of depth total_depth (= l_tilde * MATRIX_ROWS).
 	//
 	GLWEParams total_params = {db_params->nn, db_params->k, db_params->kappa,
 	                           MATRIX_ROWS * db_params->ciphertext_nb_limbs};
 
 	//Prepare the column
-	CHECK_CALL(biv_coefs_to_prep(module, &total_params, pos_biv_prep, pos_biv),
+	CHECK_CALL(biv_to_prep(module, &total_params, pos_biv_prep, pos_biv),
 	           "Column preparation (preprocessing) failed");
 	status = 0;
 cleanup:
@@ -378,16 +378,16 @@ int onionpir_client_phase1(const PvdaBackend* module, GLWECiphertext** row_query
 	int status        = -1;
 	*row_query        = new_glwe(params_row_query);
 	*col_query        = new_glwe(params_col_query);
-	PolyUniv* sel_row = new_univ(params_row_query);
-	PolyUniv* sel_col = new_univ(params_col_query);
+	PolyUnivZnx* sel_row = new_univ_znx(params_row_query);
+	PolyUnivZnx* sel_col = new_univ_znx(params_col_query);
 
 	CHECK_ALLOC(row_query, "GLWE allocation failed in onionpir phase 1");
 	CHECK_ALLOC(col_query, "GLWE allocation failed in onionpir phase 1");
 	CHECK_ALLOC(sel_row, "Univariate polynomial allocation failed in onionpir phase 1");
 	CHECK_ALLOC(sel_col, "Univariate polynomial allocation failed in onionpir phase 1");
 
-	memset(sel_row, 0, univ_bytes(params_row_query));
-	memset(sel_col, 0, univ_bytes(params_col_query));
+	memset(sel_row, 0, univ_znx_bytes(params_row_query));
+	memset(sel_col, 0, univ_znx_bytes(params_col_query));
 
 	uint64_t col_num = column;
 	uint64_t row_num = row;
@@ -410,8 +410,8 @@ int onionpir_client_phase1(const PvdaBackend* module, GLWECiphertext** row_query
 
 	status = 0;
 cleanup:
-	delete_univ(sel_row);
-	delete_univ(sel_col);
+	delete_univ_znx(sel_row);
+	delete_univ_znx(sel_col);
 	return status;
 }
 

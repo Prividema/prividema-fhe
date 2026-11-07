@@ -63,7 +63,7 @@ FlatPolyVec ggsw_as_flat_poly_vec(const GGSWCiphertext* ggsw_ct)
 }
 
 int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
-                        const PolyUniv* m_univ)
+                        const PolyUnivZnx* m_univ)
 {
 	int status = -1;
 
@@ -77,9 +77,9 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
-	BE_PolyVecDFT* m_univ_dft     = new_univ_dft(module);   // DFT(msg)
-	BE_PolyVecDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
-	PolyUniv* m_skj_univ          = new_univ(params_glwe);  // -msg * sk_j
+	BE_PolyVecDFT* m_univ_dft     = new_univ_znx_dft(module);   // DFT(msg)
+	BE_PolyVecDFT* m_skj_univ_dft = new_univ_znx_dft(module);   // DFT(msg * sk_j)
+	PolyUnivZnx* m_skj_univ          = new_univ_znx(params_glwe);  // -msg * sk_j
 	// Temp space for -m * sk * 2^{-kappa_tilde}
 	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 
@@ -89,7 +89,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)
-	univ_coefs_to_dft(module, m_univ_dft, m_univ);
+	univ_znx_to_dft(module, m_univ_dft, m_univ);
 
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
@@ -108,7 +108,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 
 				// Invert the DFT to get -msg * sk_j
-				CHECK_CALL(univ_dft_to_coefs(module, m_skj_univ, m_skj_univ_dft),
+				CHECK_CALL(univ_dft_to_znx(module, m_skj_univ, m_skj_univ_dft),
 				           "vec_znx_idft_p failed in compute_phase_ij");
 
 				// Negate in coefficient space to get -msg * sk_j
@@ -136,9 +136,9 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 cleanup:
 	delete_biv(glwe_biv_msg);
-	delete_univ_dft(module, m_skj_univ_dft);
-	delete_univ(m_skj_univ);
-	delete_univ_dft(module, m_univ_dft);
+	delete_univ_znx_dft(module, m_skj_univ_dft);
+	delete_univ_znx(m_skj_univ);
+	delete_univ_znx_dft(module, m_univ_dft);
 
 	return status;
 }

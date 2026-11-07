@@ -17,29 +17,94 @@ void spqlios_delete_module_info(PvdaBackend* module)
 	delete_module_info(module->spqlios_module);
 }
 
-BE_PolyVecDFT* spqlios_new_vec_znx_dft(const PvdaBackend* module, uint64_t size)
+// =============================================
+// |                                           |
+// |              BE_PolyUnivZnxDFT            |
+// |                                           |
+// =============================================
+
+BE_PolyUnivZnxDFT* spqlios_new_univ_znx_dft(const PvdaBackend* module)
 {
-	return (BE_PolyVecDFT*)new_vec_znx_dft(module->spqlios_module, size);
+	return (BE_PolyUnivZnxDFT*)new_vec_znx_dft(module->spqlios_module, 1); 
 }
 
-int spqlios_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const FlatPolyVec* a)
+void spqlios_delete_univ_znx_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* pol)
+{
+	if (!pol) return;
+	delete_vec_znx_dft((VEC_ZNX_DFT*)pol);
+}
+
+int spqlios_flat_univ_to_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* res, const FlatPolyVec* a)
+{
+	vec_znx_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, 1, a->ptr, a->size, a->stride);
+	return 0;
+}
+
+int spqlios_flat_univ_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyUnivZnxDFT* pol)
+{
+	int status = -1;
+
+	size_t tmp_bytes = vec_znx_idft_tmp_bytes(module->spqlios_module);
+	uint8_t* tmp     = malloc(tmp_bytes);
+	if (tmp_bytes) CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
+
+	assert(res->stride == res->nn);
+	vec_znx_idft(module->spqlios_module, (VEC_ZNX_BIG*)res->ptr, 1, (VEC_ZNX_DFT*)pol, 1, tmp);
+
+	status = 0;
+
+cleanup:
+	free(tmp);
+	return status;
+}
+
+// =============================================
+// |                                           |
+// |             BE_PolyUnivSvpPrep            |
+// |                                           |
+// =============================================
+
+BE_PolyUnivSvpPrep* spqlios_new_univ_svp_prep(const PvdaBackend* module)
+{
+	return (BE_PolyUnivSvpPrep*)new_svp_ppol(module->spqlios_module);
+}
+
+void spqlios_delete_univ_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep* ppol)
+{
+	if (!ppol) return;
+	delete_svp_ppol(((SVP_PPOL*)ppol));
+}
+
+int spqlios_flat_univ_to_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep* ppol, const FlatPolyVec* pol)
+{
+	svp_prepare(module->spqlios_module, (SVP_PPOL*)ppol, pol->ptr);
+	return 0;
+}
+
+// =============================================
+// |                                           |
+// |                BE_PolyBivDFT              |
+// |                                           |
+// =============================================
+
+BE_PolyBivDFT* spqlios_new_biv_dft(const PvdaBackend* module, uint64_t size)
+{
+	return (BE_PolyBivDFT*)new_vec_znx_dft(module->spqlios_module, size); 
+}
+
+void spqlios_delete_biv_dft(const PvdaBackend* module, BE_PolyBivDFT* pol)
+{
+	if (!pol) return;
+	delete_vec_znx_dft((VEC_ZNX_DFT*)pol);
+}
+
+int spqlios_flat_biv_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size, const FlatPolyVec* a)
 {
 	vec_znx_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, a->ptr, a->size, a->stride);
 	return 0;
 }
 
-void spqlios_delete_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res)
-{
-	if (!res) return;
-	delete_vec_znx_dft((VEC_ZNX_DFT*)res);
-}
-
-int64_t* spqlios_new_vec_znx_big(const PvdaBackend* module, int64_t size)
-{
-	return (int64_t*)new_vec_znx_big(module->spqlios_module, size);
-}
-
-int spqlios_vec_znx_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyVecDFT* a_dft, uint64_t a_size)
+int spqlios_flat_biv_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyBivDFT* a_dft, uint64_t a_size)
 {
 	int status = -1;
 
@@ -57,91 +122,79 @@ cleanup:
 	return status;
 }
 
-void spqlios_delete_vec_znx_big(const PvdaBackend* module, int64_t* res)
-{
-	if (!res) return;
-	delete_vec_znx_big((VEC_ZNX_BIG*)res);
-}
+// =============================================
+// |                                           |
+// |                    SVP                    |
+// |                                           |
+// =============================================
 
-BE_PolySvpPrep* spqlios_new_svp_ppol(const PvdaBackend* module)
-{
-	return (BE_PolySvpPrep*)new_svp_ppol(module->spqlios_module);
-}
-
-int spqlios_svp_prepare(const PvdaBackend* module, BE_PolySvpPrep* ppol, const int64_t* pol)
-{
-	svp_prepare(module->spqlios_module, (SVP_PPOL*)ppol, pol);
-	return 0;
-}
-
-void spqlios_delete_svp_ppol(const PvdaBackend* module, BE_PolySvpPrep* ppol)
-{
-	if (!ppol) return;
-	delete_svp_ppol(((SVP_PPOL*)ppol));
-}
-
-int spqlios_svp_apply_dft(const PvdaBackend* module, const BE_PolyVecDFT* res, uint64_t res_size,
-                          const BE_PolySvpPrep* prepared_pol, const FlatPolyVec* a)
+int spqlios_svp_apply_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size,
+                          const BE_PolyUnivSvpPrep* prepared_pol, const FlatPolyVec* a)
 {
 	svp_apply_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)prepared_pol, a->ptr, a->size,
 	              a->stride);
 	return 0;
 }
 
-int spqlios_svp_apply_dft_to_dft(const PvdaBackend* module, const BE_PolyVecDFT* res, uint64_t res_size,
-                                 const BE_PolySvpPrep* ppol, const BE_PolyVecDFT* a, uint64_t a_size)
+int spqlios_svp_apply_dft_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size,
+                              const BE_PolyUnivSvpPrep* ppol, const BE_PolyBivDFT* a, uint64_t a_size)
 {
 	svp_apply_dft_to_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)ppol, (VEC_ZNX_DFT*)a, a_size);
 	return 0;
 }
 
-// spqlios declares vec_dft_add but does not implement it, so it is implemented here.
-// In the FFT64 layout, each DFT polynomial is nn doubles and the DFT is linear,
-// so the addition is coefficient-wise.
-// Same size convention as vec_znx_add: add up to the smallest size, copy up to the largest, then zero-extend.
-int spqlios_vec_znx_dft_add(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_n_limbs, BE_PolyVecDFT* a,
-                            uint64_t a_n_limbs, BE_PolyVecDFT* b, uint64_t b_n_limbs)
+// ZnxBig
+
+int64_t* spqlios_new_vec_znx_big(const PvdaBackend* module, int64_t size)
 {
-	uint64_t nn = module_get_n(module->spqlios_module);
-
-	double* r       = (double*)res;
-	const double* x = (const double*)a;
-	const double* y = (const double*)b;
-
-	// Make x the shortest input
-	if (a_n_limbs > b_n_limbs)
-	{
-		const double* tmp = x;
-		x                 = y;
-		y                 = tmp;
-		uint64_t tmp_n    = a_n_limbs;
-		a_n_limbs         = b_n_limbs;
-		b_n_limbs         = tmp_n;
-	}
-
-	uint64_t sum_n  = res_n_limbs < a_n_limbs ? res_n_limbs : a_n_limbs;
-	uint64_t copy_n = res_n_limbs < b_n_limbs ? res_n_limbs : b_n_limbs;
-
-	for (uint64_t i = 0; i < sum_n * nn; ++i) r[i] = x[i] + y[i];
-	if (copy_n > sum_n) memmove(r + sum_n * nn, y + sum_n * nn, (copy_n - sum_n) * nn * sizeof(double));
-	if (res_n_limbs > copy_n) memset(r + copy_n * nn, 0, (res_n_limbs - copy_n) * nn * sizeof(double));
-
-	return 0;
+	return (int64_t*)new_vec_znx_big(module->spqlios_module, size);
 }
 
-BE_PolyVecVmpPrep* spqlios_new_vmp_pvec(const PvdaBackend* module, uint64_t nrows)
+void spqlios_delete_vec_znx_big(const PvdaBackend* module, int64_t* res)
+{
+	if (!res) return;
+	delete_vec_znx_big((VEC_ZNX_BIG*)res);
+}
+
+// =============================================
+// |                                           |
+// |             BE_PolyBivVmpPrep             |
+// |                                           |
+// =============================================
+
+BE_PolyBivVmpPrep* spqlios_new_biv_vmp_prep(const PvdaBackend* module, uint64_t nrows)
 {
 	uint64_t bytes = module_get_n(module->spqlios_module) * nrows * sizeof(double);
 	void* res = spqlios_alloc(bytes);
 	if (res) memset(res, 0, bytes);
-	return (BE_PolyVecVmpPrep*)res;
+	return (BE_PolyBivVmpPrep*)res;
 }
 
-void spqlios_delete_vmp_pvec(const PvdaBackend* module, BE_PolyVecVmpPrep* pvec)
+void spqlios_delete_biv_vmp_prep(const PvdaBackend* module, BE_PolyBivVmpPrep* pvec)
 {
 	if (!pvec) return;
 	spqlios_free(pvec);
 }
+
+int spqlios_flat_biv_to_vmp_prep(const PvdaBackend* module, BE_PolyBivVmpPrep* pvec, uint64_t nrows, const FlatPolyVec* a)
+{
+	int status = -1;
+
+	void* tmp_space = aligned_alloc(64, vmp_prepare_vector_tmp_bytes(module->spqlios_module, nrows, a->size));
+	CHECK_ALLOC(tmp_space, "tmp space alloc failed in spqlios_convolution_prepare");
+
+	vmp_prepare_vector(module->spqlios_module, (VMP_PVEC*)pvec, nrows, a->ptr, a->size, a->stride, tmp_space);
+	status = 0;
+cleanup:
+	free(tmp_space);
+	return status;
+}
+
+// =============================================
+// |                                           |
+// |              BE_PolyMatVmpPrep            |
+// |                                           |
+// =============================================
 
 BE_PolyMatVmpPrep* spqlios_new_vmp_pmat(const PvdaBackend* module, uint64_t nrows, uint64_t ncols)
 {
@@ -169,8 +222,12 @@ void spqlios_delete_vmp_pmat(const PvdaBackend* module, BE_PolyMatVmpPrep* pmat)
 	delete_vmp_pmat(((VMP_PMAT*)pmat));
 }
 
-int spqlios_vmp_apply_dft(const PvdaBackend* module, BE_PolyVecDFT* res, uint64_t res_size, const FlatPolyVec* a,
-                          const BE_PolyMatVmpPrep* pmat, uint64_t nrows, uint64_t ncols)
+// =============================================
+// |                                           |
+// |                    VMP                    |
+// |                                           |
+// =============================================
+int spqlios_vmp_apply_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size, const FlatPolyVec* a, const BE_PolyMatVmpPrep* pmat, uint64_t nrows, uint64_t ncols)
 {
 	int status         = -1;
 	uint8_t* tmp_space = malloc(vmp_apply_dft_tmp_bytes(module->spqlios_module, res_size, a->size, nrows, ncols));
@@ -185,9 +242,9 @@ cleanup:
 	return status;
 }
 
-int spqlios_vmp_apply_dft_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res, const uint64_t res_size,
-                                 const BE_PolyVecDFT* a_dft, uint64_t a_size, const BE_PolyMatVmpPrep* pmat, const uint64_t nrows,
-                                 const uint64_t ncols)
+int spqlios_vmp_apply_dft_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, const uint64_t res_size,
+                              	 const BE_PolyBivDFT* a_dft, uint64_t a_size, const BE_PolyMatVmpPrep* pmat,
+                              	 const uint64_t nrows, const uint64_t ncols)
 {
 	int status         = -1;
 	uint8_t* tmp_space = malloc(vmp_apply_dft_to_dft_tmp_bytes(module->spqlios_module, res_size, a_size, nrows, ncols));
@@ -202,9 +259,9 @@ cleanup:
 	return status;
 }
 
-int spqlios_vmp_apply_prepared_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res, const uint64_t res_size,
-                                      const BE_PolyVecVmpPrep* a_prep, uint64_t a_size, const BE_PolyMatVmpPrep* pmat,
-                                      const uint64_t nrows, const uint64_t ncols)
+int spqlios_vmp_apply_prepared_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, const uint64_t res_size,
+                                   	  const BE_PolyBivVmpPrep* a_prep, uint64_t a_size,
+                                   	  const BE_PolyMatVmpPrep* pmat, const uint64_t nrows, const uint64_t ncols)
 {
 	int status = -1;
 	uint8_t* tmp_space =
@@ -218,6 +275,46 @@ int spqlios_vmp_apply_prepared_to_dft(const PvdaBackend* module, BE_PolyVecDFT* 
 cleanup:
 	free(tmp_space);
 	return status;
+}
+
+// =============================================
+// |                                           |
+// |                 Arithmetic                |
+// |                                           |
+// =============================================
+
+// spqlios declares vec_dft_add but does not implement it, so it is implemented here.
+// In the FFT64 layout, each DFT polynomial is nn doubles and the DFT is linear,
+// so the addition is coefficient-wise.
+// Same size convention as vec_znx_add: add up to the smallest size, copy up to the largest, then zero-extend.
+int spqlios_vec_znx_dft_add(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_n_limbs, BE_PolyBivDFT* a,
+                            uint64_t a_n_limbs, BE_PolyBivDFT* b, uint64_t b_n_limbs)
+{
+	uint64_t nn = module_get_n(module->spqlios_module);
+
+	double* r       = (double*)res;
+	const double* x = (const double*)a;
+	const double* y = (const double*)b;
+
+	// Make x the shortest input
+	if (a_n_limbs > b_n_limbs)
+	{
+		const double* tmp = x;
+		x                 = y;
+		y                 = tmp;
+		uint64_t tmp_n    = a_n_limbs;
+		a_n_limbs         = b_n_limbs;
+		b_n_limbs         = tmp_n;
+	}
+
+	uint64_t sum_n  = res_n_limbs < a_n_limbs ? res_n_limbs : a_n_limbs;
+	uint64_t copy_n = res_n_limbs < b_n_limbs ? res_n_limbs : b_n_limbs;
+
+	for (uint64_t i = 0; i < sum_n * nn; ++i) r[i] = x[i] + y[i];
+	if (copy_n > sum_n) memmove(r + sum_n * nn, y + sum_n * nn, (copy_n - sum_n) * nn * sizeof(double));
+	if (res_n_limbs > copy_n) memset(r + copy_n * nn, 0, (res_n_limbs - copy_n) * nn * sizeof(double));
+
+	return 0;
 }
 
 int spqlios_vec_znx_normalize_base2k(const PvdaBackend* module, uint64_t log2_base2k, FlatPolyVec* res, const FlatPolyVec* a)
@@ -287,39 +384,40 @@ int spqlios_vec_znx_rotate(const PvdaBackend* module, const int64_t p, FlatPolyV
 	return 0;
 }
 
-int spqlios_vmp_prepare_vec(const PvdaBackend* module, BE_PolyVecVmpPrep* pvec, uint64_t nrows, const FlatPolyVec* a)
-{
-	int status = -1;
-
-	void* tmp_space = aligned_alloc(64, vmp_prepare_vector_tmp_bytes(module->spqlios_module, nrows, a->size));
-	CHECK_ALLOC(tmp_space, "tmp space alloc failed in spqlios_convolution_prepare");
-
-	vmp_prepare_vector(module->spqlios_module, (VMP_PVEC*)pvec, nrows, a->ptr, a->size, a->stride, tmp_space);
-	status = 0;
-cleanup:
-	free(tmp_space);
-	return status;
-}
-
 void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 {
-	vt->pvda_new_vec_znx_dft           = spqlios_new_vec_znx_dft;
-	vt->pvda_vec_znx_dft               = spqlios_vec_znx_dft;
-	vt->pvda_delete_vec_znx_dft        = spqlios_delete_vec_znx_dft;
-	vt->pvda_new_vec_znx_big           = spqlios_new_vec_znx_big;
-	vt->pvda_vec_znx_idft              = spqlios_vec_znx_idft;
-	vt->pvda_delete_vec_znx_big        = spqlios_delete_vec_znx_big;
-	vt->pvda_new_svp_ppol              = spqlios_new_svp_ppol;
-	vt->pvda_svp_prepare               = spqlios_svp_prepare;
-	vt->pvda_svp_apply_dft             = spqlios_svp_apply_dft;
-	vt->pvda_svp_apply_dft_to_dft      = spqlios_svp_apply_dft_to_dft;
-	vt->pvda_delete_svp_ppol           = spqlios_delete_svp_ppol;
-	vt->pvda_new_vmp_pmat              = spqlios_new_vmp_pmat;
-	vt->pvda_vmp_prepare_contiguous    = spqlios_vmp_prepare_contiguous;
+	vt->pvda_new_univ_znx_dft    = spqlios_new_univ_znx_dft;
+	vt->pvda_delete_univ_znx_dft = spqlios_delete_univ_znx_dft;
+	vt->pvda_flat_univ_to_dft    = spqlios_flat_univ_to_dft;
+	vt->pvda_flat_univ_idft      = spqlios_flat_univ_idft;
+
+	vt->pvda_new_univ_svp_prep     = spqlios_new_univ_svp_prep;
+	vt->pvda_delete_univ_svp_prep  = spqlios_delete_univ_svp_prep;
+	vt->pvda_flat_univ_to_svp_prep = spqlios_flat_univ_to_svp_prep;
+
+	vt->pvda_new_biv_dft     = spqlios_new_biv_dft;
+	vt->pvda_delete_biv_dft  = spqlios_delete_biv_dft;
+	vt->pvda_flat_biv_to_dft = spqlios_flat_biv_to_dft;
+	vt->pvda_flat_biv_idft   = spqlios_flat_biv_idft;
+
+	vt->pvda_svp_apply_dft        = spqlios_svp_apply_dft;
+	vt->pvda_svp_apply_dft_to_dft = spqlios_svp_apply_dft_to_dft;
+
+	vt->pvda_new_vec_znx_big    = spqlios_new_vec_znx_big;
+	vt->pvda_delete_vec_znx_big = spqlios_delete_vec_znx_big;
+	
+	vt->pvda_new_biv_vmp_prep     = spqlios_new_biv_vmp_prep;
+	vt->pvda_delete_biv_vmp_prep  = spqlios_delete_biv_vmp_prep;
+	vt->pvda_flat_biv_to_vmp_prep = spqlios_flat_biv_to_vmp_prep;
+
+	vt->pvda_new_vmp_pmat 			= spqlios_new_vmp_pmat;
+	vt->pvda_vmp_prepare_contiguous = spqlios_vmp_prepare_contiguous;
+	vt->pvda_delete_vmp_pmat        = spqlios_delete_vmp_pmat;
+
 	vt->pvda_vmp_apply_dft             = spqlios_vmp_apply_dft;
 	vt->pvda_vmp_apply_dft_to_dft      = spqlios_vmp_apply_dft_to_dft;
 	vt->pvda_vmp_apply_prepared_to_dft = spqlios_vmp_apply_prepared_to_dft;
-	vt->pvda_delete_vmp_pmat           = spqlios_delete_vmp_pmat;
+
 	vt->pvda_vec_znx_normalize_base2k  = spqlios_vec_znx_normalize_base2k;
 	vt->pvda_znx_small_product         = spqlios_znx_small_product;
 	vt->pvda_vec_znx_negate            = spqlios_vec_znx_negate;
@@ -329,8 +427,12 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 	vt->pvda_vec_znx_automorphism      = spqlios_vec_znx_automorphism;
 	vt->pvda_vec_znx_rotate            = spqlios_vec_znx_rotate;
 	vt->pvda_module_extract_nn         = spqlios_module_extract_nn;
-	vt->pvda_vmp_prepare_vec           = spqlios_vmp_prepare_vec;
-	vt->pvda_new_vmp_pvec              = spqlios_new_vmp_pvec;
-	vt->pvda_delete_vmp_pvec           = spqlios_delete_vmp_pvec;
-	vt->pvda_vec_znx_dft_add           = spqlios_vec_znx_dft_add;
+
+	// ! NOTE : These functions in the vtable don't have assigend spqlios functions :
+	// PVDA_RAND_UNIFORM_POW2_F* pvda_rand_uniform_pow2;
+	// PVDA_RAND_UNIFORM_POW2_VEC_F* pvda_rand_uniform_pow2_vec;
+	// PVDA_RAND_UNIFORM_BINARY_VEC_F* pvda_rand_uniform_binary_vec;
+	// PVDA_RAND_UNIFORM_F* pvda_rand_uniform;
+	// PVDA_RING_2NTH_ROOT_F* pvda_ring_2nth_root;
+	// PVDA_VEC_ZNX_DFT_ADD_F *pvda_vec_znx_dft_add;
 }
