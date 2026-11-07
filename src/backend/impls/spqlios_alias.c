@@ -427,12 +427,12 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 	vt->pvda_vec_znx_automorphism      = spqlios_vec_znx_automorphism;
 	vt->pvda_vec_znx_rotate            = spqlios_vec_znx_rotate;
 	vt->pvda_module_extract_nn         = spqlios_module_extract_nn;
+	vt->pvda_vec_znx_dft_add           = spqlios_vec_znx_dft_add;
 
-	// ! NOTE : These functions in the vtable don't have assigend spqlios functions :
+	// ! NOTE : These vtable entries are filled elsewhere (rng_openssl.c, cpu_nt.c) :
 	// PVDA_RAND_UNIFORM_POW2_F* pvda_rand_uniform_pow2;
 	// PVDA_RAND_UNIFORM_POW2_VEC_F* pvda_rand_uniform_pow2_vec;
 	// PVDA_RAND_UNIFORM_BINARY_VEC_F* pvda_rand_uniform_binary_vec;
 	// PVDA_RAND_UNIFORM_F* pvda_rand_uniform;
 	// PVDA_RING_2NTH_ROOT_F* pvda_ring_2nth_root;
-	// PVDA_VEC_ZNX_DFT_ADD_F *pvda_vec_znx_dft_add;
 }

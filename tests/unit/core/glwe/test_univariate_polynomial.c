@@ -34,7 +34,7 @@ PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 
 	PolyUnivZnx* a            = new_univ_znx(params_glwe);
 	PolyUnivZnx* a_t          = new_univ_znx(params_glwe);
-	BE_PolyVecDFT* res_dft = new_univ_znx_dft(module);
+	BE_PolyUnivZnxDFT* res_dft = new_univ_znx_dft(module);
 
 	uniform_pow2_random_vec(module, params_glwe->nn, a, 1, params_glwe->nn, 8);
 

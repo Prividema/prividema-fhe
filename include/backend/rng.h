@@ -114,7 +114,7 @@ int uniform_pow2_random_vec(const PvdaBackend* module, uint64_t limb_len, int64_
  * @retval 0 otherwise.
  *
  */
-int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, uint64_t vec_size, uint64_t nb_bits);
+int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyBivDFT* res_dft, uint64_t vec_size, uint64_t nb_bits);
 
 /**
  * @brief Generates a Random Vector following a normal distribution.

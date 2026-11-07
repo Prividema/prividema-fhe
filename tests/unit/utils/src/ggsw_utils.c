@@ -20,8 +20,8 @@ void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLW
 	PolyBiv* phase_computed              = new_biv(params_glwe);
 	PolyUnivRnX* phase_observed_univ_rnx = new_univ_rnx(params_glwe);
 	PolyUnivRnX* phase_expected_univ_rnx = new_univ_rnx(params_glwe);
-	BE_PolyVecDFT* m_skj_univ_dft        = new_univ_znx_dft(module);
-	BE_PolyVecDFT* m_univ_dft            = new_univ_znx_dft(module);
+	BE_PolyUnivZnxDFT* m_skj_univ_dft    = new_univ_znx_dft(module);
+	BE_PolyUnivZnxDFT* m_univ_dft        = new_univ_znx_dft(module);
 	PolyUnivZnx* m_skj_univ                 = new_univ_znx(params_glwe);
 
 	univ_znx_to_dft(module, m_univ_dft, expected);
@@ -45,11 +45,11 @@ void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLW
 		// Computes -m * sk_j / 2^{i*kappa_tilde}
 		if (sk_idx < params_ggsw->k_tilde)
 		{
-			cr_assert(pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, 
-					  glwe_prepared_sk_extract_poly_prep(sk_prep, sk_idx), m_univ_dft, 1) == 0);
+			cr_assert(pvda_svp_apply_dft_to_dft(module, univ_znx_dft_as_biv(m_skj_univ_dft), 1,
+					  glwe_prepared_sk_extract_poly_prep(sk_prep, sk_idx), univ_znx_dft_as_biv_const(m_univ_dft), 1) == 0);
 
 			FlatPolyVec m_skj_vec = flat_poly_vec_view(nn, 1, nn, m_skj_univ);
-			cr_assert(pvda_vec_znx_idft(module, &m_skj_vec, m_skj_univ_dft, 1) == 0);
+			cr_assert(univ_dft_to_znx(module, m_skj_univ, m_skj_univ_dft) == 0);
 			
 			cr_assert(pvda_vec_znx_negate(module, &m_skj_vec, &m_skj_vec) == 0);
 		}

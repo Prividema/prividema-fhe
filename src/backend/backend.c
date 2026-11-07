@@ -99,12 +99,12 @@ void pvda_delete_biv_dft(const PvdaBackend* module, BE_PolyBivDFT* res)
 
 int pvda_flat_biv_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size, const FlatPolyVec* a)
 {
-	module->vt.pvda_flat_biv_to_dft(module, res, res_size, a);
+	return module->vt.pvda_flat_biv_to_dft(module, res, res_size, a);
 }
 
 int pvda_flat_biv_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyBivDFT* pol, uint64_t pol_size)
 {
-	module->vt.pvda_flat_biv_idft(module, res, pol, pol_size);
+	return module->vt.pvda_flat_biv_idft(module, res, pol, pol_size);
 }
 
 // =============================================
@@ -154,7 +154,7 @@ void pvda_delete_biv_vmp_prep(const PvdaBackend* module, BE_PolyBivVmpPrep* biv_
 
 int pvda_flat_biv_to_vmp_prep(const PvdaBackend* module, BE_PolyBivVmpPrep* res, uint64_t res_size, const FlatPolyVec* a)
 {
-	module->vt.pvda_flat_biv_to_vmp_prep(module, res, res_size, a);
+	return module->vt.pvda_flat_biv_to_vmp_prep(module, res, res_size, a);
 }
 
 // =============================================

@@ -41,7 +41,7 @@ int glwegadget_half_prod(const PvdaBackend* module, GLWECiphertext* res,
  * @retval 0 otherwise
  */
 int glwegadget_half_prod_dft_to_dft(const PvdaBackend* module, GLWECiphertextDFT* res_dft,
-                                    const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyVecDFT* a_dft);
+                                    const GLWEGadgetCiphertextPrep* glwegadget_prep_ct, const BE_PolyBivDFT* a_dft);
 
 /**
  * @brief Computes the half-external product between a GLWEGadget and

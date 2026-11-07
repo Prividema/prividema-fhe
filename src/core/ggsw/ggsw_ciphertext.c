@@ -77,8 +77,8 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
-	BE_PolyVecDFT* m_univ_dft     = new_univ_znx_dft(module);   // DFT(msg)
-	BE_PolyVecDFT* m_skj_univ_dft = new_univ_znx_dft(module);   // DFT(msg * sk_j)
+	BE_PolyUnivZnxDFT* m_univ_dft     = new_univ_znx_dft(module);   // DFT(msg)
+	BE_PolyUnivZnxDFT* m_skj_univ_dft = new_univ_znx_dft(module);   // DFT(msg * sk_j)
 	PolyUnivZnx* m_skj_univ          = new_univ_znx(params_glwe);  // -msg * sk_j
 	// Temp space for -m * sk * 2^{-kappa_tilde}
 	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
@@ -101,9 +101,9 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 			if (j < k_tilde)
 			{
 				// Computes DFT(msg * sk_j)
-				CHECK_CALL(pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, 
+				CHECK_CALL(pvda_svp_apply_dft_to_dft(module, univ_znx_dft_as_biv(m_skj_univ_dft), 1,
 						   glwe_prepared_sk_extract_poly_prep(sk_prep, j),
-				           m_univ_dft, 1),
+				           univ_znx_dft_as_biv_const(m_univ_dft), 1),
 						   "svp_apply_dft_to_dft failed in ggsw_secret_encrypt");
 
 

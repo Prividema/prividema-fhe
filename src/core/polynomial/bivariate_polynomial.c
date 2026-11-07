@@ -743,7 +743,7 @@ int biv_to_dft(const PvdaBackend* module, const GLWEParams* params_glwe, BE_Poly
 int biv_from_dft(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const BE_PolyBivDFT* a_dft)
 {
 	FlatPolyVec v   = biv_as_flat_poly_vec(res);
-	return pvda_flat_biv_to_dft(module, &v, a_dft, glwe_params_l_a(params_glwe));
+	return pvda_flat_biv_idft(module, &v, a_dft, glwe_params_l_a(params_glwe));
 }
 
 int biv_to_prep(const PvdaBackend* module, const GLWEParams* params_glwe, BE_PolyBivVmpPrep* res_prep, const PolyBiv* a)

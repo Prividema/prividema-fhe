@@ -29,7 +29,6 @@ static inline FlatPolyVec flat_poly_vec_view(uint64_t nn, uint64_t size, int64_t
 
 // Opaque types
 
-typedef struct pvda_be_poly_vec_dft_t       BE_PolyVecDFT;      ///< Generic vector type for the flat (k+1)·l vectors inside GLWE/GGSW.
 typedef struct pvda_be_poly_univ_dft_t      BE_PolyUnivZnxDFT;  ///< Backend univariate polynomial in DFT form.
 typedef struct pvda_be_poly_biv_dft_t       BE_PolyBivDFT;      ///< Backend bivariate polynomials in DFT form.
 
@@ -40,8 +39,9 @@ typedef struct pvda_be_poly_vec_vmp_prep_t  BE_PolyBivVmpPrep;   ///< Backend ve
 typedef struct pvda_be_poly_mat_vmp_prep_t  BE_PolyMatVmpPrep;   ///< Backend matrix of polynomials prepared for vector-matrix product
 
 
-// Zero-cost: same memory, only the type changes
-static inline BE_PolyVecDFT* univ_znx_dft_as_vec(BE_PolyUnivZnxDFT* p) { return (BE_PolyVecDFT*)p; }
-static inline BE_PolyVecDFT* biv_dft_as_vec(BE_PolyBivDFT* p)   { return (BE_PolyVecDFT*)p; }
+// Zero-cost: same memory, only the type changes.
+// A univariate DFT polynomial has the same layout as a bivariate DFT polynomial with 1 limb
+static inline BE_PolyBivDFT* univ_znx_dft_as_biv(BE_PolyUnivZnxDFT* p) { return (BE_PolyBivDFT*)p; }
+static inline const BE_PolyBivDFT* univ_znx_dft_as_biv_const(const BE_PolyUnivZnxDFT* p) { return (const BE_PolyBivDFT*)p; }
 
 #endif // PVDA_BACKEND_TYPES_H

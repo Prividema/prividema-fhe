@@ -182,7 +182,7 @@ PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 	                        params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
-	pvda_svp_prepare(module, u_prep, u);
+	univ_znx_to_svp_prep(module, u_prep, u);
 
 	// Computes u * ggsw
 	ggsw_mult_const(module, product_computed, ggsw, u_prep);

@@ -66,7 +66,7 @@ int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCi
 	int64_t mat_size                  = ggsw_total_n_glwe_limbs(params_ggsw);
 
 	// DFT-domain scratch: one entry per polynomial in the GGSW
-	BE_PolyVecDFT* tmp_dft = pvda_new_vec_znx_dft(module, mat_size);
+	BE_PolyBivDFT* tmp_dft = pvda_new_biv_dft(module, mat_size);
 	CHECK_ALLOC(tmp_dft, "tmp_dft's allocation failed in ggsw_mult_const");
 
 	// Computes DFT(u * ggsw) polynomial by polynomial
@@ -76,13 +76,13 @@ int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCi
 
 	// Go back to Zn[X,Y]
 	FlatPolyVec result_flattened = ggsw_as_flat_poly_vec(res);
-	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, tmp_dft, mat_size),
+	CHECK_CALL(pvda_flat_biv_idft(module, &result_flattened, tmp_dft, mat_size),
 	           "vec_znx_idft_p failed in ggsw_mult_const");
 
 	status = 0;
 
 cleanup:
-	pvda_delete_vec_znx_dft(module, tmp_dft);
+	pvda_delete_biv_dft(module, tmp_dft);
 	return status;
 }
 
@@ -101,9 +101,9 @@ int ggsw_external_product_unprepared(const PvdaBackend* module,
 	uint64_t ncols_out = glwe_params_n_limbs(res->params);
 
 	BE_PolyMatVmpPrep* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
-	BE_PolyVecDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
+	BE_PolyBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
 	ggsw_pmat             = pvda_new_vmp_pmat(module, nrows, ncols_in);
-	result_dft            = pvda_new_vec_znx_dft(module, ncols_out);
+	result_dft            = pvda_new_biv_dft(module, ncols_out);
 
 	CHECK_ALLOC(ggsw_pmat, "ggsw_pmat's allocation failed in ggsw_external_product_unprepared");
 	CHECK_ALLOC(result_dft, "result_dft's allocation failed in ggsw_external_product_unprepared");
@@ -116,13 +116,13 @@ int ggsw_external_product_unprepared(const PvdaBackend* module,
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
 	FlatPolyVec result_flattened = glwe_as_flat_poly_vec(res);
-	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, result_dft, ncols_out),
+	CHECK_CALL(pvda_flat_biv_idft(module, &result_flattened, result_dft, ncols_out),
 	           "vec_znx_idft_p failed in ggsw_external_product");
 
 	status = 0;
 
 cleanup:
-	pvda_delete_vec_znx_dft(module, result_dft);
+	pvda_delete_biv_dft(module, result_dft);
 	pvda_delete_vmp_pmat(module, ggsw_pmat);
 
 	return status;

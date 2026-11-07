@@ -176,8 +176,11 @@ int glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* sk_prep, c
 
 	// Each component is prepared as the scalar operand of scalar-vector products
 	for (uint64_t j = 0; j < sk->k; ++j)
-		CHECK_CALL(pvda_flat_univ_to_svp_prep(module, sk_prep->values_prep[j], sk->values + j * nn),
+	{
+		FlatPolyVec skj = flat_poly_vec_view(nn, 1, nn, sk->values + j * nn);
+		CHECK_CALL(pvda_flat_univ_to_svp_prep(module, sk_prep->values_prep[j], &skj),
 		           "SVP preparation of a secret key component failed in glwe_sk_prepare");
+	}
 
 	status = 0;
 

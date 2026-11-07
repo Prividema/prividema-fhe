@@ -111,7 +111,7 @@ Test(rand_uniform_16, test_rand_uniform)
 PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);
-	BE_PolyVecDFT* res_dft = pvda_new_vec_znx_dft(module, params_glwe->nn * params_glwe->k);
+	BE_PolyBivDFT* res_dft = pvda_new_biv_dft(module, params_glwe->k);
 
 	int64_t* res = malloc(params_glwe->nn * params_glwe->k * sizeof(int64_t));
 
@@ -120,7 +120,7 @@ PvdaParamTest(uniform_random_vec_dft, basic, default_params_fn)
 
 	cr_assert(uniform_random_vec_znx_dft(module, res_dft, params_glwe->k, 2) == 0);
 
-	pvda_delete_vec_znx_dft(module, res_dft);
+	pvda_delete_biv_dft(module, res_dft);
 	free(res);
 
 	DELETE_PVDA_PARAMS_GLWE;
