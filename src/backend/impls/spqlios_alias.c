@@ -125,6 +125,13 @@ cleanup:
 	return status;
 }
 
+// In the FFT64 layout, each DFT polynomial is nn contiguous doubles.
+const BE_PolyBivDFT* spqlios_biv_dft_at(const PvdaBackend* module, const BE_PolyBivDFT* vec, uint64_t offset)
+{
+	uint64_t nn = module_get_n(module->spqlios_module);
+	return (const BE_PolyBivDFT*)((const double*)vec + offset * nn);
+}
+
 // =============================================
 // |                                           |
 // |                    SVP                    |
@@ -402,6 +409,7 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 	vt->pvda_delete_biv_dft  = spqlios_delete_biv_dft;
 	vt->pvda_flat_biv_to_dft = spqlios_flat_biv_to_dft;
 	vt->pvda_flat_biv_idft   = spqlios_flat_biv_idft;
+	vt->pvda_biv_dft_at      = spqlios_biv_dft_at;
 
 	vt->pvda_svp_apply_dft        = spqlios_svp_apply_dft;
 	vt->pvda_svp_apply_dft_to_dft = spqlios_svp_apply_dft_to_dft;

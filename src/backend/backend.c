@@ -107,6 +107,18 @@ int pvda_flat_biv_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_Pol
 	return module->vt.pvda_flat_biv_idft(module, res, pol, pol_size);
 }
 
+// One vtable slot (const signature) serves both versions: the non-const one only casts back
+// the pointer that the caller passed as non-const.
+BE_PolyBivDFT* pvda_biv_dft_at(const PvdaBackend* module, BE_PolyBivDFT* vec, uint64_t offset)
+{
+	return (BE_PolyBivDFT*)module->vt.pvda_biv_dft_at(module, vec, offset);
+}
+
+const BE_PolyBivDFT* pvda_biv_dft_at_const(const PvdaBackend* module, const BE_PolyBivDFT* vec, uint64_t offset)
+{
+	return module->vt.pvda_biv_dft_at(module, vec, offset);
+}
+
 // =============================================
 // |                                           |
 // |                    SVP                    |

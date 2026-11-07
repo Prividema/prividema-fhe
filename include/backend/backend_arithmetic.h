@@ -45,6 +45,28 @@ void pvda_delete_biv_dft(const PvdaBackend* module, BE_PolyBivDFT* res);
 int pvda_flat_biv_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size, const FlatPolyVec* a);
 int pvda_flat_biv_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyBivDFT* pol, uint64_t pol_size);
 
+/**
+ * @brief View of a DFT vector starting at its offset'th DFT polynomial. Does not allocate or copy.
+ *
+ * The returned pointer aliases vec: it is valid as long as vec is, must not be deleted, and holds the
+ * DFT polynomials offset, offset+1, ... of vec (as many as vec has after offset).
+ *
+ * The view is contiguous: DFT vectors have no stride. In a GLWE DFT, limbs are stored in the same interleaved
+ * order as in coefficient domain (limb i of element j at index i * (k+1) + j), so a view at offset i * (k+1)
+ * gives limb i of all k+1 elements, and a 1-limb view gives one limb of one element. An element of the GLWE
+ * (all limbs of a_j) is strided and cannot be viewed this way.
+ *
+ * @param module The computation backend
+ * @param vec    The DFT vector to view
+ * @param offset Index, in DFT polynomials, of the first polynomial of the view
+ *
+ * @return A pointer to the offset'th DFT polynomial of vec
+ */
+BE_PolyBivDFT* pvda_biv_dft_at(const PvdaBackend* module, BE_PolyBivDFT* vec, uint64_t offset);
+
+/** @brief Const version of pvda_biv_dft_at. */
+const BE_PolyBivDFT* pvda_biv_dft_at_const(const PvdaBackend* module, const BE_PolyBivDFT* vec, uint64_t offset);
+
 // =============================================
 // |                                           |
 // |                    SVP                    |

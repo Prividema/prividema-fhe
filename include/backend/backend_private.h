@@ -24,6 +24,7 @@ typedef typeof(pvda_new_biv_dft) PVDA_NEW_BIV_DFT_F;
 typedef typeof(pvda_delete_biv_dft) PVDA_DELETE_BIV_DFT_F;
 typedef typeof(pvda_flat_biv_to_dft) PVDA_FLAT_BIV_TO_DFT_F;
 typedef typeof(pvda_flat_biv_idft) PVDA_FLAT_BIV_IDFT_F;
+typedef typeof(pvda_biv_dft_at_const) PVDA_BIV_DFT_AT_F;
 
 typedef typeof(pvda_svp_apply_dft) PVDA_SVP_APPLY_DFT_F;
 typedef typeof(pvda_svp_apply_dft_to_dft) PVDA_SVP_APPLY_DFT_TO_DFT_F;
@@ -74,6 +75,7 @@ typedef struct pvda_virtual_table
 	PVDA_DELETE_BIV_DFT_F* pvda_delete_biv_dft;
 	PVDA_FLAT_BIV_TO_DFT_F* pvda_flat_biv_to_dft;
 	PVDA_FLAT_BIV_IDFT_F*pvda_flat_biv_idft;
+	PVDA_BIV_DFT_AT_F* pvda_biv_dft_at;
 
 	PVDA_SVP_APPLY_DFT_F* pvda_svp_apply_dft;
 	PVDA_SVP_APPLY_DFT_TO_DFT_F* pvda_svp_apply_dft_to_dft;
