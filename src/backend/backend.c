@@ -137,18 +137,6 @@ int pvda_svp_apply_dft_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uin
 	return module->vt.pvda_svp_apply_dft_to_dft(module, res, res_size, ppol, a, a_size);
 }
 
-// ZnxBig
-
-int64_t* pvda_new_vec_znx_big(const PvdaBackend* module, int64_t size)
-{
-	return module->vt.pvda_new_vec_znx_big(module, size);
-}
-
-void pvda_delete_vec_znx_big(const PvdaBackend* module, int64_t* res)
-{
-	module->vt.pvda_delete_vec_znx_big(module, res);
-}
-
 // =============================================
 // |                                           |
 // |             BE_PolyBivVmpPrep             |

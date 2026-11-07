@@ -21,6 +21,15 @@
 BE_PolyUnivZnxDFT* pvda_new_univ_znx_dft(const PvdaBackend* module);
 void pvda_delete_univ_znx_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* pol);
 int pvda_flat_univ_to_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* res, const FlatPolyVec* a);
+/**
+ * @brief Inverse DFT of a univariate polynomial into coefficient form.
+ *
+ * Output limbs are NOT normalized (no carry propagation): each coefficient is the exact
+ * int64 value of the inverse transform. Callers that need base-2^k limbs must normalize.
+ * Any backend-specific "big" intermediate layout is handled inside the backend.
+ *
+ * @pre res->size == 1 and res->stride == res->nn
+ */
 int pvda_flat_univ_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyUnivZnxDFT* pol);
 
 // =============================================
@@ -43,6 +52,15 @@ BE_PolyBivDFT* pvda_new_biv_dft(const PvdaBackend* module, uint64_t size);
 void pvda_delete_biv_dft(const PvdaBackend* module, BE_PolyBivDFT* res);
 
 int pvda_flat_biv_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size, const FlatPolyVec* a);
+/**
+ * @brief Inverse DFT of a vector of pol_size DFT polynomials into res->size coefficient-form polynomials.
+ *
+ * Output limbs are NOT normalized (no carry propagation): each coefficient is the exact
+ * int64 value of the inverse transform. Callers that need base-2^k limbs must normalize.
+ * Any backend-specific "big" intermediate layout is handled inside the backend.
+ *
+ * @pre res->stride == res->nn
+ */
 int pvda_flat_biv_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_PolyBivDFT* pol, uint64_t pol_size);
 
 /**
@@ -78,10 +96,6 @@ int pvda_svp_apply_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t r
 
 int pvda_svp_apply_dft_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, uint64_t res_size,
                               const BE_PolyUnivSvpPrep* ppol, const BE_PolyBivDFT* a, uint64_t a_size);
-
-//ZnxBig
-int64_t* pvda_new_vec_znx_big(const PvdaBackend* module, int64_t size);
-void pvda_delete_vec_znx_big(const PvdaBackend* module, int64_t* res);
 
 // =============================================
 // |                                           |

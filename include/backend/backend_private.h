@@ -29,9 +29,6 @@ typedef typeof(pvda_biv_dft_at_const) PVDA_BIV_DFT_AT_F;
 typedef typeof(pvda_svp_apply_dft) PVDA_SVP_APPLY_DFT_F;
 typedef typeof(pvda_svp_apply_dft_to_dft) PVDA_SVP_APPLY_DFT_TO_DFT_F;
 
-typedef typeof(pvda_new_vec_znx_big) PVDA_NEW_VEC_ZNX_BIG_F;
-typedef typeof(pvda_delete_vec_znx_big) PVDA_DELETE_VEC_ZNX_BIG_F;
-
 typedef typeof(pvda_new_biv_vmp_prep) PVDA_NEW_BIV_VMP_PREP_F;
 typedef typeof(pvda_delete_biv_vmp_prep) PVDA_DELETE_BIV_VMP_PREP_F;
 typedef typeof(pvda_flat_biv_to_vmp_prep) PVDA_FLAT_BIV_TO_VMP_PREP_F;
@@ -80,9 +77,6 @@ typedef struct pvda_virtual_table
 	PVDA_SVP_APPLY_DFT_F* pvda_svp_apply_dft;
 	PVDA_SVP_APPLY_DFT_TO_DFT_F* pvda_svp_apply_dft_to_dft;
 
-	PVDA_NEW_VEC_ZNX_BIG_F* pvda_new_vec_znx_big;
-	PVDA_DELETE_VEC_ZNX_BIG_F* pvda_delete_vec_znx_big;
-	
 	PVDA_NEW_VMP_PMAT_F* pvda_new_vmp_pmat;
 	PVDA_VMP_PREPARE_CONTIGUOUS_F* pvda_vmp_prepare_contiguous;
 	PVDA_DELETE_VMP_PMAT_F* pvda_delete_vmp_pmat;

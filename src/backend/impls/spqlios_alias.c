@@ -47,10 +47,11 @@ int spqlios_flat_univ_idft(const PvdaBackend* module, FlatPolyVec* res, const BE
 
 	size_t tmp_bytes = vec_znx_idft_tmp_bytes(module->spqlios_module);
 	uint8_t* tmp     = malloc(tmp_bytes);
-	if (tmp_bytes) CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
+	if (tmp_bytes) CHECK_ALLOC(tmp, "malloc of idft tmp buffer failed in spqlios_flat_univ_idft");
 
 	assert(res->size == 1);
 	assert(res->stride == res->nn);
+	// FFT64: VEC_ZNX_BIG is nn contiguous int64 per polynomial, so idft writes straight into res.
 	vec_znx_idft(module->spqlios_module, (VEC_ZNX_BIG*)res->ptr, 1, (VEC_ZNX_DFT*)pol, 1, tmp);
 
 	status = 0;
@@ -113,9 +114,10 @@ int spqlios_flat_biv_idft(const PvdaBackend* module, FlatPolyVec* res, const BE_
 
 	size_t tmp_bytes = vec_znx_idft_tmp_bytes(module->spqlios_module);
 	uint8_t* tmp     = malloc(tmp_bytes);
-	if (tmp_bytes) CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
+	if (tmp_bytes) CHECK_ALLOC(tmp, "malloc of idft tmp buffer failed in spqlios_flat_biv_idft");
 
 	assert(res->stride == res->nn);
+	// FFT64: VEC_ZNX_BIG is nn contiguous int64 per polynomial, so idft writes straight into res.
 	vec_znx_idft(module->spqlios_module, (VEC_ZNX_BIG*)res->ptr, res->size, (VEC_ZNX_DFT*)a_dft, a_size, tmp);
 
 	status = 0;
@@ -151,19 +153,6 @@ int spqlios_svp_apply_dft_to_dft(const PvdaBackend* module, BE_PolyBivDFT* res, 
 {
 	svp_apply_dft_to_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, res_size, (SVP_PPOL*)ppol, (VEC_ZNX_DFT*)a, a_size);
 	return 0;
-}
-
-// ZnxBig
-
-int64_t* spqlios_new_vec_znx_big(const PvdaBackend* module, int64_t size)
-{
-	return (int64_t*)new_vec_znx_big(module->spqlios_module, size);
-}
-
-void spqlios_delete_vec_znx_big(const PvdaBackend* module, int64_t* res)
-{
-	if (!res) return;
-	delete_vec_znx_big((VEC_ZNX_BIG*)res);
 }
 
 // =============================================
@@ -414,9 +403,6 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 	vt->pvda_svp_apply_dft        = spqlios_svp_apply_dft;
 	vt->pvda_svp_apply_dft_to_dft = spqlios_svp_apply_dft_to_dft;
 
-	vt->pvda_new_vec_znx_big    = spqlios_new_vec_znx_big;
-	vt->pvda_delete_vec_znx_big = spqlios_delete_vec_znx_big;
-	
 	vt->pvda_new_biv_vmp_prep     = spqlios_new_biv_vmp_prep;
 	vt->pvda_delete_biv_vmp_prep  = spqlios_delete_biv_vmp_prep;
 	vt->pvda_flat_biv_to_vmp_prep = spqlios_flat_biv_to_vmp_prep;
