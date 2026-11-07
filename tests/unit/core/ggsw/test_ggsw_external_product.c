@@ -1,6 +1,7 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 #include <float.h>
+#include <math.h>
 
 #include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
@@ -22,8 +23,16 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	//! Variance of the error's normal distributions
 	params_glwe->fast_uniform_nb_bits = 0;
 	sigma                             = 0;
-	double err_length                 = glwe_bivariate_epsilon(params_glwe) + 3 * sigma + 3 * DBL_EPSILON;
-	double critical_err_length        = glwe_bivariate_epsilon(params_glwe) + 5 * sigma + 5 * DBL_EPSILON;
+	double eps                        = glwe_bivariate_epsilon(params_glwe);
+
+	// Even with sigma = 0, truncating the GGSW bodies to l_b limbs leaves a rounding noise of
+	// variance eps^2/12 in every row. The external product sums it over ggsw_num_rows * nn terms,
+	// each multiplied by a decomposition digit of variance 4^kappa/12.
+	double sigma_ext = eps * sqrt((double)ggsw_num_rows(params_ggsw) * (double)params_glwe->nn *
+	                              (ldexp(1.0, 2 * (int)params_glwe->kappa) / 12) / 12);
+
+	double err_length          = eps + 3 * sigma_ext + 3 * DBL_EPSILON;
+	double critical_err_length = eps + 5 * sigma_ext + 5 * DBL_EPSILON;
 
 	GLWESecretKey* sk_ggsw              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
