@@ -141,7 +141,7 @@ uint64_t univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn 
 // |                                           |
 // =============================================
 
-void printf_poly_univ_ZnX(PolyUnivZnx* pol, int64_t nn)
+void print_poly_univ_ZnX(PolyUnivZnx* pol, int64_t nn)
 {
 	printf("%" PRId64, pol[0]);
 	for (int64_t p = 1; p < nn; p++)
@@ -152,7 +152,7 @@ void printf_poly_univ_ZnX(PolyUnivZnx* pol, int64_t nn)
 	putchar('\n');
 }
 
-void printf_poly_univ_RnX(double* pol, int64_t nn)
+void print_poly_univ_RnX(PolyUnivRnX* pol, int64_t nn)
 {
 	printf("%g", pol[0]);
 	for (int64_t p = 1; p < nn; p++)
@@ -163,10 +163,10 @@ void printf_poly_univ_RnX(double* pol, int64_t nn)
 	putchar('\n');
 }
 
-void printf_vec_poly_univ_TnX(int64_t* pol, int64_t nn)
+void print_poly_univ_TnX(PolyUnivTnX* pol, int64_t nn)
 {
 	printf("%" PRIu64, pol[0]);
-	for (uint64_t p = 1; p < nn; p++)
-		printf(" + %" PRIu64 " X^%" PRIu64, pol[p], p);
+	for (int64_t p = 1; p < nn; p++)
+		printf(" + %" PRIu64 " X^%" PRId64, pol[p], p);
 	putchar('\n');
 }

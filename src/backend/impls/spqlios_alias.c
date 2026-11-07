@@ -36,6 +36,7 @@ void spqlios_delete_univ_znx_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* p
 
 int spqlios_flat_univ_to_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* res, const FlatPolyVec* a)
 {
+	assert(a->size == 1);
 	vec_znx_dft(module->spqlios_module, (VEC_ZNX_DFT*)res, 1, a->ptr, a->size, a->stride);
 	return 0;
 }
@@ -48,6 +49,7 @@ int spqlios_flat_univ_idft(const PvdaBackend* module, FlatPolyVec* res, const BE
 	uint8_t* tmp     = malloc(tmp_bytes);
 	if (tmp_bytes) CHECK_ALLOC(tmp, "ntt120_vec_znx_idft_tmp_bytes_avx failed in vec_znx_idft_p");
 
+	assert(res->size == 1);
 	assert(res->stride == res->nn);
 	vec_znx_idft(module->spqlios_module, (VEC_ZNX_BIG*)res->ptr, 1, (VEC_ZNX_DFT*)pol, 1, tmp);
 
@@ -77,6 +79,7 @@ void spqlios_delete_univ_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep*
 
 int spqlios_flat_univ_to_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep* ppol, const FlatPolyVec* pol)
 {
+	assert(pol->size == 1);
 	svp_prepare(module->spqlios_module, (SVP_PPOL*)ppol, pol->ptr);
 	return 0;
 }
