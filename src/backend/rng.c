@@ -79,7 +79,7 @@ cleanup:
 	return -1;
 }
 
-int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, uint64_t vec_size, uint64_t nb_bits)
+int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyBivDFT* res_dft, uint64_t vec_size, uint64_t nb_bits)
 {
 	int status = -1;
 
@@ -100,8 +100,8 @@ int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft
 			           "rand_uniform failed in uniform_random_vec_znx_dft");
 
 	// Computes the vector in the DFT domain
-	ZnxVec tmp_biv = znx_vec_view(nn, vec_size, nn, tmp_space);
-	pvda_vec_znx_dft(module, res_dft, vec_size, &tmp_biv);
+	FlatPolyVec tmp_biv = flat_poly_vec_view(nn, vec_size, nn, tmp_space);
+	CHECK_CALL(pvda_flat_biv_to_dft(module, res_dft, vec_size, &tmp_biv), "pvda_flat_biv_to_dft failed in uniform_random_vec_znx_dft");
 
 	status = 0;
 

@@ -1,5 +1,6 @@
 #include "univariate_polynomial.h"
 
+#include <inttypes.h>
 #include <math.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -10,16 +11,19 @@
 
 // =============================================
 // |                                           |
-// |                 PolyUniv                  |
+// |                PolyUnivZnx                |
 // |                                           |
 // =============================================
 
-PolyUniv* new_univ(const GLWEParams* params_glwe)
+PolyUnivZnx* new_univ_znx(const GLWEParams* params_glwe)
 {
-	return aligned_alloc(64, univ_bytes(params_glwe));
+	// aligned_alloc guarantees the address to be a multiple of 64. This alignment matters for some backends.
+	// ! WARNING : In C11 univ_znx_bytes(.) has to be a multiple of 64. Newer standard relaxed this.
+	// ! WARNING : On Windows we use _aligned_malloc(size, 64) and free with _aligned free.
+	return aligned_alloc(64, univ_znx_bytes(params_glwe));
 }
 
-void delete_univ(PolyUniv* pol) { free(pol); }
+void delete_univ_znx(PolyUnivZnx* pol) { free(pol); }
 
 // =============================================
 // |                                           |
@@ -27,29 +31,29 @@ void delete_univ(PolyUniv* pol) { free(pol); }
 // |                                           |
 // =============================================
 
-BE_PolyVecDFT* new_univ_dft(const PvdaBackend* module)
+BE_PolyUnivZnxDFT* new_univ_znx_dft(const PvdaBackend* module)
 {
-	return pvda_new_vec_znx_dft(module, 1);
+	return pvda_new_univ_znx_dft(module);
 }
 
-void delete_univ_dft(const PvdaBackend* module, BE_PolyVecDFT* pol)
+void delete_univ_znx_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* pol)
 {
-	pvda_delete_vec_znx_dft(module, pol);
+	pvda_delete_univ_znx_dft(module, pol);
 }
 
-int univ_coefs_to_dft(const PvdaBackend* module, BE_PolyVecDFT* res_dft, const PolyUniv* a)
+int univ_znx_to_dft(const PvdaBackend* module, BE_PolyUnivZnxDFT* res_dft, const PolyUnivZnx* a)
 {
 	uint64_t nn  = pvda_module_extract_nn(module);
-	ZnxVec a_vec = znx_vec_view(nn, 1, nn, (int64_t*)a);
-	pvda_vec_znx_dft(module, res_dft, 1, &a_vec);
-	return 0;
+	FlatPolyVec a_vec = flat_poly_vec_view(nn, 1, nn, (int64_t*)a);
+	return pvda_flat_univ_to_dft(module, res_dft, &a_vec);
 }
 
-int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const BE_PolyVecDFT* a_dft)
+int univ_dft_to_znx(const PvdaBackend* module, PolyUnivZnx* res, const BE_PolyUnivZnxDFT* a_dft)
 {
 	uint64_t nn    = pvda_module_extract_nn(module);
-	ZnxVec res_vec = znx_vec_view(nn, 1, nn, res);
-	return pvda_vec_znx_idft(module, &res_vec, a_dft, 1);
+	FlatPolyVec res_vec = flat_poly_vec_view(nn, 1, nn, res);
+	// TODO : "Unflat" the polynomial in res
+	return pvda_flat_univ_idft(module, &res_vec, a_dft);
 }
 
 // =============================================
@@ -58,19 +62,21 @@ int univ_dft_to_coefs(const PvdaBackend* module, PolyUniv* res, const BE_PolyVec
 // |                                           |
 // =============================================
 
-BE_PolySvpPrep* new_univ_prep(const PvdaBackend* module)
+BE_PolyUnivSvpPrep* new_univ_svp_prep(const PvdaBackend* module)
 {
-	return pvda_new_svp_ppol(module);
+	return pvda_new_univ_svp_prep(module);
 }
 
-void delete_univ_prep(const PvdaBackend* module, BE_PolySvpPrep* pol)
+void delete_univ_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep* pol)
 {
-	pvda_delete_svp_ppol(module, pol);
+	pvda_delete_univ_svp_prep(module, pol);
 }
 
-int univ_coefs_to_prep(const PvdaBackend* module, BE_PolySvpPrep* res_prep, const PolyUniv *a)
+int univ_znx_to_svp_prep(const PvdaBackend* module, BE_PolyUnivSvpPrep* res_prep, const PolyUnivZnx *a)
 {
-	return pvda_svp_prepare(module, res_prep, a);
+	uint64_t nn  = pvda_module_extract_nn(module);
+	FlatPolyVec a_flat = flat_poly_vec_view(nn, 1, nn, (int64_t*)a);
+	return pvda_flat_univ_to_svp_prep(module, res_prep, &a_flat);
 }
 
 // =============================================
@@ -79,10 +85,7 @@ int univ_coefs_to_prep(const PvdaBackend* module, BE_PolySvpPrep* res_prep, cons
 // |                                           |
 // =============================================
 
-PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe)
-{
-	return malloc(univ_tnx_bytes(params_glwe));
-}
+PolyUnivTnX* new_univ_tnx(const GLWEParams* params_glwe) { return malloc(univ_tnx_bytes(params_glwe)); }
 
 void delete_univ_tnx(PolyUnivTnX* pol) { free(pol); }
 
@@ -92,10 +95,7 @@ void delete_univ_tnx(PolyUnivTnX* pol) { free(pol); }
 // |                                           |
 // =============================================
 
-PolyUnivRnX* new_univ_rnx(const GLWEParams* params_glwe)
-{
-	return malloc(univ_rnx_bytes(params_glwe));
-}
+PolyUnivRnX* new_univ_rnx(const GLWEParams* params_glwe) { return malloc(univ_rnx_bytes(params_glwe)); }
 
 void delete_univ_rnx(PolyUnivRnX* pol) { free(pol); }
 
@@ -129,11 +129,7 @@ int univ_tnx_to_rnx(const GLWEParams* params_glwe, PolyUnivRnX* res, PolyUnivTnX
 // |                                           |
 // =============================================
 
-uint64_t univ_bytes(const GLWEParams* params_glwe)
-{
-	uint64_t nn = params_glwe->nn;
-	return nn * sizeof(PolyUniv);
-}
+uint64_t univ_znx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivZnx);}
 
 uint64_t univ_rnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn * sizeof(PolyUnivRnX); }
 
@@ -145,25 +141,32 @@ uint64_t univ_tnx_bytes(const GLWEParams* params_glwe) { return params_glwe->nn 
 // |                                           |
 // =============================================
 
-void printf_poly_univ_ZnX(PolyUniv* pol, int64_t nn)
+void print_poly_univ_ZnX(PolyUnivZnx* pol, int64_t nn)
 {
-	printf((pol[0] < 0) ? "%ld " : " %ld ", pol[0]);
-	for (uint64_t p = 1; p < nn; p++)
-		printf((pol[p] < 0) ? "- %ld X^%ld " : "+ %ld X^%ld ", (pol[p] < 0) ? -pol[p] : pol[p], p);
-}
-
-void printf_poly_univ_RnX(double* pol, int64_t nn)
-{
-	for (uint64_t p = 0; p < nn; p++) printf(" %lf X^%ld ", pol[p], p);
-}
-
-void printf_vec_poly_univ(int64_t* pols, int64_t pols_size, int64_t nn)
-{
-	printf("\n");
-	for (uint64_t j = 0; j < pols_size; j++)
+	printf("%" PRId64, pol[0]);
+	for (int64_t p = 1; p < nn; p++)
 	{
-		printf("\n%ld-th component : ", j);
-		printf_poly_univ_ZnX(pols + j * nn, nn);
-		printf("\n");
+		if (pol[p] < 0) printf(" - %" PRIu64 " X^%" PRId64, -(uint64_t)pol[p], p);
+		else            printf(" + %" PRId64 " X^%" PRId64, pol[p], p);
 	}
+	putchar('\n');
+}
+
+void print_poly_univ_RnX(PolyUnivRnX* pol, int64_t nn)
+{
+	printf("%g", pol[0]);
+	for (int64_t p = 1; p < nn; p++)
+	{
+		if (pol[p] < 0) printf(" - %g X^%" PRId64, -pol[p], p);
+		else            printf(" + %g X^%" PRId64, pol[p], p);
+	}
+	putchar('\n');
+}
+
+void print_poly_univ_TnX(PolyUnivTnX* pol, int64_t nn)
+{
+	printf("%" PRIu64, pol[0]);
+	for (int64_t p = 1; p < nn; p++)
+		printf(" + %" PRIu64 " X^%" PRId64, pol[p], p);
+	putchar('\n');
 }

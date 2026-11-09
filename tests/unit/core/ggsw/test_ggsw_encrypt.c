@@ -35,7 +35,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 	GGSWCiphertext* ggsw           = new_ggsw(params_ggsw);
-	PolyUniv* m_univ               = new_univ(params_glwe);
+	PolyUnivZnx* m_univ               = new_univ_znx(params_glwe);
 	// Variables to compute the phase of each ggsw's row
 
 	// Draws uniformly in (Zn[X])^k the secret key
@@ -48,7 +48,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 	check_ggsw(module, ggsw, sk_prep, m_univ, max_err_length, critical_err_length);
 
 	// Clean up
-	delete_univ(m_univ);
+	delete_univ_znx(m_univ);
 	delete_ggsw(ggsw);
 	delete_glwe_secret_key_prepared(sk_prep);
 	delete_glwe_secret_key(sk);

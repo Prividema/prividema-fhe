@@ -26,7 +26,7 @@ GLWESecretKey* new_glwe_secret_key(GLWEParams* params_glwe)
 	sk->nn = params_glwe->nn;
 	sk->k  = params_glwe->k;
 
-	sk->values = calloc(params_glwe->nn * params_glwe->k, sizeof(PolyUniv));
+	sk->values = calloc(params_glwe->nn * params_glwe->k, sizeof(PolyUnivZnx));
 	CHECK_ALLOC(sk->values, "values creation failed in glwe key generation");
 
 	return sk;
@@ -87,7 +87,7 @@ cleanup:
 	return -1;
 }
 
-PolyUniv* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos)
+PolyUnivZnx* glwe_sk_extract_poly(GLWESecretKey* sk, uint64_t pos)
 {
 	assert(pos >= 0 && pos < sk->k);
 	return sk->values + sk->nn * pos;
@@ -110,17 +110,17 @@ GLWESecretKeyPrepared* new_glwe_secret_key_prepared(const PvdaBackend* module, G
 	sk->k      = params_glwe->k;
 
 	// Coefficient-space copy of the key
-	sk->values_coef = malloc(sk->nn * sk->k * sizeof(PolyUniv));
+	sk->values_coef = malloc(sk->nn * sk->k * sizeof(PolyUnivZnx));
 	CHECK_ALLOC(sk->values_coef, "values_coef's allocation failed in new_glwe_secret_key_prepared");
 
 	// Array of k handles, zeroed so that a partial failure leaves NULLs that the delete function can skip
-	sk->values_prep = calloc(sk->k, sizeof(BE_PolySvpPrep*));
+	sk->values_prep = calloc(sk->k, sizeof(BE_PolyUnivSvpPrep*));
 	CHECK_ALLOC(sk->values_prep, "values_prep's allocation failed in new_glwe_secret_key_prepared");
 
 	// One backend object per key component
 	for (uint64_t j = 0; j < sk->k; ++j)
 	{
-		sk->values_prep[j] = pvda_new_svp_ppol(module);
+		sk->values_prep[j] = pvda_new_univ_svp_prep(module);
 		CHECK_ALLOC(sk->values_prep[j], "prepared key component allocation failed in new_glwe_secret_key_prepared");
 	}
 
@@ -136,20 +136,21 @@ void delete_glwe_secret_key_prepared(GLWESecretKeyPrepared* sk_prep)
 	if (!sk_prep) return;
 
 	if (sk_prep->values_prep)
-		for (uint64_t j = 0; j < sk_prep->k; ++j) pvda_delete_svp_ppol(sk_prep->module, sk_prep->values_prep[j]);
-
+		for (uint64_t j = 0; j < sk_prep->k; ++j)
+			pvda_delete_univ_svp_prep(sk_prep->module, sk_prep->values_prep[j]);
+			
 	free((void*)sk_prep->values_prep);
 	free(sk_prep->values_coef);
 	free(sk_prep);
 }
 
-BE_PolySvpPrep* glwe_prepared_sk_extract_poly_prep(const GLWESecretKeyPrepared* sk_prep, uint64_t pos)
+BE_PolyUnivSvpPrep* glwe_prepared_sk_extract_poly_prep(const GLWESecretKeyPrepared* sk_prep, uint64_t pos)
 {
 	assert(pos < sk_prep->k);
 	return sk_prep->values_prep[pos];
 }
 
-PolyUniv* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_prep, uint64_t pos)
+PolyUnivZnx* glwe_sk_prepared_extract_poly_coefs(const GLWESecretKeyPrepared* sk_prep, uint64_t pos)
 {
 	assert(pos >= 0 && pos < sk_prep->k);
 	return sk_prep->values_coef + sk_prep->nn * pos;
@@ -171,12 +172,15 @@ int glwe_sk_prepare(const PvdaBackend* module, GLWESecretKeyPrepared* sk_prep, c
 	assert(sk_prep->module == module);
 
 	// Coefficient-space copy
-	memcpy(sk_prep->values_coef, sk->values, nn * sk->k * sizeof(PolyUniv));
+	memcpy(sk_prep->values_coef, sk->values, nn * sk->k * sizeof(PolyUnivZnx));
 
 	// Each component is prepared as the scalar operand of scalar-vector products
 	for (uint64_t j = 0; j < sk->k; ++j)
-		CHECK_CALL(pvda_svp_prepare(module, sk_prep->values_prep[j], sk->values + j * nn),
+	{
+		FlatPolyVec skj = flat_poly_vec_view(nn, 1, nn, sk->values + j * nn);
+		CHECK_CALL(pvda_flat_univ_to_svp_prep(module, sk_prep->values_prep[j], &skj),
 		           "SVP preparation of a secret key component failed in glwe_sk_prepare");
+	}
 
 	status = 0;
 

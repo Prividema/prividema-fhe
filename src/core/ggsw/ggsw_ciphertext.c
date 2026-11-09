@@ -55,15 +55,15 @@ GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int
 	return (GLWECiphertext){params_glwe, ggsw_ct->mat + offset};
 }
 
-ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct)
+FlatPolyVec ggsw_as_flat_poly_vec(const GGSWCiphertext* ggsw_ct)
 {
 	const GGSWParams* params_ggsw = ggsw_ct->params;
 	const GLWEParams* glwe_params = params_ggsw->params_glwe;
-	return znx_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)glwe_params->nn, ggsw_ct->mat);
+	return flat_poly_vec_view(glwe_params->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)glwe_params->nn, ggsw_ct->mat);
 }
 
 int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
-                        const PolyUniv* m_univ)
+                        const PolyUnivZnx* m_univ)
 {
 	int status = -1;
 
@@ -74,13 +74,12 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 	// bivGLWE parameters
 	uint64_t nn      = params_glwe->nn;
-	uint64_t k       = params_glwe->k;
 	uint64_t k_tilde = params_ggsw->k_tilde;
 
 	// Variables
-	BE_PolyVecDFT* m_univ_dft     = new_univ_dft(module);   // DFT(msg)
-	BE_PolyVecDFT* m_skj_univ_dft = new_univ_dft(module);   // DFT(msg * sk_j)
-	PolyUniv* m_skj_univ          = new_univ(params_glwe);  // -msg * sk_j
+	BE_PolyUnivZnxDFT* m_univ_dft     = new_univ_znx_dft(module);   // DFT(msg)
+	BE_PolyUnivZnxDFT* m_skj_univ_dft = new_univ_znx_dft(module);   // DFT(msg * sk_j)
+	PolyUnivZnx* m_skj_univ          = new_univ_znx(params_glwe);  // -msg * sk_j
 	// Temp space for -m * sk * 2^{-kappa_tilde}
 	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 
@@ -90,35 +89,35 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)
-	univ_coefs_to_dft(module, m_univ_dft, m_univ);
+	univ_znx_to_dft(module, m_univ_dft, m_univ);
 
 	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
 	{
-		uint64_t j = (ij % (k + 1));
-		uint64_t i = ij / (k + 1) + 1;
+		uint64_t j = (ij % (k_tilde + 1));
+		uint64_t i = ij / (k_tilde + 1) + 1;
 		{
-			// For j < k, m_skj_univ is -m * skj
-			// For j = k  we skip this and we get it from m_univ directly
-			if (j < params_glwe->k)
+			// For j < k_tilde, m_skj_univ is -m * skj
+			// For j = k_tilde we skip this and we get it from m_univ directly
+			if (j < k_tilde)
 			{
 				// Computes DFT(msg * sk_j)
-				CHECK_CALL(pvda_svp_apply_dft_to_dft(module, m_skj_univ_dft, 1, 
+				CHECK_CALL(pvda_svp_apply_dft_to_dft(module, univ_znx_dft_as_biv(m_skj_univ_dft), 1,
 						   glwe_prepared_sk_extract_poly_prep(sk_prep, j),
-				           m_univ_dft, 1),
+				           univ_znx_dft_as_biv_const(m_univ_dft), 1),
 						   "svp_apply_dft_to_dft failed in ggsw_secret_encrypt");
 
 
 				// Invert the DFT to get -msg * sk_j
-				CHECK_CALL(univ_dft_to_coefs(module, m_skj_univ, m_skj_univ_dft),
+				CHECK_CALL(univ_dft_to_znx(module, m_skj_univ, m_skj_univ_dft),
 				           "vec_znx_idft_p failed in compute_phase_ij");
 
 				// Negate in coefficient space to get -msg * sk_j
-				ZnxVec m_skj_vec = znx_vec_view(nn, 1, nn, m_skj_univ);
+				FlatPolyVec m_skj_vec = flat_poly_vec_view(nn, 1, nn, m_skj_univ);
 				CHECK_CALL(pvda_vec_znx_negate(module, & m_skj_vec, &m_skj_vec),
 						   "negation failed in ggsw_secret_encrypt");
 			}
 
-			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (k == j) ? m_univ : m_skj_univ,
+			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (j == k_tilde) ? m_univ : m_skj_univ,
 			                           params_ggsw->kappa_tilde * i),
 			           "univ_to_biv failed in compute_phase_ij");
 
@@ -137,35 +136,36 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 cleanup:
 	delete_biv(glwe_biv_msg);
-	delete_univ_dft(module, m_skj_univ_dft);
-	delete_univ(m_skj_univ);
-	delete_univ_dft(module, m_univ_dft);
+	delete_univ_znx_dft(module, m_skj_univ_dft);
+	delete_univ_znx(m_skj_univ);
+	delete_univ_znx_dft(module, m_univ_dft);
 
 	return status;
 }
 // bivGGSW DFT PART (begin)
 
-GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw)
+GGSWCiphertextPrep* new_ggsw_prep(const PvdaBackend* module, const GGSWParams* params_ggsw)
 {
-	GGSWCiphertextPrep* ggsw_mat_dft = malloc(sizeof(GGSWCiphertextPrep));
-	CHECK_ALLOC(ggsw_mat_dft, "malloc in new_ggsw_dft");
+	GGSWCiphertextPrep* ggsw_prep = calloc(1, sizeof(GGSWCiphertextPrep));
+	CHECK_ALLOC(ggsw_prep, "calloc failed in new_ggsw_prep");
 
-	ggsw_mat_dft->params = params_ggsw;
+	ggsw_prep->module = module;
+	ggsw_prep->params = params_ggsw;
 
-	// Initializes  the bivGGSW ciphertext with 0s
-	ggsw_mat_dft->mat = calloc(2 * ggsw_coef_number_dft(params_ggsw), sizeof(double));
-	CHECK_ALLOC(ggsw_mat_dft->mat, "calloc in new_ggsw_dft");
+	// Same dimensions as the ones used by ggsw_prepare
+	ggsw_prep->mat = pvda_new_vmp_pmat(module, ggsw_num_rows(params_ggsw), glwe_params_n_limbs(params_ggsw->params_glwe));
+	CHECK_ALLOC(ggsw_prep->mat, "prepared matrix allocation failed in new_ggsw_prep");
 
-	return ggsw_mat_dft;
+	return ggsw_prep;
 cleanup:
-	delete_ggsw_prep(ggsw_mat_dft);
+	free(ggsw_prep);
 	return NULL;
 }
 
 void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_prep)
 {
 	if (!ggsw_prep) return;
-	free(ggsw_prep->mat);
+	pvda_delete_vmp_pmat(ggsw_prep->module, ggsw_prep->mat);
 	free(ggsw_prep);
 }
 

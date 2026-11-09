@@ -74,13 +74,13 @@ void delete_ggsw(GGSWCiphertext* ggsw);
 GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl);
 
 /**
- * @brief Returns a ZnxVec (view) representing a flattened GGSW: a flat vector with all the limbs in layout order
+ * @brief Returns a FlatPolyVec (view) representing a flattened GGSW: a flat vector with all the limbs in layout order
  *
  * @param ggsw_ct The GGSW from which the view is taken
  *
  * @return A view to the flattened (memory) representation of the GGSW. See @ref ggsw_encoding
  */
-ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct);
+FlatPolyVec ggsw_as_flat_poly_vec(const GGSWCiphertext* ggsw_ct);
 
 /**
  * @brief Encrypts the \ZnX message m into the bivGGSW ciphertext res according to the
@@ -95,7 +95,7 @@ ZnxVec ggsw_as_znx_vec(const GGSWCiphertext* ggsw_ct);
  * @retval 0 otherwise.
  */
 int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
-                        const PolyUniv* m_univ);
+                        const PolyUnivZnx* m_univ);
 
 /**
  * @brief Encrypts univariate \ZnX message m_univ into GGSW ciphertext res with parameters params
@@ -111,7 +111,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
  * @retval 0 otherwise
  * */
 int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWEPublicKey* pk,
-                        const PolyUniv* m_univ);
+                        const PolyUnivZnx* m_univ);
 
 // =============================================
 // |                                           |
@@ -126,6 +126,9 @@ int ggsw_public_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
  */
 typedef struct ggsw_ciphertext_prepared
 {
+	/// Backend that owns mat.
+	const PvdaBackend* module;
+
 	/// GGSW parameters.
 	const GGSWParams* params;
 
@@ -135,14 +138,17 @@ typedef struct ggsw_ciphertext_prepared
 } GGSWCiphertextPrep;
 
 /**
- * @brief Creates a zero-initialized GGSWCiphertextPrep
+ * @brief Creates a GGSWCiphertextPrep. The prepared matrix is allocated by the backend.
  *
+ * @param module      The backend instance (owns the prepared matrix).
  * @param params_ggsw The GGSW parameters.
  *
- * @retval NULL if malloc failed inside the function.
- * @retval non-NULL The Allocated GGSW ciphertext filled with 0 otherwise.
+ * @note The content is uninitialized: call ggsw_prepare before using it.
+ *
+ * @retval NULL if an allocation failed inside the function.
+ * @retval non-NULL The allocated prepared GGSW ciphertext otherwise.
  */
-GGSWCiphertextPrep* new_ggsw_prep(const GGSWParams* params_ggsw);
+GGSWCiphertextPrep* new_ggsw_prep(const PvdaBackend* module, const GGSWParams* params_ggsw);
 
 /**
  * @brief Deletes a prepared GGSW ciphertext

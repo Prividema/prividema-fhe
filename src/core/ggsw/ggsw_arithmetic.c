@@ -50,14 +50,14 @@ void ggsw_add(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCipherte
               const GGSWCiphertext* ggsw_rhs)
 {
 	uint64_t nn          = res->params->params_glwe->nn;
-	ZnxVec res_flattened = ggsw_as_znx_vec(res);
-	ZnxVec lhs_flattened = ggsw_as_znx_vec(ggsw_lhs);
-	ZnxVec rhs_flattened = ggsw_as_znx_vec(ggsw_rhs);
+	FlatPolyVec res_flattened = ggsw_as_flat_poly_vec(res);
+	FlatPolyVec lhs_flattened = ggsw_as_flat_poly_vec(ggsw_lhs);
+	FlatPolyVec rhs_flattened = ggsw_as_flat_poly_vec(ggsw_rhs);
 	pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCiphertext* ggsw,
-                    const BE_PolySvpPrep* u_prep)
+                    const BE_PolyUnivSvpPrep* u_prep)
 
 {
 	int status = -1;
@@ -66,23 +66,23 @@ int ggsw_mult_const(const PvdaBackend* module, GGSWCiphertext* res, const GGSWCi
 	int64_t mat_size                  = ggsw_total_n_glwe_limbs(params_ggsw);
 
 	// DFT-domain scratch: one entry per polynomial in the GGSW
-	BE_PolyVecDFT* tmp_dft = pvda_new_vec_znx_dft(module, mat_size);
+	BE_PolyBivDFT* tmp_dft = pvda_new_biv_dft(module, mat_size);
 	CHECK_ALLOC(tmp_dft, "tmp_dft's allocation failed in ggsw_mult_const");
 
 	// Computes DFT(u * ggsw) polynomial by polynomial
-	ZnxVec ggsw_flattened = ggsw_as_znx_vec(ggsw);
+	FlatPolyVec ggsw_flattened = ggsw_as_flat_poly_vec(ggsw);
 	CHECK_CALL(pvda_svp_apply_dft(module, tmp_dft, mat_size, u_prep, &ggsw_flattened),
 			   "svp_apply_dft failed in ggsw_mult_const");
 
 	// Go back to Zn[X,Y]
-	ZnxVec result_flattened = ggsw_as_znx_vec(res);
-	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, tmp_dft, mat_size),
+	FlatPolyVec result_flattened = ggsw_as_flat_poly_vec(res);
+	CHECK_CALL(pvda_flat_biv_idft(module, &result_flattened, tmp_dft, mat_size),
 	           "vec_znx_idft_p failed in ggsw_mult_const");
 
 	status = 0;
 
 cleanup:
-	pvda_delete_vec_znx_dft(module, tmp_dft);
+	pvda_delete_biv_dft(module, tmp_dft);
 	return status;
 }
 
@@ -101,29 +101,29 @@ int ggsw_external_product_unprepared(const PvdaBackend* module,
 	uint64_t ncols_out = glwe_params_n_limbs(res->params);
 
 	BE_PolyMatVmpPrep* ggsw_pmat  = NULL;  // Prepared bivGGSW ciphertext
-	BE_PolyVecDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
-	ggsw_pmat             = malloc(ggsw_bytes(ggsw->params));
-	result_dft            = malloc(glwe_params_bytes(ggsw->params->params_glwe));
+	BE_PolyBivDFT* result_dft = NULL;  // ExternalProduct(glwe, ggsw)
+	ggsw_pmat             = pvda_new_vmp_pmat(module, nrows, ncols_in);
+	result_dft            = pvda_new_biv_dft(module, ncols_out);
 
-	CHECK_ALLOC(ggsw_pmat, "mat_dft's malloc failed in ggsw_external_product");
-	CHECK_ALLOC(result_dft, "result's malloc failed in ggsw_external_product");
+	CHECK_ALLOC(ggsw_pmat, "ggsw_pmat's allocation failed in ggsw_external_product_unprepared");
+	CHECK_ALLOC(result_dft, "result_dft's allocation failed in ggsw_external_product_unprepared");
 
 	CHECK_CALL(pvda_vmp_prepare_contiguous(module, ggsw_pmat, ggsw->mat, nrows, ncols_in),
 	           "vmp_prepare_contiguous_p failed in ggsw_external_product");
 
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe);
 	CHECK_CALL(pvda_vmp_apply_dft(module, result_dft, ncols_out, &glwe_flattened, ggsw_pmat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
-	ZnxVec result_flattened = glwe_as_znx_vec(res);
-	CHECK_CALL(pvda_vec_znx_idft(module, &result_flattened, result_dft, ncols_out),
+	FlatPolyVec result_flattened = glwe_as_flat_poly_vec(res);
+	CHECK_CALL(pvda_flat_biv_idft(module, &result_flattened, result_dft, ncols_out),
 	           "vec_znx_idft_p failed in ggsw_external_product");
 
 	status = 0;
 
 cleanup:
-	delete_biv_dft(result_dft);
-	free(ggsw_pmat);
+	pvda_delete_biv_dft(module, result_dft);
+	pvda_delete_vmp_pmat(module, ggsw_pmat);
 
 	return status;
 }
@@ -137,7 +137,7 @@ int ggsw_external_product_to_dft(const PvdaBackend* module, GLWECiphertextDFT* r
 	size_t ncols_in  = glwe_params_n_limbs(ggsw_prep->params->params_glwe);
 	size_t ncols_out = glwe_params_n_limbs(res->params);
 
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe);
 	CHECK_CALL(pvda_vmp_apply_dft(module, res->vec, ncols_out, &glwe_flattened, ggsw_prep->mat, nrows, ncols_in),
 	           "vmp_apply_dft_p failed in ggsw_external_product");
 
@@ -175,10 +175,10 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 	int status = -1;
 	GLWECiphertext* results_glwe[res_size * l_tilde];
 	memset((uint8_t*)results_glwe, 0, sizeof(results_glwe));
-	int64_t k = (int64_t)packed_glwegadget->params->k;
+	int64_t k_tilde = (int64_t)results[0]->params->k_tilde;
 
 	/*
-	 * Create dummy GLWECiphertext views for the k'th GLWE in each GGSW,
+	 * Create dummy GLWECiphertext views for the k_tilde'th GLWE in each GGSW,
 	 * that is, the ones that contain a m * 2^-jK.
 	 * This way, glwe_trace_expand will fill the rows of the GGSWs that need to contain a m * 2^-jK.
 	 */
@@ -189,12 +189,12 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 			GLWECiphertext* tmp = malloc(sizeof(GLWECiphertext));
 			CHECK_ALLOC(tmp, "Malloc failed in GGSW trace expansion");
 			tmp->params                                       = results[res_num]->params->params_glwe;
-			tmp->vec                                          = ggsw_glwe_view(results[res_num], k, prec_lvl).vec;
+			tmp->vec                                          = ggsw_glwe_view(results[res_num], k_tilde, prec_lvl).vec;
 			results_glwe[(prec_lvl - 1) * res_size + res_num] = tmp;
 		}
 	}
 
-	// Fills the k'th rows of GGSWs
+	// Fills the k_tilde'th rows of GGSWs
 	CHECK_CALL(glwe_trace_expand(module, results_glwe, res_size * l_tilde, packed_glwegadget, auto_key_collection),
 	           "glwegadget_trace_expand failed in a GGSW trace expansion");
 
@@ -204,8 +204,8 @@ int packed_glwegadget_trace_expand_ggsw(const PvdaBackend* module, GGSWCiphertex
 	{
 		for (uint64_t prec_lvl = 1; prec_lvl <= l_tilde; ++prec_lvl)
 		{
-			GLWECiphertext in = ggsw_glwe_view(results[res_num], k, prec_lvl);
-			for (int i = 0; i < k; ++i)
+			GLWECiphertext in = ggsw_glwe_view(results[res_num], k_tilde, prec_lvl);
+			for (int i = 0; i < k_tilde; ++i)
 			{
 				GLWECiphertext res = ggsw_glwe_view(results[res_num], i, prec_lvl);
 
@@ -249,11 +249,12 @@ int packed_glwegadget_trace_expand_ggsw_prepared(const PvdaBackend* module, GGSW
 	{
 		if (!results[r])
 		{
-			results[r] = new_ggsw_prep(params_ggsw);
+			results[r] = new_ggsw_prep(module, params_ggsw);
 			CHECK_ALLOC(results[r], "GGSW prepared allocation failed in trace expansion");
 		}
 		CHECK_CALL(ggsw_prepare(module, results[r], ggsws[r]), "GGSW preparation in trace expansion failed");
 		delete_ggsw(ggsws[r]);
+		ggsws[r] = NULL;  // The cleanup block deletes the remaining ones
 	}
 
 	free(ggsws);

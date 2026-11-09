@@ -114,6 +114,44 @@ PvdaParamTest(univ_rnx_to_biv, basic, default_params_fn)
 	DELETE_PVDA_PARAMS_GLWE;
 }
 
+// univ_rnx_to_biv must overwrite every limb of the output, whatever the buffer held before.
+// Converts the same input into a zeroed buffer and into a garbage-filled buffer: both results must be identical.
+// The input sweeps powers of two from 2^-1 down to 2^-(kappa * l_a), so that small values (which have fewer
+// significant limbs than the depth allows) are covered.
+PvdaParamTest(univ_rnx_to_biv, overwrites_reused_buffer, default_params_fn)
+{
+	INIT_PVDA_PARAMS_GLWE(param);
+
+	uint64_t nn       = params_glwe->nn;
+	uint64_t l_a      = glwe_params_l_a(params_glwe);
+	uint64_t max_bits = params_glwe->kappa * l_a;
+
+	PolyUnivRnX* pol_univ = new_univ_rnx(params_glwe);
+	PolyBiv* pol_zeroed   = new_biv(params_glwe);
+	PolyBiv* pol_garbage  = new_biv(params_glwe);
+
+	for (uint64_t p = 0; p < nn; p++)
+	{
+		double sign = (p & 1) ? -1.0 : 1.0;
+		pol_univ[p] = sign * ldexp(1.0, -(int)(1 + p % max_bits));
+	}
+
+	for (uint64_t i = 0; i < l_a * nn; i++) pol_garbage->ptr[i] = 12345;
+
+	univ_rnx_to_biv(params_glwe, pol_zeroed, pol_univ, 0);
+	univ_rnx_to_biv(params_glwe, pol_garbage, pol_univ, 0);
+
+	for (uint64_t i = 0; i < l_a * nn; i++)
+		cr_assert(eq(i64, pol_garbage->ptr[i], pol_zeroed->ptr[i]), "limb %" PRIu64 ", coefficient %" PRIu64,
+		          i / nn, i % nn);
+
+	delete_univ_rnx(pol_univ);
+	delete_biv(pol_zeroed);
+	delete_biv(pol_garbage);
+
+	DELETE_PVDA_PARAMS_GLWE;
+}
+
 PvdaParamTest(univ_rnx_to_biv, maths_test, default_params_fn)
 {
 	INIT_PVDA_PARAMS_GLWE(param);

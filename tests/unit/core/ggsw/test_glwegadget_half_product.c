@@ -32,7 +32,7 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegadget_ct    = new_glwegadget(params_glwegadget);
 	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
-	PolyUniv* u_univ                       = new_univ(params_glwe);
+	PolyUnivZnx* u_univ                       = new_univ_znx(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
 	PolyUnivTnX* um_expected_tnx           = new_univ_tnx(params_glwe);
@@ -87,7 +87,7 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	delete_glwe(glwe);
 	delete_glwegadget(glwegadget_ct);
 	delete_glwegadget_prep(glwegad_prep);
-	delete_univ(u_univ);
+	delete_univ_znx(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_tnx(um_expected_tnx);
@@ -117,7 +117,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegadget_ct       = new_glwegadget(params_glwegadget);
 	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
-	PolyUniv* u_univ                       = new_univ(params_glwe);
+	PolyUnivZnx* u_univ                       = new_univ_znx(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
 	PolyUnivTnX* um_expected_tnx           = new_univ_tnx(params_glwe);
@@ -125,7 +125,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	PolyBiv* um_observed                   = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	BE_PolyVecDFT* m_dft                      = new_biv_dft(params_glwe);
+	BE_PolyBivDFT* m_dft                      = new_biv_dft(module, params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;
@@ -158,7 +158,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	glwegadget_prepare(module, glwegad_prep, glwegadget_ct);
 
 	//Prepare m to be in dft space
-	biv_coefs_to_dft(module, params_glwe, m_dft, m);
+	biv_to_dft(module, params_glwe, m_dft, m);
 
 	//Half product of GLWEGadget(u) with m with prepared and dft inputs
 	glwegadget_half_prod_dft_to_dft(module, glwe_dft, glwegad_prep, m_dft);
@@ -178,7 +178,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	delete_glwe_dft(glwe_dft);
 	delete_glwegadget(glwegadget_ct);
 	delete_glwegadget_prep(glwegad_prep);
-	delete_univ(u_univ);
+	delete_univ_znx(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_tnx(um_expected_tnx);
@@ -186,7 +186,7 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	delete_biv(um_observed);
 	delete_univ_rnx(um_observed_rnx);
 	delete_biv(m);
-	delete_biv_dft(m_dft);
+	delete_biv_dft(module, m_dft);
 	DELETE_PVDA_PARAMS_GGSWGAD;
 }
 
@@ -209,7 +209,7 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	GLWECiphertext* glwe                   = new_glwe(params_glwe);
 	GLWEGadgetCiphertext* glwegadget_ct    = new_glwegadget(params_glwegadget);
 	GLWEGadgetCiphertextPrep* glwegad_prep = new_glwegadget_prep(module, params_glwegadget);
-	PolyUniv* u_univ                       = new_univ(params_glwe);
+	PolyUnivZnx* u_univ                       = new_univ_znx(params_glwe);
 	PolyUnivTnX* m_univ_tnx                = new_univ_tnx(params_glwe);
 	PolyUnivRnX* m_univ_rnx                = new_univ_rnx(params_glwe);
 	PolyUnivTnX* um_expected_tnx           = new_univ_tnx(params_glwe);
@@ -217,7 +217,7 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	PolyBiv* um_observed                   = new_biv(params_glwe);
 	PolyUnivRnX* um_observed_rnx           = new_univ_rnx(params_glwe);
 	PolyBiv* m                             = new_biv(params_glwe);
-	BE_PolyVecVmpPrep* m_prep              = new_biv_prep(module, params_glwe);
+	BE_PolyBivVmpPrep* m_prep              = new_biv_prep(module, params_glwe);
 
 	int nn    = params_glwe->nn;
 	int k     = params_glwe->k;
@@ -250,7 +250,7 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	glwegadget_prepare(module, glwegad_prep, glwegadget_ct);
 
 	// Get the public vector into a "prepared" for half-product format (different from DFT!)
-	biv_coefs_to_prep(module, params_glwe, m_prep, m);
+	biv_to_prep(module, params_glwe, m_prep, m);
 
 	//Half product of GLWEGadget(u) with m, with prepared gadget and prepared public vector, which is different than DFT
 	glwegadget_half_prod_prepared_to_dft(module, glwe_dft, glwegad_prep, m_prep);
@@ -270,7 +270,7 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	delete_glwe_dft(glwe_dft);
 	delete_glwegadget(glwegadget_ct);
 	delete_glwegadget_prep(glwegad_prep);
-	delete_univ(u_univ);
+	delete_univ_znx(u_univ);
 	delete_univ_tnx(m_univ_tnx);
 	delete_univ_rnx(m_univ_rnx);
 	delete_univ_tnx(um_expected_tnx);

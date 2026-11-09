@@ -239,9 +239,9 @@ PvdaParamTest(glwe_mult_const, without_normalization, default_params_fn)
 	// Variables
 	GLWECiphertext* prod_computed = new_glwe(params_glwe);
 	GLWECiphertext* glwe          = new_glwe(params_glwe);
-	PolyUniv* u                   = new_univ(params_glwe);
-	BE_PolySvpPrep* u_prep        = new_univ_prep(module);
-	PolyUniv* prod_expected       = new_univ(params_glwe);
+	PolyUnivZnx* u                   = new_univ_znx(params_glwe);
+	BE_PolyUnivSvpPrep* u_prep        = new_univ_svp_prep(module);
+	PolyUnivZnx* prod_expected       = new_univ_znx(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
 	uniform_pow2_random_vec(module, params_glwe->nn, glwe->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
@@ -251,7 +251,7 @@ PvdaParamTest(glwe_mult_const, without_normalization, default_params_fn)
 	uniform_pow2_random_pol_znx(module, u, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
-	univ_coefs_to_prep(module, u_prep, u);
+	univ_znx_to_svp_prep(module, u_prep, u);
 
 	// Computes u * glwe
 	glwe_mult_const(module, prod_computed, u_prep, glwe);
@@ -261,7 +261,7 @@ PvdaParamTest(glwe_mult_const, without_normalization, default_params_fn)
 	{
 		uint64_t j        = (ij % (params_glwe->k + 1));
 		uint64_t i        = ij / (params_glwe->k + 1) + 1;
-		PolyUniv* glwe_ij = glwe->vec + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
+		PolyUnivZnx* glwe_ij = glwe->vec + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
 		pvda_znx_small_product(module, prod_expected, u, glwe_ij);
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{
@@ -272,11 +272,11 @@ PvdaParamTest(glwe_mult_const, without_normalization, default_params_fn)
 	}
 
 	// Clean up
-	delete_univ(u);
-	delete_univ_prep(module, u_prep);
+	delete_univ_znx(u);
+	delete_univ_svp_prep(module, u_prep);
 	delete_glwe(glwe);
 	delete_glwe(prod_computed);
-	delete_univ(prod_expected);
+	delete_univ_znx(prod_expected);
 
 	DELETE_PVDA_PARAMS_GLWE;
 }
@@ -363,9 +363,9 @@ PvdaParamTest(glwe_dft_mult_const, without_normalization, default_params_fn)
 	GLWECiphertext* prod                 = new_glwe(params_glwe);
 	GLWECiphertextDFT* glwe_dft          = new_glwe_dft(module, params_glwe);
 	GLWECiphertext* glwe_ct              = new_glwe(params_glwe);
-	PolyUniv* u                          = new_univ(params_glwe);
-	BE_PolySvpPrep* u_prep               = new_univ_prep(module);
-	PolyUniv* prod_expected              = new_univ(params_glwe);
+	PolyUnivZnx* u                          = new_univ_znx(params_glwe);
+	BE_PolyUnivSvpPrep* u_prep               = new_univ_svp_prep(module);
+	PolyUnivZnx* prod_expected              = new_univ_znx(params_glwe);
 
 	uint64_t nn = params_glwe->nn;
 
@@ -378,25 +378,25 @@ PvdaParamTest(glwe_dft_mult_const, without_normalization, default_params_fn)
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe_ct);
-	pvda_vec_znx_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(params_glwe));
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe_ct);
+	pvda_flat_biv_idft(module, &glwe_flattened, glwe_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Computes u in the DFT domain
-	univ_coefs_to_prep(module, u_prep, u);
+	univ_znx_to_svp_prep(module, u_prep, u);
 
 	// Computes DFT(u * glwe)
 	glwe_dft_mult_const(module, prod_computed_dft, u_prep, glwe_dft);
 
 	// Computes prod_computed_dft's vec out of the DFT domain
-	ZnxVec prod_flattened = glwe_as_znx_vec(prod);
-	pvda_vec_znx_idft(module, &prod_flattened, prod_computed_dft->vec, glwe_params_n_limbs(params_glwe));
+	FlatPolyVec prod_flattened = glwe_as_flat_poly_vec(prod);
+	pvda_flat_biv_idft(module, &prod_flattened, prod_computed_dft->vec, glwe_params_n_limbs(params_glwe));
 
 	// Asserts prod_computed_dft = DFT(u * glwe), ie that prod_computed_vec = u * glwe
 	for (uint64_t ij = 0; ij < glwe_params_n_limbs(params_glwe); ++ij)
 	{
 		uint64_t j        = (ij % (params_glwe->k + 1));
 		uint64_t i        = ij / (params_glwe->k + 1) + 1;
-		PolyUniv* glwe_ij = glwe_ct->vec + (i - 1) * (params_glwe->k + 1) * nn + j * nn;
+		PolyUnivZnx* glwe_ij = glwe_ct->vec + (i - 1) * (params_glwe->k + 1) * nn + j * nn;
 		pvda_znx_small_product(module, prod_expected, u, glwe_ij);
 		for (uint64_t p = 0; p < params_glwe->nn; p++)
 		{
@@ -406,11 +406,11 @@ PvdaParamTest(glwe_dft_mult_const, without_normalization, default_params_fn)
 	}
 
 	// Clean up
-	delete_univ(u);
-	delete_univ_prep(module, u_prep);
+	delete_univ_znx(u);
+	delete_univ_svp_prep(module, u_prep);
 	delete_glwe(glwe_ct);
 	delete_glwe(prod);
-	delete_univ(prod_expected);
+	delete_univ_znx(prod_expected);
 	delete_glwe_dft(glwe_dft);
 	delete_glwe_dft(prod_computed_dft);
 

@@ -37,30 +37,30 @@ cleanup:
 int glwe_add(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
              const GLWECiphertext* glwe_rhs)
 {
-	ZnxVec lhs_flattened = glwe_as_znx_vec(glwe_lhs);
-	ZnxVec rhs_flattened = glwe_as_znx_vec(glwe_rhs);
-	ZnxVec res_flattened = glwe_as_znx_vec(res);
+	FlatPolyVec lhs_flattened = glwe_as_flat_poly_vec(glwe_lhs);
+	FlatPolyVec rhs_flattened = glwe_as_flat_poly_vec(glwe_rhs);
+	FlatPolyVec res_flattened = glwe_as_flat_poly_vec(res);
 	return pvda_vec_znx_add(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 int glwe_sub(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe_lhs,
              const GLWECiphertext* glwe_rhs)
 {
-	ZnxVec lhs_flattened = glwe_as_znx_vec(glwe_lhs);
-	ZnxVec rhs_flattened = glwe_as_znx_vec(glwe_rhs);
-	ZnxVec res_flattened = glwe_as_znx_vec(res);
+	FlatPolyVec lhs_flattened = glwe_as_flat_poly_vec(glwe_lhs);
+	FlatPolyVec rhs_flattened = glwe_as_flat_poly_vec(glwe_rhs);
+	FlatPolyVec res_flattened = glwe_as_flat_poly_vec(res);
 	return pvda_vec_znx_sub(module, &res_flattened, &lhs_flattened, &rhs_flattened);
 }
 
 int glwe_negate(const PvdaBackend* module, GLWECiphertext* res, const GLWECiphertext* glwe)
 {
 	uint64_t nn           = res->params->nn;
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
-	ZnxVec res_flattened  = glwe_as_znx_vec(res);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe);
+	FlatPolyVec res_flattened  = glwe_as_flat_poly_vec(res);
 	return pvda_vec_znx_negate(module, &res_flattened, &glwe_flattened);
 }
 
-int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolySvpPrep* u_dft,
+int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolyUnivSvpPrep* u_dft,
                     const GLWECiphertext* glwe)
 {
 	int status = -1;
@@ -71,7 +71,7 @@ int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_Pol
 	CHECK_ALLOC(u_glwe_dft, "u_glwe_dft's malloc failed in glwe_mult_const.");
 
 	// Computes DFT(u * glwe)
-	ZnxVec glwe_flattened = glwe_as_znx_vec(glwe);
+	FlatPolyVec glwe_flattened = glwe_as_flat_poly_vec(glwe);
 	pvda_svp_apply_dft(module, u_glwe_dft->vec, glwe_params_n_limbs(res->params), u_dft, &glwe_flattened);
 
 	// Computes it out of the DFT domain
@@ -91,7 +91,7 @@ int glwe_dft_add(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GL
 	                            glwe_params_n_limbs(glwe_rhs_dft->params));
 }
 
-int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolySvpPrep* u_dft,
+int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolyUnivSvpPrep* u_dft,
                         const GLWECiphertextDFT* glwe_dft)
 {
 	// Computes DFT(u * glwe)

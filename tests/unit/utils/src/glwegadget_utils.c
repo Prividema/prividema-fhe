@@ -11,7 +11,7 @@
 #include "univariate_polynomial.h"
 
 void check_glwegadget(const PvdaBackend* module, const GLWEGadgetCiphertext* glwegadget_ct,
-                      const GLWESecretKeyPrepared* sk_prep, const PolyUniv* expected, double max_err,
+                      const GLWESecretKeyPrepared* sk_prep, const PolyUnivZnx* expected, double max_err,
                       double critical_err)
 {
 	const GLWEGadgetParams* params_glwegadget = glwegadget_ct->params;
@@ -23,8 +23,8 @@ void check_glwegadget(const PvdaBackend* module, const GLWEGadgetCiphertext* glw
 	for (uint64_t prec_lvl = 1; prec_lvl < params_glwegadget->l_tilde; ++prec_lvl)
 	{
 		memset(phase_computed->ptr, 0, biv_bytes(params_glwe));
-		memset(phase_observed_univ_rnx, 0, univ_bytes(params_glwe));
-		memset(phase_expected_univ_rnx, 0, univ_bytes(params_glwe));
+		memset(phase_observed_univ_rnx, 0, univ_znx_bytes(params_glwe));
+		memset(phase_expected_univ_rnx, 0, univ_znx_bytes(params_glwe));
 
 		GLWECiphertext glwe_ct = glwegadget_glwe_view(glwegadget_ct, prec_lvl);
 		int code               = glwe_secret_decrypt(module, phase_computed, sk_prep, &glwe_ct);

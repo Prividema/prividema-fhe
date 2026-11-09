@@ -40,7 +40,7 @@ PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 	PolyBiv* res_biv     = new_biv(params_glwe);
 	PolyUnivTnX* res_tnx = new_univ_tnx(params_glwe);
 
-	PolyUniv* m_sel = new_univ(params_glwe);
+	PolyUnivZnx* m_sel = new_univ_znx(params_glwe);
 
 	glwe_sk_random_uniform(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
@@ -52,7 +52,7 @@ PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 	glwe_secret_encrypt_tnx(module, glwe2, sk_glwe_prep, m2);
 
 	//Case 0:
-	memset(m_sel, 0, univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_znx_bytes(params_glwe));
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
 	hebits_cmux_unprepared(module, res, glwe1, glwe2, ggsw, 1);
@@ -89,7 +89,7 @@ PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 
 	delete_biv(res_biv);
 	delete_univ_tnx(res_tnx);
-	delete_univ(m_sel);
+	delete_univ_znx(m_sel);
 
 	delete_glwe_secret_key(sk_ggsw);
 	delete_glwe_secret_key_prepared(sk_glwe_prep);
@@ -109,7 +109,7 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw          = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(module, params_ggsw);
 
 	PolyUnivTnX* m1 = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m2 = new_univ_tnx(params_glwe);
@@ -121,7 +121,7 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	PolyBiv* res_biv     = new_biv(params_glwe);
 	PolyUnivTnX* res_tnx = new_univ_tnx(params_glwe);
 
-	PolyUniv* m_sel = new_univ(params_glwe);
+	PolyUnivZnx* m_sel = new_univ_znx(params_glwe);
 
 	//Generate a secret key
 	glwe_sk_random_uniform(module, sk_ggsw, 3);
@@ -136,7 +136,7 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	glwe_secret_encrypt_tnx(module, glwe2, sk_glwe_prep, m2);
 
 	//Case 0:
-	memset(m_sel, 0, univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_znx_bytes(params_glwe));
 	// Encrypt a 0 into ggsw to have a selection signal of 0
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 	// Prepare the ggsw
@@ -183,7 +183,7 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 
 	delete_biv(res_biv);
 	delete_univ_tnx(res_tnx);
-	delete_univ(m_sel);
+	delete_univ_znx(m_sel);
 
 	delete_glwe_secret_key(sk_ggsw);
 	delete_glwe_secret_key_prepared(sk_glwe_prep);
@@ -203,7 +203,7 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw          = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(module, params_ggsw);
 
 	PolyUnivTnX* m1 = new_univ_tnx(params_glwe);
 	PolyUnivTnX* m2 = new_univ_tnx(params_glwe);
@@ -215,7 +215,7 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 	PolyBiv* res_biv     = new_biv(params_glwe);
 	PolyUnivTnX* res_tnx = new_univ_tnx(params_glwe);
 
-	PolyUniv* m_sel = new_univ(params_glwe);
+	PolyUnivZnx* m_sel = new_univ_znx(params_glwe);
 
 	//Generate a secret key
 	glwe_sk_random_uniform(module, sk_ggsw, 3);
@@ -230,7 +230,7 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 	glwe_secret_encrypt_tnx(module, glwe2, sk_glwe_prep, m2);
 
 	//Case 0:
-	memset(m_sel, 0, univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_znx_bytes(params_glwe));
 	// Encrypt a 0 into ggsw to have a selection signal of 0
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 	// Prepare the ggsw
@@ -277,7 +277,7 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 
 	delete_biv(res_biv);
 	delete_univ_tnx(res_tnx);
-	delete_univ(m_sel);
+	delete_univ_znx(m_sel);
 
 	delete_glwe_secret_key(sk_ggsw);
 	delete_glwe_secret_key_prepared(sk_glwe_prep);
@@ -293,8 +293,8 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 	GLWESecretKeyPrepared* sk_glwe_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
 	GGSWCiphertext* ggsw           = new_ggsw(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep0 = new_ggsw_prep(params_ggsw);
-	GGSWCiphertextPrep* ggsw_prep1 = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep0 = new_ggsw_prep(module, params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep1 = new_ggsw_prep(module, params_ggsw);
 
 	// How many inputs to put in the tree
 	int num_msgs = 64;
@@ -311,7 +311,7 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 	PolyBiv* res_biv     = new_biv(params_glwe);
 	PolyUnivTnX* res_tnx = new_univ_tnx(params_glwe);
 
-	PolyUniv* m_sel = new_univ(params_glwe);
+	PolyUnivZnx* m_sel = new_univ_znx(params_glwe);
 
 	glwe_sk_random_uniform(module, sk_ggsw, 2);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
@@ -327,7 +327,7 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 	}
 
 	// Prepare a GGSW for 0 and another for 1
-	memset(m_sel, 0, univ_bytes(params_glwe));
+	memset(m_sel, 0, univ_znx_bytes(params_glwe));
 	ggsw_secret_encrypt(module, ggsw, sk_glwe_prep, m_sel);
 
 	ggsw_prepare(module, ggsw_prep0, ggsw);
@@ -380,7 +380,7 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 
 	delete_biv(res_biv);
 	delete_univ_tnx(res_tnx);
-	delete_univ(m_sel);
+	delete_univ_znx(m_sel);
 
 	delete_glwe_secret_key(sk_ggsw);
 	delete_glwe_secret_key_prepared(sk_glwe_prep);

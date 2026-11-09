@@ -15,6 +15,6 @@
  *
  */
 void check_ggsw(const PvdaBackend* module, const GGSWCiphertext* ggsw, const GLWESecretKeyPrepared* sk_prep,
-                const PolyUniv* expected, double max_err, double critical_err);
+                const PolyUnivZnx* expected, double max_err, double critical_err);
 
 #endif

@@ -45,8 +45,9 @@ int internal_slow_intt_heint(const PvdaBackend* module, uint64_t* out_int, uint6
 
 	for (size_t i = 0; i < nn; ++i)
 	{
-		// 32-bit montgomery arithmetic
-		uint32_t sum = 0;
+		// Montgomery products are in [0, t): N of them can exceed 2^32, so accumulate on 64 bits
+		// (N * t < 2^64 for any N < 2^33) and reduce mod t once at the end.
+		uint64_t sum = 0;
 
 		for (size_t j = 0; j < nn / 2; ++j)
 		{
@@ -60,7 +61,8 @@ int internal_slow_intt_heint(const PvdaBackend* module, uint64_t* out_int, uint6
 			sum += p2_red;
 		}
 
-		uint64_t sum_n_m = (uint64_t)sum * n_inv_m;
+		// Reduce first: sum * n_inv_m must stay below t * 2^32 for montgomery_red_32bit
+		uint64_t sum_n_m = (sum % t) * n_inv_m;
 		uint64_t sum_red = montgomery_red_32bit(sum_n_m, t, t_tild);
 		uint64_t sum_dec = montgomery_decode_32bit(sum_red, t, t_tild);
 		out_int[i]       = sum_dec;
@@ -99,9 +101,11 @@ int internal_slow_ntt_heint(const PvdaBackend* module, uint64_t* out_int, uint64
 
 	for (size_t i = 0; i < nn / 2; ++i)
 	{
-		// 32-bit montgomery arithmetic
-		uint32_t sum_1 = 0;
-		uint32_t sum_2 = 0;
+		// Montgomery products are in [0, t): N of them can exceed 2^32, so accumulate on 64 bits
+		// (N * t < 2^64 for any N < 2^33). montgomery_decode_32bit accepts any input < t * 2^32,
+		// so the sums can be decoded directly.
+		uint64_t sum_1 = 0;
+		uint64_t sum_2 = 0;
 
 		for (size_t j = 0; j < nn; ++j)
 		{
@@ -109,7 +113,6 @@ int internal_slow_ntt_heint(const PvdaBackend* module, uint64_t* out_int, uint64
 			uint64_t air1     = montgomery_mult_32bit(in_m[j], root_table_m[(root_num)&twice_nn_mask], t, t_tild);
 			uint64_t air2     = montgomery_mult_32bit(in_m[j], root_table_m[(-root_num) & twice_nn_mask], t, t_tild);
 
-			// Radix R (32-bit) addition
 			sum_1 += air1;
 			sum_2 += air2;
 		}

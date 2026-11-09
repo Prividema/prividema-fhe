@@ -71,13 +71,13 @@ int glwe_negate(const PvdaBackend* module, GLWECiphertext* res, const GLWECipher
  *
  * @param module Additional information for backend.
  * @param res The result GLWE ciphertext.
- * @param u The \ZnX polynomial, in SVP-prepared form (see univ_coefs_to_prep).
+ * @param u The \ZnX polynomial, in SVP-prepared form (see univ_znx_to_svp_prep).
  * @param glwe The GLWE ciphertext.
  *
  * @retval -1 if an error occurs
  * @retval 0 otherwise.
  */
-int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolySvpPrep* u, const GLWECiphertext* glwe);
+int glwe_mult_const(const PvdaBackend* module, GLWECiphertext* res, const BE_PolyUnivSvpPrep* u, const GLWECiphertext* glwe);
 
 // =============================================
 // |                                           |
@@ -99,12 +99,12 @@ int glwe_dft_add(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const GL
  *
  * @param module Additional information for backend.
  * @param res_dft The result bivGLWE ciphertext in the DFT domain.
- * @param u The \ZnX polynomial, in SVP-prepared form (see univ_coefs_to_prep).
+ * @param u The \ZnX polynomial, in SVP-prepared form (see univ_znx_to_svp_prep).
  * @param glwe_dft The bivGLWE ciphertext in the DFT domain.
  *
  * @retval -1 if an error occurs.
  * @retval 0 otherwise.
  */
-int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolySvpPrep* u, const GLWECiphertextDFT* glwe_dft);
+int glwe_dft_mult_const(const PvdaBackend* module, GLWECiphertextDFT* res_dft, const BE_PolyUnivSvpPrep* u, const GLWECiphertextDFT* glwe_dft);
 
 #endif // GLWE_ARITHMETIC_H

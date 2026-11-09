@@ -45,7 +45,7 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct)
 }
 
 int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* res,
-                              const GLWESecretKeyPrepared* sk_prep, const PolyUniv* m_univ)
+                              const GLWESecretKeyPrepared* sk_prep, const PolyUnivZnx* m_univ)
 {
 	int status = -1;
 
@@ -85,7 +85,7 @@ cleanup:
 
 int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* res,
                                      const GLWEGadgetParams* params_glwegadget, const GLWESecretKeyPrepared* sk_prep,
-                                     const PolyUniv* m_univ, uint64_t d)
+                                     const PolyUnivZnx* m_univ, uint64_t d)
 {
 	int status = -1;
 
@@ -95,7 +95,7 @@ int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* 
 
 	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
 	PolyBiv* glwe_biv_tmp = new_biv(params_glwe);
-	PolyUniv* pol_encrypt = new_univ(params_glwe);
+	PolyUnivZnx* pol_encrypt = new_univ_znx(params_glwe);
 	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
 	CHECK_ALLOC(glwe_biv_tmp, "alloc failed in GLWEGadget encryption");
 	CHECK_ALLOC(pol_encrypt, "alloc failed in GLWEGadget packed encryption");
@@ -107,8 +107,8 @@ int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* 
 	{
 		//TODO: Can be optimised by actually only doing memset on the non-zero bytes.
 		// The performance gained should be negligible and the potential for bugs is moderate.
-		memset(pol_encrypt, 0, univ_bytes(params_glwe));
-		memcpy(pol_encrypt + (i - 1) * d, m_univ, d * sizeof(PolyUniv));
+		memset(pol_encrypt, 0, univ_znx_bytes(params_glwe));
+		memcpy(pol_encrypt + (i - 1) * d, m_univ, d * sizeof(PolyUnivZnx));
 		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_tmp, pol_encrypt, params_glwegadget->kappa_tilde * i + divlog),
 		           "univ_to_biv failed in compute_phase_ij");
 		biv_add(module, glwe_biv_msg, glwe_biv_msg, glwe_biv_tmp);
@@ -124,7 +124,7 @@ int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* 
 cleanup:
 	delete_biv(glwe_biv_msg);
 	delete_biv(glwe_biv_tmp);
-	delete_univ(pol_encrypt);
+	delete_univ_znx(pol_encrypt);
 
 	return status;
 }

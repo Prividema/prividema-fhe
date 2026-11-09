@@ -24,7 +24,7 @@ void bench_glwegad_encrypt(benchmark::State& state)
 
 	GLWESecretKey* sk                      = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep         = new_glwe_secret_key_prepared(module, params_glwe);
-	PolyUniv* m                            = new_univ(params_glwe);
+	PolyUnivZnx* m                            = new_univ_znx(params_glwe);
 	GLWEGadgetCiphertext* glwegad_computed = new_glwegadget(params_glwegadget);
 	PolyBiv* result_biv                    = new_biv(params_glwe);
 	PolyUnivRnX* result_univ               = new_univ_rnx(params_glwe);
@@ -40,7 +40,7 @@ void bench_glwegad_encrypt(benchmark::State& state)
 		benchmark::DoNotOptimize(glwegad_computed);
 	}
 
-	delete_univ(m);
+	delete_univ_znx(m);
 	pvda_delete_backend(module);
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);

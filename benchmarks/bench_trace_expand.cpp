@@ -53,7 +53,7 @@ void test_expand_trace(benchmark::State& state)
 	}
 	int bund = D;
 
-	memset(m_univ_rnx, 0, univ_bytes(params_glwe));
+	memset(m_univ_rnx, 0, univ_znx_bytes(params_glwe));
 
 	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
@@ -120,7 +120,7 @@ void test_hom_trace(benchmark::State& state)
 	}
 	int bund = D;
 
-	memset(m_univ_rnx, 0, univ_bytes(params_glwe));
+	memset(m_univ_rnx, 0, univ_znx_bytes(params_glwe));
 
 	rnx_random_vec(module, m_univ_rnx, params_glwe);
 
@@ -167,7 +167,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
-	PolyUniv* m_univ        = new_univ(params_glwe);
+	PolyUnivZnx* m_univ        = new_univ_znx(params_glwe);
 	PolyBiv* biv_tmp        = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
@@ -186,10 +186,10 @@ void test_expand_compressed_trace(benchmark::State& state)
 
 	GGSWCiphertextPrep** ggsw_ksks = (GGSWCiphertextPrep**)calloc(k, sizeof(GGSWCiphertextPrep*));
 	GGSWCiphertext* ggsw_tmp       = new_ggsw(params_ggsw);
-	PolyUniv* neg_sk_i             = new_univ(params_glwe);
+	PolyUnivZnx* neg_sk_i             = new_univ_znx(params_glwe);
 	for (uint64_t i = 0; i < k; ++i)
 	{
-		ggsw_ksks[i] = new_ggsw_prep(params_ggsw);
+		ggsw_ksks[i] = new_ggsw_prep(module, params_ggsw);
 		for (int p = 0; p < nn; ++p)
 		{
 			neg_sk_i[p] = -glwe_sk_prepared_extract_poly_coefs(sk_prep, i)[p];
@@ -197,11 +197,11 @@ void test_expand_compressed_trace(benchmark::State& state)
 		ggsw_secret_encrypt(module, ggsw_tmp, sk_prep, neg_sk_i);
 		ggsw_prepare(module, ggsw_ksks[i], ggsw_tmp);
 	}
-	delete_univ(neg_sk_i);
+	delete_univ_znx(neg_sk_i);
 	delete_ggsw(ggsw_tmp);
 
 	int bund = D;
-	memset(m_univ, 0, univ_bytes(params_glwe));
+	memset(m_univ, 0, univ_znx_bytes(params_glwe));
 
 	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
 
@@ -234,7 +234,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);
-	delete_univ(m_univ);
+	delete_univ_znx(m_univ);
 }
 BENCHMARK(test_expand_compressed_trace);
 
@@ -252,7 +252,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	GLWESecretKey* sk              = new_glwe_secret_key(params_glwe);
 	GLWESecretKeyPrepared* sk_prep = new_glwe_secret_key_prepared(module, params_glwe);
 
-	PolyUniv* m_univ        = new_univ(params_glwe);
+	PolyUnivZnx* m_univ        = new_univ_znx(params_glwe);
 	PolyBiv* biv_tmp        = new_biv(params_glwe);
 	GLWECiphertext* glwe_ct = new_glwe(params_glwe);
 
@@ -270,7 +270,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	}
 
 	GGSWCiphertext** ggsw_ksks = (GGSWCiphertext**)calloc(k, sizeof(GGSWCiphertext*));
-	PolyUniv* neg_sk_i         = new_univ(params_glwe);
+	PolyUnivZnx* neg_sk_i         = new_univ_znx(params_glwe);
 	for (uint64_t i = 0; i < k; ++i)
 	{
 		ggsw_ksks[i] = new_ggsw(params_ggsw);
@@ -280,11 +280,11 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 		}
 		ggsw_secret_encrypt(module, ggsw_ksks[i], sk_prep, neg_sk_i);
 	}
-	delete_univ(neg_sk_i);
+	delete_univ_znx(neg_sk_i);
 
 	int bund = D;
 
-	memset(m_univ, 0, univ_bytes(params_glwe));
+	memset(m_univ, 0, univ_znx_bytes(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
 	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
@@ -318,6 +318,6 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	delete_glwe_params(params_glwe);
 	delete_glwegadget_params(params_glwegadget);
 	delete_ggsw_params(params_ggsw);
-	delete_univ(m_univ);
+	delete_univ_znx(m_univ);
 }
 BENCHMARK(test_expand_compressed_trace_gad);

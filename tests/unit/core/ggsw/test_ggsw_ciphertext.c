@@ -168,11 +168,11 @@ PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
-	PolyUniv* u                      = new_univ(params_glwe);
-	BE_PolySvpPrep* u_prep           = new_univ_prep(module);
+	PolyUnivZnx* u                      = new_univ_znx(params_glwe);
+	BE_PolyUnivSvpPrep* u_prep           = new_univ_svp_prep(module);
 	GGSWCiphertext* ggsw             = new_ggsw(params_ggsw);
 	GGSWCiphertext* product_computed = new_ggsw(params_ggsw);
-	PolyUniv* prod_expected          = new_univ(params_glwe);
+	PolyUnivZnx* prod_expected          = new_univ_znx(params_glwe);
 
 	// Draws uniformly the Zn[X] constant
 	uniform_pow2_random_vec(module, params_glwe->nn, u, 1, params_glwe->nn, params_glwe->kappa - 1);
@@ -182,7 +182,7 @@ PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 	                        params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
-	pvda_svp_prepare(module, u_prep, u);
+	univ_znx_to_svp_prep(module, u_prep, u);
 
 	// Computes u * ggsw
 	ggsw_mult_const(module, product_computed, ggsw, u_prep);
@@ -198,7 +198,7 @@ PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 		{
 			uint64_t j      = (ij % (params_glwe->k + 1));
 			uint64_t i      = ij / (params_glwe->k + 1) + 1;
-			PolyUniv* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
+			PolyUnivZnx* ct_ij = ct_mat_ii_jj + (i - 1) * (params_glwe->k + 1) * params_glwe->nn + j * params_glwe->nn;
 			pvda_znx_small_product(module, prod_expected, u, ct_ij);
 			for (uint64_t p = 0; p < params_glwe->nn; p++)
 			{
@@ -210,9 +210,9 @@ PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 	}
 
 	// Clean up
-	delete_univ(u);
-	delete_univ(prod_expected);
-	delete_univ_prep(module, u_prep);
+	delete_univ_znx(u);
+	delete_univ_znx(prod_expected);
+	delete_univ_svp_prep(module, u_prep);
 	delete_ggsw(ggsw);
 	delete_ggsw(product_computed);
 
@@ -238,7 +238,7 @@ PvdaParamTest(new_ggsw_dft, basic, default_params_fn)
 	INIT_PVDA_PARAMS_GGSW(param);
 
 	// Variables
-	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(params_ggsw);
+	GGSWCiphertextPrep* ggsw_prep = new_ggsw_prep(module, params_ggsw);
 
 	// Asserts new_ggsw_dft worked
 	cr_assert(eq(int, ggsw_prep->mat != NULL, 1));

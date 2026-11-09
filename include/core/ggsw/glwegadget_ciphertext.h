@@ -73,7 +73,7 @@ void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct);
  * @retval 0 otherwise
  */
 int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* res,
-                              const GLWESecretKeyPrepared* sk_prep, const PolyUniv* m_univ);
+                              const GLWESecretKeyPrepared* sk_prep, const PolyUnivZnx* m_univ);
 
 /**
  * @brief Encrypts a univariate integer polynomial into a GLWEGadget
@@ -88,7 +88,7 @@ int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* r
  *
  */
 void glwegadget_public_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* res, const GLWEPublicKey* pk,
-                               const PolyUniv* m_univ);
+                               const PolyUnivZnx* m_univ);
 /**
  *
  * Encrypts a univariate polynomial with at most d non-zero coefficients
@@ -103,7 +103,7 @@ void glwegadget_public_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* 
  */
 int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* res,
                                      const GLWEGadgetParams* params_glwegadget, const GLWESecretKeyPrepared* sk_prep,
-                                     const PolyUniv* m_univ, uint64_t d);
+                                     const PolyUnivZnx* m_univ, uint64_t d);
 
 /**
  * @brief Retrieve a GLWE from a GLWEGadget (halfGGSW for k = 1).

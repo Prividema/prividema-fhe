@@ -18,7 +18,7 @@
  *
  */
 void check_glwegadget(const PvdaBackend* module, const GLWEGadgetCiphertext* glwegadget_ct,
-                      const GLWESecretKeyPrepared* sk_prep, const PolyUniv* expected, double max_err,
+                      const GLWESecretKeyPrepared* sk_prep, const PolyUnivZnx* expected, double max_err,
                       double critical_err);
 
 /**
