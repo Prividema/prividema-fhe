@@ -1,0 +1,212 @@
+#include "glwegadget_ciphertext.h"
+
+#include <assert.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "backend_arithmetic.h"
+#include "bivariate_polynomial.h"
+#include "ggsw_params.h"
+#include "glwe_ciphertext.h"
+#include "math_utils.h"
+#include "rng.h"
+#include "univariate_polynomial.h"
+#include "utils.h"
+
+// =============================================
+// |                                           |
+// |          GLWEGadget Ciphertext            |
+// |                                           |
+// =============================================
+
+GLWEGadgetCiphertext* new_glwegadget(const GLWEGadgetParams* params_glwegadget)
+{
+	GLWEGadgetCiphertext* glwegadget = calloc(sizeof(GLWEGadgetCiphertext), 1);
+	CHECK_ALLOC(glwegadget, "alloc failed in GLWEGadget creation");
+
+	glwegadget->params = params_glwegadget;
+
+	glwegadget->mat = calloc(glwegadget_coef_number(params_glwegadget), sizeof(int64_t));
+	CHECK_ALLOC(glwegadget->mat, "alloc failed in GLWEGadget creation");
+
+	return glwegadget;
+cleanup:
+	free(glwegadget);
+	return NULL;
+}
+
+void delete_glwegadget(GLWEGadgetCiphertext* glwegadget_ct)
+{
+	if (!glwegadget_ct) return;
+	free(glwegadget_ct->mat);
+	free(glwegadget_ct);
+}
+
+int glwegadget_secret_encrypt(const PvdaBackend* module, GLWEGadgetCiphertext* res,
+                              const GLWESecretKeyPrepared* sk_prep, const PolyUnivZnx* m_univ)
+{
+	int status = -1;
+
+	const GLWEGadgetParams* params_glwegadget = res->params;
+	const GLWEParams* params_glwe             = params_glwegadget->params_glwe;
+
+	uint64_t nn = params_glwe->nn;
+
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
+
+	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
+
+	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
+	{
+		// Computes m_univ / 2^{kappa_tilde*i}
+		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, m_univ, params_glwegadget->kappa_tilde * i),
+		           "univ_to_biv failed in compute_phase_ij");
+
+		CHECK_CALL(biv_add_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+		           "Noise addition failed in GLWEGadget encryption");
+
+		// View on the result position
+		GLWECiphertext glwe_ct = glwegadget_glwe_view(res, i);
+
+		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec (ie, add A * S)
+		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
+		           "glwe masking failed in a GLWEGadget encryption");
+	}
+
+	status = 0;
+
+cleanup:
+	delete_biv(glwe_biv_msg);
+
+	return status;
+}
+
+int glwegadget_packed_secret_encrypt(const PvdaBackend* module, GLWECiphertext* res,
+                                     const GLWEGadgetParams* params_glwegadget, const GLWESecretKeyPrepared* sk_prep,
+                                     const PolyUnivZnx* m_univ, uint64_t d)
+{
+	int status = -1;
+
+	const GLWEParams* params_glwe = res->params;
+
+	uint64_t nn = params_glwe->nn;
+
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
+	PolyBiv* glwe_biv_tmp = new_biv(params_glwe);
+	PolyUnivZnx* pol_encrypt = new_univ_znx(params_glwe);
+	CHECK_ALLOC(glwe_biv_msg, "alloc failed in GLWEGadget encryption");
+	CHECK_ALLOC(glwe_biv_tmp, "alloc failed in GLWEGadget encryption");
+	CHECK_ALLOC(pol_encrypt, "alloc failed in GLWEGadget packed encryption");
+
+	assert(params_glwegadget->l_tilde * d <= nn);
+
+	int64_t divlog = next_pow2_log(d * params_glwegadget->l_tilde);
+	for (uint64_t i = 1; i <= params_glwegadget->l_tilde; i++)
+	{
+		//TODO: Can be optimised by actually only doing memset on the non-zero bytes.
+		// The performance gained should be negligible and the potential for bugs is moderate.
+		memset(pol_encrypt, 0, univ_znx_bytes(params_glwe));
+		memcpy(pol_encrypt + (i - 1) * d, m_univ, d * sizeof(PolyUnivZnx));
+		CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_tmp, pol_encrypt, params_glwegadget->kappa_tilde * i + divlog),
+		           "univ_to_biv failed in compute_phase_ij");
+		biv_add(module, glwe_biv_msg, glwe_biv_msg, glwe_biv_tmp);
+	}
+	CHECK_CALL(biv_add_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+	           "Noise addition failed in GLWEGadget encryption");
+
+	CHECK_CALL(glwe_secret_encrypt_phase(module, res, sk_prep, glwe_biv_msg),
+	           "glwe masking failed in a GLWEGadget encryption");
+
+	status = 0;
+
+cleanup:
+	delete_biv(glwe_biv_msg);
+	delete_biv(glwe_biv_tmp);
+	delete_univ_znx(pol_encrypt);
+
+	return status;
+}
+
+GLWECiphertext glwegadget_glwe_view(const GLWEGadgetCiphertext* glwegadget_ct, uint64_t i)
+{
+	const GLWEParams* params_glwe = glwegadget_ct->params->params_glwe;
+	uint64_t offset               = (i - 1) * glwe_coef_number(params_glwe);
+	return (GLWECiphertext){params_glwe, glwegadget_ct->mat + offset};
+}
+
+// =============================================
+// |                                           |
+// |      Prepared GLWEGadget Ciphertext	   |
+// |                                           |
+// =============================================
+
+GLWEGadgetCiphertextPrep* new_glwegadget_prep(const PvdaBackend* module, const GLWEGadgetParams* params_glwegadget)
+{
+	GLWEGadgetCiphertextPrep* glwegad_prep = calloc(1, sizeof(GLWEGadgetCiphertextPrep));
+	CHECK_ALLOC(glwegad_prep, "calloc failed in GLWEGadgetPrepared creation");
+
+	glwegad_prep->module = module;
+	glwegad_prep->params = params_glwegadget;
+
+	glwegad_prep->mat =
+	    pvda_new_vmp_pmat(module, params_glwegadget->l_tilde, glwe_params_n_limbs(params_glwegadget->params_glwe));
+	CHECK_ALLOC(glwegad_prep->mat, "prepared matrix allocation failed in new_glwegadget_prep");
+
+	return glwegad_prep;
+
+cleanup:
+	free(glwegad_prep);
+	return NULL;
+}
+
+void delete_glwegadget_prep(GLWEGadgetCiphertextPrep* glwegadget_prep_ct)
+{
+	if (!glwegadget_prep_ct) return;
+	pvda_delete_vmp_pmat(glwegadget_prep_ct->module, glwegadget_prep_ct->mat);
+	free(glwegadget_prep_ct);
+}
+
+int glwegadget_prepare(const PvdaBackend* module, GLWEGadgetCiphertextPrep* glwegadget_prep_ct,
+                       const GLWEGadgetCiphertext* glwegadget_ct)
+{
+	int status = -1;
+
+	size_t nrows = glwegadget_prep_ct->params->l_tilde;
+	size_t ncols = glwe_params_n_limbs(glwegadget_prep_ct->params->params_glwe);
+
+	uint64_t nn         = glwegadget_prep_ct->params->params_glwe->nn;
+	PolyBiv gadget_flat = biv_view(nn, nrows * ncols, (int64_t)nn, glwegadget_ct->mat);
+	CHECK_CALL(pvda_biv_to_vmp_pmat(module, glwegadget_prep_ct->mat, &gadget_flat, nrows, ncols),
+	           "VMP prepare for GLWEGadget prepare failed");
+
+	status = 0;
+
+cleanup:
+	return status;
+}
+
+// =============================================
+// |                                           |
+// |        	  Debug Functions              |
+// |                                           |
+// =============================================
+
+int print_coefs_gad(const PvdaBackend* module, const GLWEGadgetCiphertext* glwegadget_ct,
+                    const GLWESecretKeyPrepared* sk_prep, int n)
+{
+	for (int l = 0; l < glwegadget_ct->params->l_tilde; ++l)
+	{
+		GLWECiphertext limb = glwegadget_glwe_view(glwegadget_ct, l + 1);
+		printf("Gadget lvl %03d: ", l);
+		CHECK_CALL(glwe_print_coefs(module, &limb, sk_prep, n, 0), "GLWE printing failed in GLWEGadget printing");
+		printf("\n");
+	}
+
+	return 0;
+
+cleanup:
+	return -1;
+}
+

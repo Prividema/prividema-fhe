@@ -1,0 +1,186 @@
+#include "ggsw_ciphertext.h"
+
+#include <assert.h>
+#include <stdint.h>
+#include <stdlib.h>
+
+#include "backend_arithmetic.h"
+#include "bivariate_polynomial.h"
+#include "ggsw_params.h"
+#include "glwe_ciphertext.h"
+#include "glwe_params.h"
+#include "rng.h"
+#include "univariate_polynomial.h"
+#include "utils.h"
+
+// bivGGSW Part (begin)
+
+GGSWCiphertext* new_ggsw(const GGSWParams* params_ggsw)
+{
+	// The bivGGSW does not own the GGSWParams
+	GGSWCiphertext* ggsw = malloc(sizeof(GGSWCiphertext));
+	CHECK_ALLOC(ggsw, "malloc in new_ggsw");
+
+	ggsw->params = params_ggsw;
+
+	// Initialize the bivGGSW ciphertext with 0s
+	ggsw->mat = calloc(ggsw_coef_number(params_ggsw), sizeof(int64_t));
+	CHECK_ALLOC(ggsw->mat, "calloc in new_ggsw");
+
+	return ggsw;
+cleanup:
+
+	free(ggsw);
+	return NULL;
+}
+
+void delete_ggsw(GGSWCiphertext* ggsw)
+{
+	if (!ggsw) return;
+	free(ggsw->mat);
+	free(ggsw);
+}
+
+GLWECiphertext ggsw_glwe_view(const GGSWCiphertext* ggsw_ct, int64_t sk_idx, int64_t prec_lvl)
+{
+	assert(prec_lvl >= 1);
+
+	// bivGLWE parameters
+	const GLWEParams* params_glwe = ggsw_ct->params->params_glwe;
+
+	// bivGGSW parameters
+	uint64_t k_tilde = ggsw_ct->params->k_tilde;
+
+	uint64_t offset = ((prec_lvl - 1) * (k_tilde + 1) + sk_idx) * glwe_coef_number(params_glwe);
+	return (GLWECiphertext){params_glwe, ggsw_ct->mat + offset};
+}
+
+PolyBiv ggsw_as_biv(const GGSWCiphertext* ggsw_ct)
+{
+	const GGSWParams* params_ggsw = ggsw_ct->params;
+	const GLWEParams* glwe_params = params_ggsw->params_glwe;
+	return biv_view(glwe_params->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)glwe_params->nn, ggsw_ct->mat);
+}
+
+int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GLWESecretKeyPrepared* sk_prep,
+                        const PolyUnivZnx* m_univ)
+{
+	int status = -1;
+
+	const GGSWParams* params_ggsw = res->params;
+	const GLWEParams* params_glwe = params_ggsw->params_glwe;
+	if (params_ggsw->k_tilde > params_ggsw->params_glwe->k) 
+		return log_message(LOG_ERROR, "k_tilde should not be greater than k in ggsw_secret_encrypt");
+
+	// bivGLWE parameters
+	uint64_t nn      = params_glwe->nn;
+	uint64_t k_tilde = params_ggsw->k_tilde;
+
+	// Variables
+	BE_PolyUnivZnxDFT* m_univ_dft     = new_univ_znx_dft(module);   // DFT(msg)
+	BE_PolyUnivZnxDFT* m_skj_univ_dft = new_univ_znx_dft(module);   // DFT(msg * sk_j)
+	PolyUnivZnx* m_skj_univ          = new_univ_znx(params_glwe);  // -msg * sk_j
+	// Temp space for -m * sk * 2^{-kappa_tilde}
+	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
+
+	CHECK_ALLOC(m_univ_dft, "malloc failed in ggsw_secret_encrypt");
+	CHECK_ALLOC(m_skj_univ_dft, "malloc failed in ggsw_secret_encrypt");
+	CHECK_ALLOC(m_skj_univ, "malloc failed in ggsw_secret_encrypt");
+	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
+
+	// Computes DFT(msg)
+	univ_znx_to_dft(module, m_univ_dft, m_univ);
+
+	for (uint64_t ij = 0; ij < ggsw_num_rows(params_ggsw); ++ij)
+	{
+		uint64_t j = (ij % (k_tilde + 1));
+		uint64_t i = ij / (k_tilde + 1) + 1;
+		{
+			// For j < k_tilde, m_skj_univ is -m * skj
+			// For j = k_tilde we skip this and we get it from m_univ directly
+			if (j < k_tilde)
+			{
+				// Computes DFT(msg * sk_j)
+				CHECK_CALL(pvda_svp_apply_dft_to_dft(module, pvda_univ_dft_as_biv_dft(module, m_skj_univ_dft), 1,
+						   glwe_prepared_sk_extract_poly_prep(sk_prep, j),
+				           pvda_univ_dft_as_biv_dft_const(module, m_univ_dft), 1),
+						   "svp_apply_dft_to_dft failed in ggsw_secret_encrypt");
+
+
+				// Invert the DFT to get -msg * sk_j
+				CHECK_CALL(univ_dft_to_znx(module, m_skj_univ, m_skj_univ_dft),
+				           "vec_znx_idft_p failed in compute_phase_ij");
+
+				// Negate in coefficient space to get -msg * sk_j
+				PolyBiv m_skj_vec = biv_view(nn, 1, nn, m_skj_univ);
+				CHECK_CALL(pvda_biv_negate(module, & m_skj_vec, &m_skj_vec),
+						   "negation failed in ggsw_secret_encrypt");
+			}
+
+			CHECK_CALL(univ_znx_to_biv(params_glwe, glwe_biv_msg, (j == k_tilde) ? m_univ : m_skj_univ,
+			                           params_ggsw->kappa_tilde * i),
+			           "univ_to_biv failed in compute_phase_ij");
+
+			CHECK_CALL(biv_add_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+			           "Noise addition failed in GGSW encryption");
+		}
+		// View on the result positiopn
+		GLWECiphertext glwe_ct = ggsw_glwe_view(res, j, i);
+
+		//Compute: bivGLWE(glwe_biv_msg) into glwe_vec
+		CHECK_CALL(glwe_secret_encrypt_phase(module, &glwe_ct, sk_prep, glwe_biv_msg),
+		           "glwe_secret_encrypt_phase failed in ggsw_secret_encrypt");
+	}
+
+	status = 0;
+
+cleanup:
+	delete_biv(glwe_biv_msg);
+	delete_univ_znx_dft(module, m_skj_univ_dft);
+	delete_univ_znx(m_skj_univ);
+	delete_univ_znx_dft(module, m_univ_dft);
+
+	return status;
+}
+// bivGGSW DFT PART (begin)
+
+GGSWCiphertextPrep* new_ggsw_prep(const PvdaBackend* module, const GGSWParams* params_ggsw)
+{
+	GGSWCiphertextPrep* ggsw_prep = calloc(1, sizeof(GGSWCiphertextPrep));
+	CHECK_ALLOC(ggsw_prep, "calloc failed in new_ggsw_prep");
+
+	ggsw_prep->module = module;
+	ggsw_prep->params = params_ggsw;
+
+	// Same dimensions as the ones used by ggsw_prepare
+	ggsw_prep->mat = pvda_new_vmp_pmat(module, ggsw_num_rows(params_ggsw), glwe_params_n_limbs(params_ggsw->params_glwe));
+	CHECK_ALLOC(ggsw_prep->mat, "prepared matrix allocation failed in new_ggsw_prep");
+
+	return ggsw_prep;
+cleanup:
+	free(ggsw_prep);
+	return NULL;
+}
+
+void delete_ggsw_prep(GGSWCiphertextPrep* ggsw_prep)
+{
+	if (!ggsw_prep) return;
+	pvda_delete_vmp_pmat(ggsw_prep->module, ggsw_prep->mat);
+	free(ggsw_prep);
+}
+
+int ggsw_prepare(const PvdaBackend* module, GGSWCiphertextPrep* ggsw_prep, const GGSWCiphertext* ggsw_ct)
+{
+	int status = -1;
+
+	size_t nrows = ggsw_prep->params->ciphertext_nb_limbs_tilde;
+	size_t ncols = glwe_params_n_limbs(ggsw_prep->params->params_glwe);
+
+	PolyBiv ggsw_flattened = ggsw_as_biv(ggsw_ct);
+	CHECK_CALL(pvda_biv_to_vmp_pmat(module, ggsw_prep->mat, &ggsw_flattened, nrows, ncols),
+	           "ggsw_prepare(): VMP prepare failed");
+
+	status = 0;
+cleanup:
+	return status;
+}

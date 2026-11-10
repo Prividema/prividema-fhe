@@ -15,6 +15,6 @@ foreach(test_file ${TEST_FILES})
   target_link_libraries(${test_name} PVDA_CORE PVDA_SCHEMES)
 
   # Add include path for headers
-  target_include_directories(${test_name} PRIVATE ${PROJECT_SOURCE_DIR}/include)
+  target_include_directories(${test_name} PRIVATE ${PVDA_INCLUDE_DIR})
 
 endforeach()

@@ -1,0 +1,21 @@
+# ----------------------------------------
+# Build SCHEMES library
+# ----------------------------------------
+
+# Create SCHEMES library
+add_library(PVDA_SCHEMES
+scheme.c
+hebits.c
+hefp.c
+hefp_internals.c
+heint.c)
+
+# Set the output library name explicitly
+set_target_properties(PVDA_SCHEMES PROPERTIES OUTPUT_NAME pvda_schemes)
+
+target_link_libraries(PVDA_SCHEMES PRIVATE PVDA_COMMON PVDA_ADAPTER PVDA_CORE)
+# Include directories
+target_include_directories(PVDA_SCHEMES
+    PUBLIC
+        ${PVDA_INCLUDE_DIR}/schemes   # Public headers for consumers
+)

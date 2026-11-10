@@ -1,0 +1,105 @@
+#ifndef PVDA_TYPES_H
+#define PVDA_TYPES_H
+
+#include <stdint.h>
+
+/**
+ * @file pvda_types.h
+ *
+ * @brief Data types owned by prividema.
+ *
+ * This header only declares types and has no dependency on any backend. It is shared by the library (`pvda`)
+ * and by the `adapter`, which converts these types into the input/output formats of the actual backend.
+ *
+ * It contains:
+ * - the library-side polynomial types (univariate, multi-precision univariate and bivariate), whose memory layout
+ *   is defined by prividema;
+ * - the opaque `BE_*` types, which are handles to data owned by the backend. Their layout is backend-specific:
+ *   the library never dereferences them and only the adapter casts them to the true backend types.
+ */
+
+// =============================================
+// |                                           |
+// |          Univariate polynomials           |
+// |                                           |
+// =============================================
+
+/**
+ * @brief Represents a \TnX polynomial, by means of
+ * coefficients which are the numerators of a fraction with denominator \f$2^{64}\f$
+ * @note The implicit length is \N for a polynomial in \TnX
+ */
+typedef uint64_t PolyUnivTnX;
+
+/**
+ * @brief Represents a \RnX polynomial.
+ * @note The implicit length is \N for a polynomial in \RnX
+ */
+typedef double PolyUnivRnX;
+
+/**
+ * @brief Represents a \ZnX polynomial
+ * @note The implicit length is \N for a polynomial in \ZnX
+ */
+typedef int64_t PolyUnivZnx;
+
+/**
+ * @brief Represents a \ZnX polynomial whose coefficients are written over more than 64 bits.
+ *
+ * Each coefficient is a two's complement integer of 64 * nb_words bits, stored as nb_words consecutive
+ * 64-bit words in little-endian word order (word 0 holds the least significant bits). Coefficient p occupies
+ * ptr[p * nb_words .. p * nb_words + nb_words - 1].
+ *
+ * Arithmetic on the coefficients is therefore modulo 2^(64 * nb_words). With nb_words = 1 the layout is the same as
+ * PolyUnivZnx (and PolyUnivTnX when the value is read as a numerator over 2^64).
+ */
+typedef struct poly_univ_znx_mp_t
+{
+	uint64_t nn;        ///< Ring dimension (number of coefficients)
+	uint64_t nb_words;  ///< Number of 64-bit words per coefficient
+	uint64_t* ptr;      ///< Pointer to the nn * nb_words words of the polynomial
+} PolyUnivZnxMP;
+
+// =============================================
+// |                                           |
+// |          Bivariate polynomials            |
+// |                                           |
+// =============================================
+
+/**
+ * @brief Structure for \Znx bivariate polynomials.
+ *
+ * This is the only structure we use for representing a bivariate polynomial on the library side.
+ * Limb i is the \ZnX polynomial stored at ptr[i * stride .. i * stride + nn - 1].
+ *
+ * It is also the library-side description of any strided vector of \ZnX polynomials that is handed to the
+ * adapter (e.g. all the limbs of a GLWE or GGSW ciphertext, with nb_limbs the total number of polynomials).
+ * The adapter is in charge of converting it to the input format of the backend.
+ */
+typedef struct poly_biv_t
+{
+	uint64_t nn;        ///< Ring dimension (also number of coefficients in one polynomial)
+	uint64_t nb_limbs;  ///< The number of limbs (base-2^K digits) of the polynomial
+	int64_t stride;     ///< Stride (distance) between consecutive limbs of the bivariate polynomial, in elements.
+	                    ///< For a contiguous layout, this will be nn. For a GLWE with k=2, for example, it would be 2*nn
+	int64_t* ptr;       ///< Pointer to the underlying data
+} PolyBiv;
+
+// =============================================
+// |                                           |
+// |          Opaque backend types             |
+// |                                           |
+// =============================================
+
+typedef struct pvda_be_poly_univ_dft_t BE_PolyUnivZnxDFT;  ///< Backend univariate polynomial in DFT form.
+typedef struct pvda_be_poly_biv_dft_t BE_PolyBivDFT;       ///< Backend bivariate polynomials in DFT form.
+
+typedef struct pvda_be_poly_univ_svp_prep_t BE_PolyUnivSvpPrep;  ///< Backend univariate polynomial (scalar) prepared
+                                                                 ///< for scalar-vector product.
+
+typedef struct pvda_be_poly_vec_vmp_prep_t BE_PolyBivVmpPrep;  ///< Backend vector of polynomials prepared for
+                                                               ///< vector-matrix product
+typedef struct pvda_be_poly_mat_vmp_prep_t BE_PolyMatVmpPrep;  ///< Backend matrix of polynomials prepared for
+                                                               ///< vector-matrix product
+
+#endif  // PVDA_TYPES_H

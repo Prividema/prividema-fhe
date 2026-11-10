@@ -93,21 +93,18 @@ else()
   message(STATUS "LTO not supported: ${lto_error}")
 endif()
 # ----------------------------------------
-# Import spqlios library
+# Project layout
 #
+#   backends/  Third-party computation backends (spqlios-arithmetic, ...)
+#   adapter/   Links between prividema and the backends: converts prividema data
+#              into backend data and dispatches calls to the selected backend
+#   pvda/      The prividema library itself (common, core, schemes)
 # ----------------------------------------
-# Disable spqlios internal tests
-set(ENABLE_TESTING OFF CACHE BOOL "Disable Tests" FORCE)
-add_subdirectory(spqlios-arithmetic)
+set(PVDA_INCLUDE_DIR    ${PROJECT_SOURCE_DIR}/pvda/include)
+set(ADAPTER_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/adapter/include)
 
 # ----------------------------------------
-# Add main source directory
-# ----------------------------------------
-add_subdirectory(src)
-
-
-# ----------------------------------------
-# Build unit tests if enabled
+# Unit tests setup (shared by pvda and adapter)
 # ----------------------------------------
 if(BUILD_TESTS)
   message(STATUS "Building Test Files")
@@ -118,8 +115,15 @@ if(BUILD_TESTS)
     "PATCH YOUR LOCAL CRITERION INSTALLATION OR COMPILE IN Debug MODE IF YOU WANT TO RUN THE TESTS!"
     )
   endif()
-  add_subdirectory(tests)
+  include(${PROJECT_SOURCE_DIR}/cmake/BuildUnitTests.cmake)
 endif()
+
+# ----------------------------------------
+# Backends, adapter and library
+# ----------------------------------------
+add_subdirectory(backends)
+add_subdirectory(adapter)
+add_subdirectory(pvda)
 
 # ----------------------------------------
 # Build examples if enabled

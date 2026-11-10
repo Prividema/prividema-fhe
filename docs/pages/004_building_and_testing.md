@@ -5,9 +5,18 @@
 
 - CMake version 3.14+
 - [Criterion](https://github.com/Snaipe/Criterion) optionally to run the unit tests. In this case make sure that pkg-config is also installed for portability between different OS.
-- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) is bundled as a submodule. One should:
+- [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic) is bundled as a submodule in `backends/spqlios-arithmetic`. One should:
   - Either have cloned this repository recursively with `git clone --recurse-submodules`
   - or run `git submodule update --init --recursive` at least once
+
+## Project layout
+
+- `pvda/`: the prividema library itself (`common`, `core` and `schemes`), with its `include`, `src` and `tests`.
+  The data types owned by prividema (polynomials and opaque `BE_*` backend handles) are in `pvda/include/types/pvda_types.h`.
+- `adapter/`: the links between prividema and the backends, with its `include`, `src` and `tests`.
+  It converts prividema data into backend input data, casts the `BE_*` handles to the true backend types,
+  and dispatches every call to the selected backend.
+- `backends/`: the computation backends themselves (for now [spqlios-arithmetic](https://github.com/tfhe/spqlios-arithmetic)).
 
 ## To compile and run
 
