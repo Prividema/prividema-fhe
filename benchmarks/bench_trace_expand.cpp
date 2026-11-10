@@ -17,7 +17,7 @@ extern "C" {
 #include "glwe_key.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 }
@@ -203,7 +203,7 @@ void test_expand_compressed_trace(benchmark::State& state)
 	int bund = D;
 	memset(m_univ, 0, univ_znx_bytes(params_glwe));
 
-	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
+	univ_znx_random_uniform_pow2(module, m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -287,7 +287,7 @@ void test_expand_compressed_trace_gad(benchmark::State& state)
 	memset(m_univ, 0, univ_znx_bytes(params_glwe));
 
 	// Get the message in univariate RnX form for expected result
-	uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
+	univ_znx_random_uniform_pow2(module, m_univ, bund, 1);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 

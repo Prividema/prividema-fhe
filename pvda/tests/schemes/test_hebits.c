@@ -12,7 +12,7 @@
 #include "ggsw_params.h"
 #include "glwe_params.h"
 #include "hebits.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -45,8 +45,8 @@ PvdaParamTest(hebits_cmux_unprepared, without_error, default_params_fn)
 	glwe_sk_random_uniform(module, sk_ggsw, 3);
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
-	uniform_pow2_random_pol_znx(module, m1, params_glwe->nn, 62);
-	uniform_pow2_random_pol_znx(module, m2, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, m1, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, m2, params_glwe->nn, 62);
 
 	glwe_secret_encrypt_tnx(module, glwe1, sk_glwe_prep, m1);
 	glwe_secret_encrypt_tnx(module, glwe2, sk_glwe_prep, m2);
@@ -128,8 +128,8 @@ PvdaParamTest(hebits_cmux_prepared, without_error, default_params_fn)
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Generate random inputs for the Mux gate
-	uniform_pow2_random_pol_znx(module, m1, params_glwe->nn, 62);
-	uniform_pow2_random_pol_znx(module, m2, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, m1, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, m2, params_glwe->nn, 62);
 
 	// Encrypt (to GLWE) the inputs
 	glwe_secret_encrypt_tnx(module, glwe1, sk_glwe_prep, m1);
@@ -222,8 +222,8 @@ PvdaParamTest(hebits_cmux_prepared, with_error, default_params_fn)
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Generate random inputs for the Mux gate
-	uniform_pow2_random_pol_znx(module, m1, params_glwe->nn, 62);
-	uniform_pow2_random_pol_znx(module, m2, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, m1, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, m2, params_glwe->nn, 62);
 
 	// Encrypt (to GLWE) the inputs
 	glwe_secret_encrypt_tnx(module, glwe1, sk_glwe_prep, m1);
@@ -322,7 +322,7 @@ PvdaParamTest(hebits_cmux_tree, normal, default_params_fn)
 		ms[i] = new_univ_tnx(params_glwe);
 		memset(ms[i], 0, univ_tnx_bytes(params_glwe));
 		glwes[i] = new_glwe(params_glwe);
-		uniform_pow2_random_pol_znx(module, ms[i], params_glwe->nn, 64);
+		univ_znx_random_uniform_pow2(module, ms[i], params_glwe->nn, 64);
 		glwe_secret_encrypt_tnx(module, glwes[i], sk_glwe_prep, ms[i]);
 	}
 

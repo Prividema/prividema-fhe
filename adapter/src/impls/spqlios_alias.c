@@ -499,10 +499,6 @@ void pvda_fill_spqlios(struct pvda_virtual_table* vt)
 	vt->pvda_module_extract_nn         = spqlios_module_extract_nn;
 	vt->pvda_biv_dft_add           = spqlios_biv_dft_add;
 
-	// ! NOTE : These vtable entries are filled elsewhere (rng_openssl.c, cpu_nt.c) :
-	// PVDA_RAND_UNIFORM_POW2_F* pvda_rand_uniform_pow2;
-	// PVDA_RAND_UNIFORM_POW2_VEC_F* pvda_rand_uniform_pow2_vec;
-	// PVDA_RAND_UNIFORM_BINARY_VEC_F* pvda_rand_uniform_binary_vec;
-	// PVDA_RAND_UNIFORM_F* pvda_rand_uniform;
-	// PVDA_RING_2NTH_ROOT_F* pvda_ring_2nth_root;
+	// ! NOTE : pvda_ring_2nth_root is filled elsewhere (cpu_nt.c).
+	// Randomness is not part of this vtable: it comes from the RNG backend of the module (see backend_rng.h).
 }

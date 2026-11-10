@@ -10,7 +10,7 @@
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -50,8 +50,8 @@ PvdaParamTest(glwegadget_half_product, without_error, default_params_fn)
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	//Generate the public vector m and the data that will be in the gadget u
-	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, 3);
-	uniform_pow2_random_pol_znx(module, m_univ_tnx, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, u_univ, params_glwe->nn, 3);
+	univ_znx_random_uniform_pow2(module, m_univ_tnx, params_glwe->nn, 62);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	//Compute the (negacyclic) polynomial product of u*m
@@ -136,8 +136,8 @@ PvdaParamTest(glwegadget_half_product_dft_to_dft, without_error, default_params_
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	//Generate the public vector m and the data that will be in the gadget u
-	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, 3);
-	uniform_pow2_random_pol_znx(module, m_univ_tnx, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, u_univ, params_glwe->nn, 3);
+	univ_znx_random_uniform_pow2(module, m_univ_tnx, params_glwe->nn, 62);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	//Compute the (negacyclic) polynomial product of u*m
@@ -228,8 +228,8 @@ PvdaParamTest(glwegadget_half_product_prepared_to_dft, without_error, default_pa
 	glwe_sk_prepare(module, sk_prep, sk);
 
 	//Generate the public vector m and the data that will be in the gadget u
-	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, 3);
-	uniform_pow2_random_pol_znx(module, m_univ_tnx, params_glwe->nn, 62);
+	univ_znx_random_uniform_pow2(module, u_univ, params_glwe->nn, 3);
+	univ_znx_random_uniform_pow2(module, m_univ_tnx, params_glwe->nn, 62);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	//Compute the (negacyclic) polynomial product of u*m

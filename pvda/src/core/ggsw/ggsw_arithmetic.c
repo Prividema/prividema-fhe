@@ -16,7 +16,7 @@
 #include "glwe_params.h"
 #include "glwegadget_arithmetic.h"
 #include "univariate_polynomial.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "utils.h"
 
 // bivGGSW PART (begin)

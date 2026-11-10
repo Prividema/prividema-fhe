@@ -1,94 +1,87 @@
-
-
 #include "impls/rng_openssl.h"
 
-#include <assert.h>
+#include <limits.h>
+#include <openssl/evp.h>
 #include <openssl/rand.h>
 #include <stdint.h>
+#include <string.h>
 
-#include "backend.h"
-#include "math_utils.h"
-#include "utils.h"
+#include "logger.h"
 
-static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
+// =============================================
+// |                                           |
+// |              System mode                  |
+// |                                           |
+// =============================================
+
+static int openssl_system_bytes(const PvdaBackend* module, void* buf, size_t n)
 {
-	int shft = 64 - n_bits;
-	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
-}
-
-static inline int openssl_read_rand(uint64_t* res, size_t bytes)
-{
-	size_t rand_bytes = RAND_bytes((uint8_t*)res, (int)bytes);
-	if (rand_bytes != 1) return -1;
-	return 0;
-}
-int openssl_rand_uniform_pow2(const PvdaBackend* module, int64_t* res, uint64_t nb_bits)
-{
-	// As result points to an int64_t, nb_bits shall not exceed its size
-	assert(nb_bits <= 8 * sizeof(int64_t));
-
-	// If nb_bits equals the max. size, we just have to read the random bits into result.
-	if (nb_bits == 8 * sizeof(int64_t))
-		return openssl_read_rand((uint64_t*)res, 8);
-
-	else
+	(void)module;
+	uint8_t* p = buf;
+	while (n > 0)
 	{
-		if (openssl_read_rand((uint64_t*)res, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
-
-		reduce_uniform_n(res, (int)nb_bits);
-	}
-
-	return 0;
-}
-
-int openssl_rand_uniform(const PvdaBackend* module, int64_t* res, int64_t limit_down, int64_t limit_up)
-{
-	uint64_t max_delta = (uint64_t)limit_up - (uint64_t)limit_down;
-	if (max_delta == UINT64_MAX) return -1;
-	uint64_t bits = next_pow2_log(max_delta + 1);
-	uint64_t mask = bits == 64 ? (UINT64_MAX) : (1ull << bits) - 1;
-
-	uint64_t tmp = 0;
-
-	int st;
-	do
-	{
-		st = openssl_read_rand(&tmp, INT_ROUND_UP_DIV(bits, 8));
-		if (st < 0) return -1;
-		tmp &= mask;
-	} while (tmp > max_delta);
-	*res = (int64_t)((uint64_t)limit_down + tmp);
-	return 0;
-}
-
-int openssl_rand_uniform_pow2_vec(const PvdaBackend* module, int64_t* res, uint64_t n, uint64_t nb_bits)
-{
-	CHECK_CALL(openssl_read_rand((uint64_t*)res, sizeof(int64_t) * n), "rng error");
-	for (uint64_t p = 0; p < n; p++)
-	{
-		reduce_uniform_n(res + p, (int)nb_bits);
+		int len = n > INT_MAX ? INT_MAX : (int)n;
+		if (RAND_bytes(p, len) != 1) return log_message(LOG_ERROR, "OpenSSL RAND_bytes failed");
+		p += len;
+		n -= (size_t)len;
 	}
 	return 0;
-cleanup:
-	return -1;
 }
 
-int openssl_rand_uniform_binary_vec(const PvdaBackend* module, uint64_t* res, uint64_t n)
+// =============================================
+// |                                           |
+// |          Seeded mode: AES-256-CTR         |
+// |                                           |
+// =============================================
+
+// The keystream is the encryption of zeros: out = AES-CTR(0) = AES_key(IV), AES_key(IV + 1), ...
+// The cipher context keeps the counter and the unused part of the current block between calls.
+static int openssl_ctr_bytes(const PvdaBackend* module, void* buf, size_t n)
 {
-	CHECK_CALL(openssl_read_rand(res, sizeof(uint64_t) * n), "rng error");
-	for (uint64_t p = 0; p < n; p++)
+	EVP_CIPHER_CTX* ctx = module->rng_state;
+	uint8_t* p          = buf;
+	memset(p, 0, n);
+	while (n > 0)
 	{
-		res[p] &= 1;
+		int len = n > (INT_MAX / 2) ? (INT_MAX / 2) : (int)n;
+		int outl = 0;
+		if (EVP_EncryptUpdate(ctx, p, &outl, p, len) != 1 || outl != len)
+			return log_message(LOG_ERROR, "OpenSSL AES-256-CTR keystream generation failed");
+		p += len;
+		n -= (size_t)len;
 	}
 	return 0;
-cleanup:
-	return -1;
 }
 
-void pvda_fill_openssl_rng(struct pvda_virtual_table* vt)
+static void openssl_ctr_delete(void* state) { EVP_CIPHER_CTX_free(state); }
+
+// =============================================
+// |                                           |
+// |              Init                         |
+// |                                           |
+// =============================================
+
+int pvda_openssl_rng_init(PvdaRngVirtualTable* vt, void** state, const PvdaSeed* seed)
 {
-	vt->pvda_rand_uniform_pow2       = openssl_rand_uniform_pow2;
-	vt->pvda_rand_uniform_pow2_vec   = openssl_rand_uniform_pow2_vec;
-	vt->pvda_rand_uniform_binary_vec = openssl_rand_uniform_binary_vec;
-	vt->pvda_rand_uniform            = openssl_rand_uniform;
+	if (!seed)
+	{
+		vt->pvda_rng_bytes = openssl_system_bytes;
+		return 0;
+	}
+
+	EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
+	if (!ctx) return log_message(LOG_ERROR, "OpenSSL cipher context allocation failed");
+
+	// Seed conversion: the 32 seed bytes are the AES-256 key, the counter block starts at 0.
+	static const uint8_t iv[16] = {0};
+	if (EVP_EncryptInit_ex(ctx, EVP_aes_256_ctr(), NULL, seed->bytes, iv) != 1)
+	{
+		EVP_CIPHER_CTX_free(ctx);
+		return log_message(LOG_ERROR, "OpenSSL AES-256-CTR initialization failed");
+	}
+
+	*state             = ctx;
+	vt->pvda_rng_bytes = openssl_ctr_bytes;
+	vt->delete_state   = openssl_ctr_delete;
+	return 0;
 }

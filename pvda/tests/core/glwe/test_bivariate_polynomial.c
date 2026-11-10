@@ -8,7 +8,7 @@
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
 #include "math_utils.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -189,7 +189,7 @@ PvdaParamTest(univ_tnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_pow2_random_pol_znx(module, (int64_t*)pol_univ, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -214,7 +214,7 @@ PvdaParamTest(univ_tnx_rnx_to_biv, maths_test, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_pow2_random_pol_znx(module, (int64_t*)pol_univ, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -238,7 +238,7 @@ PvdaParamTest(univ_tnx_to_biv, small_znx, default_params_fn)
 	PolyBiv* pol_computed          = new_biv(params_glwe);
 	PolyUnivTnX* pol_univ_computed = new_univ_tnx(params_glwe);
 
-	uniform_pow2_random_pol_znx(module, (int64_t*)pol_univ, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)pol_univ, params_glwe->nn, 64);
 
 	univ_tnx_to_biv(params_glwe, pol_computed, pol_univ, 0);
 
@@ -272,7 +272,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv, default_params_fn)
 	// Max precision is limited by float precision
 	uint64_t precision = precisionk > 53 ? 53 : precisionk;
 
-	uniform_pow2_random_pol_znx(module, tnx_values, vec_size, 64);
+	univ_znx_random_uniform_pow2(module, tnx_values, vec_size, 64);
 
 	univ_tnx_to_biv(params_glwe, biv, tnx_values, 0);
 	biv_to_univ_rnx(params_glwe, rnx_values, biv, 0);
@@ -310,7 +310,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx_via_biv_minus_offset, default
 		// Max precision is limited by float precision
 		uint64_t precision = precisionk >= 53 ? 53 : precisionk;
 
-		uniform_pow2_random_pol_znx(module, tnx_values, vec_size, 56);
+		univ_znx_random_uniform_pow2(module, tnx_values, vec_size, 56);
 
 		univ_tnx_to_biv(params_glwe, biv, tnx_values, i);
 		biv_to_univ_rnx(params_glwe, rnx_values, biv, i);

@@ -8,7 +8,7 @@ extern "C" {
 #include "glwe_params.h"
 #include "glwe_key.h"
 #include "glwegadget_ciphertext.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 }
 
@@ -32,7 +32,7 @@ void bench_glwegad_encrypt(benchmark::State& state)
 	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx(module, m, NBASE, MSGBITS);
+	univ_znx_random_uniform_pow2(module, m, NBASE, MSGBITS);
 
 	for (auto _ : state)
 	{

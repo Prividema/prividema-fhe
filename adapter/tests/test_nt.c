@@ -9,7 +9,6 @@
 #include "backend_nt.h"
 #include "backend_rng.h"
 #include "core/glwe/glwe_params.h"
-#include "rng.h"
 #include "stat_utils.h"
 #include "test_utils.h"
 

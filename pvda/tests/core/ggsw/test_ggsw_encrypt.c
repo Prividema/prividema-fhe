@@ -10,7 +10,7 @@
 #include "ggsw_utils.h"
 #include "glwe_ciphertext.h"
 #include "glwe_key.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -41,7 +41,7 @@ PvdaParamTest(ggsw_secret_encrypt, works, default_params_fn)
 	// Draws uniformly in (Zn[X])^k the secret key
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(module, m_univ, params_glwe->nn, params_glwe->kappa);
+	univ_znx_random_uniform_pow2(module, m_univ, params_glwe->nn, params_glwe->kappa);
 
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m_univ);
 

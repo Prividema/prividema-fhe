@@ -6,7 +6,7 @@ extern "C" {
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 }
 
@@ -34,7 +34,7 @@ void bench_unprepared_ggsw_ext_prod(benchmark::State& state)
 	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_vec(module, NBASE, m, 1, NBASE, MSGBITS);
+	univ_znx_random_uniform_pow2(module, m, NBASE, MSGBITS);
 	rnx_random_vec(module, m_glwe, params_glwe);
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
 	glwe_secret_encrypt_rnx(module, glwe_input, sk_prep, m_glwe);
@@ -84,7 +84,7 @@ void bench_ggsw_prepared_prod(benchmark::State& state)
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_vec(module, NBASE, m, 1, NBASE, 4);
+	univ_znx_random_uniform_pow2(module, m, NBASE, 4);
 	rnx_random_vec(module, m_glwe, params_glwe);
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
 	ggsw_prepare(module, ggsw_prep, ggsw);
@@ -133,7 +133,7 @@ void bench_ggsw_prepare(benchmark::State& state)
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_vec(module, NBASE, m, 1, NBASE, 4);
+	univ_znx_random_uniform_pow2(module, m, NBASE, 4);
 	ggsw_secret_encrypt(module, ggsw, sk_prep, m);
 
 	for (auto _ : state)

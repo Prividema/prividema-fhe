@@ -9,7 +9,7 @@
 #include "glwe_params.h"
 #include "heint.h"
 #include "pvda_ffts.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 
 Test(heint_enc, sanity1)
@@ -23,7 +23,7 @@ Test(heint_enc, sanity1)
 	PolyBiv* biv_out    = new_biv(params_glwe);
 
 	ntt_table_generate(module, t);
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st = heint_encode(module, params_glwe, biv_out, nn, t, in_tnx);
 
@@ -46,7 +46,7 @@ Test(heint_enc, backforth)
 	PolyBiv* biv_out     = new_biv(params_glwe);
 
 	ntt_table_generate(module, t);
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st  = heint_encode(module, params_glwe, biv_out, nn, t, in_tnx);
 	int st2 = heint_decode(module, params_glwe, out_tnx, nn, t, biv_out);
@@ -77,7 +77,7 @@ Test(heint_enc, backforth3)
 	PolyBiv* biv_out     = new_biv(params_glwe);
 
 	ntt_table_generate(module, t);
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st  = heint_encode(module, params_glwe, biv_out, nn, t, in_tnx);
 	int st2 = heint_decode(module, params_glwe, out_tnx, nn, t, biv_out);
@@ -109,7 +109,7 @@ Test(heint_enc, backforth2)
 	PolyBiv* biv_out     = new_biv(params_glwe);
 
 	ntt_table_generate(module, t);
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st  = heint_encode(module, params_glwe, biv_out, nn, t, in_tnx);
 	int st2 = heint_decode(module, params_glwe, out_tnx, nn, t, biv_out);
@@ -145,7 +145,7 @@ Test(heint_enc, backforth_large_t)
 	PolyBiv* biv_out     = new_biv(params_glwe);
 
 	cr_assert(eq(i32, ntt_table_generate(module, t), 0));
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st  = heint_encode(module, params_glwe, biv_out, nn, t, in_tnx);
 	int st2 = heint_decode(module, params_glwe, out_tnx, nn, t, biv_out);
@@ -177,7 +177,7 @@ Test(heint_internals, backforth_large_t)
 	PolyUnivTnX* out_tnx = new_univ_tnx(params_glwe);
 
 	cr_assert(eq(i32, ntt_table_generate(module, t), 0));
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st  = internal_slow_intt_heint(module, mid_tnx, in_tnx, t);
 	int st2 = internal_slow_ntt_heint(module, out_tnx, mid_tnx, t);
@@ -208,7 +208,7 @@ Test(heint_internals, sanity1)
 	PolyUnivTnX* out_tnx = new_univ_tnx(params_glwe);
 
 	ntt_table_generate(module, t);
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st = internal_slow_intt_heint(module, out_tnx, in_tnx, t);
 
@@ -230,7 +230,7 @@ Test(heint_internals, sanity2)
 	PolyUnivTnX* out_tnx = new_univ_tnx(params_glwe);
 
 	ntt_table_generate(module, t);
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st = internal_slow_ntt_heint(module, out_tnx, in_tnx, t);
 
@@ -253,7 +253,7 @@ Test(heint_internals, backforth)
 	PolyUnivTnX* out_tnx = new_univ_tnx(params_glwe);
 
 	ntt_table_generate(module, t);
-	uniform_random_pol_znx(module, in_tnx, nn, 0, t - 1);
+	univ_znx_random_uniform(module, in_tnx, nn, 0, t - 1);
 
 	int st  = internal_slow_intt_heint(module, mid_tnx, in_tnx, t);
 	int st2 = internal_slow_ntt_heint(module, out_tnx, mid_tnx, t);

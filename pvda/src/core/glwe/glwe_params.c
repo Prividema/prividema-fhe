@@ -36,6 +36,19 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb
 			params_glwe->fast_uniform_nb_bits = log_2;
 			break;
 		}
+		case NOISE_UNIFORM: {
+			// Uniform on [-B, B] has variance B(B+1)/3 ~ (B^2)/3
+			params_glwe->uniform_range = (int64_t)llround(sqrt(3.0) * rescaled_noise);
+			break;
+		}
+		case NOISE_BINOMIAL: {
+			// Centered binomial B(n, 1/2) - n/2 has variance n/4, with n even (n = 2 * eta)
+			double n = 4.0 * rescaled_noise * rescaled_noise;
+			if (n > 0x1p30) RAISE_ERROR("Noise too big for binomial sampling (n > 2^30), use NOISE_NORMAL instead");
+			uint64_t eta            = (uint64_t)ceil(n / 2.0);
+			params_glwe->binomial_n = 2 * eta;
+			break;
+		}
 		case NOISE_NORMAL: {
 			params_glwe->normal_sigma = sigma;
 			break;
@@ -70,14 +83,18 @@ double glwe_params_stdev(const GLWEParams* params_glwe)
 	{
 		case NOISE_UNIFORM_POWER_OF_TWO:
 			return NAN;
-		case NOISE_UNIFORM:
-			return NAN;
+		case NOISE_UNIFORM: {
+			double b = (double)params_glwe->uniform_range;
+			return ldexp(sqrt(b * (b + 1.0) / 3.0), -(int)params_glwe->kappa * (int)glwe_params_l_a(params_glwe));
+		}
 		case NOISE_NORMAL:
-			return ldexp(params_glwe->normal_sigma, -(int)params_glwe->kappa * (int)glwe_params_l_a(params_glwe));
+			// normal_sigma is stored on the torus scale (see new_glwe_params)
+			return params_glwe->normal_sigma;
 		case NOISE_BINOMIAL:
-			return ldexp(0.5 * sqrt(params_glwe->binomial_n),
+			return ldexp(0.5 * sqrt((double)params_glwe->binomial_n),
 			             -(int)params_glwe->kappa * (int)glwe_params_l_a(params_glwe));
 	}
+	return NAN;
 }
 
 uint64_t glwe_params_bytes(const GLWEParams* params_glwe)

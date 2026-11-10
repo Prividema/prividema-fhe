@@ -17,10 +17,11 @@
  */
 typedef enum noise_type_t {
 	NOISE_UNIFORM_POWER_OF_TWO,  ///< Uniform noise, with the range being restricted to powers of 2. The smallest suitable one is selected from sigma.
-	NOISE_UNIFORM,   ///< Uniform noise withouth the power-of-2 restriction in its internal sampling.
-	                 ///< This will make it significantly slower, albeit potentially more precise
-	NOISE_BINOMIAL,  ///< Binomial noise (on the last limb, with p=0.5, ie, symmetric)
-	NOISE_NORMAL     ///< Normal noise (implementation at the moment is a proof of concept)
+	NOISE_UNIFORM,   ///< Uniform noise in [-B, B] on the last limb, B chosen from sigma (no power-of-2 restriction).
+	                 ///< This is slower (rejection sampling), albeit more precise
+	NOISE_BINOMIAL,  ///< Centered binomial noise on the last limb (B(n, 1/2) - n/2, n chosen from sigma).
+	                 ///< Costs O(n) random bits per coefficient: only for small noise
+	NOISE_NORMAL     ///< Rounded normal noise on the last limb (Box-Muller, not constant-time)
 } NoiseType;
 
 /**
@@ -102,8 +103,11 @@ uint64_t glwe_params_n_limbs(const GLWEParams* params_glwe);
  *
  * @param params_glwe The GLWE parameters.
  *
- * @return NAN for the uniform noise types (NOISE_UNIFORM and NOISE_UNIFORM_POWER_OF_TWO).
- *         For NOISE_NORMAL and NOISE_BINOMIAL, the stored noise parameter scaled by \f$ 2^{-K \cdot \ell_a} \f$.
+ * @return The standard deviation of the noise, on the torus scale:
+ *         - NOISE_NORMAL: sigma as given to new_glwe_params;
+ *         - NOISE_UNIFORM: sqrt(B(B+1)/3) * 2^(-K l_a), B being uniform_range;
+ *         - NOISE_BINOMIAL: sqrt(binomial_n)/2 * 2^(-K l_a);
+ *         - NOISE_UNIFORM_POWER_OF_TWO: NAN (the power of 2 only bounds the noise).
  */
 double glwe_params_stdev(const GLWEParams* params_glwe);
 

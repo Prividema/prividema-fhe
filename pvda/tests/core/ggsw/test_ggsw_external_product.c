@@ -11,7 +11,7 @@
 #include "core/glwe/glwe_key.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -53,7 +53,7 @@ PvdaParamTest(ggsw_external_product, without_error, default_params_fn)
 	glwe_sk_prepare(module, sk_glwe_prep, sk_ggsw);
 
 	// Draws uniformly both messages
-	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, params_glwe->kappa);
+	univ_znx_random_uniform_pow2(module, u_univ, params_glwe->nn, params_glwe->kappa);
 	biv_random_uniform(module, params_glwe, m, 1);
 
 	// Computation with function

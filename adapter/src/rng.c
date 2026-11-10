@@ -1,137 +1,116 @@
-#include "rng.h"
-
-#include <assert.h>
-#include <math.h>
-#include <stdint.h>
-#include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <threads.h>
 
-#include "backend_arithmetic.h"
+#include "backend_private.h"
 #include "backend_rng.h"
+#include "impls/rng_cpu.h"
 #include "logger.h"
-#include "utils.h"
 
-// On some distros math.h doesn't define M_PI so we define it here just in case.
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
+#ifdef OPENSSL_BACKEND
+#include "impls/rng_openssl.h"
 #endif
 
-int rand_normal(double* res, double mu, double sigma)
+// =============================================
+// |                                           |
+// |              Creation                     |
+// |                                           |
+// =============================================
+
+int pvda_rng_type_available(PvdaRngType type)
 {
-	RAISE_ERROR("Normal number generation not implemented");
-	/*
-	// This function used to transform a uniformly sampled variable into a normally
-	// distributed variable using the inverse Cumulative Distribution Function
-	// (CDF).
-	// Its implementation has been removed since it used an approximation of the iCDF
-	// Generate a uniform number in [0, 2^64]
-	  uint64_t uniform;
-	  CHECK_CALL(read_rand(&uniform, 8), "Rng failed in rand_normal");
-
-	  // Scale uniform in (0,1) to U : U still follows a uniform distribution.
-	  double uu = ((double)uniform) / ((double)UINT64_MAX);
-
-	  // Compute Z the inverse CDF of the normal distribution applied to U.
-	  double zz = sqrt(2.0) * erfinv(2.0 * uu - 1.0);
-
-	  // Scale and Shift with mu and sigma.
-	  // Z follows a normal distribution in (0,1)
-	  // Thus result will follow (mu, sigma)
-	  *result = mu + sigma * zz;
-
-	  return 0;
-  */
-cleanup:
-	return -1;
-}
-
-int uniform_pow2_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, uint64_t nb_bits)
-{
-	return pvda_rand_uniform_pow2_vec(module, res, nn, nb_bits);
-}
-
-int binary_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn)
-{
-	return pvda_rand_uniform_binary_vec(module, (uint64_t*)res, nn);
-}
-
-int uniform_random_pol_znx(const PvdaBackend* module, int64_t* res, uint64_t nn, int64_t low_bound, int64_t high_bound)
-{
-	for (uint64_t p = 0; p < nn; p++)
+	switch (type)
 	{
-		CHECK_CALL(pvda_rand_uniform(module, &res[p], low_bound, high_bound), "uniform RNG failed");
+		case PVDA_RNG_CPU:
+			return 1;
+		case PVDA_RNG_OPENSSL:
+#ifdef OPENSSL_BACKEND
+			return 1;
+#else
+			return 0;
+#endif
 	}
 	return 0;
-cleanup:
-	return -1;
 }
 
-int uniform_pow2_random_vec(const PvdaBackend* module, uint64_t limb_len, int64_t* res, uint64_t nb_limbs,
-                            uint64_t res_sl, uint64_t nb_bits)
+PvdaRngType pvda_default_rng_type(void)
 {
-	for (uint64_t i = 0; i < nb_limbs; i++)
-		CHECK_CALL(uniform_pow2_random_pol_znx(module, res + i * res_sl, limb_len, nb_bits),
-		           "uniform random vec failed");
-	return 0;
-cleanup:
-	return -1;
+	return pvda_rng_type_available(PVDA_RNG_OPENSSL) ? PVDA_RNG_OPENSSL : PVDA_RNG_CPU;
 }
 
-int uniform_random_vec_znx_dft(const PvdaBackend* module, BE_PolyBivDFT* res_dft, uint64_t vec_size, uint64_t nb_bits)
+int pvda_backend_set_rng(PvdaBackend* module, PvdaRngType type, const PvdaSeed* seed)
 {
+	if (!pvda_rng_type_available(type)) return log_message(LOG_ERROR, "Requested RNG is not available in this build");
+
+	// Build the new RNG aside, so that the current one is kept if the initialization fails
+	PvdaRngVirtualTable vt = {0};
+	void* state            = NULL;
+	pvda_rng_fill_generic(&vt);
+
 	int status = -1;
-
-	// Variables
-	int64_t* tmp_space = NULL;
-
-	// The degree of the cyclotomic polynomial
-	uint64_t nn = pvda_module_extract_nn(module);
-
-	// Pointer to a uniformly drawn Zn[X] vector of size = vec_size
-	tmp_space = malloc(nn * vec_size * sizeof(int64_t));
-	CHECK_ALLOC(tmp_space, "malloc in new_uniform_random_vec_znx_dft");
-
-	// Draws uniformly in Zn[X] the vector elements
-	for (int i = 0; i < vec_size; i++)
-		for (int p = 0; p < nn; p++)
-			CHECK_CALL(pvda_rand_uniform_pow2(module, tmp_space + i * nn + p, nb_bits),
-			           "rand_uniform failed in uniform_random_vec_znx_dft");
-
-	// Computes the vector in the DFT domain
-	PolyBiv tmp_biv = {nn, vec_size, (int64_t)nn, tmp_space};
-	CHECK_CALL(pvda_biv_to_dft(module, res_dft, vec_size, &tmp_biv), "pvda_biv_to_dft failed in uniform_random_vec_znx_dft");
-
-	status = 0;
-
-cleanup:
-	free(tmp_space);
-
-	return status;
-}
-
-int add_normal_random_vec(const PvdaBackend* module, double* res, size_t vec_size, const double* vec, double mu,
-                          double sigma)
-{
-	// Possible performance improvement here
-	for (int i = 0; i < vec_size; i++)
+	switch (type)
 	{
-		double tmp;
-		CHECK_CALL(rand_normal(&tmp, mu, sigma), "add_normal_random_vec failed");
-		res[i] = vec[i] + tmp;
+		case PVDA_RNG_CPU:
+			status = pvda_cpu_rng_init(&vt, &state, seed);
+			break;
+		case PVDA_RNG_OPENSSL:
+#ifdef OPENSSL_BACKEND
+			status = pvda_openssl_rng_init(&vt, &state, seed);
+#endif
+			break;
 	}
 
+	if (status < 0 || !vt.pvda_rng_bytes)
+	{
+		if (vt.delete_state) vt.delete_state(state);
+		return log_message(LOG_ERROR, "RNG initialization failed");
+	}
+
+	pvda_delete_backend_rng(module);
+	module->rng_vt     = vt;
+	module->rng_type   = type;
+	module->rng_seeded = seed != NULL;
+	module->rng_state  = state;
 	return 0;
-cleanup:
-	return -1;
 }
 
-int normal_random_vec(const PvdaBackend* module, double* res, uint64_t res_size, double mu, double sigma)
+void pvda_delete_backend_rng(PvdaBackend* module)
 {
-	for (int i = 0; i < res_size; i++) CHECK_CALL(rand_normal(res + i, mu, sigma), "normal_random_vec failed");
+	if (module->rng_vt.delete_state) module->rng_vt.delete_state(module->rng_state);
+	module->rng_vt    = (PvdaRngVirtualTable){0};
+	module->rng_state = NULL;
+}
 
-	return 0;
-cleanup:
-	return -1;
+PvdaRngType pvda_backend_rng_type(const PvdaBackend* module) { return module->rng_type; }
+
+int pvda_backend_rng_is_seeded(const PvdaBackend* module) { return module->rng_seeded; }
+
+int pvda_seed_generate(PvdaSeed* seed) { return cpu_os_random_bytes(seed->bytes, PVDA_SEED_BYTES); }
+
+// =============================================
+// |                                           |
+// |              Distributions                |
+// |                                           |
+// =============================================
+
+int pvda_rng_bytes(const PvdaBackend* module, void* buf, size_t n) { return module->rng_vt.pvda_rng_bytes(module, buf, n); }
+
+int pvda_rng_uniform_pow2_vec(const PvdaBackend* module, int64_t* res, uint64_t n, uint64_t nb_bits)
+{
+	return module->rng_vt.pvda_rng_uniform_pow2_vec(module, res, n, nb_bits);
+}
+
+int pvda_rng_uniform_range_vec(const PvdaBackend* module, int64_t* res, uint64_t n, int64_t low, int64_t high)
+{
+	return module->rng_vt.pvda_rng_uniform_range_vec(module, res, n, low, high);
+}
+
+int pvda_rng_binary_vec(const PvdaBackend* module, int64_t* res, uint64_t n) { return module->rng_vt.pvda_rng_binary_vec(module, res, n); }
+
+int pvda_rng_centered_binomial_vec(const PvdaBackend* module, int64_t* res, uint64_t n, uint64_t eta)
+{
+	return module->rng_vt.pvda_rng_centered_binomial_vec(module, res, n, eta);
+}
+
+int pvda_rng_normal_vec(const PvdaBackend* module, double* res, uint64_t n, double mu, double sigma)
+{
+	return module->rng_vt.pvda_rng_normal_vec(module, res, n, mu, sigma);
 }

@@ -7,7 +7,7 @@
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
 #include "math_utils.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -19,7 +19,7 @@ static inline uint64_t words_for_bits(uint64_t bits) { return (bits + 63) / 64; 
 static void random_normalized_biv(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* pol)
 {
 	for (uint64_t i = 0; i < glwe_params_l_a(params_glwe); ++i)
-		cr_assert(uniform_pow2_random_pol_znx(module, pol->ptr + i * pol->stride, pol->nn, params_glwe->kappa) == 0);
+		cr_assert(univ_znx_random_uniform_pow2(module, pol->ptr + i * pol->stride, pol->nn, params_glwe->kappa) == 0);
 }
 
 // =============================================
@@ -162,7 +162,7 @@ PvdaParamTest(univ_znx_mp, mp_round_trip_mod_one, default_params_fn)
 	PolyUnivZnxMP* mp   = new_univ_znx_mp(nn, nw);
 	PolyUnivZnxMP* back = new_univ_znx_mp(nn, nw);
 	PolyBiv* pol        = new_biv(params_glwe);
-	cr_assert(uniform_pow2_random_pol_znx(module, (int64_t*)mp->ptr, nn * nw, 64) == 0);
+	cr_assert(univ_znx_random_uniform_pow2(module, (int64_t*)mp->ptr, nn * nw, 64) == 0);
 
 	cr_assert(univ_znx_mp_to_biv(params_glwe, pol, mp, (int64_t)bits) == 0);
 	cr_assert(biv_to_univ_znx_mp(params_glwe, back, pol, (int64_t)bits) == 0);

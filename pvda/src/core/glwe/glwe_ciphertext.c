@@ -9,7 +9,7 @@
 #include "backend_arithmetic.h"
 #include "bivariate_polynomial.h"
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
@@ -100,7 +100,9 @@ int glwe_secret_encrypt_phase(const PvdaBackend* module, GLWECiphertext* glwe, c
 	CHECK_ALLOC(as_j_dft, "as_j_dft's calloc failed in glwe_secret_masking");
 
 	// Draws uniformly in Zn[X,Y] the ajs'
-	CHECK_CALL(uniform_pow2_random_vec(module, k * nn, glwe->vec, l_a, (k + 1) * nn, kappa),
+	// The k polynomials a_j of limb i are contiguous (k * nn coefficients), and limbs are (k + 1) * nn apart
+	PolyBiv a_limbs = biv_view(k * nn, l_a, (int64_t)((k + 1) * nn), glwe->vec);
+	CHECK_CALL(biv_random_uniform_pow2(module, &a_limbs, kappa),
 	           "A generation failed in glwe_secret_masking_dft");
 
 	// Computes Sum_j{0,k-1}[sk_j * a_j]
@@ -160,17 +162,21 @@ int glwe_secret_encrypt_rnx(const PvdaBackend* module, GLWECiphertext* res, cons
 {
 	int status         = -1;
 	PolyBiv* biv_phase = new_biv(res->params);
+	PolyBiv* biv_noise = new_biv(res->params);
 	CHECK_ALLOC(biv_phase, "Bivariate phase allocation failed in GLWE encryption");
+	CHECK_ALLOC(biv_noise, "Bivariate noise allocation failed in GLWE encryption");
 
 	CHECK_CALL(univ_rnx_to_biv(res->params, biv_phase, m_univ_rnx, 0),
 	           "failed univ to biv conversion in glwe encryption");
-	CHECK_CALL(biv_add_noise(module, res->params, biv_phase, biv_phase), "Noise addition failed in GLWE encryption");
+	CHECK_CALL(biv_random_noise(module, res->params, biv_noise), "Noise sampling failed in GLWE encryption");
+	CHECK_CALL(biv_add(module, biv_phase, biv_phase, biv_noise), "Noise addition failed in GLWE encryption");
 
 	CHECK_CALL(glwe_secret_encrypt_phase(module, res, sk_prep, biv_phase), "masking failed in glwe encryption");
 
 	status = 0;
 cleanup:
 	delete_biv(biv_phase);
+	delete_biv(biv_noise);
 	return status;
 }
 
@@ -179,18 +185,21 @@ int glwe_secret_encrypt_tnx(const PvdaBackend* module, GLWECiphertext* res, cons
 {
 	int status = -1;
 
-	uint64_t nn        = res->params->nn;
 	PolyBiv* biv_phase = new_biv(res->params);
+	PolyBiv* biv_noise = new_biv(res->params);
 	CHECK_ALLOC(biv_phase, "Bivariate phase allocation failed in GLWE encryption");
+	CHECK_ALLOC(biv_noise, "Bivariate noise allocation failed in GLWE encryption");
 
 	CHECK_CALL(univ_tnx_to_biv(res->params, biv_phase, m_univ_tnx, 0),
 	           "failed univ to biv conversion in glwe encryption");
-	CHECK_CALL(biv_add_noise(module, res->params, biv_phase, biv_phase), "Noise addition failed in GLWE encryption");
+	CHECK_CALL(biv_random_noise(module, res->params, biv_noise), "Noise sampling failed in GLWE encryption");
+	CHECK_CALL(biv_add(module, biv_phase, biv_phase, biv_noise), "Noise addition failed in GLWE encryption");
 	CHECK_CALL(glwe_secret_encrypt_phase(module, res, sk_prep, biv_phase), "masking failed in glwe encryption");
 
 	status = 0;
 cleanup:
 	delete_biv(biv_phase);
+	delete_biv(biv_noise);
 	return status;
 }
 

@@ -8,7 +8,7 @@
 #include "ggsw_ciphertext.h"
 #include "ggsw_params.h"
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -136,10 +136,8 @@ PvdaParamTest(ggsw_add, basic, default_params_fn)
 	GGSWCiphertext* sum_computed = new_ggsw(params_ggsw);
 
 	// Draws uniformly the bivGGSW ciphertexts
-	uniform_pow2_random_vec(module, params_glwe->nn, ggsw_lhs->mat, ggsw_total_n_glwe_limbs(params_ggsw),
-	                        params_glwe->nn, params_glwe->kappa - 1);
-	uniform_pow2_random_vec(module, params_glwe->nn, ggsw_rhs->mat, ggsw_total_n_glwe_limbs(params_ggsw),
-	                        params_glwe->nn, params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)(params_glwe->nn), ggsw_lhs->mat}, params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)(params_glwe->nn), ggsw_rhs->mat}, params_glwe->kappa - 1);
 
 	// Computes ggsw_lhs + ggsw_rhs
 	ggsw_add(module, sum_computed, ggsw_lhs, ggsw_rhs);
@@ -175,11 +173,10 @@ PvdaParamTest(ggsw_mult_const, without_normalization, default_params_fn)
 	PolyUnivZnx* prod_expected          = new_univ_znx(params_glwe);
 
 	// Draws uniformly the Zn[X] constant
-	uniform_pow2_random_vec(module, params_glwe->nn, u, 1, params_glwe->nn, params_glwe->kappa - 1);
+	univ_znx_random_uniform_pow2(module, u, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Draws uniformly the bivGGSW ciphertext
-	uniform_pow2_random_vec(module, params_glwe->nn, ggsw->mat, ggsw_total_n_glwe_limbs(params_ggsw), params_glwe->nn,
-	                        params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, ggsw_total_n_glwe_limbs(params_ggsw), (int64_t)(params_glwe->nn), ggsw->mat}, params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
 	univ_znx_to_svp_prep(module, u_prep, u);

@@ -10,7 +10,7 @@ extern "C" {
 #include "glwe_key.h"
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_ciphertext.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 }
 
@@ -37,8 +37,8 @@ void bench_glwegad_half_prod(benchmark::State& state)
 
 	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, UBITS);
-	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, MBITS);
+	univ_znx_random_uniform_pow2(module, u_univ, params_glwe->nn, UBITS);
+	univ_znx_random_uniform_pow2(module, (int64_t*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 
 	glwegadget_secret_encrypt(module, glwegadget_ct, sk_prep, u_univ);
@@ -89,8 +89,8 @@ void bench_glwegad_half_prod_dft(benchmark::State& state)
 
 	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, UBITS);
-	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, MBITS);
+	univ_znx_random_uniform_pow2(module, u_univ, params_glwe->nn, UBITS);
+	univ_znx_random_uniform_pow2(module, (int64_t*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 	biv_to_dft(module, params_glwe, m_dft, m);
 
@@ -144,8 +144,8 @@ void bench_glwegad_half_prod_prep(benchmark::State& state)
 
 	glwe_sk_random_uniform(module, sk, SKBITS);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(module, u_univ, params_glwe->nn, UBITS);
-	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, MBITS);
+	univ_znx_random_uniform_pow2(module, u_univ, params_glwe->nn, UBITS);
+	univ_znx_random_uniform_pow2(module, (int64_t*)m_univ_tnx, params_glwe->nn, MBITS);
 	univ_tnx_to_biv(params_glwe, m, m_univ_tnx, 0);
 	biv_to_prep(module, params_glwe, m_prep, m);
 

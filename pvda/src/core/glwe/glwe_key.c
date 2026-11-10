@@ -8,7 +8,7 @@
 #include "backend.h"
 #include "backend_arithmetic.h"
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "utils.h"
 
 // =============================================
@@ -50,7 +50,7 @@ int glwe_sk_random_uniform(const PvdaBackend* module, GLWESecretKey* sk, uint64_
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(uniform_pow2_random_pol_znx(module, sk->values, nn * sk->k, nb_bits),
+	CHECK_CALL(univ_znx_random_uniform_pow2(module, sk->values, nn * sk->k, nb_bits),
 	           "random vector generation failed in key generation");
 
 	return 0;
@@ -64,7 +64,7 @@ int glwe_sk_random_binary(const PvdaBackend* module, GLWESecretKey* sk)
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(binary_random_pol_znx(module, sk->values, nn * sk->k),
+	CHECK_CALL(univ_znx_random_binary(module, sk->values, nn * sk->k),
 	           "random vector generation failed in key generation");
 
 	return 0;
@@ -78,7 +78,7 @@ int glwe_sk_random_ternary(const PvdaBackend* module, GLWESecretKey* sk)
 	uint64_t nn = pvda_module_extract_nn(module);
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
-	CHECK_CALL(uniform_random_pol_znx(module, sk->values, nn * sk->k, -1, 1),
+	CHECK_CALL(univ_znx_random_ternary(module, sk->values, nn * sk->k),
 	           "random vector generation failed in key generation");
 
 	return 0;

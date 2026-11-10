@@ -109,6 +109,7 @@ int ntt_table_generate(const PvdaBackend* module, uint64_t t)
 	table_entry->t = t;
 
 	NTTRoot r = pvda_ring_2nth_root(module, t);
+	if (r == 0) RAISE_ERROR("No primitive 2N-th root of unity found for the NTT table");
 	NTTRoot v = 1;
 
 	for (uint64_t i = 0; i < n_elems; ++i)

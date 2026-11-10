@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #include "glwe_key.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 

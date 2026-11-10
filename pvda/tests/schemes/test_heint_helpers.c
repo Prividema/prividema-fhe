@@ -12,7 +12,7 @@
 
 Test(heint_helpers, inverse_via_euclid)
 {
-	PvdaBackend* rng_backend = pvda_new_spqlios_backend(4);
+	PvdaBackend* module = pvda_new_spqlios_backend(4);
 	uint64_t primes[]        = {3, 5, 7, 13, 6701, 7793, 2147483647};
 
 	for (size_t i = 0; i < sizeof(primes) / sizeof(primes[0]); ++i)
@@ -21,7 +21,7 @@ Test(heint_helpers, inverse_via_euclid)
 		for (size_t r = 0; r < 100; ++r)
 		{
 			uint64_t x;
-			pvda_rand_uniform(rng_backend, &x, 1, pi - 1);
+			pvda_rng_uniform_range_vec(module, (int64_t*)(&x), 1, 1, pi - 1);
 
 			uint64_t x_inv = mod_inv(x, pi);
 			uint64_t prd   = (x * x_inv) % pi;
@@ -30,12 +30,12 @@ Test(heint_helpers, inverse_via_euclid)
 		}
 	}
 
-	pvda_delete_backend(rng_backend);
+	pvda_delete_backend(module);
 }
 
 Test(heint_helpers, mont_mult)
 {
-	PvdaBackend* rng_backend = pvda_new_spqlios_backend(4);
+	PvdaBackend* module = pvda_new_spqlios_backend(4);
 	uint64_t primes[]        = {3, 5, 7, 13, 6701, 7793, 2147483647};
 
 	for (size_t i = 0; i < sizeof(primes) / sizeof(primes[0]); ++i)
@@ -47,8 +47,8 @@ Test(heint_helpers, mont_mult)
 		for (size_t r = 0; r < 100; ++r)
 		{
 			uint64_t x, y;
-			pvda_rand_uniform(rng_backend, &x, 1, pi - 1);
-			pvda_rand_uniform(rng_backend, &y, 1, pi - 1);
+			pvda_rng_uniform_range_vec(module, (int64_t*)(&x), 1, 1, pi - 1);
+			pvda_rng_uniform_range_vec(module, (int64_t*)(&y), 1, 1, pi - 1);
 
 			uint64_t x_m, y_m;
 			x_m = montgomery_encode_32bit(x, pi, p_tild, r2modp);
@@ -63,12 +63,12 @@ Test(heint_helpers, mont_mult)
 		}
 	}
 
-	pvda_delete_backend(rng_backend);
+	pvda_delete_backend(module);
 }
 
 Test(heint_helpers, mont_pow)
 {
-	PvdaBackend* rng_backend = pvda_new_spqlios_backend(4);
+	PvdaBackend* module = pvda_new_spqlios_backend(4);
 	uint64_t primes[]        = {3, 5, 7, 13, 6701, 7793, 2147483647};
 
 	for (size_t i = 0; i < sizeof(primes) / sizeof(primes[0]); ++i)
@@ -81,8 +81,8 @@ Test(heint_helpers, mont_pow)
 		for (size_t r = 0; r < 100; ++r)
 		{
 			uint64_t x, ex;
-			pvda_rand_uniform(rng_backend, &x, 1, pi - 1);
-			pvda_rand_uniform(rng_backend, &ex, 1, pi - 1);
+			pvda_rng_uniform_range_vec(module, (int64_t*)(&x), 1, 1, pi - 1);
+			pvda_rng_uniform_range_vec(module, (int64_t*)(&ex), 1, 1, pi - 1);
 
 			uint64_t x_m;
 			x_m = montgomery_encode_32bit(x, pi, p_tild, r2modp);
@@ -95,5 +95,5 @@ Test(heint_helpers, mont_pow)
 		}
 	}
 
-	pvda_delete_backend(rng_backend);
+	pvda_delete_backend(module);
 }

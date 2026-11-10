@@ -13,8 +13,12 @@
 /**
  * @file backend_private.h
  *
- * @brief Internals of the adapter: the virtual table that dispatches each adapter function to the implementation
+ * @brief Internals of the adapter: the virtual tables that dispatch each adapter function to the implementation
  * of the selected backend, and the backend object itself.
+ *
+ * A backend holds two virtual tables:
+ * - vt: polynomial arithmetic (spqlios, cpu number theory, ...);
+ * - rng_vt: random number generation (cpu, openssl), chosen independently of vt.
  */
 
 typedef struct module_info_t SPQLIOS_MODULE;
@@ -59,10 +63,6 @@ typedef typeof(pvda_univ_znx_automorphism) PVDA_UNIV_ZNX_AUTOMORPHISM_F;
 typedef typeof(pvda_biv_automorphism) PVDA_BIV_AUTOMORPHISM_F;
 typedef typeof(pvda_biv_rotate) PVDA_BIV_ROTATE_F;
 typedef typeof(pvda_module_extract_nn) PVDA_MODULE_EXTRACT_NN_F;
-typedef typeof(pvda_rand_uniform_pow2) PVDA_RAND_UNIFORM_POW2_F;
-typedef typeof(pvda_rand_uniform_pow2_vec) PVDA_RAND_UNIFORM_POW2_VEC_F;
-typedef typeof(pvda_rand_uniform_binary_vec) PVDA_RAND_UNIFORM_BINARY_VEC_F;
-typedef typeof(pvda_rand_uniform) PVDA_RAND_UNIFORM_F;
 typedef typeof(pvda_ring_2nth_root) PVDA_RING_2NTH_ROOT_F;
 typedef typeof(pvda_biv_dft_add) PVDA_BIV_DFT_ADD_F;
 
@@ -108,22 +108,53 @@ typedef struct pvda_virtual_table
 	PVDA_BIV_AUTOMORPHISM_F* pvda_biv_automorphism;
 	PVDA_BIV_ROTATE_F* pvda_biv_rotate;
 	PVDA_MODULE_EXTRACT_NN_F* pvda_module_extract_nn;
-	PVDA_RAND_UNIFORM_POW2_F* pvda_rand_uniform_pow2;
-	PVDA_RAND_UNIFORM_POW2_VEC_F* pvda_rand_uniform_pow2_vec;
-	PVDA_RAND_UNIFORM_BINARY_VEC_F* pvda_rand_uniform_binary_vec;
-	PVDA_RAND_UNIFORM_F* pvda_rand_uniform;
 	PVDA_RING_2NTH_ROOT_F* pvda_ring_2nth_root;
 	PVDA_BIV_DFT_ADD_F *pvda_biv_dft_add;
 } PvdaVirtualTable;
+
+typedef typeof(pvda_rng_bytes) PVDA_RNG_BYTES_F;
+typedef typeof(pvda_rng_uniform_pow2_vec) PVDA_RNG_UNIFORM_POW2_VEC_F;
+typedef typeof(pvda_rng_uniform_range_vec) PVDA_RNG_UNIFORM_RANGE_VEC_F;
+typedef typeof(pvda_rng_binary_vec) PVDA_RNG_BINARY_VEC_F;
+typedef typeof(pvda_rng_centered_binomial_vec) PVDA_RNG_CENTERED_BINOMIAL_VEC_F;
+typedef typeof(pvda_rng_normal_vec) PVDA_RNG_NORMAL_VEC_F;
+
+/**
+ * @brief RNG virtual table.
+ *
+ * An RNG implementation must provide pvda_rng_bytes. The distribution entries are first filled with the generic
+ * implementations of rng_generic.c (built on pvda_rng_bytes); an implementation can then override any of them.
+ */
+typedef struct pvda_rng_virtual_table
+{
+	PVDA_RNG_BYTES_F* pvda_rng_bytes;  ///< mandatory
+	PVDA_RNG_UNIFORM_POW2_VEC_F* pvda_rng_uniform_pow2_vec;
+	PVDA_RNG_UNIFORM_RANGE_VEC_F* pvda_rng_uniform_range_vec;
+	PVDA_RNG_BINARY_VEC_F* pvda_rng_binary_vec;
+	PVDA_RNG_CENTERED_BINOMIAL_VEC_F* pvda_rng_centered_binomial_vec;
+	PVDA_RNG_NORMAL_VEC_F* pvda_rng_normal_vec;
+
+	/** @brief Frees the RNG state (NULL if the implementation has no state). */
+	void (*delete_state)(void* state);
+} PvdaRngVirtualTable;
 
 struct pvda_module_t
 {
 	SPQLIOS_MODULE* spqlios_module;
 	struct pvda_fft_data_t* pvda_fft_data;
 
-	PvdaVirtualTable vt;
+	PvdaVirtualTable vt;  ///< Arithmetic
+
+	PvdaRngVirtualTable rng_vt;  ///< Randomness
+	PvdaRngType rng_type;        ///< RNG implementation behind rng_vt
+	int rng_seeded;              ///< 1 if deterministic (seeded), 0 if drawing from the system source
+	void* rng_state;             ///< Implementation-specific state (e.g. keystream state when seeded), owned
 };
 
-typedef struct pvda_module_t PvdaBackend;
+/** @brief Fills the distribution entries of vt with the generic implementations built on vt->pvda_rng_bytes. */
+void pvda_rng_fill_generic(PvdaRngVirtualTable* vt);
+
+/** @brief Frees the RNG state of a backend and clears its RNG virtual table. */
+void pvda_delete_backend_rng(PvdaBackend* module);
 
 #endif

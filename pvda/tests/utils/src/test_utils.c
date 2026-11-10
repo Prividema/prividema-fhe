@@ -9,7 +9,7 @@
 #include "glwe_params.h"
 #include "math.h"
 #include "math_utils.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
@@ -109,7 +109,7 @@ int rnx_random_vec(const PvdaBackend* module, PolyUnivRnX* res, GLWEParams* para
 
 	// (ab)use the fact that tnx and Z mod 2^64 are isomorphic and
 	// the memory representation is the same for isomorphic values
-	uniform_pow2_random_pol_znx(module, (int64_t*)tmp_tnx, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)tmp_tnx, params_glwe->nn, 64);
 
 	univ_tnx_to_rnx(params_glwe, res, tmp_tnx);
 

@@ -5,7 +5,7 @@
 #include "core/glwe/glwe_ciphertext.h"
 #include "glwe_arithmetic.h"
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -84,10 +84,8 @@ PvdaParamTest(glwe_add, basic, default_params_fn)
 	GLWECiphertext* sum_computed = new_glwe(params_glwe);
 
 	// Draws in Zn[X] the bivGLWE's bivariate elements
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_lhs->vec}, params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_rhs->vec}, params_glwe->kappa - 1);
 
 	// Computes glwe_lhs + glwe_rhs
 	glwe_add(module, sum_computed, glwe_lhs, glwe_rhs);
@@ -116,8 +114,7 @@ PvdaParamTest(copy_glwe, basic, default_params_fn)
 	GLWECiphertext* glwe_src = new_glwe(params_glwe);
 
 	// Fills the source glwe glwe_src with random data
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe_dst->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_dst->vec}, params_glwe->kappa - 1);
 
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
@@ -145,8 +142,7 @@ PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
 	GLWECiphertext* glwe_dst = new_glwe(dst_params);
 
 	// Fills the source glwe glwe_src with random data
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_src->vec}, params_glwe->kappa - 1);
 
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
@@ -176,8 +172,7 @@ PvdaParamTest(copy_glwe, src_lt_dst, default_params_fn)
 	GLWECiphertext* glwe_dst = new_glwe(dst_params);
 
 	// Fills the source glwe glwe_src with random data
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe_src->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_src->vec}, params_glwe->kappa - 1);
 
 	// Copies glwe_src to glwe_dst
 	glwe_copy(glwe_dst, glwe_src);
@@ -209,10 +204,8 @@ PvdaParamTest(glwe_sub, basic, default_params_fn)
 	GLWECiphertext* sub_observed = new_glwe(params_glwe);
 
 	// Draws in Zn[X] the bivGLWE's bivariate elements
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe_lhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe_rhs->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_lhs->vec}, params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe_rhs->vec}, params_glwe->kappa - 1);
 
 	// Computes glwe_lhs - glwe_rhs
 	glwe_sub(module, sub_observed, glwe_lhs, glwe_rhs);
@@ -244,11 +237,10 @@ PvdaParamTest(glwe_mult_const, without_normalization, default_params_fn)
 	PolyUnivZnx* prod_expected       = new_univ_znx(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertext and the ZnX polynomial
-	uniform_pow2_random_vec(module, params_glwe->nn, glwe->vec, glwe_params_n_limbs(params_glwe), params_glwe->nn,
-	                        params_glwe->kappa - 1);
+	biv_random_uniform_pow2(module, &(PolyBiv){params_glwe->nn, glwe_params_n_limbs(params_glwe), (int64_t)(params_glwe->nn), glwe->vec}, params_glwe->kappa - 1);
 
 	// Draws in Zn[X] the polynomial u
-	uniform_pow2_random_pol_znx(module, u, params_glwe->nn, params_glwe->kappa - 1);
+	univ_znx_random_uniform_pow2(module, u, params_glwe->nn, params_glwe->kappa - 1);
 
 	// Computes u in the DFT domain
 	univ_znx_to_svp_prep(module, u_prep, u);
@@ -327,8 +319,8 @@ PvdaParamTest(glwe_dft_add, basic, default_params_fn)
 	GLWECiphertext* sum_computed = new_glwe(params_glwe);
 
 	// Draws uniformly the bivGLWE ciphertexts glwe_lhs_dft and glwe_rhs_dft in the DFT domain
-	cr_assert(uniform_random_vec_znx_dft(module, glwe_lhs_dft->vec, n_limbs, params_glwe->kappa - 1) == 0);
-	cr_assert(uniform_random_vec_znx_dft(module, glwe_rhs_dft->vec, n_limbs, params_glwe->kappa - 1) == 0);
+	cr_assert(biv_dft_random_uniform_pow2(module, glwe_lhs_dft->vec, n_limbs, params_glwe->kappa - 1) == 0);
+	cr_assert(biv_dft_random_uniform_pow2(module, glwe_rhs_dft->vec, n_limbs, params_glwe->kappa - 1) == 0);
 
 	// Computes glwe_lhs_dft + glwe_rhs_dft
 	cr_assert(glwe_dft_add(module, sum_computed_dft, glwe_lhs_dft, glwe_rhs_dft) == 0);
@@ -371,10 +363,10 @@ PvdaParamTest(glwe_dft_mult_const, without_normalization, default_params_fn)
 
 	//! Draws input variables
 	// Draws uniformly the bivGLWE ciphertext in the DFT domain
-	uniform_random_vec_znx_dft(module, glwe_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
+	biv_dft_random_uniform_pow2(module, glwe_dft->vec, glwe_params_n_limbs(params_glwe), params_glwe->kappa - 1);
 
 	// Draws uniformly
-	uniform_pow2_random_pol_znx(module, u, params_glwe->nn, params_glwe->kappa - 1);
+	univ_znx_random_uniform_pow2(module, u, params_glwe->nn, params_glwe->kappa - 1);
 
 	//! Computation with functions
 	// Computes glwe_dft's vec out of the DFT domain

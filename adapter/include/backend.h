@@ -30,6 +30,8 @@ typedef struct pvda_module_config_t
  */
 PvdaBackend* pvda_new_spqlios_backend(int nn);
 
+// The backend also holds the randomness: see backend_rng.h (pvda_backend_set_rng) for its RNG and the samplers.
+
 /**
  * NOT YET IMPLEMENTED
  * @brief Create a new backend according to the configuration struct
@@ -56,5 +58,8 @@ void pvda_delete_backend(PvdaBackend* module);
  * @return Parameter N
  */
 uint64_t pvda_module_extract_nn(const PvdaBackend* module);
+
+// Random number generation of the backend (included last: it uses PvdaBackend)
+#include "backend_rng.h"
 
 #endif

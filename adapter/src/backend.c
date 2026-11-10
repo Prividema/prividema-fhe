@@ -4,34 +4,41 @@
 
 #include "backend_private.h"
 #include "impls/cpu_nt.h"
-#include "impls/rng_cpu.h"
 #include "impls/spqlios_alias.h"
 #include "pvda_ffts.h"
-#include "rng.h"
-
-#ifdef OPENSSL_BACKEND
-#include "impls/rng_openssl.h"
-#endif
+#include "logger.h"
 
 PvdaBackend* pvda_new_spqlios_backend(int nn)
 {
-	PvdaBackend* res    = malloc(sizeof(PvdaBackend));
+	PvdaBackend* res = calloc(1, sizeof(PvdaBackend));
+	if (!res)
+	{
+		log_perror("Backend allocation failed");
+		return NULL;
+	}
+	// The RNG is set first: the arithmetic initialization may need randomness
+	int rng_status = pvda_backend_set_rng(res, pvda_default_rng_type(), NULL);
+
 	res->spqlios_module = spqlios_new_module_info(nn);
 	pvda_fill_spqlios(&res->vt);
-#ifdef OPENSSL_BACKEND
-	pvda_fill_openssl_rng(&res->vt);
-#else
-	pvda_fill_ref_rng(&res->vt);
-#endif
 	res->pvda_fft_data = new_fft_data(nn);
 	pvda_fill_cpu_nt(&res->vt);
+
+	if (rng_status < 0 || !res->spqlios_module || !res->pvda_fft_data)
+	{
+		log_message(LOG_ERROR, "Backend creation failed");
+		pvda_delete_backend(res);
+		return NULL;
+	}
 	return res;
 }
 
 void pvda_delete_backend(PvdaBackend* module)
 {
+	if (!module) return;
 	spqlios_delete_module_info(module);
 	delete_fft_data(module->pvda_fft_data);
+	pvda_delete_backend_rng(module);
 	free(module);
 }
 
@@ -266,26 +273,6 @@ int pvda_biv_rotate(const PvdaBackend* module, const int64_t p, PolyBiv* res, co
 uint64_t pvda_module_extract_nn(const PvdaBackend* module)
 {
 	return module->vt.pvda_module_extract_nn(module);
-}
-
-int pvda_rand_uniform_pow2(const PvdaBackend* module, int64_t* res, uint64_t nb_bits)
-{
-	return module->vt.pvda_rand_uniform_pow2(module, res, nb_bits);
-}
-
-int pvda_rand_uniform_pow2_vec(const PvdaBackend* module, int64_t* res, uint64_t n, uint64_t nb_bits)
-{
-	return module->vt.pvda_rand_uniform_pow2_vec(module, res, n, nb_bits);
-}
-
-int pvda_rand_uniform_binary_vec(const PvdaBackend* module, uint64_t* res, uint64_t n)
-{
-	return module->vt.pvda_rand_uniform_binary_vec(module, res, n);
-}
-
-int pvda_rand_uniform(const PvdaBackend* module, int64_t* res, int64_t limit_down, int64_t limit_up)
-{
-	return module->vt.pvda_rand_uniform(module, res, limit_down, limit_up);
 }
 
 uint64_t pvda_ring_2nth_root(const PvdaBackend* module, uint64_t t)

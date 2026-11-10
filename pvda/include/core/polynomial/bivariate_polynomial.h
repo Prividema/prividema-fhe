@@ -86,62 +86,7 @@ int biv_automorphism(const PvdaBackend* module, int64_t p, PolyBiv* res, const P
 /** @brief res = a with carry propagated across limbs in base 2^(log2_base)*/
 int biv_normalize(const PvdaBackend* module, uint64_t log2_base, PolyBiv* res, const PolyBiv* a);
 
-/**
- * @brief Adds noise to the bivariate polynomial.
- *
- * @param module      The underlying compute module.
- * @param params_glwe The GLWE parameters (which decide the noise).
- * @param res         The result bivariate polynomial, can be the same as the input.
- * @param a           The input bivariate polynomial.
- *
- * @note The noise is added to the last limb (limb l_a) only.
- * @note At present only NOISE_UNIFORM_POWER_OF_TWO is supported; other noise types return -1.
- * @note If res != a, both must be contiguous (stride == nn): out-of-place addition on strided
- *       polynomials is not implemented and returns -1.
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int biv_add_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a);
-
-// =============================================
-// |                                           |
-// |                  Random                   |
-// |                                           |
-// =============================================
-
-/**
- * @brief Computes a random normal bivariate polynomial.
- *
- * By "random normal" it is meant that the coefficients of the polynomial before
- * the base-2k decomposition have been sampled from a normal distribution according
- * to the parameters
- *
- * @param module The underlying compute module.
- * @param params_glwe The GLWE parameters.
- * @param res The result bivariate polynomial.
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int biv_random_normal(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res);
-
-/**
- * @brief Computes a random uniform bivariate polynomial.
- *
- * By "random uniform" it is meant that the coefficients of the polynomial before
- * the base-2k decomposition have been sampled from a uniform distribution according
- * to the parameters.
- *
- * @param module      The underlying compute module.
- * @param params_glwe The bivGLWE parameters.
- * @param res         The output bivariate polynomial.
- * @param precision   The number of limbs to fill (limbs 0 to precision-1), each sampled uniformly on K bits.
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int biv_random_uniform(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, int64_t precision);
+// Random bivariate polynomials and noise sampling (biv_random_*, biv_random_noise) are in random_polynomial.h
 
 // =============================================
 // |                                           |

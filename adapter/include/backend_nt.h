@@ -18,7 +18,9 @@
  *
  * @note t should be a prime that is 1 modulo 2*N
  *
- * @param module The prividema backend
+ * @param module The prividema backend. Its RNG backend is used to draw candidates.
+ *
+ * @return The root, or 0 if the RNG failed.
  */
 uint64_t pvda_ring_2nth_root(const PvdaBackend* module, uint64_t t);
 

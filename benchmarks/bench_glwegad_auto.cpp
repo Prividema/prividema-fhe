@@ -11,7 +11,7 @@ extern "C" {
 #include "glwe_params.h"
 #include "glwe_key.h"
 #include "glwegadget_arithmetic.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 }
 
@@ -40,7 +40,7 @@ void bench_glwegad_auto(benchmark::State& state)
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	int auto_p = 7;
@@ -97,7 +97,7 @@ void bench_glwegad_auto_norm(benchmark::State& state)
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 
-	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	int auto_p = 7;

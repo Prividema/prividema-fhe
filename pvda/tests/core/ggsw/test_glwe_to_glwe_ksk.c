@@ -13,7 +13,7 @@
 #include "glwegadget_arithmetic.h"
 #include "glwegadget_key.h"
 #include "glwegadget_utils.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -43,7 +43,7 @@ PvdaParamTest(glwe_ksk, no_noise, default_params_fn)
 	glwe_sk_random_uniform(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	glwe_ksk_generate(module, glwe_ksk, new_sk_prep, sk_prep);
@@ -98,7 +98,7 @@ PvdaParamTest(glwe_ksk, noise, default_params_fn)
 	glwe_sk_random_uniform(module, new_sk, 1);
 	glwe_sk_prepare(module, new_sk_prep, new_sk);
 
-	uniform_pow2_random_pol_znx(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
+	univ_znx_random_uniform_pow2(module, (int64_t*)m_univ_tnx, params_glwe->nn, 64);
 	glwe_secret_encrypt_tnx(module, glwe_ct, sk_prep, m_univ_tnx);
 
 	glwe_ksk_generate(module, glwe_ksk, new_sk_prep, sk_prep);

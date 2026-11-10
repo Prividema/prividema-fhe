@@ -20,7 +20,7 @@
 #include "glwegadget_key.h"
 #include "glwegadget_utils.h"
 #include "math_utils.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
@@ -317,7 +317,7 @@ PvdaParamTest(ggsw_trace_expand, no_noise, trace_params2_fn)
 		memset(m_univ, 0, univ_znx_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
+		univ_znx_random_uniform_pow2(module, m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -401,7 +401,7 @@ PvdaParamTest(glwegad2_trace_expand, normal, trace_params_fn)
 		memset(m_univ, 0, univ_znx_bytes(params_glwe));
 
 		// Get the message in univariate RnX form for expected result
-		uniform_pow2_random_pol_znx(module, m_univ, bund, 1);
+		univ_znx_random_uniform_pow2(module, m_univ, bund, 1);
 
 		glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, bund);
 
@@ -502,7 +502,7 @@ Test(glwegad_trace_expand_prepared, prepare_failure_no_double_free)
 	GLWEAutomorphismKeyCollection* auto_keys = error_path_auto_keys(module, params_glwe, params_glwegadget, sk_prep);
 
 	memset(m_univ, 0, univ_znx_bytes(params_glwe));
-	uniform_pow2_random_pol_znx(module, m_univ, ERROR_PATH_BUND, 1);
+	univ_znx_random_uniform_pow2(module, m_univ, ERROR_PATH_BUND, 1);
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, ERROR_PATH_BUND);
 
 	// results[0] must be pre-allocated (see the header), the others are allocated by the function
@@ -570,7 +570,7 @@ Test(ggsw_trace_expand_prepared, prepare_failure_no_double_free)
 	delete_ggsw(ggsw_tmp);
 
 	memset(m_univ, 0, univ_znx_bytes(params_glwe));
-	uniform_pow2_random_pol_znx(module, m_univ, ERROR_PATH_BUND, 1);
+	univ_znx_random_uniform_pow2(module, m_univ, ERROR_PATH_BUND, 1);
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, ERROR_PATH_BUND);
 
 	GGSWCiphertextPrep* results[ERROR_PATH_BUND] = {0};

@@ -6,6 +6,7 @@
 #include "backend_private.h"
 #include "backend_rng.h"
 #include "impls/cpu_nt.h"
+#include "logger.h"
 
 uint64_t pow_exp(uint64_t base, uint64_t exp, uint64_t m)
 {
@@ -35,10 +36,14 @@ uint64_t ref_ring_2nth_root(const PvdaBackend* module, uint64_t t)
 
 	while (1)
 	{
-		uint64_t candidate;
-		pvda_rand_uniform(module, &candidate, 0, t - 1);  //TODO: check_call
+		int64_t candidate;
+		if (pvda_rng_uniform_range_vec(module, &candidate, 1, 0, (int64_t)t - 1) < 0)
+		{
+			log_message(LOG_ERROR, "RNG failed in ref_ring_2nth_root");
+			return 0;
+		}
 
-		uint64_t g = pow_exp(candidate, (t - 1) / (2 * nn), t);
+		uint64_t g = pow_exp((uint64_t)candidate, (t - 1) / (2 * nn), t);
 		if (pow_exp(g, nn, t) == t - 1)
 		{
 			return g;

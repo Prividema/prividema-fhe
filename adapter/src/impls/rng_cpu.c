@@ -1,24 +1,30 @@
+#include "impls/rng_cpu.h"
 
-#include "math_utils.h"
 #ifdef _WIN32
-#define _USE_MATH_DEFINES
 #include <bcrypt.h>
 #include <windows.h>
 #pragma comment(lib, "bcrypt.lib")
 #endif
 #ifdef __linux__
+#include <errno.h>
 #include <sys/random.h>
 #endif
 
-#include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-#include "backend.h"
-#include "backend_private.h"
-#include "utils.h"
+#include "logger.h"
+
+// =============================================
+// |                                           |
+// |              System mode                  |
+// |                                           |
+// =============================================
 
 /*
-    Read a random number depending on the OS :
+    Read random bytes depending on the OS :
     - On Windows : Uses Windows' Cryptographic API called CNG.
     - On MACOS/FreeBSD : Call to arc4random_buf.
                         According to arc4random's doc, the whole program crashes
@@ -26,24 +32,33 @@
     - On Linux : Call to getrandom().
     - On other systems : read /dev/urandom (slow fallback).
 */
-static inline int cpu_read_rand(uint64_t* res, size_t bytes)
+int cpu_os_random_bytes(void* buf, size_t n)
 {
-// For Windows
 #ifdef _WIN32
-	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)res, bytes, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+	NTSTATUS status = BCryptGenRandom(NULL, (PUCHAR)buf, (ULONG)n, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
 	if (status != STATUS_SUCCESS) return log_message(LOG_ERROR, "BCryptGenRandom() Failed");
+	return 0;
 
-// For MACOS/FreeBSD
-// According to arc4random's doc, the function crashes if an error occurs :
-// "Cryptographic randomness is considered fundamental — if it’s broken, continuing execution is unsafe."
 #elif defined(__APPLE__) || defined(__FreeBSD__)
-	arc4random_buf(res, bytes);
+	// "Cryptographic randomness is considered fundamental — if it’s broken, continuing execution is unsafe."
+	arc4random_buf(buf, n);
+	return 0;
 
-// For Linux
 #elif defined(__linux__)
-
-	size_t rand_bytes = getrandom(res, bytes, 0);
-	if (rand_bytes != bytes) return -1;
+	// getrandom can return fewer bytes than requested (large requests, signals): loop until done.
+	uint8_t* p = buf;
+	while (n > 0)
+	{
+		ssize_t r = getrandom(p, n, 0);
+		if (r < 0)
+		{
+			if (errno == EINTR) continue;
+			log_perror("getrandom");
+			return -1;
+		}
+		p += r;
+		n -= (size_t)r;
+	}
 	return 0;
 
 #else
@@ -51,135 +66,151 @@ static inline int cpu_read_rand(uint64_t* res, size_t bytes)
 	// THIS IS VERY SLOW!
 	FILE* f = fopen("/dev/urandom", "rb");
 	if (!f) return log_perror("fopen");
-	int r = fread(res, 1, bytes, f);
+	size_t r = fread(buf, 1, n, f);
 	fclose(f);
-	if (r != bytes) return log_perror("fread");
+	if (r != n) return log_perror("fread");
+	return 0;
 #endif
-
-	return 0;
 }
 
-static inline void reduce_uniform_n(int64_t* tgt, int n_bits)
+static int cpu_system_bytes(const PvdaBackend* module, void* buf, size_t n)
 {
-	int shft = 64 - n_bits;
-	*tgt     = (int64_t)((uint64_t)(*tgt) << shft) >> shft;
+	(void)module;
+	return cpu_os_random_bytes(buf, n);
 }
 
-/**
- * @brief Generates a uniformly sampled random number in [-2^(nb_bits-1), 2^(nb_bits-1))
- *
- * @param module  The backend object
- * @param res     The resulting uniformly sampled integer
- * @param nb_bits The number of bits of the res
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int ref_rand_uniform_pow2(const PvdaBackend* module, int64_t* res, uint64_t nb_bits)
+// =============================================
+// |                                           |
+// |              Seeded mode: ChaCha20        |
+// |                                           |
+// =============================================
+
+static inline uint32_t rotl32(uint32_t x, int r) { return (x << r) | (x >> (32 - r)); }
+
+#define CHACHA_QR(a, b, c, d)  \
+	do                         \
+	{                          \
+		a += b;                \
+		d = rotl32(d ^ a, 16); \
+		c += d;                \
+		b = rotl32(b ^ c, 12); \
+		a += b;                \
+		d = rotl32(d ^ a, 8);  \
+		c += d;                \
+		b = rotl32(b ^ c, 7);  \
+	} while (0)
+
+void pvda_chacha20_block(const uint32_t key[8], uint64_t counter, uint64_t nonce, uint8_t out[64])
 {
-	// As res points to an int64_t, nb_bits shall not exceed its size
-	assert(nb_bits <= 8 * sizeof(int64_t));
+	// "expand 32-byte k"
+	uint32_t in[16] = {0x61707865,
+	                   0x3320646e,
+	                   0x79622d32,
+	                   0x6b206574,
+	                   key[0],
+	                   key[1],
+	                   key[2],
+	                   key[3],
+	                   key[4],
+	                   key[5],
+	                   key[6],
+	                   key[7],
+	                   (uint32_t)counter,
+	                   (uint32_t)(counter >> 32),
+	                   (uint32_t)nonce,
+	                   (uint32_t)(nonce >> 32)};
+	uint32_t x[16];
+	memcpy(x, in, sizeof(x));
 
-	// If nb_bits equals the max. size, we just have to read the random bits into res.
-	if (nb_bits == 8 * sizeof(int64_t))
-		return cpu_read_rand((uint64_t*)res, 8);
-
-	else
+	for (int i = 0; i < 10; ++i)
 	{
-		if (cpu_read_rand((uint64_t*)res, INT_ROUND_UP_DIV(nb_bits, 8)) < 0) return -1;
-
-		reduce_uniform_n(res, (int)nb_bits);
+		// Column rounds
+		CHACHA_QR(x[0], x[4], x[8], x[12]);
+		CHACHA_QR(x[1], x[5], x[9], x[13]);
+		CHACHA_QR(x[2], x[6], x[10], x[14]);
+		CHACHA_QR(x[3], x[7], x[11], x[15]);
+		// Diagonal rounds
+		CHACHA_QR(x[0], x[5], x[10], x[15]);
+		CHACHA_QR(x[1], x[6], x[11], x[12]);
+		CHACHA_QR(x[2], x[7], x[8], x[13]);
+		CHACHA_QR(x[3], x[4], x[9], x[14]);
 	}
 
-	return 0;
+	for (int i = 0; i < 16; ++i)
+	{
+		uint32_t v     = x[i] + in[i];
+		out[4 * i + 0] = (uint8_t)v;
+		out[4 * i + 1] = (uint8_t)(v >> 8);
+		out[4 * i + 2] = (uint8_t)(v >> 16);
+		out[4 * i + 3] = (uint8_t)(v >> 24);
+	}
 }
 
-/**
- * @brief Generates a uniformly sampled random number in [limit_down, limit_up] via
- * power-of-2 sampling and resampling if out-of-bounds
- *
- * @param module      The backend object
- * @param res         The resulting uniformly sampled integer
- * @param limit_down  The lower bound of the uniform sample
- * @param limit_up    The upper bound of the uniform sample
- *
- *
- * @retval -1 if an error occurs.
- * @retval 0 otherwise.
- */
-int ref_rand_uniform(const PvdaBackend* module, int64_t* res, int64_t limit_down, int64_t limit_up)
+typedef struct
 {
-	uint64_t max_delta = (uint64_t)limit_up - (uint64_t)limit_down;
-	if (max_delta == UINT64_MAX) return -1;
-	uint64_t bits = next_pow2_log(max_delta + 1);
-	uint64_t mask = bits == 64 ? (UINT64_MAX) : (1ull << bits) - 1;
+	uint32_t key[8];
+	uint64_t counter;   ///< Next block to generate
+	uint8_t block[64];  ///< Current keystream block
+	size_t pos;         ///< Bytes of block already used
+} ChaChaState;
 
-	uint64_t tmp = 0;
-
-	int st;
-	do
-	{
-		st = cpu_read_rand(&tmp, INT_ROUND_UP_DIV(bits, 8));
-		if (st < 0) return -1;
-		tmp &= mask;
-	} while (tmp > max_delta);
-	*res = (int64_t)((uint64_t)limit_down + tmp);
-	return 0;
-}
-
-/**
- * @brief Generates a uniformly random vector of numbers
- *
- * Coefficients are uniformly sampled in range [-2^(nb_bits-1), 2^(nb_bits-1))
- *
- * @param module  The backend object
- * @param res     The res uniformly drawn vector of numbers
- * @param nn      Number of coefficients in the polynomial (eq. degree of the cyclotomic poly)
- * @param nb_bits Number of randomness bits per coefficient.
- *
- * @retval -1 if an error occurs
- * @retval 0 otherwise.
- */
-int ref_rand_uniform_pow2_vec(const PvdaBackend* module, int64_t* res, uint64_t n, uint64_t nb_bits)
+static int cpu_chacha_bytes(const PvdaBackend* module, void* buf, size_t n)
 {
-	CHECK_CALL(cpu_read_rand((uint64_t*)res, sizeof(int64_t) * n), "rng error");
-	for (uint64_t p = 0; p < n; p++)
+	ChaChaState* st = module->rng_state;
+	uint8_t* out    = buf;
+	while (n > 0)
 	{
-		reduce_uniform_n(res + p, (int)nb_bits);
+		if (st->pos == 64)
+		{
+			pvda_chacha20_block(st->key, st->counter++, 0, st->block);
+			st->pos = 0;
+		}
+		size_t take = 64 - st->pos < n ? 64 - st->pos : n;
+		memcpy(out, st->block + st->pos, take);
+		st->pos += take;
+		out += take;
+		n -= take;
 	}
 	return 0;
-cleanup:
-	return -1;
 }
 
-/**
- * @brief Generates a uniformly random binary vector of numbers
- *
- * Coefficients are uniformly sampled in {0, 1}
- *
- * @param module  The backend object
- * @param res     The res uniformly drawn \ZnX polynomial.
- * @param nn      Number of coefficients in the polynomial (eq. degree of the cyclotomic poly)
- *
- * @retval -1 if an error occurs
- * @retval 0 otherwise.
- */
-int ref_rand_uniform_binary_vec(const PvdaBackend* module, uint64_t* res, uint64_t n)
+static void cpu_chacha_delete(void* state)
 {
-	CHECK_CALL(cpu_read_rand(res, sizeof(uint64_t) * n), "rng error");
-	for (uint64_t p = 0; p < n; p++)
+	if (!state) return;
+	// Do not leave the key in freed memory
+	volatile uint8_t* p = state;
+	for (size_t i = 0; i < sizeof(ChaChaState); ++i) p[i] = 0;
+	free(state);
+}
+
+// =============================================
+// |                                           |
+// |              Init                         |
+// |                                           |
+// =============================================
+
+int pvda_cpu_rng_init(PvdaRngVirtualTable* vt, void** state, const PvdaSeed* seed)
+{
+	if (!seed)
 	{
-		res[p] &= 1;
+		vt->pvda_rng_bytes = cpu_system_bytes;
+		return 0;
 	}
-	return 0;
-cleanup:
-	return -1;
-}
 
-void pvda_fill_ref_rng(struct pvda_virtual_table* vt)
-{
-	vt->pvda_rand_uniform_pow2       = ref_rand_uniform_pow2;
-	vt->pvda_rand_uniform_pow2_vec   = ref_rand_uniform_pow2_vec;
-	vt->pvda_rand_uniform_binary_vec = ref_rand_uniform_binary_vec;
-	vt->pvda_rand_uniform            = ref_rand_uniform;
+	ChaChaState* st = calloc(1, sizeof(ChaChaState));
+	if (!st) return log_perror("ChaCha20 state allocation failed");
+
+	// Seed conversion: the 32 seed bytes are the ChaCha20 key, as 8 little-endian words.
+	for (int i = 0; i < 8; ++i)
+	{
+		const uint8_t* b = seed->bytes + 4 * i;
+		st->key[i]       = (uint32_t)b[0] | (uint32_t)b[1] << 8 | (uint32_t)b[2] << 16 | (uint32_t)b[3] << 24;
+	}
+	st->counter = 0;
+	st->pos     = 64;  // no block generated yet
+
+	*state             = st;
+	vt->pvda_rng_bytes = cpu_chacha_bytes;
+	vt->delete_state   = cpu_chacha_delete;
+	return 0;
 }

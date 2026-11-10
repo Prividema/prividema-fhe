@@ -7,6 +7,7 @@ backend.c
 impls/spqlios_alias.c
 impls/cpu_nt.c
 rng.c
+rng_generic.c
 impls/rng_cpu.c
 pvda_ffts.c)
 
@@ -41,3 +42,8 @@ target_include_directories(PVDA_ADAPTER
     PRIVATE
         ${PROJECT_SOURCE_DIR}/backends/spqlios-arithmetic/spqlios/arithmetic/  # Internal headers only
 )
+
+# Math library (normal sampling, FFT roots)
+if(UNIX AND NOT APPLE)
+  target_link_libraries(PVDA_ADAPTER PRIVATE m)
+endif()

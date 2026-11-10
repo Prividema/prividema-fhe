@@ -11,11 +11,9 @@
 
 #include "backend.h"
 #include "backend_arithmetic.h"
-#include "backend_rng.h"
 #include "glwe_params.h"
 #include "logger.h"
 #include "math_utils.h"
-#include "rng.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
@@ -104,103 +102,6 @@ int biv_automorphism(const PvdaBackend* module, int64_t p, PolyBiv* res, const P
 int biv_normalize(const PvdaBackend* module, uint64_t log2_base, PolyBiv* res, const PolyBiv* a)
 {
 	return pvda_biv_normalize_base2k(module, log2_base, res, a);
-}
-
-int add_biv_fast_uni_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
-{
-	int status = -1;
-
-	uint64_t nn = params_glwe->nn;
-
-	PolyUnivZnx* err = new_univ_znx(params_glwe);
-
-	CHECK_ALLOC(err, "Failed alloc in fast uniform noise generation");
-
-	if (params_glwe->fast_uniform_nb_bits)
-		CHECK_CALL(uniform_pow2_random_pol_znx(module, err, nn, params_glwe->fast_uniform_nb_bits),
-		           "Uniform noise generation failed");
-	else
-	{
-		log_message(LOG_WARN, "Using error/noise with stdev 0");
-		memset(err, 0, nn * sizeof(int64_t));
-	}
-	int64_t l_a           = glwe_params_l_a(params_glwe);
-	PolyBiv last_limb_res = biv_view(nn, 1, res->stride, res->ptr + res->stride * (l_a - 1));
-	PolyBiv last_limb_a   = biv_view(nn, 1, a->stride, a->ptr + a->stride * (l_a - 1));
-	PolyBiv err_biv       = biv_view(nn, 1, nn, err);
-
-	if (res != a)
-	{
-		if (res->stride == a->stride && a->stride == a->nn)
-			memcpy(res->ptr, a->ptr, biv_bytes(params_glwe));
-		else
-		{
-			RAISE_ERROR("Strided fast uniform noise addition not implemented");
-		}
-	}
-	biv_add(module, &last_limb_res, &last_limb_a, &err_biv);
-
-	status = 0;
-
-cleanup:
-	delete_univ_znx(err);
-	return status;
-}
-
-int biv_add_noise(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, const PolyBiv* a)
-{
-	switch (params_glwe->noise_type)
-	{
-		case NOISE_UNIFORM_POWER_OF_TWO:
-			return add_biv_fast_uni_noise(module, params_glwe, res, a);
-		default:
-			RAISE_ERROR("Noise type not implemented");
-	}
-	return 0;
-
-cleanup:
-	return -1;
-}
-
-// =============================================
-// |                                           |
-// |                  Random                   |
-// |                                           |
-// =============================================
-
-int biv_random_normal(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res)
-{
-	int status = -1;
-
-	PolyUnivRnX* rd_pol_univ = new_univ_rnx(params_glwe);
-	CHECK_ALLOC(rd_pol_univ, "rd_pol_univ's malloc failed.");
-
-	CHECK_CALL(normal_random_vec(module, rd_pol_univ, params_glwe->nn, 0.0, params_glwe->normal_sigma),
-	           "random normal vec generation failed");
-
-	CHECK_CALL(univ_rnx_to_biv(params_glwe, res, rd_pol_univ, 0),
-	           "univ to biv conversion failed in normal random biv poly generation");
-
-	status = 0;
-
-cleanup:
-	delete_univ_rnx(rd_pol_univ);
-	return status;
-}
-
-int biv_random_uniform(const PvdaBackend* module, const GLWEParams* params_glwe, PolyBiv* res, int64_t precision)
-{
-	int status = -1;
-
-	for (uint64_t i = 0; i < precision; i++)
-		for (uint64_t p = 0; p < res->nn; p++)
-			CHECK_CALL(pvda_rand_uniform_pow2(module, res->ptr + i * res->stride + p, params_glwe->kappa),
-			           "rand_uniform failed in biv_random_uniform.");
-
-	status = 0;
-
-cleanup:
-	return status;
 }
 
 // =============================================

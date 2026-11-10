@@ -10,7 +10,7 @@
 #include "glwegadget_ciphertext.h"
 #include "glwegadget_utils.h"
 #include "math_utils.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -35,7 +35,7 @@ PvdaParamTest(glwegadgetsenc, works, default_params_fn)
 	// Draws the message
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
-	uniform_pow2_random_pol_znx(module, m_univ, params_glwe->nn, params_glwe->kappa);
+	univ_znx_random_uniform_pow2(module, m_univ, params_glwe->nn, params_glwe->kappa);
 
 	glwegadget_secret_encrypt(module, glwegadget, sk_prep, m_univ);
 
@@ -74,7 +74,7 @@ PvdaParamTest(glwegadgetpacked_encrypt, works, default_params_fn)
 	glwe_sk_random_uniform(module, sk, 3);
 	glwe_sk_prepare(module, sk_prep, sk);
 	memset(m_univ, 0, univ_znx_bytes(params_glwe));
-	uniform_pow2_random_pol_znx(module, m_univ, D, params_glwe->kappa);
+	univ_znx_random_uniform_pow2(module, m_univ, D, params_glwe->kappa);
 
 	glwegadget_packed_secret_encrypt(module, glwe_ct, params_glwegadget, sk_prep, m_univ, D);
 

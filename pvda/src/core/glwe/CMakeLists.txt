@@ -10,6 +10,7 @@ set(GLWE_SRCS
     glwe_key.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../polynomial/univariate_polynomial.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../polynomial/bivariate_polynomial.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/../polynomial/random_polynomial.c
 )
 
 # Create a shared library named GLWE

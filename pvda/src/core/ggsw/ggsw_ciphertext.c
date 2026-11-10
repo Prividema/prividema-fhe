@@ -9,7 +9,7 @@
 #include "ggsw_params.h"
 #include "glwe_ciphertext.h"
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "univariate_polynomial.h"
 #include "utils.h"
 
@@ -82,11 +82,13 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 	PolyUnivZnx* m_skj_univ          = new_univ_znx(params_glwe);  // -msg * sk_j
 	// Temp space for -m * sk * 2^{-kappa_tilde}
 	PolyBiv* glwe_biv_msg = new_biv(params_glwe);
+	PolyBiv* glwe_biv_noise = new_biv(params_glwe);
 
 	CHECK_ALLOC(m_univ_dft, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(m_skj_univ_dft, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(m_skj_univ, "malloc failed in ggsw_secret_encrypt");
 	CHECK_ALLOC(glwe_biv_msg, "malloc failed in ggsw_secret_encrypt");
+	CHECK_ALLOC(glwe_biv_noise, "malloc failed in ggsw_secret_encrypt");
 
 	// Computes DFT(msg)
 	univ_znx_to_dft(module, m_univ_dft, m_univ);
@@ -121,7 +123,8 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 			                           params_ggsw->kappa_tilde * i),
 			           "univ_to_biv failed in compute_phase_ij");
 
-			CHECK_CALL(biv_add_noise(module, params_glwe, glwe_biv_msg, glwe_biv_msg),
+			CHECK_CALL(biv_random_noise(module, params_glwe, glwe_biv_noise), "Noise sampling failed in GGSW encryption");
+			CHECK_CALL(biv_add(module, glwe_biv_msg, glwe_biv_msg, glwe_biv_noise),
 			           "Noise addition failed in GGSW encryption");
 		}
 		// View on the result positiopn
@@ -136,6 +139,7 @@ int ggsw_secret_encrypt(const PvdaBackend* module, GGSWCiphertext* res, const GL
 
 cleanup:
 	delete_biv(glwe_biv_msg);
+	delete_biv(glwe_biv_noise);
 	delete_univ_znx_dft(module, m_skj_univ_dft);
 	delete_univ_znx(m_skj_univ);
 	delete_univ_znx_dft(module, m_univ_dft);

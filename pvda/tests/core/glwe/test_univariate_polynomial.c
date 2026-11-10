@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #include "glwe_params.h"
-#include "rng.h"
+#include "random_polynomial.h"
 #include "test_utils.h"
 #include "univariate_polynomial.h"
 
@@ -36,7 +36,7 @@ PvdaParamTest(coef_dft_back_forth, basic, default_params_fn)
 	PolyUnivZnx* a_t          = new_univ_znx(params_glwe);
 	BE_PolyUnivZnxDFT* res_dft = new_univ_znx_dft(module);
 
-	uniform_pow2_random_vec(module, params_glwe->nn, a, 1, params_glwe->nn, 8);
+	univ_znx_random_uniform_pow2(module, a, params_glwe->nn, 8);
 
 	univ_znx_to_dft(module, res_dft, a);
 	univ_dft_to_znx(module, a_t, res_dft);
@@ -129,7 +129,7 @@ PvdaParamTest(tnx_rnx_encoding, back_and_forth_tnx, default_params_fn)
 	PolyUnivTnX* tnx_final  = new_univ_tnx(params_glwe);
 
 	uint64_t precision = (1l << (64 - 53));
-	uniform_pow2_random_pol_znx(module, tnx_values, vec_size, 64);
+	univ_znx_random_uniform_pow2(module, tnx_values, vec_size, 64);
 
 	univ_tnx_to_rnx(params_glwe, rnx_values, tnx_values);
 	univ_rnx_to_tnx(params_glwe, tnx_final, rnx_values);
