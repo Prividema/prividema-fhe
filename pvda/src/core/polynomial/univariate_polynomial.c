@@ -18,9 +18,10 @@
 PolyUnivZnx* new_univ_znx(const GLWEParams* params_glwe)
 {
 	// aligned_alloc guarantees the address to be a multiple of 64. This alignment matters for some backends.
-	// ! WARNING : In C11 univ_znx_bytes(.) has to be a multiple of 64. Newer standard relaxed this.
+	// C11 requires the size to be a multiple of the alignment: round it up (it matters when nn < 8).
 	// ! WARNING : On Windows we use _aligned_malloc(size, 64) and free with _aligned free.
-	return aligned_alloc(64, univ_znx_bytes(params_glwe));
+	uint64_t bytes = univ_znx_bytes(params_glwe);
+	return aligned_alloc(64, (bytes + 63) / 64 * 64);
 }
 
 void delete_univ_znx(PolyUnivZnx* pol) { free(pol); }
@@ -163,7 +164,10 @@ int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX
 {
 	for (size_t i = 0; i < params_glwe->nn; ++i)
 	{
-		res[i] = (uint64_t)(ldexp(a[i] - floor(a[i]), 64));
+		// a - floor(a) is in [0, 1], but rounds to exactly 1 for tiny negative a: 2^64 does not fit in a uint64_t
+		// (the conversion would be undefined behaviour) and stands for 0 on the torus.
+		double scaled = ldexp(a[i] - floor(a[i]), 64);
+		res[i]        = scaled < 0x1p64 ? (uint64_t)scaled : 0;
 	}
 	return 0;
 }

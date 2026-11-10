@@ -171,3 +171,75 @@ PvdaParamTest(hefp_encoding, forth_and_back_not_all_slots, default_params_fn)
 
 	DELETE_PVDA_PARAMS_GGSW;
 }
+
+// =============================================
+// |                                           |
+// |              hefp_decode_fft              |
+// |                                           |
+// =============================================
+
+#include <complex.h>
+#include <math.h>
+
+/** @brief Runs hefp_decode_fft on the coefficients in (packed as re = in[i], im = in[i + N/2]) for ring size nn. */
+static void decode_fft_vs_slow(uint64_t nn, const double* in)
+{
+	PvdaBackend* module   = pvda_new_spqlios_backend(nn);
+	uint64_t slots        = nn / 2;
+	double complex* fast  = malloc(slots * sizeof(double complex));
+	double complex* slow  = malloc(slots * sizeof(double complex));
+	for (uint64_t i = 0; i < slots; ++i) fast[i] = CMPLX(in[i], in[i + slots]);
+
+	cr_assert(eq(int, hefp_decode_fft(module, fast, slots), 0));
+	hefp_decode_slow_internal(slow, nn, (double*)in);
+	for (uint64_t j = 0; j < slots; ++j)
+		cr_assert(cabs(fast[j] - slow[j]) < 1e-9 * (double)nn, "nn %lu slot %lu: %g%+gi vs %g%+gi", nn, j,
+		          creal(fast[j]), cimag(fast[j]), creal(slow[j]), cimag(slow[j]));
+
+	free(slow);
+	free(fast);
+	pvda_delete_backend(module);
+}
+
+Test(hefp_decode_fft, matches_slow_decoding)
+{
+	static const uint64_t sizes[] = {4, 8, 64, 1024};  // 4: the smallest case, slots = 2
+	for (size_t s = 0; s < sizeof(sizes) / sizeof(sizes[0]); ++s)
+	{
+		uint64_t nn = sizes[s];
+		double* in  = malloc(nn * sizeof(double));
+		for (uint64_t i = 0; i < nn; ++i) in[i] = sin(1.0 + 3.7 * (double)i) * 0.5;
+		decode_fft_vs_slow(nn, in);
+		free(in);
+	}
+}
+
+Test(hefp_decode_fft, known_polynomials)
+{
+	const uint64_t nn   = 16, slots = nn / 2;
+	PvdaBackend* module = pvda_new_spqlios_backend(nn);
+	double complex v[8];
+
+	// The constant polynomial 1 evaluates to 1 in every slot
+	for (uint64_t i = 0; i < slots; ++i) v[i] = i == 0 ? 1 : 0;
+	cr_assert(eq(int, hefp_decode_fft(module, v, slots), 0));
+	for (uint64_t j = 0; j < slots; ++j) cr_assert(cabs(v[j] - 1) < 1e-12, "slot %lu", j);
+
+	// The zero polynomial gives 0
+	for (uint64_t i = 0; i < slots; ++i) v[i] = 0;
+	cr_assert(eq(int, hefp_decode_fft(module, v, slots), 0));
+	for (uint64_t j = 0; j < slots; ++j) cr_assert(eq(dbl, cabs(v[j]), 0.0));
+
+	// X evaluates to the primitive 2N-th roots exp(i pi 5^j / N), one per slot
+	for (uint64_t i = 0; i < slots; ++i) v[i] = i == 1 ? 1 : 0;
+	cr_assert(eq(int, hefp_decode_fft(module, v, slots), 0));
+	uint64_t pw = 1;
+	for (uint64_t j = 0; j < slots; ++j)
+	{
+		double complex root = cexp(I * M_PI * (double)pw / (double)nn);
+		cr_assert(cabs(v[j] - root) < 1e-12, "slot %lu", j);
+		pw = (pw * 5) % (2 * nn);
+	}
+
+	pvda_delete_backend(module);
+}

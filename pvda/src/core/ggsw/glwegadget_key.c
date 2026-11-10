@@ -117,6 +117,7 @@ GLWEAutomorphismKey* glwegadget_key_collection_get_key(const GLWEAutomorphismKey
 uint64_t delete_automorphism_key_collection(GLWEAutomorphismKeyCollection* automorphism_keys, int deallocate_keys)
 {
 	uint64_t count = 0;
+	if (!automorphism_keys) return 0;
 	if (deallocate_keys)
 	{
 		for (uint64_t i = 0; i < automorphism_keys->size; ++i)

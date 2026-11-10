@@ -1,6 +1,8 @@
 #include <criterion/criterion.h>
 #include <criterion/new/assert.h>
 #include <stdio.h>
+#include <string.h>
+#include <criterion/redirect.h>
 
 #include "errno.h"
 #include "logger.h"
@@ -62,4 +64,47 @@ Test(test_log_is_null, test_log)
     cr_assert(a < 0);
     cr_assert(b == 0);
     printf("\n");
+}
+Test(test_log_filtered, test_log)
+{
+    // A filtered message prints nothing, but an error is still reported as a failure
+    set_log_flag(0);
+    cr_assert(log_message(LOG_ERROR, "filtered error") < 0);
+    cr_assert(log_message(LOG_WARN, "filtered warning") == 0);
+    cr_assert(log_message(LOG_DEBUG, "filtered debug %d", 3) == 0);
+    errno = EINVAL;
+    cr_assert(log_perror("filtered perror") < 0);
+    cr_assert(log_is_null(NULL, "filtered null") < 0);
+}
+
+Test(test_log_user_levels, test_log, .init = cr_redirect_stdout)
+{
+    set_log_flag(LOG_USR1 | LOG_USR4);
+    cr_assert(log_message(LOG_USR1, "user %s", "one") == 0);
+    cr_assert(log_message(LOG_USR2, "not printed") == 0);
+    cr_assert(log_message(LOG_USR4, "user four") == 0);
+    fflush(stdout);
+
+    char out[256] = {0};
+    FILE* f = cr_get_redirected_stdout();
+    size_t len = fread(out, 1, sizeof(out) - 1, f);
+    out[len] = '\0';
+    cr_assert(strstr(out, "USR1: user one") != NULL, "output: %s", out);
+    cr_assert(strstr(out, "USR4: user four") != NULL, "output: %s", out);
+    cr_assert(strstr(out, "not printed") == NULL, "output: %s", out);
+}
+
+Test(test_log_format, test_log, .init = cr_redirect_stdout)
+{
+    set_log_flag(LOG_INFO);
+    cr_assert(log_message(LOG_INFO, "value=%d text=%s", 42, "ok") == 0);
+    fflush(stdout);
+
+    char out[256] = {0};
+    FILE* f = cr_get_redirected_stdout();
+    size_t len = fread(out, 1, sizeof(out) - 1, f);
+    out[len] = '\0';
+    // "[YYYY-MM-DD HH:MM:SS] INFO : value=42 text=ok\n"
+    cr_assert(out[0] == '[' && out[20] == ']', "output: %s", out);
+    cr_assert(strstr(out, "] INFO : value=42 text=ok\n") != NULL, "output: %s", out);
 }

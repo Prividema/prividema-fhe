@@ -47,7 +47,7 @@ void delete_glwe_secret_key(GLWESecretKey* sk)
 
 int glwe_sk_random_uniform(const PvdaBackend* module, GLWESecretKey* sk, uint64_t nb_bits)
 {
-	uint64_t nn = pvda_module_extract_nn(module);
+	uint64_t nn = sk->nn;  // the key size, whatever the ring dimension of the module
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
 	CHECK_CALL(univ_znx_random_uniform_pow2(module, sk->values, nn * sk->k, nb_bits),
@@ -61,7 +61,7 @@ cleanup:
 
 int glwe_sk_random_binary(const PvdaBackend* module, GLWESecretKey* sk)
 {
-	uint64_t nn = pvda_module_extract_nn(module);
+	uint64_t nn = sk->nn;  // the key size, whatever the ring dimension of the module
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
 	CHECK_CALL(univ_znx_random_binary(module, sk->values, nn * sk->k),
@@ -75,7 +75,7 @@ cleanup:
 
 int glwe_sk_random_ternary(const PvdaBackend* module, GLWESecretKey* sk)
 {
-	uint64_t nn = pvda_module_extract_nn(module);
+	uint64_t nn = sk->nn;  // the key size, whatever the ring dimension of the module
 	// The Secret key values
 	// Uniform random generation of k Zn[X] polynomials.
 	CHECK_CALL(univ_znx_random_ternary(module, sk->values, nn * sk->k),

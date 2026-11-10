@@ -4,8 +4,10 @@
 #include <stdint.h>
 
 /**
- * @brief Computes the inverse of x in Z_mod.
+ * @brief Computes the inverse of x in Z_mod, as a value in [0, mod).
  * Undefined behaviour if x is not coprime with mod
+ *
+ * x can be any integer (negative, or larger than mod): it is reduced modulo mod first.
  *
  * @param x an input value coprime with mod
  * @param mod The modulus of the ring
@@ -42,13 +44,13 @@ double rnx_torus_distance(double a, double b);
 uint64_t tnx_torus_distance(uint64_t a, uint64_t b);
 
 /**
- * @brief uint64_t implementation for INT_ROUND_UP_DIV
+ * @brief uint64_t implementation for INT_ROUND_UP_DIV: ceil(num / step), for step > 0. Does not overflow.
  *
  */
 uint64_t u64_round_up_div(uint64_t num, uint64_t step);
 
 /**
- * @brief int32_t implementation for INT_ROUND_UP_DIV
+ * @brief int32_t implementation for INT_ROUND_UP_DIV: ceil(num / step) for any signs, step != 0.
  *
  */
 int32_t i32_round_up_div(int32_t num, int32_t step);

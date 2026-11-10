@@ -17,6 +17,18 @@ GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t nb
 	params_glwe->ciphertext_nb_limbs = nb_limbs;
 	params_glwe->noise_type          = noise_type;
 
+	if (nn == 0) RAISE_ERROR("new_glwe_params: nn must be positive");
+	if (k == 0) RAISE_ERROR("new_glwe_params: k must be positive");
+	if (kappa == 0 || kappa > 63) RAISE_ERROR("new_glwe_params: kappa must be in [1, 63]");
+	if (!isfinite(sigma) || sigma < 0) RAISE_ERROR("new_glwe_params: sigma must be finite and non-negative");
+	{
+		// Only l_b = l_a and l_b = l_a - 1 are supported by the memory layout
+		uint64_t l_a = glwe_params_l_a(params_glwe);
+		uint64_t l_b = glwe_params_l_b(params_glwe);
+		if (l_a == 0 || nb_limbs < k * l_a || (l_b != l_a && l_b + 1 != l_a))
+			RAISE_ERROR("new_glwe_params: n_limbs must be k * l_a + l_b with l_a >= 1 and l_b in {l_a - 1, l_a}");
+	}
+
 	double rescaled_noise = ldexp(sigma, (int)kappa * (int)glwe_params_l_a(params_glwe));
 
 	if (rescaled_noise > ldexp(1.0, 63)) RAISE_ERROR("Noise did not fit in the bivariate parameters (too big)");
@@ -111,5 +123,5 @@ uint64_t glwe_coef_number_dft(const GLWEParams* params_glwe)
 
 double glwe_bivariate_epsilon(const GLWEParams* params_glwe)
 {
-	return ldexp(1.0, -glwe_params_l_b(params_glwe) * params_glwe->kappa);
+	return ldexp(1.0, -(int)(glwe_params_l_b(params_glwe) * params_glwe->kappa));
 }

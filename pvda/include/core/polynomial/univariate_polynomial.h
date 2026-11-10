@@ -241,6 +241,9 @@ int univ_znx_mp_to_znx(PolyUnivZnx* res, const PolyUnivZnxMP* a);
 /**
  * @brief Converts a RnX polynomial into a TnX fixed-point one.
  *
+ * Each coefficient a is reduced modulo 1 into [0, 1) and scaled by 2^64, rounded towards 0. The coefficients must
+ * be finite.
+ *
  * @param params_glwe The GLWE parameters.
  * @param res         The resulting \TnX polynomial.
  * @param a           The input \RnX polynomial.
@@ -252,6 +255,8 @@ int univ_rnx_to_tnx(const GLWEParams* params_glwe, PolyUnivTnX* res, PolyUnivRnX
 
 /**
  * @brief Converts a TnX fixed-point polynomial into a RnX floating-point one.
+ *
+ * The result lies in [-1/2, 1/2): the coefficients are read as signed numerators over 2^64.
  *
  * @param params_glwe The GLWE parameters.
  * @param res         The resulting \RnX polynomial.

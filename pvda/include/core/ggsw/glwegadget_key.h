@@ -86,7 +86,8 @@ GLWEAutomorphismKeyCollection* new_automorphism_key_collection(uint64_t size);
  * @param automorphism_key The automorphism key to put (a pointer of) in the collection
  * @param pos The position in the collection where the automorphism key will be
  *
- * @return (a pointer to) The automorphism key that previously occupied position pos, NULL if unoccupied
+ * @return (a pointer to) The automorphism key that previously occupied position pos, NULL if unoccupied,
+ *         (GLWEAutomorphismKey*)-1 if pos is out of the collection (the key is then not stored)
  */
 GLWEAutomorphismKey* glwegadget_key_collection_put_key(GLWEAutomorphismKeyCollection* collection,
                                                        GLWEAutomorphismKey* automorphism_key, uint64_t pos);
@@ -107,7 +108,7 @@ GLWEAutomorphismKey* glwegadget_key_collection_get_key(const GLWEAutomorphismKey
  * @param automorphism_keys The collection to delete
  * @param deallocate_keys Whether to delete the keys pointed by it (1) or not (0)
  *
- * @return The number of keys that have been deleted while deleting the collection
+ * @return The number of keys that have been deleted while deleting the collection (0 for a NULL collection)
  */
 uint64_t delete_automorphism_key_collection(GLWEAutomorphismKeyCollection* automorphism_keys, int deallocate_keys);
 

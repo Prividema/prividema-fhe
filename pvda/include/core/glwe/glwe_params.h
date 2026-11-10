@@ -63,7 +63,9 @@ typedef struct glwe_ct_params
  *              A value of 0 disables the noise.
  * @param noise_type The type of noise that will be used for encryption
  * @return The newly allocated parameters object, or NULL if the allocation failed, if the rescaled sigma
- *         does not fit (too big or too small), or if the noise type is not supported yet
+ *         does not fit (too big or too small), if the noise type is not supported yet, or if the parameters are
+ *         invalid: nn == 0, k == 0, kappa outside [1, 63], sigma negative or not finite, or n_limbs not of the
+ *         form k * l_a + l_b with l_a >= 1 and l_b in {l_a - 1, l_a}
  *
  */
 GLWEParams* new_glwe_params(uint64_t nn, uint64_t k, uint64_t kappa, uint64_t n_limbs, double sigma,
@@ -141,7 +143,7 @@ uint64_t glwe_coef_number_dft(const GLWEParams* params_glwe);
 /**
  *
  * @brief Returns the smallest difference representable in the bivariate
- * decomposition described by the provided params
+ * decomposition described by the provided params, i.e. 2^(-K * l_b)
  *
  * @param params_glwe The GLWE parameters.
  */

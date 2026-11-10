@@ -271,3 +271,59 @@ Test(heint_internals, backforth)
 	delete_univ_tnx(mid_tnx);
 	delete_glwe_params(params_glwe);
 }
+
+// =============================================
+// |                                           |
+// |                Edge cases                 |
+// |                                           |
+// =============================================
+
+#include "logger.h"
+
+Test(heint_edge, boundary_slot_values_round_trip)
+{
+	uint64_t nn             = 8;
+	PvdaBackend* module     = pvda_new_spqlios_backend(nn);
+	GLWEParams* params_glwe = new_glwe_params(nn, 1, 19, 6, 0.0001, NOISE_UNIFORM_POWER_OF_TWO);
+	uint64_t t              = 17;
+	uint64_t in[8]          = {0, 1, t - 1, t - 1, 0, 0, 8, 9};
+	uint64_t out[8];
+	PolyBiv* biv = new_biv(params_glwe);
+
+	ntt_table_generate(module, t);
+	cr_assert(eq(i32, heint_encode(module, params_glwe, biv, nn, t, in), 0));
+	cr_assert(eq(i32, heint_decode(module, params_glwe, out, nn, t, biv), 0));
+	for (int i = 0; i < 8; ++i) cr_assert(eq(u64, out[i], in[i]), "slot %d", i);
+
+	// All zeros encode to the zero polynomial
+	uint64_t zeros[8] = {0};
+	cr_assert(eq(i32, heint_encode(module, params_glwe, biv, nn, t, zeros), 0));
+	for (uint64_t i = 0; i < biv->nb_limbs * nn; ++i) cr_assert(eq(i64, biv->ptr[i], 0));
+
+	delete_biv(biv);
+	delete_glwe_params(params_glwe);
+	pvda_delete_backend(module);
+}
+
+Test(heint_edge, rejects_unsupported_slots_and_unknown_modulus)
+{
+	set_log_flag(0);
+	uint64_t nn             = 8;
+	PvdaBackend* module     = pvda_new_spqlios_backend(nn);
+	GLWEParams* params_glwe = new_glwe_params(nn, 1, 19, 6, 0.0001, NOISE_UNIFORM_POWER_OF_TWO);
+	uint64_t in[8]          = {1, 2, 3, 4, 5, 6, 7, 8};
+	uint64_t out[8];
+	PolyBiv* biv = new_biv(params_glwe);
+
+	// No NTT table generated for t = 17 yet
+	cr_assert(eq(i32, heint_encode(module, params_glwe, biv, nn, 17, in), -1));
+
+	ntt_table_generate(module, 17);
+	// Only n_slots = N is supported
+	cr_assert(eq(i32, heint_encode(module, params_glwe, biv, nn / 2, 17, in), -1));
+	cr_assert(eq(i32, heint_decode(module, params_glwe, out, nn / 2, 17, biv), -1));
+
+	delete_biv(biv);
+	delete_glwe_params(params_glwe);
+	pvda_delete_backend(module);
+}

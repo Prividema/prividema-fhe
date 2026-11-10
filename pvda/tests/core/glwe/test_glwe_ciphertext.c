@@ -137,8 +137,10 @@ PvdaParamTest(copy_glwe, src_gt_dst, default_params_fn)
 	INIT_PVDA_PARAMS_GLWE(param);
 
 	GLWECiphertext* glwe_src = new_glwe(params_glwe);
-	GLWEParams* dst_params   = new_glwe_params(param->nn, param->k, param->kappa, param->ciphertext_nb_limbs - 1, 0,
-	                                           NOISE_UNIFORM_POWER_OF_TWO);
+	// One limb less for every polynomial (keeps a supported layout: l_b in {l_a - 1, l_a})
+	GLWEParams* dst_params = new_glwe_params(param->nn, param->k, param->kappa,
+	                                         param->ciphertext_nb_limbs - (param->k + 1), 0, NOISE_UNIFORM_POWER_OF_TWO);
+	cr_assert_not_null(dst_params);
 	GLWECiphertext* glwe_dst = new_glwe(dst_params);
 
 	// Fills the source glwe glwe_src with random data
